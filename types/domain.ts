@@ -2,82 +2,197 @@ export type CubeEvent = "333";
 export type Penalty = "none" | "plus2" | "dnf";
 export type SolveSource = "normal" | "diagnostic" | "training" | "algorithm";
 export interface Solve {
-  id: string; sessionId: string; event: CubeEvent; scramble: string;
-  rawTimeMs: number; penalty: Penalty; finalTimeMs: number | null; createdAt: string;
-  source: SolveSource; exerciseId?: string; notes?: string; tags?: string[];
+  id: string;
+  sessionId: string;
+  event: CubeEvent;
+  scramble: string;
+  /** Measured duration. Never changed by penalty edits. */
+  rawTimeMs: number;
+  penalty: Penalty;
+  /** Derived: raw + penalty, null for DNF. */
+  finalTimeMs: number | null;
+  createdAt: string;
+  source: SolveSource;
+  exerciseId?: string;
+  notes?: string;
+  tags?: string[];
+  /** Inspection time used before starting, when inspection was enabled. */
+  inspectionMs?: number;
+  updatedAt?: string;
 }
+
 export interface Session {
-  id: string; name: string; event: CubeEvent; createdAt: string;
-  description?: string; archivedAt?: string;
+  id: string;
+  name: string;
+  event: CubeEvent;
+  createdAt: string;
+  /** Display order (schema v2). */
+  sortOrder: number;
+  description?: string;
+  archivedAt?: string;
 }
+
 export type ThemeMode = "dark" | "light" | "system";
+export type CubingMethod = "beginner" | "cfop" | "roux" | "zz" | "other" | "unknown";
+
 export interface UserSettings {
-  id: "preferences"; inspectionSeconds: 0 | 15; activeSessionId: string;
-  method: "beginner" | "cfop" | "roux" | "zz" | "other" | "unknown";
+  id: "preferences";
+  inspectionSeconds: 0 | 15;
+  activeSessionId: string;
+  method: CubingMethod;
   targetMilestone: string | null;
+  /** Schema v2: how long space/touch must be held before the timer arms. */
+  holdToStartMs: number;
+  /** Schema v2: show "Solving" instead of running digits. */
+  hideTimeWhileRunning: boolean;
+  /** Schema v2: short tones at 8 s and 12 s of inspection. */
+  inspectionAudioCues: boolean;
+  /** Schema v2: show a 2D preview of the scrambled cube. */
+  showScramblePreview: boolean;
 }
+
 export type SkillId =
-  | "cross_planning" | "cross_execution" | "cross_efficiency" | "cross_to_f2l"
-  | "first_pair_prediction" | "f2l_recognition" | "f2l_efficiency" | "f2l_lookahead"
-  | "f2l_rotations" | "oll_recognition" | "oll_execution" | "pll_recognition"
-  | "pll_execution" | "auf_recognition" | "inspection" | "turning" | "consistency";
+  | "cross_planning"
+  | "cross_execution"
+  | "cross_efficiency"
+  | "cross_to_f2l"
+  | "first_pair_prediction"
+  | "f2l_recognition"
+  | "f2l_efficiency"
+  | "f2l_lookahead"
+  | "f2l_rotations"
+  | "oll_recognition"
+  | "oll_execution"
+  | "pll_recognition"
+  | "pll_execution"
+  | "auf_recognition"
+  | "inspection"
+  | "turning"
+  | "consistency";
 export interface SkillScore {
-  skillId: SkillId; score: number; confidence: number; sampleCount: number; updatedAt: string;
+  skillId: SkillId;
+  score: number;
+  confidence: number;
+  sampleCount: number;
+  updatedAt: string;
 }
 export interface MilestoneDefinition {
-  id: string; label: string; thresholdMs: number | null; recommendedSkills: SkillId[];
+  id: string;
+  label: string;
+  thresholdMs: number | null;
+  recommendedSkills: SkillId[];
   prerequisiteSkills?: SkillId[];
 }
 export interface ExerciseDefinition {
-  id: string; name: string; type: "diagnostic" | "training" | "algorithm";
+  id: string;
+  name: string;
+  type: "diagnostic" | "training" | "algorithm";
   category: "cross" | "f2l" | "oll" | "pll" | "inspection" | "full_solve";
-  description: string; instructions: string[]; skillsMeasured: SkillId[];
-  skillsTrained: SkillId[]; recommendedSampleCount: number; applicableMilestones: string[];
+  description: string;
+  instructions: string[];
+  skillsMeasured: SkillId[];
+  skillsTrained: SkillId[];
+  recommendedSampleCount: number;
+  applicableMilestones: string[];
   measurementType: "time" | "accuracy" | "recognition" | "execution" | "moves" | "mixed";
 }
 // Serialized facelets use URFDLB order, nine stickers per face. Validated by a
 // future cube engine, not inferred from an algorithm name or decorative image.
-export interface CubeStateRepresentation { format: "facelets-urfdlb"; facelets: string }
+export interface CubeStateRepresentation {
+  format: "facelets-urfdlb";
+  facelets: string;
+}
 export interface AlgorithmVariant {
-  id: string; algorithm: string; name?: string; recommended?: boolean;
-  notes?: string; fingertrickNotes?: string; source?: string;
+  id: string;
+  algorithm: string;
+  name?: string;
+  recommended?: boolean;
+  notes?: string;
+  fingertrickNotes?: string;
+  source?: string;
 }
 export interface AlgorithmCase {
-  id: string; setId: string; subsetId?: string; name: string; aliases?: string[];
-  caseState: CubeStateRepresentation; primaryAlgorithm: string;
-  alternativeAlgorithms: AlgorithmVariant[]; setupAlgorithm?: string;
-  tags?: string[]; difficulty?: number; prerequisites?: string[]; notes?: string;
-  mirrorOf?: string; rotationEquivalentOf?: string;
+  id: string;
+  setId: string;
+  subsetId?: string;
+  name: string;
+  aliases?: string[];
+  caseState: CubeStateRepresentation;
+  primaryAlgorithm: string;
+  alternativeAlgorithms: AlgorithmVariant[];
+  setupAlgorithm?: string;
+  tags?: string[];
+  difficulty?: number;
+  prerequisites?: string[];
+  notes?: string;
+  mirrorOf?: string;
+  rotationEquivalentOf?: string;
 }
 export interface AlgorithmSetDefinition {
-  id: string; name: string; description: string;
+  id: string;
+  name: string;
+  description: string;
   difficulty: "beginner" | "intermediate" | "advanced" | "expert";
   category: "f2l" | "oll" | "pll" | "last_layer" | "advanced" | "fundamentals";
   phase: "V1.5" | "V1.75";
 }
-export interface AlgorithmSet extends AlgorithmSetDefinition { cases: AlgorithmCase[] }
+export interface AlgorithmSet extends AlgorithmSetDefinition {
+  cases: AlgorithmCase[];
+}
 export interface AlgorithmPerformance {
-  caseId: string; attempts: number; successfulAttempts: number;
-  recognitionAverageMs?: number; executionAverageMs?: number; totalAverageMs?: number;
-  bestRecognitionMs?: number; bestExecutionMs?: number; lastPracticedAt?: string;
-  masteryScore: number; confidence: number; dueAt?: string;
+  caseId: string;
+  attempts: number;
+  successfulAttempts: number;
+  recognitionAverageMs?: number;
+  executionAverageMs?: number;
+  totalAverageMs?: number;
+  bestRecognitionMs?: number;
+  bestExecutionMs?: number;
+  lastPracticedAt?: string;
+  masteryScore: number;
+  confidence: number;
+  dueAt?: string;
 }
 export interface AlgorithmProgress {
-  caseId: string; state: "not_started" | "learning" | "practicing" | "known" | "mastered";
-  favorite: boolean; ignored: boolean; preferredVariantId?: string;
-  customVariants: AlgorithmVariant[]; notes?: string; performance: AlgorithmPerformance;
+  caseId: string;
+  state: "not_started" | "learning" | "practicing" | "known" | "mastered";
+  favorite: boolean;
+  ignored: boolean;
+  preferredVariantId?: string;
+  customVariants: AlgorithmVariant[];
+  notes?: string;
+  performance: AlgorithmPerformance;
 }
 export interface AlgorithmAttempt {
-  id: string; caseId: string; variantId: string; createdAt: string;
+  id: string;
+  caseId: string;
+  variantId: string;
+  createdAt: string;
   mode: "recognition" | "execution" | "combined" | "recall";
-  successful: boolean; recognitionMs?: number; executionMs?: number; totalMs?: number;
+  successful: boolean;
+  recognitionMs?: number;
+  executionMs?: number;
+  totalMs?: number;
 }
-export interface TrainingPlanExercise { exerciseId: string; repetitions: number; completedRepetitions: number }
+export interface TrainingPlanExercise {
+  exerciseId: string;
+  repetitions: number;
+  completedRepetitions: number;
+}
 export interface TrainingPlan {
-  id: string; createdAt: string; targetMilestone: string; primarySkill: SkillId;
-  secondarySkills: SkillId[]; exercises: TrainingPlanExercise[]; completedAt?: string;
+  id: string;
+  createdAt: string;
+  targetMilestone: string;
+  primarySkill: SkillId;
+  secondarySkills: SkillId[];
+  exercises: TrainingPlanExercise[];
+  completedAt?: string;
 }
 export interface DiagnosticRun {
-  id: string; exerciseId: string; createdAt: string; completedAt?: string;
-  solveIds: string[]; sampleCount: number;
+  id: string;
+  exerciseId: string;
+  createdAt: string;
+  completedAt?: string;
+  solveIds: string[];
+  sampleCount: number;
 }

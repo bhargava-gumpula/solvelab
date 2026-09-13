@@ -1,37 +1,57 @@
 # Architecture and phase boundaries
 
-## Current implementation: V0
+## Stack
 
-The app uses Next.js App Router, React, strict TypeScript, Tailwind CSS, next-themes, Zod, Dexie, and the bundled shadcn primitives. Native Next.js with webpack is the verified runtime; the original optional Sites adapter is retained separately. The default build exports static files, making V0 deployable without a server, account service, or cloud database.
+Next.js App Router (static export, webpack), React 19, strict TypeScript, Tailwind CSS 4 with design tokens, shadcn/ui primitives, Dexie (IndexedDB) with `dexie-react-hooks`, Zod, Recharts (lazy loaded), cubing.js (pre-bundled with esbuild), Vitest and Playwright.
 
-Routes are thin composition layers. `components/` owns interaction and presentation; `types/domain.ts` defines stable contracts; `data/` contains small typed catalogs; `lib/storage/` handles persistence. Brand strings and navigation live in `lib/config/`. Cube math, timing, averages, diagnostics, and coaching engines are deferred to their agreed phases.
+## Layers
 
-### Implemented capabilities
+Routes in `app/` are thin. Interaction lives in `components/`, reactive data access in `hooks/`, and all domain logic in framework-free modules under `lib/`:
 
-- Seven routes, responsive sidebar/bottom navigation, active-route indicators, error and not-found surfaces.
-- Dark, light, system appearance; theme is a local preference managed by next-themes. Other preferences are in IndexedDB.
-- Labeled timer design preview, empty statistics, explanatory future workflows, searchable/filterable algorithm-set metadata.
-- Dexie database schema v1: sessions, solves, settings, skillProfiles, algorithmProgress, algorithmAttempts, trainingPlans, diagnosticRuns.
-- Browser-only, idempotent, transactional initialization with a Main session and default settings; no fake performance records.
-- A solve repository contract with Zod validation, session checks, raw/final time separation, save/edit/delete and ordered reads, ready for V1.
-- Central skill, milestone, exercise, learning-path, and algorithm-set metadata. Large case arrays are not part of the initial bundle.
+| Module         | Responsibility                                                                                                                            |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/timer`    | `engine.ts` pure state machine; `store.ts` observable wrapper; `display.ts` state → display model; `input.ts` keyboard guard; `format.ts` |
+| `lib/stats`    | Means, trimmed/rolling averages, bests, σ, CV, PB progression, activity, chart series                                                     |
+| `lib/scramble` | `ScrambleProvider` interface, cubing.js provider, labeled random-move fallback, `ScrambleService` (keeps next scramble ready)             |
+| `lib/cube`     | Notation parser and 54-sticker cube state engine (used for scramble previews; foundation for case diagrams)                               |
+| `lib/solves`   | Penalty rules (raw time is immutable; final time derived)                                                                                 |
+| `lib/storage`  | Dexie schema and migrations, Zod schemas, session/solve/settings repositories                                                             |
+| `lib/export`   | Versioned JSON backup and atomic restore                                                                                                  |
+| `lib/config`   | Brand, navigation, stats sizes, deployment base path                                                                                      |
+| `data/`        | Typed seed metadata: milestones, skills, exercises, algorithm sets, learning paths                                                        |
 
-### Boundaries
+### Timer data flow
 
-No timing engine, WCA scramble generation, inspection workflow, computed statistics UI, session manager UI, algorithms/case diagrams, drills, milestones awarded, diagnostic inference, local ML, or cloud AI runs in V0. No WebMCP tool is exposed until a meaningful operational product action exists; navigation and appearance alone do not need an agent API.
+Keyboard/pointer events → `useTimerControls` → `TimerStore.dispatch({ press | release, at: event.timeStamp })` → `transition()` → on running→stopped the workspace saves a solve through `SolveRepository` → Dexie live queries update the history and statistics. Only `TimerDisplay` re-renders per animation frame; it reads `performance.now()` and never accumulates time.
 
-Future service modules will be `lib/timer`, `lib/scramble`, `lib/stats`, `lib/averages`, `lib/algorithms`, `lib/diagnostics`, `lib/training`, and `lib/coach`. Keep numerical logic pure and testable. Timer data is numeric milliseconds and must use performance.now timestamps. The scramble provider must wrap a maintained random-state cube library. Diagnose from evidence with explicit sample counts and confidence.
+### Scrambles
 
-## Storage migration policy
+cubing.js generates scrambles in a module worker that locates its own files relative to the library. Webpack copies that worker without its dependencies, so `scripts/bundle-cubing.mjs` bundles the scrambler with esbuild (the bundler cubing.js supports) into `public/vendor/cubing`, and the browser provider loads it with a native `import()` that respects the base path. The Node test suite uses the npm package directly. If the worker cannot start, the service falls back to a random-move generator and the UI labels the scramble.
 
-`speedcubing-local` is the stable database namespace, intentionally independent of product branding. Never rename it when changing the product name. Schema v1 is retained in code as the migration baseline. Add new `.version(n).stores(...).upgrade(...)` migrations; do not rewrite old versions, clear stores, or delete databases to resolve an upgrade error. Add fixtures for existing data before each migration. Tests currently validate v1 creation and reopen preservation; no v2 migration exists yet.
+## Storage and migrations
 
-Core records have stable IDs and ISO timestamps. Solve rawTimeMs is immutable with respect to penalty changes; finalTimeMs is derived in the repository. Future import must validate an entire versioned document and commit atomically. No live sample data is inserted into a user's database. Settings initialization never replaces existing preferences.
+`speedcubing-local` is the database name, deliberately independent of branding.
 
-## Deployment to the owner's website
+| Version | Change                                                                                                                                              |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1       | Sessions, solves, settings, skill profiles, algorithm progress/attempts, training plans, diagnostic runs                                            |
+| 2       | `sessions.sortOrder` index; timer preferences (hold time, hide time, inspection sounds, scramble preview) with defaults filled for existing records |
 
-No deployment has occurred. `npm run build` produces an `out/` static export. The app currently assumes an origin root. Before shipping, confirm the actual domain, hosting provider, and whether the app will use a subdomain or a subpath. A subpath needs a verified build-time basePath and icon/path handling, not a reverse-proxy guess. Test the exported artifact on the final target path before release.
+Rules: never edit a shipped version; add `.version(n).stores(...).upgrade(...)`; add a test that opens data written by the previous version (see `tests/unit/storage.test.ts`). Settings are also normalized on read, so a missing field can never break the app. No sample data is ever written to a user's database.
 
-IndexedDB and localStorage are scoped to the browser origin. Preview data cannot silently transfer to a production domain. Implement and verify JSON export/import in V1 before asking users to move between origins. An offline reload is not promised until a service worker/cache policy is implemented in the PWA phase. Existing loaded pages use local storage, but installation/assets still require connectivity initially.
+Backups use the stable format id `speedcubing-local-backup`, version 1. Imports validate the whole document (types, duplicate ids, references), recompute final times, and write in one transaction.
 
-Optional accounts/sync and AI can be introduced behind adapters later. Do not put API keys in client bundles. Adding server capabilities will require re-evaluating static export; this is an explicit later architecture decision.
+## Deployment
+
+`npm run build` produces `out/`, a static site with no server requirements. `SOLVELAB_BASE_PATH` sets a sub-path at build time; links, assets, icons and the scramble worker all honor it (verified with `scripts/check-base-path.mjs`).
+
+The owner's website is a Next.js app on a Raspberry Pi behind a Cloudflare Tunnel. Two workable options, to be decided at the deployment milestone:
+
+1. **Sub-path** (`/solvelab`): build with the base path and serve `out/` from the website (Next.js `public/` does not serve `index.html` for directory URLs, so this needs rewrites or a small static handler).
+2. **Subdomain** (`solvelab.<domain>`): serve `out/` from any static server and add a tunnel ingress rule. Simplest isolation; separate browser storage from the main site.
+
+Build on a development machine and copy `out/`; it avoids running `next build` on the Pi, which is memory-constrained. IndexedDB is per origin, so preview data does not carry over — use backup/restore. Offline reloads need a service worker (PWA phase).
+
+## Phase boundaries
+
+Implemented through V1. Not yet implemented: algorithm case data, diagrams and drills (V1.5), diagnostics, skill scoring and training plans (V2), local ML (V2.5), AI providers (V3), sync (V3.5), smart cubes (V4).

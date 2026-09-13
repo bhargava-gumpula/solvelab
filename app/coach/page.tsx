@@ -1,21 +1,86 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight, ScanLine, Timer, Target, Repeat2 } from "lucide-react";
+import { ArrowUpRight, Repeat2, ScanLine, Target, Timer } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { FeatureCard } from "@/components/layout/feature-card";
 import { PageHeading } from "@/components/layout/page-heading";
 import { PhaseNotice } from "@/components/layout/phase-notice";
-import { Button } from "@/components/ui/button";
 import { milestones } from "@/data/milestones";
-export const metadata = { title: "Coach" };
+
+export const metadata: Metadata = { title: "Coach" };
+
 const steps = [
-  { icon: Timer, name: "Establish your baseline", detail: "A series of normal solves gives us a starting point." },
-  { icon: ScanLine, name: "Investigate the slowdown", detail: "Focused tests help separate recognition, execution, and transitions." },
-  { icon: Target, name: "Practice what matters", detail: "A targeted plan follows the evidence from your tests." },
+  { icon: Timer, name: "Establish your baseline", detail: "Normal solves give a starting point." },
+  {
+    icon: ScanLine,
+    name: "Investigate the slowdown",
+    detail: "Focused tests separate planning, recognition, execution and transitions.",
+  },
+  {
+    icon: Target,
+    name: "Practice what matters",
+    detail: "A targeted plan follows the evidence from your tests.",
+  },
   { icon: Repeat2, name: "Retest and adjust", detail: "Measure the change, then update the plan." },
 ];
+
 export default function CoachPage() {
-  return <><PageHeading eyebrow="Evidence before advice" title="Know what to practice next." description="A coach that starts with measurements, not assumptions."/>
-    <section className="coach-intro panel"><div className="feature-icon"><ScanLine size={28}/></div><div><span className="eyebrow">Your starting point</span><h2>Every improvement starts<br/>with understanding your solves.</h2><p>There isn’t enough evidence to identify a weakness yet. Once timing and diagnostics are available, your results will guide the next step.</p><Button asChild variant="outline"><Link href="/timer">Back to your timer <ArrowUpRight/></Link></Button></div></section>
-    <div className="section-title"><h2>A clear path from solving to improving</h2><span>How coaching will work</span></div>
-    <div className="workflow-grid">{steps.map(({ icon: Icon, name, detail }, i) => <article className="workflow-card" key={name}><div className="workflow-top"><Icon size={22}/><span>0{i + 1}</span></div><h3>{name}</h3><p>{detail}</p></article>)}</div>
-    <section className="milestone-panel panel"><div className="section-title"><h2>Your next milestone, at your pace</h2><span>No goal selected</span></div><div className="milestone-track">{milestones.map(item => <span key={item.id}>{item.label}</span>)}</div><p>Progress will be based on sustained performance, never a single lucky solve.</p></section>
-    <PhaseNotice phase="V2">Diagnostics, skill scores, and training plans will use your real results. No diagnosis has been generated.</PhaseNotice></>;
+  return (
+    <>
+      <PageHeading
+        eyebrow="Evidence before advice"
+        title="Know what to practice next."
+        description="A coach that runs experiments on your solving instead of guessing."
+      />
+      <section className="rounded-xl border bg-card p-6 md:p-8">
+        <p className="eyebrow">Your starting point</p>
+        <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight">
+          Every improvement starts with understanding your solves.
+        </h2>
+        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+          There isn’t enough evidence to identify a weakness yet. Keep solving with the timer — your
+          sessions become the baseline that diagnostics compare against.
+        </p>
+        <Button asChild variant="outline" className="mt-5">
+          <Link href="/timer">
+            Back to the timer <ArrowUpRight />
+          </Link>
+        </Button>
+      </section>
+
+      <h2 className="mt-8 mb-4 text-lg font-semibold tracking-tight">How coaching will work</h2>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {steps.map((step, index) => (
+          <FeatureCard
+            key={step.name}
+            icon={step.icon}
+            title={step.name}
+            description={step.detail}
+            badge={`0${index + 1}`}
+          />
+        ))}
+      </div>
+
+      <section className="mt-6 rounded-xl border bg-card p-5">
+        <h2 className="text-base font-semibold">Milestones</h2>
+        <ol className="mt-4 flex flex-wrap gap-2" aria-label="Milestones from beginner to sub-10">
+          {milestones.map((item) => (
+            <li
+              key={item.id}
+              className="rounded-md border px-2.5 py-1 text-xs text-muted-foreground"
+            >
+              {item.label}
+            </li>
+          ))}
+        </ol>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Progress will be based on sustained performance, never a single lucky solve.
+        </p>
+      </section>
+      <PhaseNotice phase="V2">
+        Diagnostics, skill scores and training plans will use your real results. No diagnosis has
+        been generated.
+      </PhaseNotice>
+    </>
+  );
 }

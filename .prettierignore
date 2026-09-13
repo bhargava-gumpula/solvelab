@@ -1,0 +1,11 @@
+.next
+out
+node_modules
+package-lock.json
+docs/PRODUCT_SPECIFICATION.md
+components/ui
+vendor
+test-results
+playwright-report
+work
+public/vendor

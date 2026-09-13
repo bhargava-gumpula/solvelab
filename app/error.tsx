@@ -1,3 +1,22 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
-export default function PageError({ reset }: { error: Error & { digest?: string }; reset: () => void }) { return <section className="panel settings-section" role="alert"><h1>This page couldn’t load.</h1><p className="page-description">Your local records have not been reset. Try loading the page again.</p><Button variant="outline" onClick={reset}>Try again</Button></section>; }
+
+export default function PageError({
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <section role="alert" className="rounded-xl border bg-card p-6">
+      <h1 className="text-xl font-semibold">This page couldn’t load.</h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Your local records have not been reset. Try loading the page again.
+      </p>
+      <Button variant="outline" className="mt-4" onClick={reset}>
+        Try again
+      </Button>
+    </section>
+  );
+}

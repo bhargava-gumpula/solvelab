@@ -1,5 +1,10 @@
 import type { MilestoneDefinition, SkillId } from "@/types/domain";
-const milestone = (id: string, label: string, thresholdMs: number | null, recommendedSkills: SkillId[]): MilestoneDefinition => ({ id, label, thresholdMs, recommendedSkills });
+const milestone = (
+  id: string,
+  label: string,
+  thresholdMs: number | null,
+  recommendedSkills: SkillId[],
+): MilestoneDefinition => ({ id, label, thresholdMs, recommendedSkills });
 export const milestones: MilestoneDefinition[] = [
   milestone("beginner", "Beginner", null, ["turning"]),
   milestone("sub120", "Sub 2:00", 120000, ["turning", "consistency"]),
@@ -14,4 +19,8 @@ export const milestones: MilestoneDefinition[] = [
 ];
 // Proposed policy only. The V2 MilestoneEngine must evaluate this against real
 // evidence before qualification; the V0 interface does not unlock milestones.
-export const milestoneQualification = { averageWindow: 100, requiredQualifyingSessions: 3, minimumSolvesPerSession: 100 } as const;
+export const milestoneQualification = {
+  averageWindow: 100,
+  requiredQualifyingSessions: 3,
+  minimumSolvesPerSession: 100,
+} as const;

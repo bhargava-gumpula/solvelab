@@ -1,13 +1,84 @@
 "use client";
+
 import { useState } from "react";
 import { Layers3, Search } from "lucide-react";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
+import { FeatureCard } from "@/components/layout/feature-card";
 import { algorithmSets } from "@/data/algorithms/sets";
+import type { AlgorithmSetDefinition } from "@/types/domain";
+
+const LEVELS = [
+  { value: "all", label: "All sets" },
+  { value: "beginner", label: "Beginner" },
+  { value: "intermediate", label: "CFOP" },
+  { value: "advanced", label: "Advanced" },
+] as const;
+
+function matchesLevel(set: AlgorithmSetDefinition, level: string) {
+  if (level === "all") return true;
+  if (level === "advanced") return set.difficulty === "advanced" || set.difficulty === "expert";
+  return set.difficulty === level;
+}
+
 export function AlgorithmCatalog() {
   const [query, setQuery] = useState("");
   const [level, setLevel] = useState("all");
-  const sets = algorithmSets.filter(set => (level === "all" || (level === "advanced" ? ["advanced", "expert"].includes(set.difficulty) : set.difficulty === level)) && `${set.name} ${set.description} ${set.category}`.toLowerCase().includes(query.toLowerCase().trim()));
-  return <><div className="catalog-toolbar"><Tabs value={level} onValueChange={setLevel}><TabsList aria-label="Algorithm level"><TabsTrigger value="all">All sets</TabsTrigger><TabsTrigger value="beginner">Beginner</TabsTrigger><TabsTrigger value="intermediate">CFOP</TabsTrigger><TabsTrigger value="advanced">Advanced</TabsTrigger></TabsList></Tabs><div className="search-field"><Search size={16}/><Input aria-label="Search algorithm sets" placeholder="Search sets…" value={query} onChange={event => setQuery(event.target.value)}/></div></div><p className="result-count" role="status">{sets.length} planned {sets.length === 1 ? "set" : "sets"}</p><div className="catalog-grid">{sets.map(set => <article className="catalog-card" key={set.id}><div className="catalog-top"><Layers3 size={24}/><span className="small-badge">{set.difficulty}</span></div><h2>{set.name}</h2><p>{set.description}</p><div className="card-foot"><span>Cases and drills coming in {set.phase}</span></div></article>)}</div>{sets.length === 0 && <Empty className="panel"><EmptyHeader><EmptyTitle>No matching sets</EmptyTitle><EmptyDescription>Try a broader name or choose a different level.</EmptyDescription></EmptyHeader></Empty>}</>;
+  const normalized = query.toLowerCase().trim();
+  const sets = algorithmSets.filter(
+    (set) =>
+      matchesLevel(set, level) &&
+      `${set.name} ${set.description} ${set.category}`.toLowerCase().includes(normalized),
+  );
+
+  return (
+    <>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <Tabs value={level} onValueChange={setLevel}>
+          <TabsList aria-label="Algorithm level">
+            {LEVELS.map((item) => (
+              <TabsTrigger key={item.value} value={item.value}>
+                {item.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
+        <div className="relative w-full sm:max-w-64">
+          <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            aria-label="Search algorithm sets"
+            placeholder="Search sets…"
+            className="pl-9"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+          />
+        </div>
+      </div>
+      <p className="mb-3 text-xs text-muted-foreground" role="status">
+        {sets.length} planned {sets.length === 1 ? "set" : "sets"}
+      </p>
+      {sets.length === 0 ? (
+        <Empty className="rounded-xl border">
+          <EmptyHeader>
+            <EmptyTitle>No matching sets</EmptyTitle>
+            <EmptyDescription>Try a broader name or choose a different level.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {sets.map((set) => (
+            <FeatureCard
+              key={set.id}
+              icon={Layers3}
+              title={set.name}
+              description={set.description}
+              badge={set.difficulty}
+              footer={`Cases and drills coming in ${set.phase}`}
+            />
+          ))}
+        </div>
+      )}
+    </>
+  );
 }

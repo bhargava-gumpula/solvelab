@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { ChartNoAxesCombined, ArrowUpRight } from "lucide-react";
-import { PageHeading } from "@/components/layout/page-heading";
-import { PhaseNotice } from "@/components/layout/phase-notice";
-import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription, EmptyContent } from "@/components/ui/empty";
-import { Button } from "@/components/ui/button";
-export const metadata = { title: "Stats" };
-export default function StatsPage() { return <><PageHeading eyebrow="See the bigger picture" title="Progress, one solve at a time." description="Your averages, personal bests, and consistency in one place."/><div className="stats-preview-grid">{["Total solves", "Best single", "Current Ao12", "Current Ao100"].map((label, i) => <section className="stat-preview panel" key={label}><h2>{label}</h2><strong>{i === 0 ? "0" : "—"}</strong><p>{i === 0 ? "A fresh start" : "No measurements yet"}</p></section>)}</div><section className="panel stats-empty"><Empty><EmptyHeader><EmptyMedia variant="icon"><ChartNoAxesCombined/></EmptyMedia><EmptyTitle>Your progress has a place here.</EmptyTitle><EmptyDescription>After the working timer arrives, each solve will help reveal your averages, consistency, and personal bests.</EmptyDescription></EmptyHeader><EmptyContent><Button asChild variant="outline"><Link href="/timer">Go to timer <ArrowUpRight/></Link></Button></EmptyContent></Empty></section><PhaseNotice phase="V1">Statistics will be computed from saved solves. Charts will include accessible numerical views. No performance data is simulated here.</PhaseNotice></>; }
+import type { Metadata } from "next";
+import { StatsDashboard } from "@/components/stats/stats-dashboard";
+
+export const metadata: Metadata = { title: "Stats" };
+
+export default function StatsPage() {
+  return <StatsDashboard />;
+}
