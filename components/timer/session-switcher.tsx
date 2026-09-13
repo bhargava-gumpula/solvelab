@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronsUpDown, FolderCog, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,10 +17,29 @@ import { getRepositories } from "@/lib/storage";
 import type { Session } from "@/types/domain";
 import { SessionManagerDialog } from "./session-manager-dialog";
 
+export const SESSION_MENU_EVENT = "solvelab:session-menu";
+export const NEW_SESSION_EVENT = "solvelab:new-session";
+
 export function SessionSwitcher({ active }: { active: Session | undefined }) {
   const sessions = useSessions();
   const [managerOpen, setManagerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [createOnOpen, setCreateOnOpen] = useState(false);
+
+  // Keyboard shortcuts and the command palette open the menu or manager via events.
+  useEffect(() => {
+    const openMenu = () => setMenuOpen(true);
+    const newSession = () => {
+      setCreateOnOpen(true);
+      setManagerOpen(true);
+    };
+    window.addEventListener(SESSION_MENU_EVENT, openMenu);
+    window.addEventListener(NEW_SESSION_EVENT, newSession);
+    return () => {
+      window.removeEventListener(SESSION_MENU_EVENT, openMenu);
+      window.removeEventListener(NEW_SESSION_EVENT, newSession);
+    };
+  }, []);
 
   const switchTo = async (id: string) => {
     try {
@@ -37,11 +56,11 @@ export function SessionSwitcher({ active }: { active: Session | undefined }) {
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
         <DropdownMenuTrigger asChild>
           <Button
-            variant="outline"
-            className="max-w-64 justify-between gap-2"
+            variant="ghost"
+            className="h-9 max-w-64 justify-between gap-2 rounded-full px-3.5 glass"
             aria-label="Current session"
           >
             <span className="size-1.5 shrink-0 rounded-full bg-primary" aria-hidden />

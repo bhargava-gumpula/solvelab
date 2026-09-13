@@ -35,6 +35,34 @@ test.describe("daily timer", () => {
     expect(failedRequests).toEqual([]);
   });
 
+  test("ignores mouse clicks: they never start or stop the timer", async ({ page }) => {
+    await openTimer(page);
+    const surface = page.getByTestId("timer-surface");
+    const box = await surface.boundingBox();
+    if (!box) throw new Error("timer surface not visible");
+    const center = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
+
+    await page.mouse.move(center.x, center.y);
+    await page.mouse.down();
+    await page.waitForTimeout(600);
+    await expect(display(page)).toHaveAttribute("data-tone", "idle");
+    await page.mouse.up();
+    await page.waitForTimeout(300);
+    await expect(display(page)).toHaveAttribute("data-tone", "idle");
+    await expect(page.getByTestId("solve-count")).toHaveText("0/0");
+
+    await page.keyboard.down("Space");
+    await page.waitForTimeout(400);
+    await page.keyboard.up("Space");
+    await expect(display(page)).toHaveAttribute("data-tone", "running");
+    await page.mouse.click(center.x, center.y);
+    await page.waitForTimeout(200);
+    await expect(display(page)).toHaveAttribute("data-tone", "running");
+    await page.keyboard.press("Space");
+    await expect(display(page)).toHaveAttribute("data-tone", "result");
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+  });
+
   test("does not start when space is released before the hold arms", async ({ page }) => {
     await openTimer(page);
     await page.keyboard.down("Space");
@@ -192,6 +220,92 @@ test.describe("daily timer", () => {
     await expect(display(page)).toHaveAttribute("data-tone", "result");
     await expect(page.getByTestId("solve-count")).toHaveText("1/1");
     await context.close();
+  });
+});
+
+test.describe("interactive timer controls", () => {
+  test("steps through scramble history with N and P", async ({ page }) => {
+    await openTimer(page);
+    const scramble = page.getByTestId("scramble");
+    const first = (await scramble.textContent())?.trim();
+    await page.keyboard.press("n");
+    await expect(scramble).not.toHaveText(first ?? "");
+    const second = (await scramble.textContent())?.trim();
+    await page.keyboard.press("p");
+    await expect(scramble).toHaveText(first ?? "");
+    await page.keyboard.press("n");
+    await expect(scramble).toHaveText(second ?? "");
+  });
+
+  test("uses a custom scramble and rejects invalid notation", async ({ page }) => {
+    await openTimer(page);
+    await page.keyboard.press("x");
+    const dialog = page.getByRole("dialog", { name: "Enter a scramble" });
+    await dialog.getByLabel("Scramble").fill("R U Q");
+    await expect(dialog.getByText("“Q” is not a valid move.")).toBeVisible();
+    await expect(dialog.getByRole("button", { name: "Use scramble" })).toBeDisabled();
+    await dialog.getByLabel("Scramble").fill("R U R′ U′");
+    await dialog.getByRole("button", { name: "Use scramble" }).click();
+    await expect(page.getByTestId("scramble")).toHaveText("R U R' U'");
+    await expect(page.getByText("Custom scramble")).toBeVisible();
+  });
+
+  test("number keys apply penalties and shortcuts ignore text fields", async ({ page }) => {
+    await openTimer(page);
+    await keyboardSolve(page, 300);
+    await page.keyboard.press("2");
+    await expect(display(page)).toHaveText(/\+$/);
+    await page.keyboard.press("1");
+    await expect(display(page)).not.toHaveText(/\+$/);
+
+    const before = await page.getByTestId("scramble").textContent();
+    await page.getByRole("button", { name: /^Solve 1:/ }).click();
+    await page.getByLabel("Notes").click();
+    await page.keyboard.type("n2");
+    await expect(page.getByLabel("Notes")).toHaveValue("n2");
+    await page.keyboard.press("Escape");
+    await expect(page.getByTestId("scramble")).toHaveText(before ?? "");
+    await expect(display(page)).not.toHaveText(/\+$/);
+  });
+
+  test("clears a session with undo", async ({ page }) => {
+    await openTimer(page);
+    await keyboardSolve(page, 250);
+    await keyboardSolve(page, 250);
+    await page.getByRole("button", { name: "Clear" }).click();
+    await page.getByRole("button", { name: "Clear solves" }).click();
+    await expect(page.getByTestId("solve-count")).toHaveText("0/0");
+    await page.getByRole("button", { name: "Undo" }).click();
+    await expect(page.getByTestId("solve-count")).toHaveText("2/2");
+  });
+
+  test("sorts times and remembers dragged panel positions", async ({ page }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await openTimer(page);
+    for (const ms of [600, 200, 400]) await keyboardSolve(page, ms);
+    const rows = page.getByRole("table", { name: "Solves in this session" }).locator("tbody tr");
+    await expect(rows.first()).toContainText("3");
+    await page.getByRole("button", { name: /Sort by Time/ }).click();
+    await expect(rows.first().locator("td").first()).toHaveText("2");
+
+    const handle = page.getByRole("button", { name: "Move the session stats" });
+    const panel = page.locator("section", { has: handle });
+    const start = await panel.boundingBox();
+    const grip = await handle.boundingBox();
+    if (!start || !grip) throw new Error("panel not visible");
+    await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(grip.x - 200, grip.y + 60, { steps: 12 });
+    await page.mouse.up();
+    const moved = await panel.boundingBox();
+    expect(moved!.x).toBeLessThan(start.x - 150);
+    await expect
+      .poll(() => page.evaluate(() => localStorage.getItem("solvelab.panels.v1") ?? ""))
+      .toContain('"stats"');
+
+    await page.reload();
+    await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });
+    await expect.poll(async () => (await panel.boundingBox())!.x).toBeLessThan(start.x - 150);
   });
 });
 

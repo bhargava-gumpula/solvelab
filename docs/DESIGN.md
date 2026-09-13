@@ -1,36 +1,59 @@
-# Design foundation
+# Design system
 
-The timer is the home screen: no marketing page and no coaching gate. Graphite surfaces, bright neutral digits, a restrained orange accent and thin borders keep attention on solving; the cube's sticker colors are the only saturated color in the timer. Dark mode is the default and first-class; light and system modes are supported.
+The timer is the home screen: no marketing page and no coaching gate. Since the UI overhaul (inspired by [TAGDA Timer](https://tagdatimer.vercel.app) and [csTimer](https://cstimer.net) at the owner's request), the look is immersive rather than neutral: an animated shader background, frosted-glass panels, large expressive digits and motion that responds to input. A still, minimal preset (Carbon) remains for anyone who prefers the earlier calm look.
 
-## Tokens and typography
+## Themes
 
-All colors are CSS variables in `app/globals.css` (surfaces, text, accent, danger/success/warning, timer states, chart slots, cube stickers) exposed as Tailwind colors. Components never hard-code colors. Branding lives in `lib/config/brand.ts`.
+Six presets, chosen in the Appearance sheet (press `T`) or Settings, plus "Match system" (Nebula when the device is dark, Paper when light). Appearance is a per-device preference stored in localStorage; a tiny boot script in `<head>` applies it before first paint so there is no flash.
 
-Geist Sans for interface text and Geist Mono for timer digits, scrambles and numeric columns, self-hosted by `next/font`. Changing numbers use tabular figures to avoid layout shift; large standalone stat values use proportional figures.
+| Preset  | Mood                 | Background                  |
+| ------- | -------------------- | --------------------------- |
+| Nebula  | Violet + teal aurora | Animated mesh gradient      |
+| Ember   | Warm orange glow     | Animated mesh gradient      |
+| Glacier | Cold blue depths     | Animated mesh gradient      |
+| Matcha  | Terminal green       | Animated mesh gradient      |
+| Carbon  | Still and minimal    | Solid, no animation         |
+| Paper   | Light and warm       | Soft animated mesh gradient |
 
-## Timer states
+Surface and text tokens live in `app/globals.css` under `[data-theme="…"]`; background recipes and swatches in `lib/appearance/themes.ts`. Components use tokens only.
 
-| State               | Treatment                                                 |
-| ------------------- | --------------------------------------------------------- |
-| Idle / result       | Neutral digits showing the latest solve                   |
-| Holding (not armed) | Red digits                                                |
-| Armed               | Green digits — release to start                           |
-| Inspection          | Amber countdown; "+2"/"DNF" past the limit; 8 s/12 s cues |
-| Running             | The timer covers the viewport; everything else is hidden  |
+The background is a WebGL mesh gradient from `@paper-design/shaders` (the shader behind 21st.dev's shader-background components). It pauses during solves by default, stops for reduced motion, renders at capped resolution, and falls back to a single still frame when the browser only has a software (CPU) WebGL renderer, so it never competes with the timer.
 
-Transitions are short opacity fades and respect `prefers-reduced-motion`.
+## Timer
+
+- **Digits:** three styles — Clean (Geist Mono), LCD (DSEG7, with faint "ghost" segments like a real display) and Dot (Doto) — plus a size slider.
+- **States:** holding shows a red hold meter that fills to green when armed; inspection shows an amber draining bar with 8 s/12 s marks; running hides everything but the digits; stopping gives a small spring "pop".
+- **Live averages:** Ao5 and Ao12 under the digits (csTimer-style), rolling with NumberFlow.
+- **Panels:** Times (sortable by time/Ao5/Ao12), Session stats (current/best, mean, σ, sparkline with hover readout) and Scramble preview (interactive 3D cube you can drag, or a flat net). On large screens every panel can be dragged by its handle and remembers its position.
+- **Scramble bar:** previous/next (`P`/`N`), copy (`C`), enter your own (`X`).
+- **Personal bests:** a border-beam badge on the last solve, a toast, and an optional confetti burst.
+- **Input:** Space on keyboards, touch-and-hold on touch screens. Mouse clicks never start or stop the timer.
+
+## Navigation and commands
+
+A floating pill navigation with a sliding "tubelight" indicator (bottom tab bar on phones). ⌘K / Ctrl+K opens a command palette with every action (timer, scramble, session, navigation, themes); `?` lists shortcuts. Single-key shortcuts never fire while typing, while a dialog is open, or during a solve.
+
+## 21st.dev components
+
+21st.dev hides component code behind sign-in and limits free accounts to two downloads a day, so components were chosen on 21st.dev and taken from their authors' public open-source registries where possible:
+
+| Used for                  | Component on 21st.dev                                                           | Source                        |
+| ------------------------- | ------------------------------------------------------------------------------- | ----------------------------- |
+| Card borders that glow    | [Glowing Effect](https://21st.dev/@aceternity/components/glowing-effect)        | Aceternity UI registry        |
+| PB badge and toast        | [Border Beam](https://21st.dev/@dillionverma/components/border-beam)            | Magic UI registry             |
+| Stat tile hover highlight | [Magic Card](https://21st.dev/@dillionverma/components/magic-card)              | Magic UI (adapted)            |
+| PB confetti               | [Confetti](https://21st.dev/@dillionverma/components/confetti)                  | canvas-confetti (Magic UI)    |
+| Rolling numbers           | Number Flow                                                                     | `@number-flow/react`          |
+| Animated background       | Shader background collection                                                    | `@paper-design/shaders-react` |
+| Navigation indicator      | [Tubelight Navbar](https://21st.dev/@ayushmxxn/components/tubelight-navbar)     | Rebuilt with motion layout    |
+| Stat tiles (earlier)      | [Stat card collection](https://21st.dev/community/components/explore/stat-card) | Pattern                       |
+
+All adaptations swap hard-coded colors for theme tokens. shadcn/ui remains the base component system; icons are Lucide.
 
 ## Charts
 
-Charts follow the data-viz method: one y-axis, 2 px lines, thin rounded bars, hairline grids, legends for multi-series charts, a crosshair tooltip, and a table view for every chart. Each entity keeps one color everywhere (Ao5, Ao12, Ao100 use validated categorical slots; singles are neutral). The palette passed the CVD and normal-vision separation checks in both modes; the one light-mode slot below 3:1 contrast is backed by the legend and table view.
-
-## 21st.dev source review
-
-- Shell: [Sidebar by shadcn](https://21st.dev/@shadcn/components/sidebar) (MIT), adapted onto the installed shadcn Sidebar primitives with an icon-collapsible desktop rail and a bottom navigation bar on mobile.
-- Stat tiles: patterned on the [21st.dev stat card collection](https://21st.dev/community/components/explore/stat-card) (label, value, context line), built with project tokens.
-
-The 21st.dev registry requires an authenticated API key and no 21st MCP is connected, so components were adapted by hand rather than installed. Connecting the 21st.dev Magic MCP would allow direct installs in later phases. No second component library is installed; icons are Lucide.
+Charts follow the data-viz method: one y-axis, 2 px lines, thin rounded bars, hairline grids, legends for multi-series charts, a crosshair tooltip, and a table view for every chart. Each entity keeps one color everywhere (Ao5, Ao12, Ao100 use validated categorical slots; singles are neutral).
 
 ## Accessibility
 
-Skip link, semantic landmarks, visible focus rings, labeled controls, `aria-current` navigation, live-region timer announcements, dialogs with focus management (Radix), tables for chart data, and a keyboard guard that never takes Space from inputs, dialogs or keyboard-focused buttons.
+Skip link, semantic landmarks, visible focus rings, labeled controls, `aria-current` navigation, live-region timer announcements, Radix dialogs with focus management, tables for chart data, plain-text copies of animated numbers for screen readers, and reduced-motion support (no shader animation, confetti or spins). The keyboard guard never takes Space from inputs, dialogs or keyboard-focused buttons.

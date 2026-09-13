@@ -11,7 +11,7 @@ export function SettingsSection({ id, title, description, children }: SettingsSe
     <section
       id={id}
       aria-labelledby={headingId}
-      className="scroll-mt-20 rounded-xl border bg-card p-5 md:p-6"
+      className="scroll-mt-20 rounded-2xl p-5 glass md:p-6"
     >
       <h2 id={headingId} className="text-base font-semibold">
         {title}

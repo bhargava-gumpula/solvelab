@@ -9,7 +9,7 @@ export default function PageError({
   reset: () => void;
 }) {
   return (
-    <section role="alert" className="rounded-xl border bg-card p-6">
+    <section role="alert" className="rounded-2xl p-6 glass">
       <h1 className="text-xl font-semibold">This page couldn’t load.</h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Your local records have not been reset. Try loading the page again.

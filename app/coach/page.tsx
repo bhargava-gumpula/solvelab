@@ -32,7 +32,7 @@ export default function CoachPage() {
         title="Know what to practice next."
         description="A coach that runs experiments on your solving instead of guessing."
       />
-      <section className="rounded-xl border bg-card p-6 md:p-8">
+      <section className="relative overflow-hidden rounded-3xl p-6 glass md:p-10">
         <p className="eyebrow">Your starting point</p>
         <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight">
           Every improvement starts with understanding your solves.
@@ -61,7 +61,7 @@ export default function CoachPage() {
         ))}
       </div>
 
-      <section className="mt-6 rounded-xl border bg-card p-5">
+      <section className="mt-6 rounded-2xl p-5 glass">
         <h2 className="text-base font-semibold">Milestones</h2>
         <ol className="mt-4 flex flex-wrap gap-2" aria-label="Milestones from beginner to sub-10">
           {milestones.map((item) => (

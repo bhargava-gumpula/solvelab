@@ -1,43 +1,82 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { usePathname, useRouter } from "next/navigation";
+import { Command as CommandIcon, Keyboard, Palette, Settings2 } from "lucide-react";
+import { AppBackground } from "@/components/appearance/app-background";
+import { AppearanceSheet } from "@/components/appearance/appearance-sheet";
+import { useAppearance } from "@/components/appearance/appearance-provider";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useRegisterCommands } from "@/hooks/use-commands";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { brand } from "@/lib/config/brand";
-import {
-  isActivePath,
-  navigation,
-  settingsNavigation,
-  type NavigationItem,
-} from "@/lib/config/navigation";
+import { isActivePath, navigation, settingsNavigation } from "@/lib/config/navigation";
+import type { Command } from "@/lib/commands/registry";
+import { THEMES } from "@/lib/appearance/themes";
 import { cn } from "@/lib/utils";
 import { BrandMark } from "./brand-mark";
+import { CommandPalette } from "./command-palette";
+import { NavPill } from "./nav-pill";
+import { ShortcutsDialog } from "./shortcuts-dialog";
 import { StorageAlert } from "./storage-alert";
-import { ThemeToggle } from "./theme-toggle";
 
-/*
- * Shell composition adapted from the 21st.dev shadcn Sidebar (MIT), built on
- * the project's installed shadcn sidebar primitives. See docs/DESIGN.md.
- */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const current =
-    [...navigation, settingsNavigation].find((item) => isActivePath(pathname, item.href))?.label ??
-    "";
+  const router = useRouter();
+  const { update } = useAppearance();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [appearanceOpen, setAppearanceOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const fullBleed = isActivePath(pathname, "/timer");
+
+  useHotkeys([
+    { key: "k", mod: true, allowInInputs: true, run: () => setPaletteOpen((open) => !open) },
+    { key: "t", run: () => setAppearanceOpen(true) },
+    { key: "?", run: () => setShortcutsOpen(true) },
+  ]);
+
+  const commands = useMemo<Command[]>(
+    () => [
+      ...[...navigation, settingsNavigation].map((item) => ({
+        id: `go-${item.href}`,
+        label: `Go to ${item.label}`,
+        group: "Navigate" as const,
+        icon: item.icon,
+        run: () => router.push(item.href),
+      })),
+      {
+        id: "appearance",
+        label: "Open appearance",
+        group: "Appearance",
+        shortcut: "T",
+        icon: Palette,
+        run: () => setAppearanceOpen(true),
+      },
+      {
+        id: "shortcuts",
+        label: "Show keyboard shortcuts",
+        group: "Navigate",
+        shortcut: "?",
+        icon: Keyboard,
+        run: () => setShortcutsOpen(true),
+      },
+      ...THEMES.map((theme) => ({
+        id: `theme-${theme.id}`,
+        label: `Theme: ${theme.label}`,
+        group: "Appearance" as const,
+        keywords: ["theme", "color", theme.description],
+        run: () => update({ theme: theme.id }),
+      })),
+    ],
+    [router, update],
+  );
+  useRegisterCommands("shell", commands);
 
   return (
-    <SidebarProvider style={{ "--sidebar-width": "14rem" } as React.CSSProperties}>
+    <>
+      <AppBackground />
       <a
         href="#main-content"
         className="fixed top-3 left-3 z-[100] -translate-y-20 rounded-md bg-foreground px-4 py-2 text-sm text-background focus:translate-y-0"
@@ -45,117 +84,128 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Skip to content
       </a>
 
-      <Sidebar collapsible="icon" data-focus-hide className="border-sidebar-border">
-        <SidebarHeader className="px-3 pt-5 pb-6 group-data-[collapsible=icon]:px-2">
-          <Link
-            href="/timer"
-            className="flex items-center gap-2.5 rounded-md px-2 text-lg font-semibold tracking-tight text-foreground group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+      <header
+        data-focus-hide
+        className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 px-3 sm:px-5"
+      >
+        <Link
+          href="/timer"
+          className="flex items-center gap-2 rounded-full px-2 py-1 text-base font-semibold tracking-tight"
+        >
+          <BrandMark className="size-6 text-primary drop-shadow-[0_0_12px_var(--glow)]" />
+          <span>
+            {brand.name.slice(0, 5)}
+            <span className="text-primary">{brand.name.slice(5)}</span>
+          </span>
+        </Link>
+
+        <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
+          <NavPill
+            items={navigation}
+            pathname={pathname}
+            layoutId="nav-top"
+            variant="top"
+            label="Main navigation"
+          />
+        </div>
+
+        <div className="flex items-center gap-0.5 rounded-full p-1 glass">
+          <HeaderButton label="Command palette" shortcut="⌘K" onClick={() => setPaletteOpen(true)}>
+            <CommandIcon />
+          </HeaderButton>
+          <HeaderButton label="Appearance" shortcut="T" onClick={() => setAppearanceOpen(true)}>
+            <Palette />
+          </HeaderButton>
+          <HeaderButton
+            label="Keyboard shortcuts"
+            shortcut="?"
+            onClick={() => setShortcutsOpen(true)}
+            className="hidden sm:inline-flex"
           >
-            <BrandMark className="size-6 shrink-0 text-primary" />
-            <span className="group-data-[collapsible=icon]:hidden">{brand.name}</span>
-          </Link>
-        </SidebarHeader>
+            <Keyboard />
+          </HeaderButton>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button asChild variant="ghost" size="icon-sm" className="rounded-full">
+                <Link
+                  href={settingsNavigation.href}
+                  aria-label="Settings"
+                  aria-current={
+                    isActivePath(pathname, settingsNavigation.href) ? "page" : undefined
+                  }
+                >
+                  <Settings2 />
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Settings</TooltipContent>
+          </Tooltip>
+        </div>
+      </header>
 
-        <SidebarContent className="px-2">
-          <nav aria-label="Main navigation">
-            <SidebarMenu>
-              {navigation.map((item) => (
-                <NavItem key={item.href} item={item} active={isActivePath(pathname, item.href)} />
-              ))}
-            </SidebarMenu>
-          </nav>
-        </SidebarContent>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className={cn(
+          "relative w-full outline-none",
+          fullBleed
+            ? "px-3 pb-24 sm:px-5 md:pb-5"
+            : "mx-auto max-w-[1280px] px-4 pt-4 pb-28 md:px-6 md:pb-12",
+        )}
+      >
+        <StorageAlert />
+        {children}
+      </main>
 
-        <SidebarFooter className="gap-3 px-2 pb-4">
-          <SidebarMenu>
-            <NavItem
-              item={settingsNavigation}
-              active={isActivePath(pathname, settingsNavigation.href)}
-            />
-          </SidebarMenu>
-          <p className="flex items-center gap-2 border-t border-sidebar-border px-2 pt-3 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-            <ShieldCheck className="size-3.5 shrink-0" aria-hidden />
-            Stored on this device
-          </p>
-        </SidebarFooter>
-      </Sidebar>
-
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header
-          data-focus-hide
-          className="flex h-14 items-center justify-between gap-3 border-b px-4 md:px-6"
-        >
-          <div className="flex items-center gap-3 text-sm">
-            <SidebarTrigger className="hidden md:inline-flex" aria-label="Toggle navigation" />
-            <Link href="/timer" className="flex items-center gap-2 font-semibold md:hidden">
-              <BrandMark className="size-5 text-primary" />
-              {brand.name}
-            </Link>
-            <span className="hidden text-muted-foreground md:inline">{current}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="mr-2 hidden rounded-md border px-2 py-0.5 text-xs text-muted-foreground sm:inline">
-              {brand.version} · {brand.versionLabel}
-            </span>
-            <ThemeToggle />
-            <Link
-              href={settingsNavigation.href}
-              aria-label="Settings"
-              aria-current={isActivePath(pathname, settingsNavigation.href) ? "page" : undefined}
-              className="inline-flex size-9 items-center justify-center rounded-md hover:bg-accent md:hidden"
-            >
-              <settingsNavigation.icon className="size-4" />
-            </Link>
-          </div>
-        </header>
-
-        <main
-          id="main-content"
-          tabIndex={-1}
-          className="mx-auto w-full max-w-[1400px] flex-1 px-4 pt-5 pb-28 outline-none md:px-6 md:pt-6 md:pb-10"
-        >
-          <StorageAlert />
-          {children}
-        </main>
+      <div
+        data-focus-hide
+        className="fixed inset-x-3 bottom-[calc(0.5rem+env(safe-area-inset-bottom))] z-40 md:hidden"
+      >
+        <NavPill
+          items={navigation}
+          pathname={pathname}
+          layoutId="nav-bottom"
+          variant="bottom"
+          label="Mobile navigation"
+        />
       </div>
 
-      <nav
-        aria-label="Mobile navigation"
-        data-focus-hide
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t bg-sidebar/95 px-1 pt-1.5 pb-[calc(0.375rem+env(safe-area-inset-bottom))] backdrop-blur md:hidden"
-      >
-        {navigation.map(({ href, label, icon: Icon }) => {
-          const active = isActivePath(pathname, href);
-          return (
-            <Link
-              key={href}
-              href={href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-md text-[11px] text-muted-foreground",
-                active && "text-primary",
-              )}
-            >
-              <Icon className="size-5" aria-hidden />
-              {label}
-            </Link>
-          );
-        })}
-      </nav>
-    </SidebarProvider>
+      <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
+      <AppearanceSheet open={appearanceOpen} onOpenChange={setAppearanceOpen} />
+      <ShortcutsDialog open={shortcutsOpen} onOpenChange={setShortcutsOpen} />
+    </>
   );
 }
 
-function NavItem({ item, active }: { item: NavigationItem; active: boolean }) {
-  const Icon = item.icon;
+function HeaderButton({
+  label,
+  shortcut,
+  onClick,
+  className,
+  children,
+}: {
+  label: string;
+  shortcut: string;
+  onClick: () => void;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <SidebarMenuItem>
-      <SidebarMenuButton asChild isActive={active} tooltip={item.label} className="h-9">
-        <Link href={item.href} aria-current={active ? "page" : undefined}>
-          <Icon />
-          <span>{item.label}</span>
-        </Link>
-      </SidebarMenuButton>
-    </SidebarMenuItem>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className={cn("rounded-full", className)}
+          aria-label={label}
+          onClick={onClick}
+        >
+          {children}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        {label} <span className="ml-1 opacity-60">{shortcut}</span>
+      </TooltipContent>
+    </Tooltip>
   );
 }

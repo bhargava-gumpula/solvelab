@@ -86,6 +86,20 @@ export class SolveRepository {
   async delete(id: string): Promise<void> {
     await this.db.solves.delete(id);
   }
+
+  /** Removes every solve in a session and returns them so the action can be undone. */
+  async clearSession(sessionId: string): Promise<Solve[]> {
+    return this.db.transaction("rw", this.db.solves, async () => {
+      const removed = await this.db.solves.where("sessionId").equals(sessionId).toArray();
+      await this.db.solves.where("sessionId").equals(sessionId).delete();
+      return removed;
+    });
+  }
+
+  /** Restores solves removed by `clearSession` or `delete`. */
+  async restore(solves: Solve[]): Promise<void> {
+    await this.db.solves.bulkPut(solves);
+  }
 }
 
 function dedupeTags(tags: string[]): string[] {

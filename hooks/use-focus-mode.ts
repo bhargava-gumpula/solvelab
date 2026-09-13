@@ -1,15 +1,16 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { focusMode } from "@/lib/timer/focus-mode";
 
-/** Marks the document so non-timer UI can recede while a solve is in progress. */
+/** Marks the app as focused on a solve so non-timer UI can recede. */
 export function useFocusMode(active: boolean) {
   useEffect(() => {
-    const root = document.documentElement;
-    if (active) root.dataset.timerFocus = "true";
-    else delete root.dataset.timerFocus;
-    return () => {
-      delete root.dataset.timerFocus;
-    };
+    focusMode.set(active);
   }, [active]);
+  useEffect(() => () => focusMode.set(false), []);
+}
+
+export function useIsTimerFocused(): boolean {
+  return useSyncExternalStore(focusMode.subscribe, focusMode.get, () => false);
 }

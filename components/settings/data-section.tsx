@@ -88,7 +88,7 @@ export function DataSection() {
       title="Your data"
       description="Everything is stored in this browser on this device. No account, no uploads."
     >
-      <div className="flex items-start gap-3 rounded-lg bg-surface-sunken p-4" role="status">
+      <div className="bg-surface-sunken flex items-start gap-3 rounded-lg p-4" role="status">
         <Database className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
         <div className="flex-1 text-sm">
           <p className="font-medium">

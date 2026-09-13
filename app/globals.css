@@ -5,57 +5,184 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Design tokens. Components must use these tokens (via Tailwind color utilities
- * such as bg-card or text-muted-foreground) instead of hard-coded colors.
- * Cube sticker colors are tokens too so a color-neutral scheme can swap them.
+ * Design tokens. Components use these through Tailwind color utilities
+ * (bg-card, text-muted-foreground, …); nothing hard-codes colors.
+ *
+ * Each theme preset sets the tokens under [data-theme="…"]. The animated
+ * background colors for each preset live in lib/appearance/themes.ts.
+ * :root holds the Nebula values so the page is styled before JS runs.
  */
-:root {
-  --background: #f6f7f8;
-  --foreground: #1d1f23;
-  --card: #ffffff;
-  --card-foreground: #1d1f23;
-  --popover: #ffffff;
-  --popover-foreground: #1d1f23;
-  --primary: #ad401c;
-  --primary-foreground: #ffffff;
-  --secondary: #eceef0;
-  --secondary-foreground: #1d1f23;
-  --muted: #eceef0;
-  --muted-foreground: #5f656e;
-  --accent: #f4e8e2;
-  --accent-foreground: #a33c1a;
-  --destructive: #bc303c;
-  --danger: var(--destructive);
-  --success: #18794e;
-  --warning: #9a6700;
-  --border: #dfe2e6;
-  --input: #d4d8dd;
-  --ring: #d36a41;
-  --radius: 0.75rem;
+:root,
+[data-theme="nebula"] {
+  --background: #0b0a1a;
+  --foreground: #efecff;
+  --card: rgb(22 19 48 / 0.58);
+  --card-foreground: #efecff;
+  --popover: rgb(20 17 42 / 0.96);
+  --popover-foreground: #efecff;
+  --primary: #a594ff;
+  --primary-foreground: #150f33;
+  --secondary: rgb(255 255 255 / 0.07);
+  --secondary-foreground: #efecff;
+  --muted: rgb(255 255 255 / 0.06);
+  --muted-foreground: #aaa5cc;
+  --accent: rgb(165 148 255 / 0.16);
+  --accent-foreground: #d9d1ff;
+  --accent-2: #3ee6c8;
+  --destructive: #ff7a93;
+  --success: #5ef2b0;
+  --warning: #ffd479;
+  --border: rgb(255 255 255 / 0.09);
+  --input: rgb(255 255 255 / 0.14);
+  --ring: #a594ff;
+  --glow: rgb(165 148 255 / 0.45);
+  --backdrop: #0b0a1a;
 
-  --surface-sunken: #eff1f3;
-  --timer-idle: #1d1f23;
-  --timer-holding: #bc303c;
-  --timer-armed: #18794e;
-  --timer-inspection: #9a6700;
+  --timer-idle: #e4ddff;
+  --timer-holding: #ff7a93;
+  --timer-armed: #5ef2b0;
+  --timer-inspection: #ffd479;
 
-  --sidebar: #f1f2f4;
-  --sidebar-foreground: #363b42;
-  --sidebar-primary: var(--primary);
-  --sidebar-primary-foreground: var(--primary-foreground);
-  --sidebar-accent: #e7e9ec;
-  --sidebar-accent-foreground: #1d1f23;
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
+  --chart-muted: #5a5680;
+}
 
-  /* Categorical chart slots, validated for CVD separation (dataviz validator). */
+[data-theme="ember"] {
+  --background: #120806;
+  --foreground: #fff1ea;
+  --card: rgb(44 18 11 / 0.55);
+  --card-foreground: #fff1ea;
+  --popover: rgb(34 14 9 / 0.96);
+  --popover-foreground: #fff1ea;
+  --primary: #ff9457;
+  --primary-foreground: #2a0e04;
+  --muted-foreground: #d2ada0;
+  --accent: rgb(255 148 87 / 0.16);
+  --accent-foreground: #ffd2b8;
+  --accent-2: #ff5c8a;
+  --ring: #ff9457;
+  --glow: rgb(255 148 87 / 0.45);
+  --backdrop: #120806;
+  --timer-idle: #ffe6d8;
+  --chart-muted: #6b4a40;
+}
+
+[data-theme="glacier"] {
+  --background: #06101c;
+  --foreground: #e8f5ff;
+  --card: rgb(10 32 54 / 0.55);
+  --card-foreground: #e8f5ff;
+  --popover: rgb(8 24 42 / 0.96);
+  --popover-foreground: #e8f5ff;
+  --primary: #62cdff;
+  --primary-foreground: #03192a;
+  --muted-foreground: #9fbad0;
+  --accent: rgb(98 205 255 / 0.15);
+  --accent-foreground: #c7ecff;
+  --accent-2: #9d8cff;
+  --ring: #62cdff;
+  --glow: rgb(98 205 255 / 0.45);
+  --backdrop: #06101c;
+  --timer-idle: #dcf2ff;
+  --chart-muted: #3f5a72;
+}
+
+[data-theme="matcha"] {
+  --background: #060c08;
+  --foreground: #e8ffec;
+  --card: rgb(14 36 22 / 0.55);
+  --card-foreground: #e8ffec;
+  --popover: rgb(10 26 16 / 0.96);
+  --popover-foreground: #e8ffec;
+  --primary: #74f294;
+  --primary-foreground: #04200d;
+  --muted-foreground: #9dbfa4;
+  --accent: rgb(116 242 148 / 0.14);
+  --accent-foreground: #c8ffd4;
+  --accent-2: #d6ff63;
+  --ring: #74f294;
+  --glow: rgb(116 242 148 / 0.4);
+  --backdrop: #060c08;
+  --timer-idle: #dcffe3;
+  --timer-armed: #b7ff5c;
+  --chart-muted: #3f5a46;
+}
+
+[data-theme="carbon"] {
+  --background: #101113;
+  --foreground: #eeeeef;
+  --card: rgb(28 29 33 / 0.92);
+  --card-foreground: #eeeeef;
+  --popover: #1f2125;
+  --popover-foreground: #eeeeef;
+  --primary: #e8916e;
+  --primary-foreground: #24150f;
+  --muted-foreground: #9a9da5;
+  --accent: rgb(232 145 110 / 0.14);
+  --accent-foreground: #f2b59c;
+  --accent-2: #83a8da;
+  --ring: #e8916e;
+  --glow: rgb(232 145 110 / 0.35);
+  --backdrop: #101113;
+  --timer-idle: #f3f3f5;
+  --timer-holding: #f17f89;
+  --timer-armed: #6fcf97;
+  --timer-inspection: #e5b85c;
+  --chart-muted: #4a4e56;
+}
+
+[data-theme="paper"] {
+  --background: #f3efe6;
+  --foreground: #23201b;
+  --card: rgb(255 253 248 / 0.72);
+  --card-foreground: #23201b;
+  --popover: #fffdf8;
+  --popover-foreground: #23201b;
+  --primary: #c2410c;
+  --primary-foreground: #fff7ed;
+  --secondary: rgb(0 0 0 / 0.05);
+  --secondary-foreground: #23201b;
+  --muted: rgb(0 0 0 / 0.045);
+  --muted-foreground: #6c665b;
+  --accent: rgb(194 65 12 / 0.1);
+  --accent-foreground: #9a3412;
+  --accent-2: #0f766e;
+  --destructive: #be123c;
+  --success: #15803d;
+  --warning: #a16207;
+  --border: rgb(0 0 0 / 0.09);
+  --input: rgb(0 0 0 / 0.14);
+  --ring: #c2410c;
+  --glow: rgb(194 65 12 / 0.25);
+  --backdrop: #f3efe6;
+  --timer-idle: #23201b;
+  --timer-holding: #be123c;
+  --timer-armed: #15803d;
+  --timer-inspection: #a16207;
   --chart-1: #2a78d6;
   --chart-2: #eb6834;
   --chart-3: #1baf7a;
   --chart-4: #eda100;
   --chart-5: #e87ba4;
-  /* De-emphasized marks (individual solves behind averages). */
-  --chart-muted: #b9bdc4;
+  --chart-muted: #c6c0b4;
+}
+
+:root {
+  --radius: 0.9rem;
+  --blur: 18px;
+
+  --sidebar: var(--card);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
 
   --cube-u: #ffffff;
   --cube-d: #ffd500;
@@ -63,49 +190,6 @@
   --cube-b: #0046ad;
   --cube-r: #b71234;
   --cube-l: #ff5800;
-  --cube-stroke: #1d1f23;
-}
-
-.dark {
-  --background: #111214;
-  --foreground: #eeeeef;
-  --card: #181a1d;
-  --card-foreground: #eeeeef;
-  --popover: #1f2125;
-  --popover-foreground: #eeeeef;
-  --primary: #e8916e;
-  --primary-foreground: #24150f;
-  --secondary: #24272b;
-  --secondary-foreground: #eeeeef;
-  --muted: #232529;
-  --muted-foreground: #9a9da5;
-  --accent: #35261f;
-  --accent-foreground: #eaa083;
-  --destructive: #f17f89;
-  --success: #6fcf97;
-  --warning: #e5b85c;
-  --border: #2a2c31;
-  --input: #373a41;
-  --ring: #e8916e;
-
-  --surface-sunken: #1c1e22;
-  --timer-idle: #f3f3f5;
-  --timer-holding: #f17f89;
-  --timer-armed: #6fcf97;
-  --timer-inspection: #e5b85c;
-
-  --sidebar: #141518;
-  --sidebar-foreground: #a9adb5;
-  --sidebar-accent: #25272b;
-  --sidebar-accent-foreground: #f4f4f5;
-
-  --chart-1: #3987e5;
-  --chart-2: #d95926;
-  --chart-3: #199e70;
-  --chart-4: #c98500;
-  --chart-5: #d55181;
-  --chart-muted: #4a4e56;
-
   --cube-stroke: #0b0c0e;
 }
 
@@ -124,14 +208,15 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-accent-2: var(--accent-2);
   --color-destructive: var(--destructive);
-  --color-danger: var(--danger);
+  --color-danger: var(--destructive);
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-surface-sunken: var(--surface-sunken);
+  --color-glow: var(--glow);
   --color-timer-idle: var(--timer-idle);
   --color-timer-holding: var(--timer-holding);
   --color-timer-armed: var(--timer-armed);
@@ -158,6 +243,8 @@
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --font-lcd: var(--font-dseg), var(--font-geist-mono), monospace;
+  --font-dot: var(--font-doto), var(--font-geist-mono), monospace;
 }
 
 @layer base {
@@ -167,10 +254,17 @@
 
   html {
     -webkit-text-size-adjust: 100%;
+    background: var(--backdrop);
+    color-scheme: dark;
+  }
+
+  html.light {
+    color-scheme: light;
   }
 
   body {
-    background: var(--background);
+    min-height: 100svh;
+    background: transparent;
     color: var(--foreground);
     font-family: var(--font-sans);
     font-feature-settings: "ss01", "cv11";
@@ -189,8 +283,8 @@
   }
 
   ::selection {
-    background: var(--accent);
-    color: var(--accent-foreground);
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 }
 
@@ -201,11 +295,27 @@
 }
 
 @utility eyebrow {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted-foreground);
+}
+
+/* Frosted panel used for every floating surface. */
+@utility glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(var(--blur)) saturate(140%);
+  -webkit-backdrop-filter: blur(var(--blur)) saturate(140%);
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.05) inset,
+    0 20px 50px -24px rgb(0 0 0 / 0.55);
+}
+
+/* Soft accent glow for emphasized text such as the armed timer. */
+@utility text-glow {
+  text-shadow: 0 0 42px var(--glow);
 }
 
 /*
@@ -218,16 +328,24 @@
 }
 
 [data-focus-hide] {
-  transition: opacity 180ms ease;
+  transition: opacity 200ms ease;
 }
 
-/* The timer takes over the whole viewport so the digits sit dead center. */
+/* The timer takes over the viewport so the digits sit dead center. */
 [data-timer-focus="true"] [data-timer-surface] {
   position: fixed;
   inset: 0;
   z-index: 60;
   border-radius: 0;
-  background: var(--background);
+}
+
+@keyframes solvelab-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

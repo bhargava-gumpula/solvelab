@@ -1,3 +1,6 @@
+"use client";
+
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { cn } from "@/lib/utils";
 
 interface StatTileProps {
@@ -13,7 +16,8 @@ interface StatTileProps {
  */
 export function StatTile({ label, value, detail, className }: StatTileProps) {
   return (
-    <div className={cn("rounded-xl border bg-card px-4 py-3.5", className)}>
+    <div className={cn("relative rounded-2xl px-4 py-3.5 glass", className)}>
+      <GlowingEffect spread={24} />
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
       {detail && <p className="mt-0.5 truncate text-xs text-muted-foreground">{detail}</p>}

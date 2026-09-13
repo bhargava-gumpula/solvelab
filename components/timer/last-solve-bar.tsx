@@ -1,7 +1,8 @@
 "use client";
 
-import { MessageSquareText, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { motion } from "motion/react";
+import { MessageSquareText, Sparkles, Trash2 } from "lucide-react";
+import { BorderBeam } from "@/components/ui/border-beam";
 import { Button } from "@/components/ui/button";
 import type { Solve } from "@/types/domain";
 import { PenaltyToggle } from "./penalty-toggle";
@@ -15,39 +16,54 @@ interface LastSolveBarProps {
 
 /** Quick actions for the most recent solve, directly under the timer. */
 export function LastSolveBar({ solve, isPersonalBest, onOpenDetails }: LastSolveBarProps) {
-  if (!solve) {
-    return <div className="h-9" aria-hidden />;
-  }
   return (
-    <div
-      data-focus-hide
-      className="flex flex-wrap items-center justify-center gap-2"
-      aria-label="Last solve actions"
-      role="group"
-    >
-      {isPersonalBest && <Badge className="bg-primary/15 text-primary">New best single</Badge>}
-      <PenaltyToggle
-        value={solve.penalty}
-        onChange={(penalty) => setSolvePenalty(solve, penalty)}
-      />
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => onOpenDetails(solve)}
-        aria-label={solve.notes ? "Edit note" : "Add note"}
-      >
-        <MessageSquareText />
-        <span className="hidden sm:inline">{solve.notes ? "Note" : "Add note"}</span>
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => deleteSolveWithUndo(solve)}
-        aria-label="Delete last solve"
-      >
-        <Trash2 />
-        <span className="hidden sm:inline">Delete</span>
-      </Button>
+    <div className="flex min-h-12 justify-center" data-focus-hide>
+      {solve && (
+        <motion.div
+          key={solve.id}
+          role="group"
+          aria-label="Last solve actions"
+          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: "spring", stiffness: 360, damping: 30 }}
+          className="relative flex flex-wrap items-center justify-center gap-1.5 rounded-full px-2 py-1.5 glass"
+        >
+          {isPersonalBest && (
+            <>
+              <BorderBeam size={70} duration={4} />
+              <span className="flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary">
+                <Sparkles className="size-3.5" aria-hidden />
+                New best single
+              </span>
+            </>
+          )}
+          <PenaltyToggle
+            value={solve.penalty}
+            onChange={(penalty) => setSolvePenalty(solve, penalty)}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full"
+            onClick={() => onOpenDetails(solve)}
+            aria-label={solve.notes ? "Edit note" : "Add note"}
+            onMouseUp={(event) => event.currentTarget.blur()}
+          >
+            <MessageSquareText />
+            <span className="hidden sm:inline">{solve.notes ? "Note" : "Note"}</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full hover:text-destructive"
+            onClick={() => deleteSolveWithUndo(solve)}
+            aria-label="Delete last solve"
+            onMouseUp={(event) => event.currentTarget.blur()}
+          >
+            <Trash2 />
+          </Button>
+        </motion.div>
+      )}
     </div>
   );
 }

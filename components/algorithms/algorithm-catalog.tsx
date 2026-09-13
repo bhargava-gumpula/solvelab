@@ -59,7 +59,7 @@ export function AlgorithmCatalog() {
         {sets.length} planned {sets.length === 1 ? "set" : "sets"}
       </p>
       {sets.length === 0 ? (
-        <Empty className="rounded-xl border">
+        <Empty className="rounded-2xl glass">
           <EmptyHeader>
             <EmptyTitle>No matching sets</EmptyTitle>
             <EmptyDescription>Try a broader name or choose a different level.</EmptyDescription>

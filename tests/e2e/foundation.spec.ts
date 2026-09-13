@@ -35,19 +35,59 @@ test("root redirects to the timer", async ({ page }) => {
   await expect(page).toHaveURL(/\/timer\/?$/);
 });
 
-test("theme persists across reload and system follows the browser", async ({ page }) => {
+test("theme presets persist across reload and Match system follows the browser", async ({
+  page,
+}) => {
   await page.goto("/settings/");
   await expect(page.getByText("Local database ready")).toBeVisible();
-  await page.getByRole("radio", { name: "Light" }).check();
-  await expect(page.locator("html")).toHaveClass(/light/);
+  const html = page.locator("html");
+  await expect(html).toHaveAttribute("data-theme", "nebula");
+
+  await page.getByRole("radio", { name: "Paper" }).click();
+  await expect(html).toHaveAttribute("data-theme", "paper");
+  await expect(html).toHaveClass(/light/);
   await page.reload();
-  await expect(page.getByText("Local database ready")).toBeVisible();
-  await expect(page.getByRole("radio", { name: "Light" })).toBeChecked();
-  await page.getByRole("radio", { name: "System" }).check();
+  // The boot script applies the saved theme before the app hydrates.
+  await expect(html).toHaveAttribute("data-theme", "paper");
+  await expect(page.getByRole("radio", { name: "Paper" })).toHaveAttribute("aria-checked", "true");
+
+  await page.getByRole("radio", { name: "Match system" }).click();
   await page.emulateMedia({ colorScheme: "dark" });
-  await expect(page.locator("html")).toHaveClass(/dark/);
+  await expect(html).toHaveAttribute("data-theme", "nebula");
+  await expect(html).toHaveClass(/dark/);
   await page.emulateMedia({ colorScheme: "light" });
-  await expect(page.locator("html")).toHaveClass(/light/);
+  await expect(html).toHaveAttribute("data-theme", "paper");
+});
+
+test("appearance sheet switches themes and digit styles from the keyboard", async ({ page }) => {
+  await page.goto("/timer/");
+  await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });
+  await page.keyboard.press("t");
+  const sheet = page.getByRole("dialog", { name: "Appearance" });
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole("radio", { name: "Ember" }).click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "ember");
+  await sheet.getByRole("radio", { name: "LCD" }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("timer-display")).toHaveClass(/font-lcd/);
+});
+
+test("command palette runs actions", async ({ page }) => {
+  await page.goto("/timer/");
+  await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });
+  await expect(page.getByRole("button", { name: /Inspection off/ })).toBeVisible();
+  await page.keyboard.press("ControlOrMeta+k");
+  const palette = page.getByRole("dialog", { name: "Command palette" });
+  await expect(palette).toBeVisible();
+  await page.keyboard.type("inspection");
+  await page.keyboard.press("Enter");
+  await expect(palette).toBeHidden();
+  await expect(page.getByRole("button", { name: /Inspection 15s/ })).toBeVisible();
+
+  await page.keyboard.press("ControlOrMeta+k");
+  await page.keyboard.type("go to stats");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/stats\/?$/);
 });
 
 test("mobile navigation, algorithm search and empty results", async ({ page }) => {

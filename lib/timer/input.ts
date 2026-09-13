@@ -43,6 +43,14 @@ export function shouldTimerHandleKey(event: KeyboardEvent, phase: TimerPhase): b
   return true;
 }
 
+/** True when a key press belongs to a text field, an open overlay, or a menu. */
+export function isTypingContext(event: KeyboardEvent): boolean {
+  if (typeof document !== "undefined" && document.querySelector(OPEN_MODAL_SELECTOR)) return true;
+  const target = event.target;
+  if (!(target instanceof Element)) return false;
+  return Boolean(target.closest(EDITABLE_SELECTOR) || target.closest(OVERLAY_SELECTOR));
+}
+
 function safeMatches(element: Element, selector: string): boolean {
   try {
     return element.matches(selector);

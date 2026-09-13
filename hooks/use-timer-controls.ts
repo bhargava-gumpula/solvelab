@@ -10,8 +10,9 @@ interface TimerControlsOptions {
 }
 
 /**
- * Connects keyboard (hold Space) and pointer/touch (hold the timer surface)
- * input to the timer store. While running, any key or tap anywhere stops.
+ * Connects keyboard (hold Space) and touch (hold the timer surface) input to
+ * the timer store. While running, any key or a tap anywhere stops. Mouse
+ * clicks are ignored entirely.
  */
 export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: TimerControlsOptions) {
   useEffect(() => {
@@ -57,8 +58,12 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
 
     const surface = surfaceRef.current;
 
+    // Touch and pen only: on a computer the keyboard controls the timer, so a
+    // mouse click can never start or stop a solve by accident.
+    const isTouchInput = (event: PointerEvent) => event.pointerType !== "mouse";
+
     const onSurfaceDown = (event: PointerEvent) => {
-      if (!event.isPrimary || event.button > 0) return;
+      if (!isTouchInput(event) || !event.isPrimary || event.button > 0) return;
       const { phase } = store.getState();
       if (phase === "running") return; // handled by the window listener
       event.preventDefault();
@@ -67,20 +72,20 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
     };
 
     const onSurfaceUp = (event: PointerEvent) => {
-      if (!event.isPrimary) return;
+      if (!isTouchInput(event) || !event.isPrimary) return;
       const state = store.getState();
       if (state.phase !== "ready" && !state.awaitingRelease) return;
       store.dispatch({ type: "release", at: eventTimestamp(event) });
     };
 
     const onWindowPointerDown = (event: PointerEvent) => {
-      if (store.getState().phase !== "running") return;
+      if (!isTouchInput(event) || store.getState().phase !== "running") return;
       event.preventDefault();
       store.dispatch({ type: "press", at: eventTimestamp(event) });
     };
 
     const onWindowPointerUp = (event: PointerEvent) => {
-      if (store.getState().awaitingRelease) {
+      if (isTouchInput(event) && store.getState().awaitingRelease) {
         store.dispatch({ type: "release", at: eventTimestamp(event) });
       }
     };

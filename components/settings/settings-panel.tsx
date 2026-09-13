@@ -1,27 +1,16 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import { Monitor, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useSettings } from "@/hooks/use-local-data";
 import { getRepositories } from "@/lib/storage";
 import type { SettingsPatch } from "@/lib/storage/settings-repository";
 import { HOLD_TO_START_OPTIONS_MS } from "@/lib/storage/schemas";
+import { AppearanceControls } from "@/components/appearance/appearance-controls";
 import { DataSection } from "./data-section";
 import { SettingsSection } from "./settings-section";
-
-const THEMES = [
-  { id: "light", label: "Light", icon: Sun },
-  { id: "dark", label: "Dark", icon: Moon },
-  { id: "system", label: "System", icon: Monitor },
-] as const;
-
-const noopSubscribe = () => () => {};
 
 async function updateSettings(patch: SettingsPatch) {
   try {
@@ -32,38 +21,16 @@ async function updateSettings(patch: SettingsPatch) {
 }
 
 export function SettingsPanel() {
-  const { theme, setTheme } = useTheme();
-  const mounted = useSyncExternalStore(
-    noopSubscribe,
-    () => true,
-    () => false,
-  );
   const settings = useSettings();
 
   return (
     <div className="grid max-w-3xl gap-5">
       <SettingsSection
+        id="appearance"
         title="Appearance"
-        description="Dark mode is the default. System follows your device."
+        description="Themes, timer digits and motion. Saved on this device."
       >
-        <RadioGroup
-          aria-label="Theme"
-          className="grid grid-cols-3 gap-3"
-          value={mounted ? (theme ?? "dark") : ""}
-          onValueChange={setTheme}
-        >
-          {THEMES.map(({ id, label, icon: Icon }) => (
-            <Label
-              key={id}
-              htmlFor={`theme-${id}`}
-              className="flex cursor-pointer items-center gap-2 rounded-lg border p-3 has-[[data-state=checked]]:border-primary has-[[data-state=checked]]:ring-1 has-[[data-state=checked]]:ring-primary"
-            >
-              <RadioGroupItem value={id} id={`theme-${id}`} />
-              <Icon className="size-4 text-muted-foreground" aria-hidden />
-              {label}
-            </Label>
-          ))}
-        </RadioGroup>
+        <AppearanceControls />
       </SettingsSection>
 
       <SettingsSection id="timer" title="Timer" description="Changes apply to your next solve.">

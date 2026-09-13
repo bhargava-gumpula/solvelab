@@ -1,5 +1,19 @@
 # Validation report
 
+## UI overhaul (branch `ui-overhaul`)
+
+Run on 2026-09-13 against the static export, Chromium headless, one Playwright worker.
+
+| Check           | Command                           | Result              |
+| --------------- | --------------------------------- | ------------------- |
+| Full validation | `npm run validate`                | Pass                |
+| Unit tests      | `npm test`                        | 66 passed (9 files) |
+| End-to-end      | `npx playwright test --workers=1` | 33 passed (1.1 min) |
+
+New end-to-end coverage: mouse clicks never start or stop the timer; theme presets persist and Match system follows the OS; Appearance sheet switches theme and digit style; command palette runs actions and navigates; scramble history with N/P; custom scrambles with notation validation; number-key penalties that don't fire while typing; clear session with undo; sortable times; dragged panel positions persist. New unit coverage: appearance parsing, the no-flash boot script, and the command registry.
+
+Environment note: with the repository in iCloud-synced `~/Documents`, running the suite with two workers while the dev server is active timed out under heavy system load (load average ~60). Run e2e with the dev server stopped, or move the repository out of iCloud.
+
 ## V1 — daily timer (includes V0 wrap-up)
 
 Run on 2026-09-13 against the static export (`out/`), Chromium headless via Playwright.

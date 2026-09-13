@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { cn } from "@/lib/utils";
 
 interface FeatureCardProps {
@@ -21,11 +22,19 @@ export function FeatureCard({
   className,
 }: FeatureCardProps) {
   return (
-    <article className={cn("flex flex-col rounded-xl border bg-card p-5", className)}>
+    <article
+      className={cn(
+        "relative flex flex-col rounded-2xl p-5 glass transition-transform duration-300 hover:-translate-y-0.5",
+        className,
+      )}
+    >
+      <GlowingEffect />
       <div className="mb-5 flex items-center justify-between gap-3">
-        <Icon className="size-5 text-primary" aria-hidden />
+        <span className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary shadow-[0_0_24px_-6px_var(--glow)]">
+          <Icon className="size-5" aria-hidden />
+        </span>
         {badge && (
-          <span className="rounded-md border px-2 py-0.5 text-xs text-muted-foreground capitalize">
+          <span className="rounded-full border px-2.5 py-0.5 text-xs text-muted-foreground capitalize">
             {badge}
           </span>
         )}

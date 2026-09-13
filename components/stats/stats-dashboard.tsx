@@ -151,7 +151,7 @@ export function StatsDashboard() {
     return (
       <>
         {heading}
-        <Empty className="rounded-xl border bg-card py-16">
+        <Empty className="rounded-2xl py-16 glass">
           <EmptyHeader>
             <EmptyMedia variant="icon">
               <ChartNoAxesCombined />
@@ -298,10 +298,7 @@ export function StatsDashboard() {
         />
       </div>
 
-      <section
-        aria-labelledby="averages-heading"
-        className="mt-4 rounded-xl border bg-card p-4 md:p-5"
-      >
+      <section aria-labelledby="averages-heading" className="mt-4 rounded-2xl p-4 glass md:p-5">
         <h2 id="averages-heading" className="mb-3 text-sm font-semibold">
           Averages
         </h2>

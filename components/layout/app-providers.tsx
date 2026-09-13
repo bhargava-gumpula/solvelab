@@ -1,17 +1,17 @@
 "use client";
 
-import { ThemeProvider } from "next-themes";
+import { AppearanceProvider } from "@/components/appearance/appearance-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { StorageProvider } from "./storage-provider";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-      <TooltipProvider delayDuration={300}>
+    <AppearanceProvider>
+      <TooltipProvider delayDuration={250}>
         <StorageProvider>{children}</StorageProvider>
         <Toaster position="bottom-center" />
       </TooltipProvider>
-    </ThemeProvider>
+    </AppearanceProvider>
   );
 }

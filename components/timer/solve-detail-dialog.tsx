@@ -130,7 +130,7 @@ function SolveDetailForm({
             <Copy /> Copy
           </Button>
         </div>
-        <div className="flex items-center gap-4 rounded-lg bg-surface-sunken p-3">
+        <div className="bg-surface-sunken flex items-center gap-4 rounded-lg p-3">
           <p className="min-w-0 flex-1 font-mono text-sm leading-relaxed break-words">
             {solve.scramble}
           </p>

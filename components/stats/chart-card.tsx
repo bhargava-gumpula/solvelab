@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ChartCardProps {
@@ -18,8 +19,9 @@ export function ChartCard({ title, description, chart, table, className }: Chart
   return (
     <section
       aria-labelledby={headingId}
-      className={`rounded-xl border bg-card p-4 md:p-5 ${className ?? ""}`}
+      className={`relative rounded-2xl p-4 glass md:p-5 ${className ?? ""}`}
     >
+      <GlowingEffect spread={32} proximity={32} />
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 id={headingId} className="text-sm font-semibold">
