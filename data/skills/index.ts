@@ -1,0 +1,11 @@
+import type { SkillId } from "@/types/domain";
+export const skills: Record<SkillId, { label: string }> = {
+  cross_planning: { label: "Cross planning" }, cross_execution: { label: "Cross execution" },
+  cross_efficiency: { label: "Cross efficiency" }, cross_to_f2l: { label: "Cross → first pair" },
+  first_pair_prediction: { label: "First-pair prediction" }, f2l_recognition: { label: "F2L recognition" },
+  f2l_efficiency: { label: "F2L efficiency" }, f2l_lookahead: { label: "F2L lookahead" },
+  f2l_rotations: { label: "F2L rotations" }, oll_recognition: { label: "OLL recognition" },
+  oll_execution: { label: "OLL execution" }, pll_recognition: { label: "PLL recognition" },
+  pll_execution: { label: "PLL execution" }, auf_recognition: { label: "AUF recognition" },
+  inspection: { label: "Inspection" }, turning: { label: "Turning" }, consistency: { label: "Consistency" },
+};

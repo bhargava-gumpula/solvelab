@@ -7,6 +7,7 @@ import { SidebarProvider, Sidebar, SidebarHeader, SidebarContent, SidebarFooter,
 import { Button } from "@/components/ui/button";
 import { brand } from "@/lib/config/brand";
 import { navigation } from "@/lib/config/navigation";
+import { StorageAlert } from "./storage-alert";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -25,8 +26,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <SidebarFooter className="sidebar-footer"><SidebarMenu><SidebarMenuItem><SidebarMenuButton asChild isActive={pathname === "/settings"} className="app-nav-item"><Link href="/settings" aria-current={pathname === "/settings" ? "page" : undefined}><Settings2 /><span>Settings</span></Link></SidebarMenuButton></SidebarMenuItem></SidebarMenu><div className="local-note"><ShieldCheck size={15} /><span>Local first. Yours always.</span></div></SidebarFooter>
     </Sidebar>
     <div className="app-main">
-      <header className="topbar"><div className="breadcrumb"><span className="mobile-brand"><Box size={20} />{brand.name}</span><span className="desktop-breadcrumb">Practice <span>/</span></span><span>{pageName}</span></div><div className="topbar-actions"><span className="phase-label">Foundation preview</span><Button variant="ghost" size="icon" aria-label="Toggle light or dark theme" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}><Sun className="theme-sun" size={18}/><Moon className="theme-moon" size={18}/></Button><Button variant="ghost" size="icon" asChild className="mobile-settings"><Link href="/settings" aria-label="Settings"><Settings2 size={18}/></Link></Button></div></header>
-      <main id="main-content" tabIndex={-1} className="page-content">{children}</main>
+      <header className="topbar"><div className="breadcrumb"><span className="mobile-brand"><Box size={20} />{brand.name}</span><span className="desktop-breadcrumb">Practice <span>/</span></span><span>{pageName}</span></div><div className="topbar-actions"><span className="phase-label">Foundation preview</span><Button variant="ghost" size="icon" aria-label="Toggle light or dark theme" onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}><Sun className="theme-sun" size={18}/><Moon className="theme-moon" size={18}/></Button><Button variant="ghost" size="icon" asChild className="mobile-settings"><Link href="/settings" aria-label="Settings" aria-current={pathname === "/settings" ? "page" : undefined}><Settings2 size={18}/></Link></Button></div></header>
+      <main id="main-content" tabIndex={-1} className="page-content"><StorageAlert/>{children}</main>
       <footer className="app-footer"><span>{brand.shortTagline}</span><Link href="/settings">{brand.version} · Design foundation <ArrowUpRight size={13} /></Link></footer>
     </div>
     <nav className="mobile-nav" aria-label="Main navigation">{navigation.map(({ href, label, icon: Icon }) => <Link href={href} key={href} aria-current={pathname.startsWith(href) ? "page" : undefined}><Icon size={20}/><span>{label}</span></Link>)}</nav>

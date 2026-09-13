@@ -1,5 +1,5 @@
 {
-  "name": "site-creator-vinext-starter",
+  "name": "solvelab",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -7,11 +7,16 @@
   },
   "scripts": {
     "install:ci": "node scripts/install-ci.mjs",
-    "dev": "node scripts/run-framework.mjs dev",
-    "build": "node scripts/run-framework.mjs build",
-    "start": "node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js dev --config dist/server/wrangler.json --local --persist-to .wrangler/state --ip 127.0.0.1 --inspector-port 0",
+    "dev": "next dev --webpack --hostname 127.0.0.1 --port 5173",
+    "build": "next build --webpack",
+    "start": "node scripts/serve-static.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "dev:sites": "node scripts/run-framework.mjs dev",
+    "build:sites": "node scripts/run-framework.mjs build"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
