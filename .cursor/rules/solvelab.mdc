@@ -1,0 +1,16 @@
+---
+description: Core working rules for the SolveLab repository
+alwaysApply: true
+---
+
+# SolveLab working rules
+
+- Before starting new work, read `docs/HANDOFF.md` (current state, branches, gotchas, open questions) and `AGENTS.md`.
+- Work in phases. After each phase run `npm run validate` and `npx playwright test --workers=1`, show screenshots, summarize in plain language, then stop and wait for the owner's explicit approval before the next phase.
+- Never push to GitHub, merge branches, or move the repository folder without asking first.
+- Record every meaningful step, failure and fix in `docs/DEVELOPMENT_LOG.md`.
+- The timer starts only with the space bar (touch-and-hold on touch screens). Mouse clicks must never start or stop it.
+- Keep domain logic in `lib/` (pure, unit-tested), not in React components. Never break saved data: IndexedDB schema changes need a Dexie migration and a test.
+- UI: use theme tokens from `app/globals.css`, shadcn/ui, and the adapted 21st.dev components in `components/ui/`. No hard-coded colors. Keep it polished and interactive.
+- Next.js 16.3: read `node_modules/next/dist/docs/` before unfamiliar APIs and keep the `--webpack` flag.
+- Stop the dev server before `npm run build` or `npm run validate` (they share `.next`).

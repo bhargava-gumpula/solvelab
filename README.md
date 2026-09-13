@@ -4,6 +4,10 @@ A local-first speedcubing timer and training platform, built in reviewable phase
 
 **Current phase: V1 — daily timer.** Random-state 3×3 scrambles, keyboard and touch timing with optional WCA inspection, sessions, penalties, notes and tags, Ao5/Ao12/Ao50/Ao100 and personal bests, a stats dashboard with charts, and JSON backup/restore. Everything is stored in the browser (IndexedDB); no account or network service is needed. Coach, Train, Algorithms and Learn show planned work for later phases.
 
+The interface was redesigned on the `ui-overhaul` branch: six themes with an animated background, glass panels you can drag, an interactive 3D scramble preview, LCD and dot-matrix digits, and a ⌘K command palette with keyboard shortcuts.
+
+**New to the project (human or AI agent)? Start with [docs/HANDOFF.md](docs/HANDOFF.md).**
+
 ## Run locally
 
 Requires Node 22.13+ and npm.
@@ -42,6 +46,7 @@ Upload the contents of `out/` so they are reachable at `/solvelab/`. Browser dat
 
 ## Project record
 
+- [Handoff: current state, how to run, gotchas, open questions](docs/HANDOFF.md)
 - [Full product specification](docs/PRODUCT_SPECIFICATION.md)
 - [Step-by-step development log](docs/DEVELOPMENT_LOG.md)
 - [Architecture, migration policy and deployment notes](docs/ARCHITECTURE.md)

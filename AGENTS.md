@@ -1,7 +1,10 @@
 # SolveLab contributor instructions
 
-- Read docs/DEVELOPMENT_LOG.md and docs/ARCHITECTURE.md (when present) before implementation.
-- Implement only the next agreed phase. Stop for user review between phases.
+- Start every new session by reading docs/HANDOFF.md (current state, branches, how to run and test, gotchas, open questions). Then read docs/DEVELOPMENT_LOG.md and docs/ARCHITECTURE.md before implementation.
+- Implement only the next agreed phase. Stop for user review between phases. After each phase run `npm run validate` and `npx playwright test --workers=1`, share screenshots, and wait for explicit approval.
+- Ask before pushing to GitHub, merging branches, or moving the repository folder.
+- The timer starts only with the space bar (touch-and-hold on touch screens). Mouse clicks must never start or stop it.
+- Stop the dev server before `npm run build` or `npm run validate`; they share `.next`.
 - Update docs/DEVELOPMENT_LOG.md for every meaningful work step, decision, attempted command/check, failure, and resolution. Do not record secrets or machine-specific private data.
 - Keep phase-scoped commits with accurate descriptions. Run typecheck, lint, unit tests, and build before a phase handoff; record the actual results.
 - Centralize branding and configuration. Keep domain logic outside React pages.
