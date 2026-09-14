@@ -33,6 +33,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSessions, useSolveCounts } from "@/hooks/use-local-data";
+import { eventInfo } from "@/lib/cube/events";
 import { getRepositories } from "@/lib/storage";
 import { MAX_SESSION_NAME_LENGTH } from "@/lib/storage/schemas";
 import type { Session } from "@/types/domain";
@@ -77,7 +78,12 @@ export function SessionManagerDialog({
     event.preventDefault();
     const name = newName;
     const ok = await run(async () => {
-      const session = await getRepositories().sessions.create(name);
+      const current = sessions?.find((session) => session.id === activeSessionId);
+      const session = await getRepositories().sessions.create(
+        name,
+        undefined,
+        current?.event ?? "333",
+      );
       await getRepositories().sessions.setActive(session.id);
     }, `Switched to “${name.trim()}”`);
     if (ok) {
@@ -123,6 +129,7 @@ export function SessionManagerDialog({
               <p className="flex items-center gap-2 truncate text-sm font-medium">
                 {session.name}
                 {isActive && <Badge variant="secondary">Active</Badge>}
+                <Badge variant="outline">{eventInfo(session.event).shortLabel}</Badge>
               </p>
               <p className="tabular text-xs text-muted-foreground">
                 {count} {count === 1 ? "solve" : "solves"}

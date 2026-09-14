@@ -41,19 +41,19 @@ test("theme presets persist across reload and Match system follows the browser",
   await page.goto("/settings/");
   await expect(page.getByText("Local database ready")).toBeVisible();
   const html = page.locator("html");
-  await expect(html).toHaveAttribute("data-theme", "nebula");
+  await expect(html).toHaveAttribute("data-theme", "matcha");
 
-  await page.getByRole("radio", { name: "Paper" }).click();
+  await page.getByRole("radio", { name: "Linen" }).click();
   await expect(html).toHaveAttribute("data-theme", "paper");
   await expect(html).toHaveClass(/light/);
   await page.reload();
   // The boot script applies the saved theme before the app hydrates.
   await expect(html).toHaveAttribute("data-theme", "paper");
-  await expect(page.getByRole("radio", { name: "Paper" })).toHaveAttribute("aria-checked", "true");
+  await expect(page.getByRole("radio", { name: "Linen" })).toHaveAttribute("aria-checked", "true");
 
   await page.getByRole("radio", { name: "Match system" }).click();
   await page.emulateMedia({ colorScheme: "dark" });
-  await expect(html).toHaveAttribute("data-theme", "nebula");
+  await expect(html).toHaveAttribute("data-theme", "matcha");
   await expect(html).toHaveClass(/dark/);
   await page.emulateMedia({ colorScheme: "light" });
   await expect(html).toHaveAttribute("data-theme", "paper");
@@ -65,7 +65,7 @@ test("appearance sheet switches themes and digit styles from the keyboard", asyn
   await page.keyboard.press("t");
   const sheet = page.getByRole("dialog", { name: "Appearance" });
   await expect(sheet).toBeVisible();
-  await sheet.getByRole("radio", { name: "Ember" }).click();
+  await sheet.getByRole("radio", { name: "Forge" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "ember");
   await sheet.getByRole("radio", { name: "LCD" }).click();
   await page.keyboard.press("Escape");

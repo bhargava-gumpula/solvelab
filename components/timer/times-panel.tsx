@@ -30,6 +30,7 @@ interface TimesPanelBodyProps {
   personalBestIndices: ReadonlySet<number>;
   sessionName: string | undefined;
   onSelect: (solve: Solve) => void;
+  onCleared?: () => void;
 }
 
 export function TimesPanelBody({
@@ -38,6 +39,7 @@ export function TimesPanelBody({
   personalBestIndices,
   sessionName,
   onSelect,
+  onCleared,
 }: TimesPanelBodyProps) {
   const [sort, setSort] = useState<SortKey>("order");
   const [visible, setVisible] = useState(PAGE);
@@ -64,6 +66,7 @@ export function TimesPanelBody({
     const sessionId = solves[0]?.sessionId;
     if (!sessionId) return;
     try {
+      onCleared?.();
       const removed = await getRepositories().solves.clearSession(sessionId);
       toast(`Cleared ${removed.length} solves`, {
         action: { label: "Undo", onClick: () => void getRepositories().solves.restore(removed) },

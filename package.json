@@ -1,6 +1,6 @@
 {
   "name": "solvelab",
-  "version": "0.1.0",
+  "version": "2.0.0",
   "private": true,
   "engines": {
     "node": ">=22.13.0"
@@ -32,6 +32,7 @@
     "date-fns": "^4.4.0",
     "dexie": "^4.4.6",
     "dexie-react-hooks": "^4.4.0",
+    "firebase": "^12.19.0",
     "lucide-react": "^1.31.0",
     "motion": "^13.2.0",
     "next": "16.3.4",

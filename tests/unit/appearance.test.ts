@@ -41,7 +41,7 @@ describe("appearance preferences", () => {
   });
 
   it("resolves Match system to a dark or light preset", () => {
-    expect(resolveTheme("system", true)).toBe("nebula");
+    expect(resolveTheme("system", true)).toBe("matcha");
     expect(resolveTheme("system", false)).toBe("paper");
     expect(resolveTheme("glacier", false)).toBe("glacier");
   });
@@ -52,6 +52,17 @@ describe("appearance preferences", () => {
       if (theme.background.kind === "mesh")
         expect(theme.background.colors.length).toBeGreaterThanOrEqual(4);
     }
+  });
+
+  it("shows unique labels for every preset", () => {
+    expect(THEMES.map((theme) => theme.label)).toEqual([
+      "Ion",
+      "Forge",
+      "Fjord",
+      "Sencha",
+      "Graphite",
+      "Linen",
+    ]);
   });
 });
 

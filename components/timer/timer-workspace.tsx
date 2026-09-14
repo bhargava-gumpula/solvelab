@@ -1,6 +1,14 @@
 "use client";
 
-import { useEffect, useEffectEvent, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import {
   Ban,
   Check,
@@ -11,7 +19,6 @@ import {
   FolderOpen,
   PencilLine,
   Plus,
-  Timer as TimerIcon,
   Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -36,16 +43,20 @@ import {
   personalBestProgression,
   type SessionStatistics,
 } from "@/lib/stats";
+import { has3x3Preview } from "@/lib/cube/events";
 import { getRepositories } from "@/lib/storage";
+import { createId } from "@/lib/storage/ids";
+import { withFinalTime } from "@/lib/storage/solve-repository";
 import { computeFinalTimeMs } from "@/lib/solves/penalty";
 import { isTimerFocused, type TimerConfig, type TimerResult } from "@/lib/timer/engine";
 import type { RestingTime } from "@/lib/timer/display";
 import { formatAverage, formatTime } from "@/lib/timer/format";
 import { createTimerStore } from "@/lib/timer/store";
 import { cn } from "@/lib/utils";
-import type { Penalty } from "@/types/domain";
+import type { Penalty, Solve } from "@/types/domain";
 import { CubeModeToggle, CubePreviewBody, useScrambledFacelets } from "./cube-preview";
 import { CustomScrambleDialog } from "./custom-scramble-dialog";
+import { EventSwitcher } from "./event-switcher";
 import { FloatingPanel } from "./floating-panel";
 import { LastSolveBar } from "./last-solve-bar";
 import { ScrambleBar } from "./scramble-bar";
@@ -56,15 +67,14 @@ import { StatsPanelBody } from "./stats-panel";
 import { TimerHint, TimerStage } from "./timer-stage";
 import { TimesPanelBody } from "./times-panel";
 
-const EVENT = "333";
-
 export function TimerWorkspace() {
   const storage = useStorageStatus();
   const settings = useSettings();
   const { preferences } = useAppearance();
   const { session } = useActiveSession();
-  const solves = useSessionSolves(session?.id);
-  const scrambles = useScramble(EVENT);
+  const storedSolves = useSessionSolves(session?.id);
+  const event = session?.event ?? "333";
+  const scrambles = useScramble(event);
   const { scramble } = scrambles;
   const isDesktop = useMediaQuery("(min-width: 1024px)", true);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -79,6 +89,9 @@ export function TimerWorkspace() {
   );
   const [store] = useState(() => createTimerStore(config));
   useEffect(() => store.setConfig(config), [store, config]);
+  useEffect(() => {
+    store.dispatch({ type: "reset" });
+  }, [store, session?.id, session?.event]);
 
   const phase = useSyncExternalStore(
     store.subscribe,
@@ -92,53 +105,105 @@ export function TimerWorkspace() {
   useInspectionCues(store, settings?.inspectionAudioCues ?? false);
   useFocusMode(isTimerFocused(phase));
 
+  const [pendingSolve, setPendingSolve] = useState<Solve | null>(null);
+  const discardedIds = useRef(new Set<string>());
+  const pendingIsCommitted =
+    pendingSolve !== null &&
+    pendingSolve.sessionId === session?.id &&
+    !!storedSolves?.some((solve) => solve.id === pendingSolve.id);
+  if (pendingIsCommitted) {
+    setPendingSolve(null);
+  }
+  const activePending =
+    pendingSolve && pendingSolve.sessionId === session?.id && !pendingIsCommitted
+      ? pendingSolve
+      : null;
+  const solves = useMemo(() => {
+    if (activePending) return [...(storedSolves ?? []), activePending];
+    return storedSolves;
+  }, [storedSolves, activePending]);
+
   const stats = useMemo(() => computeSessionStatistics(solves ?? []), [solves]);
   const personalBestIndices = useMemo(
     () => new Set(personalBestProgression(stats.values).map((entry) => entry.index)),
     [stats.values],
   );
 
-  const [savingResult, setSavingResult] = useState<RestingTime | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [customOpen, setCustomOpen] = useState(false);
 
   const handleComplete = useEffectEvent(async (result: TimerResult) => {
     if (!session || !scramble) return;
-    setSavingResult({ rawTimeMs: result.rawTimeMs, penalty: result.inspectionPenalty });
+    const draft = {
+      id: createId(),
+      sessionId: session.id,
+      event,
+      scramble: scramble.scramble,
+      rawTimeMs: result.rawTimeMs,
+      penalty: result.inspectionPenalty,
+      createdAt: new Date().toISOString(),
+      source: "normal" as const,
+      ...(result.inspectionMs !== null && { inspectionMs: result.inspectionMs }),
+    };
+    const optimistic = withFinalTime(draft);
+    setPendingSolve(optimistic);
     const achievements = personalBestsFor(result, stats);
     try {
-      await getRepositories().solves.add({
-        sessionId: session.id,
-        event: EVENT,
-        scramble: scramble.scramble,
-        rawTimeMs: result.rawTimeMs,
-        penalty: result.inspectionPenalty,
-        createdAt: new Date().toISOString(),
-        source: "normal",
-        ...(result.inspectionMs !== null && { inspectionMs: result.inspectionMs }),
-      });
+      await getRepositories().solves.add(draft);
+      if (discardedIds.current.has(draft.id)) {
+        discardedIds.current.delete(draft.id);
+        await getRepositories().solves.delete(draft.id);
+        return;
+      }
       if (achievements.length > 0) announcePersonalBests(achievements, preferences.celebrations);
     } catch (error) {
       console.error(error);
+      setPendingSolve((current) => (current?.id === draft.id ? null : current));
       toast.error("This solve couldn’t be saved. Check that site storage is allowed.");
     } finally {
-      setSavingResult(null);
       void scrambles.fresh();
     }
   });
 
   useEffect(() => store.onComplete((result) => void handleComplete(result)), [store]);
 
+  const forgetPending = useCallback(() => {
+    setPendingSolve((current) => {
+      if (current) discardedIds.current.add(current.id);
+      return null;
+    });
+  }, []);
+
   const latestSolve = solves?.at(-1);
-  const resting: RestingTime | null =
-    savingResult ??
-    (latestSolve ? { rawTimeMs: latestSolve.rawTimeMs, penalty: latestSolve.penalty } : null);
+  const resting: RestingTime | null = latestSolve
+    ? { rawTimeMs: latestSolve.rawTimeMs, penalty: latestSolve.penalty }
+    : null;
   const latestIsBest =
     latestSolve !== undefined && stats.count > 1 && personalBestIndices.has(stats.count - 1);
   const selectedIndex = solves?.findIndex((solve) => solve.id === selectedId) ?? -1;
   const selectedSolve = selectedIndex >= 0 ? solves?.[selectedIndex] : undefined;
   const inspectionOn = (settings?.inspectionSeconds ?? 0) > 0;
-  const facelets = useScrambledFacelets(scramble?.scramble);
+  const facelets = useScrambledFacelets(has3x3Preview(event) ? scramble?.scramble : undefined);
+
+  const forgetSolve = useCallback(
+    (solve: Solve) => {
+      discardedIds.current.add(solve.id);
+      setPendingSolve((current) => (current?.id === solve.id ? null : current));
+      const result = store.getState().result;
+      if (result && result.rawTimeMs === solve.rawTimeMs) {
+        store.dispatch({ type: "reset" });
+      }
+    },
+    [store],
+  );
+
+  const removeSolve = useCallback(
+    (solve: Solve) => {
+      forgetSolve(solve);
+      void deleteSolveWithUndo(solve);
+    },
+    [forgetSolve],
+  );
 
   const actions = useMemo(() => {
     const penalize = (penalty: Penalty) =>
@@ -156,12 +221,12 @@ export function TimerWorkspace() {
       ok: () => penalize("none"),
       plusTwo: () => penalize("plus2"),
       dnf: () => penalize("dnf"),
-      deleteLast: () => latestSolve && void deleteSolveWithUndo(latestSolve),
+      deleteLast: () => latestSolve && removeSolve(latestSolve),
       openSessions: () => window.dispatchEvent(new Event(SESSION_MENU_EVENT)),
       newSession: () => window.dispatchEvent(new Event(NEW_SESSION_EVENT)),
       customScramble: () => setCustomOpen(true),
     };
-  }, [latestSolve, inspectionOn, scramble]);
+  }, [latestSolve, inspectionOn, scramble, removeSolve]);
 
   useHotkeys(
     [
@@ -282,7 +347,7 @@ export function TimerWorkspace() {
     </FloatingPanel>
   );
   const cubePanel =
-    preferences.cubePreview === "off" ? null : (
+    preferences.cubePreview === "off" || !has3x3Preview(event) ? null : (
       <FloatingPanel
         id="cube"
         title="Scramble preview"
@@ -314,6 +379,7 @@ export function TimerWorkspace() {
         personalBestIndices={personalBestIndices}
         sessionName={session?.name}
         onSelect={(solve) => setSelectedId(solve.id)}
+        onCleared={forgetPending}
       />
     </FloatingPanel>
   );
@@ -325,10 +391,7 @@ export function TimerWorkspace() {
       <div className="flex flex-col gap-3 lg:h-full lg:pb-3">
         <div data-focus-hide className="flex flex-wrap items-center justify-center gap-2 pt-1">
           <SessionSwitcher active={session} />
-          <span className="flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm glass">
-            <TimerIcon className="size-4 text-primary" aria-hidden />
-            3×3
-          </span>
+          <EventSwitcher session={session} disabled={!idle} />
           <button
             type="button"
             onClick={actions.toggleInspection}
@@ -381,6 +444,7 @@ export function TimerWorkspace() {
           solve={latestSolve}
           isPersonalBest={latestIsBest}
           onOpenDetails={(solve) => setSelectedId(solve.id)}
+          onDelete={removeSolve}
         />
 
         {isDesktop ? (
@@ -414,10 +478,12 @@ export function TimerWorkspace() {
         solve={selectedSolve}
         solveNumber={selectedIndex >= 0 ? selectedIndex + 1 : undefined}
         onOpenChange={(open) => !open && setSelectedId(null)}
+        onDelete={forgetSolve}
       />
       <CustomScrambleDialog
         open={customOpen}
         onOpenChange={setCustomOpen}
+        event={event}
         onSubmit={scrambles.setCustom}
       />
     </div>

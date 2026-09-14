@@ -4,7 +4,7 @@ import { ScrambleService } from "./scramble-service";
 
 export * from "./types";
 export { ScrambleService } from "./scramble-service";
-export { createCubingProvider, randomMoveProvider } from "./providers";
+export { createCubingProvider, randomMoveProvider, type CubingScrambleModule } from "./providers";
 
 /** Built by scripts/bundle-cubing.mjs; loaded natively so its worker can resolve its own chunks. */
 const loadBundledCubing = () =>

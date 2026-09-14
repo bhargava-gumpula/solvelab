@@ -39,11 +39,13 @@ export function createTimerStore(initialConfig: TimerConfig): TimerStore {
       const previous = state;
       state = transition(state, event, config);
       if (state === previous) return;
-      listeners.forEach((listener) => listener());
+      // Completion runs first so the UI can attach the new solve before React
+      // paints. Otherwise the digits flash the previous time for one frame.
       if (previous.phase === "running" && state.phase === "stopped" && state.result) {
         const result = state.result;
         completionListeners.forEach((listener) => listener(result));
       }
+      listeners.forEach((listener) => listener());
     },
     subscribe(listener) {
       listeners.add(listener);

@@ -94,7 +94,7 @@ export function AppearanceControls() {
           <span className="flex-1">
             Match system
             <span className="block text-[11px] text-muted-foreground">
-              Nebula when dark, Paper when light
+              Sencha when dark, Linen when light
             </span>
           </span>
           {preferences.theme === "system" && <Check className="size-4 text-primary" />}

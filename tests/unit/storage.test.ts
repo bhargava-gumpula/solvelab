@@ -92,6 +92,7 @@ describe("schema migrations", () => {
       method: "cfop",
       holdToStartMs: 300,
       showScramblePreview: true,
+      timerInput: "keyboard",
     });
     expect((await upgradedRepos.solves.list("main"))[0].rawTimeMs).toBe(12345);
     upgraded.close();
@@ -200,6 +201,24 @@ describe("session repository", () => {
     await repos.sessions.delete(warmup.id);
     expect(await db.sessions.get(warmup.id)).toBeUndefined();
     expect((await db.solves.toArray()).map((solve) => solve.id)).toEqual(["keep"]);
+    expect((await repos.settings.get()).activeSessionId).toBe("main");
+  });
+
+  it("retargets an empty session and opens a new one when the session has solves", async () => {
+    const retargeted = await repos.sessions.selectEvent("main", "222");
+    expect(retargeted.id).toBe("main");
+    expect(retargeted.event).toBe("222");
+    expect((await repos.sessions.get("main"))?.event).toBe("222");
+
+    await repos.solves.add({ ...baseSolve, event: "222" });
+    const twoByTwo = await repos.sessions.selectEvent("main", "444");
+    expect(twoByTwo.event).toBe("444");
+    expect(twoByTwo.id).not.toBe("main");
+    expect((await repos.settings.get()).activeSessionId).toBe(twoByTwo.id);
+    expect((await repos.sessions.get("main"))?.event).toBe("222");
+
+    const back = await repos.sessions.selectEvent(twoByTwo.id, "222");
+    expect(back.id).toBe("main");
     expect((await repos.settings.get()).activeSessionId).toBe("main");
   });
 });

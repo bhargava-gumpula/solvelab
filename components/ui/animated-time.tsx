@@ -37,6 +37,9 @@ export function AnimatedTime({ ms, rounding = "round", className, testId }: Anim
         aria-hidden
         value={centiseconds / 100}
         format={{ minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }}
+        transformTiming={{ duration: 0 }}
+        spinTiming={{ duration: 0 }}
+        opacityTiming={{ duration: 0 }}
       />
     </span>
   );
@@ -46,7 +49,7 @@ export function AnimatedCount({ value, className }: { value: number; className?:
   return (
     <span className={cn("tabular", className)}>
       <span className="sr-only">{value}</span>
-      <NumberFlow aria-hidden value={value} />
+      <NumberFlow aria-hidden value={value} transformTiming={{ duration: 0 }} spinTiming={{ duration: 0 }} />
     </span>
   );
 }

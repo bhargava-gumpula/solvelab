@@ -67,6 +67,7 @@ export function makeBackup(solves: BackupSolveInput[], sessionName = "Imported")
         hideTimeWhileRunning: false,
         inspectionAudioCues: false,
         showScramblePreview: true,
+        timerInput: "keyboard",
       },
     },
   };

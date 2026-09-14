@@ -32,7 +32,7 @@ export interface ThemeDefinition {
 export const THEMES: readonly ThemeDefinition[] = [
   {
     id: "nebula",
-    label: "Nebula",
+    label: "Ion",
     description: "Violet and teal aurora",
     mode: "dark",
     swatch: ["#0b0a1a", "#6d4df2", "#1bb89f"],
@@ -47,7 +47,7 @@ export const THEMES: readonly ThemeDefinition[] = [
   },
   {
     id: "ember",
-    label: "Ember",
+    label: "Forge",
     description: "Warm orange glow",
     mode: "dark",
     swatch: ["#120806", "#d9591a", "#b3264f"],
@@ -62,7 +62,7 @@ export const THEMES: readonly ThemeDefinition[] = [
   },
   {
     id: "glacier",
-    label: "Glacier",
+    label: "Fjord",
     description: "Cold blue depths",
     mode: "dark",
     swatch: ["#06101c", "#1b7fb3", "#5b4bd6"],
@@ -77,7 +77,7 @@ export const THEMES: readonly ThemeDefinition[] = [
   },
   {
     id: "matcha",
-    label: "Matcha",
+    label: "Sencha",
     description: "Terminal green",
     mode: "dark",
     swatch: ["#060c08", "#2f7a3a", "#8fb31f"],
@@ -92,7 +92,7 @@ export const THEMES: readonly ThemeDefinition[] = [
   },
   {
     id: "carbon",
-    label: "Carbon",
+    label: "Graphite",
     description: "Still and minimal",
     mode: "dark",
     swatch: ["#101113", "#26282d", "#e8916e"],
@@ -100,7 +100,7 @@ export const THEMES: readonly ThemeDefinition[] = [
   },
   {
     id: "paper",
-    label: "Paper",
+    label: "Linen",
     description: "Light and warm",
     mode: "light",
     swatch: ["#f3efe6", "#f0cfae", "#bfe0d6"],
@@ -115,7 +115,7 @@ export const THEMES: readonly ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = "nebula";
+export const DEFAULT_THEME: ThemeId = "matcha";
 /** Used by "Match system" when the device prefers light. */
 export const SYSTEM_LIGHT_THEME: ThemeId = "paper";
 

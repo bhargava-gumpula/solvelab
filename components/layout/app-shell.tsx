@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Command as CommandIcon, Keyboard, Palette, Settings2 } from "lucide-react";
+import { AccountButton } from "@/components/auth/account-button";
 import { AppBackground } from "@/components/appearance/app-background";
 import { AppearanceSheet } from "@/components/appearance/appearance-sheet";
 import { useAppearance } from "@/components/appearance/appearance-provider";
@@ -16,6 +17,7 @@ import { isActivePath, navigation, settingsNavigation } from "@/lib/config/navig
 import type { Command } from "@/lib/commands/registry";
 import { THEMES } from "@/lib/appearance/themes";
 import { cn } from "@/lib/utils";
+import { LegalLinks } from "@/components/legal/legal-links";
 import { BrandMark } from "./brand-mark";
 import { CommandPalette } from "./command-palette";
 import { NavPill } from "./nav-pill";
@@ -30,6 +32,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const fullBleed = isActivePath(pathname, "/timer");
+  const hideLegal =
+    fullBleed ||
+    isActivePath(pathname, "/privacy") ||
+    isActivePath(pathname, "/terms") ||
+    isActivePath(pathname, "/overview") ||
+    isActivePath(pathname, "/signed-in");
 
   useHotkeys([
     { key: "k", mod: true, allowInInputs: true, run: () => setPaletteOpen((open) => !open) },
@@ -110,6 +118,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
 
         <div className="flex items-center gap-0.5 rounded-full p-1 glass">
+          <AccountButton />
           <HeaderButton label="Command palette" shortcut="⌘K" onClick={() => setPaletteOpen(true)}>
             <CommandIcon />
           </HeaderButton>
@@ -155,6 +164,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <StorageAlert />
         {children}
+        {hideLegal ? null : <LegalLinks className="mt-10" />}
       </main>
 
       <div

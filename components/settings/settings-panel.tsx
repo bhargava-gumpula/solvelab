@@ -1,15 +1,20 @@
 "use client";
 
+import Link from "next/link";
 import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
 import { useSettings } from "@/hooks/use-local-data";
 import { getRepositories } from "@/lib/storage";
 import type { SettingsPatch } from "@/lib/storage/settings-repository";
 import { HOLD_TO_START_OPTIONS_MS } from "@/lib/storage/schemas";
+import { brand } from "@/lib/config/brand";
 import { AppearanceControls } from "@/components/appearance/appearance-controls";
+import { AccountSection } from "./account-section";
 import { DataSection } from "./data-section";
+import { HardwareTimerControls } from "./hardware-timer-section";
 import { SettingsSection } from "./settings-section";
 
 async function updateSettings(patch: SettingsPatch) {
@@ -25,6 +30,8 @@ export function SettingsPanel() {
 
   return (
     <div className="grid max-w-3xl gap-5">
+      <AccountSection />
+
       <SettingsSection
         id="appearance"
         title="Appearance"
@@ -85,6 +92,10 @@ export function SettingsPanel() {
                 ))}
               </ToggleGroup>
             </div>
+            <HardwareTimerControls
+              value={settings.timerInput}
+              onChange={(timerInput) => void updateSettings({ timerInput })}
+            />
             <SettingRow
               id="hide-time"
               label="Hide time while solving"
@@ -116,6 +127,19 @@ export function SettingsPanel() {
       </SettingsSection>
 
       <DataSection />
+
+      <SettingsSection
+        id="about"
+        title={`${brand.name} ${brand.version}`}
+        description={brand.versionLabel}
+      >
+        <p className="text-sm text-muted-foreground">
+          What this version includes, and what is planned next, is on the Overview page.
+        </p>
+        <Button asChild variant="outline" size="sm" className="mt-3 w-fit">
+          <Link href="/overview/">Overview</Link>
+        </Button>
+      </SettingsSection>
     </div>
   );
 }

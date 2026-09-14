@@ -14,7 +14,12 @@ export class SettingsRepository {
   async update(patch: SettingsPatch): Promise<UserSettings> {
     return this.db.transaction("rw", this.db.settings, async () => {
       const current = normalizeSettings(await this.db.settings.get("preferences"));
-      const next = settingsSchema.parse({ ...current, ...patch, id: "preferences" });
+      const next = settingsSchema.parse({
+        ...current,
+        ...patch,
+        id: "preferences",
+        updatedAt: new Date().toISOString(),
+      });
       await this.db.settings.put(next);
       return next;
     });

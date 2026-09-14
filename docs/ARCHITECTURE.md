@@ -16,6 +16,7 @@ Routes in `app/` are thin. Interaction lives in `components/`, reactive data acc
 | `lib/cube`     | Notation parser and 54-sticker cube state engine (used for scramble previews; foundation for case diagrams)                               |
 | `lib/solves`   | Penalty rules (raw time is immutable; final time derived)                                                                                 |
 | `lib/storage`  | Dexie schema and migrations, Zod schemas, session/solve/settings repositories                                                             |
+| `lib/sync`     | Account merge, incremental Firestore writes, Dexie write-through when signed in                                                           |
 | `lib/export`   | Versioned JSON backup and atomic restore                                                                                                  |
 | `lib/config`   | Brand, navigation, stats sizes, deployment base path                                                                                      |
 | `data/`        | Typed seed metadata: milestones, skills, exercises, algorithm sets, learning paths                                                        |
@@ -26,7 +27,7 @@ Keyboard/pointer events → `useTimerControls` → `TimerStore.dispatch({ press 
 
 ### Scrambles
 
-cubing.js generates scrambles in a module worker that locates its own files relative to the library. Webpack copies that worker without its dependencies, so `scripts/bundle-cubing.mjs` bundles the scrambler with esbuild (the bundler cubing.js supports) into `public/vendor/cubing`, and the browser provider loads it with a native `import()` that respects the base path. The Node test suite uses the npm package directly. If the worker cannot start, the service falls back to a random-move generator and the UI labels the scramble.
+cubing.js generates scrambles in a module worker that locates its own files relative to the library. Webpack copies that worker without its dependencies, so `scripts/bundle-cubing.mjs` bundles the scrambler with esbuild (the bundler cubing.js supports) into `public/vendor/cubing`, and the browser provider loads it with a native `import()` that respects the base path. The Node test suite uses the npm package directly. If the worker cannot start, the service falls back to a random-move generator and the UI labels the scramble — but only for full 3×3 / OH / BLD. Other events and CFOP subsets (F2L with cross solved, OLL with F2L solved, PLL with OLL solved) fail instead of silently becoming 25 random face turns. Subset scrambles are random-state cubie patterns solved with cubing.js and inverted.
 
 ## Storage and migrations
 
@@ -41,6 +42,8 @@ Rules: never edit a shipped version; add `.version(n).stores(...).upgrade(...)`;
 
 Backups use the stable format id `speedcubing-local-backup`, version 1. Imports validate the whole document (types, duplicate ids, references), recompute final times, and write in one transaction.
 
+Signed-in accounts also store sessions, solves, and timer settings in Cloud Firestore under `users/{uid}/`. IndexedDB remains the working copy. Merge is last-write-wins per id, with tombstones so deletes do not come back. The durable copy is Google Cloud, not a file on the operator’s machine.
+
 ## Deployment
 
 `npm run build` produces `out/`, a static site with no server requirements. `SOLVELAB_BASE_PATH` sets a sub-path at build time; links, assets, icons and the scramble worker all honor it (verified with `scripts/check-base-path.mjs`).
@@ -54,4 +57,4 @@ Build on a development machine and copy `out/`; it avoids running `next build` o
 
 ## Phase boundaries
 
-Implemented through V1. Not yet implemented: algorithm case data, diagrams and drills (V1.5), diagnostics, skill scoring and training plans (V2), local ML (V2.5), AI providers (V3), sync (V3.5), smart cubes (V4).
+Implemented through V1 plus Google sign-in and Firestore account sync. Not yet implemented: algorithm case data, diagrams and drills (V1.5), diagnostics, skill scoring and training plans (V2), local ML (V2.5), AI providers (V3), smart cubes (V4).

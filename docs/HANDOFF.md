@@ -6,9 +6,9 @@ Everything a new agent needs to continue SolveLab without the previous chat. Rea
 
 A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer → algorithm trainer → evidence-based diagnostics → training plans → retests. The full product and engineering spec is `docs/PRODUCT_SPECIFICATION.md` (~3,600 lines; it is the source of truth). Key sections: §1 principles, §22–33 algorithm trainer, §52–60 UI/design, §70 phased plan (V1.5 at line ~2548), §91 what not to build yet.
 
-- Next.js 16.3 App Router, **static export** (`out/`), webpack, React 19, strict TypeScript, Tailwind 4, shadcn/ui, Dexie (IndexedDB), Zod, Recharts, motion, cubing.js.
-- No backend, no account. All data stays in the browser.
-- Branding is centralized in `lib/config/brand.ts` ("SolveLab" is a working name).
+- Next.js 16.3 App Router, **static export** (`out/`), webpack, React 19, strict TypeScript, Tailwind 4, shadcn/ui, Dexie (IndexedDB), Zod, Recharts, motion, cubing.js, Firebase Auth (Google) and Cloud Firestore when env vars are set.
+- Signed-in timer data lives in Firestore (`users/{uid}/…`). IndexedDB is a working copy so the timer stays fast. Signed-out use stays browser-only. Google sign-in also unlocks Coach, Train and Learn.
+- Branding is centralized in `lib/config/brand.ts`. Product version is **2.0**.
 
 ## 2. How the owner works (follow these)
 
@@ -23,11 +23,11 @@ A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer 
 
 The checkout is `~/Documents/Codex/2026-09-12/b` (started by ChatGPT/Codex, continued by Claude Code). Remote: `github.com/bhargava-gumpula/solvelab` (private).
 
-| Branch           | Contents                                       | On GitHub?                               |
-| ---------------- | ---------------------------------------------- | ---------------------------------------- |
-| `main`           | V0 shell (`81c9fd5`) + V0 snapshot (`616134f`) | Only `81c9fd5`; local is 1 commit ahead  |
-| `v1-daily-timer` | V1 daily timer (`110e2c1`)                     | Yes                                      |
-| `ui-overhaul`    | UI redesign (`6c8eecb`) + this handoff         | **No — local only, owner's instruction** |
+| Branch           | Contents                                        | On GitHub?                              |
+| ---------------- | ----------------------------------------------- | --------------------------------------- |
+| `main`           | V0 shell (`81c9fd5`) + V0 snapshot (`616134f`)  | Only `81c9fd5`; local is 1 commit ahead |
+| `v1-daily-timer` | V1 daily timer (`110e2c1`)                      | Yes                                     |
+| `ui-overhaul`    | 2.0 (timer, UI, Google account, Firestore sync) | Push as part of 2.0                     |
 
 `ui-overhaul` is checked out and contains everything. Nothing has been merged into `main`.
 
@@ -64,7 +64,7 @@ Last verified at `6c8eecb`: `npm run validate` passed, **66 unit tests** (9 file
 
 **UI overhaul:**
 
-- **Themes:** six presets — Nebula (default), Ember, Glacier, Matcha, Carbon (still), Paper (light) — plus Match system. A boot script prevents theme flash. Animated WebGL mesh-gradient background that pauses during solves.
+- **Themes:** six presets — Ion, Forge, Fjord, **Sencha (default)**, Graphite (still), Linen (light) — plus Match system. Internal ids are still `nebula` / `ember` / `glacier` / `matcha` / `carbon` / `paper`. Palettes are unchanged. A boot script prevents theme flash. Animated WebGL mesh-gradient background that pauses during solves.
 - **Shell:** floating pill nav with sliding indicator, phone tab bar, ⌘K/Ctrl+K command palette, `?` shortcuts dialog, `T` appearance sheet.
 - **Timer page:**
   - Scramble bar with history and custom scrambles.
@@ -90,7 +90,7 @@ Last verified at `6c8eecb`: `npm run validate` passed, **66 unit tests** (9 file
 | ?                      | Shortcuts                 |
 | ⌘K / Ctrl+K            | Command palette           |
 
-**Still placeholders:** Coach, Train, Algorithms and Learn show planned content only.
+**Still placeholders:** Coach, Train, Algorithms and Learn show planned content only. Coach / Train / Learn require Google sign-in.
 
 ## 6. Code map
 
@@ -107,10 +107,14 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 | Appearance            | `lib/appearance/*` (themes, preferences + boot script, store, GPU detection, confetti), `components/appearance/*`, `app/globals.css` (tokens per theme)                                                     |
 | Commands + shortcuts  | `lib/commands/registry.ts`, `hooks/use-commands.ts`, `hooks/use-hotkeys.ts`, `components/layout/command-palette.tsx`, `shortcuts-dialog.tsx`                                                                |
 | Shell                 | `app/layout.tsx`, `components/layout/app-shell.tsx`, `nav-pill.tsx`                                                                                                                                         |
+| Auth + account sync   | `lib/auth/*`, `lib/sync/*`, `components/auth/*`, `components/layout/account-sync-provider.tsx`, `app/{coach,train,learn}/layout.tsx`, `firestore.rules`                                                     |
+| Timer devices         | `lib/timer/devices/*`, `components/settings/hardware-timer-section.tsx`                                                                                                                                     |
 | Adapted UI components | `components/ui/glowing-effect.tsx`, `border-beam.tsx`, `spotlight-card.tsx`, `animated-time.tsx` (plus stock shadcn/ui)                                                                                     |
 | Tests                 | `tests/unit/*` (Vitest; jsdom where needed), `tests/e2e/*` (Playwright), `tests/e2e/helpers.ts`                                                                                                             |
 
-**Saved data keys:** IndexedDB `speedcubing-local` (schema v2; never rename, add migrations with tests); localStorage `solvelab.appearance.v1` and `solvelab.panels.v1`; backup format id `speedcubing-local-backup` v1.
+**Saved data keys:** IndexedDB `speedcubing-local` (schema v2; never rename, add migrations with tests); localStorage `solvelab.appearance.v1`, `solvelab.panels.v1`, and `solvelab.sync.tombstones.v1`; backup format id `speedcubing-local-backup` v1. Signed-in solves/sessions/settings also live in Cloud Firestore `users/{uid}/{sessions,solves,settings,tombstones}`.
+
+**Firebase (optional at build time):** `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, optional `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in `.env.local` (gitignored). Authorized domains: `localhost`, `127.0.0.1`, `solvelab.bhargava-gumpula.com`. Google sign-in uses a same-origin OIDC redirect to `/signed-in/`. After sign-in the client router goes to `/timer/` without a full reload, then merges local IndexedDB with Firestore.
 
 ## 7. Gotchas and lessons learned
 
@@ -123,16 +127,16 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 - **motion's `onDragEnd` fires a frame late.** Panel positions also save on `pagehide`.
 - **Headless Chromium has only software WebGL (SwiftShader).** `lib/appearance/gpu.ts` detects software renderers and pauses the shader and cube spin. Real GPUs animate normally, so visual checks of motion need a real browser.
 - **Keyboard guard** (`lib/timer/input.ts`) never takes Space from inputs, dialogs, menus or keyboard-focused buttons. Links are excluded on purpose, because a focused nav link was swallowing Space.
+- **Google session after redirect.** Chrome treats `*.firebaseapp.com` as third-party storage, so `signInWithRedirect` can come back with no user. Prefer popup, apply `auth.currentUser` before any navigation, and use `router.replace("/timer/")` instead of `window.location.replace`.
 - **21st.dev.** Component code needs a signed-in account; the owner has a free one (signed in once in the Claude preview browser). Free accounts get **2 component downloads per day** from `https://21st.dev/r/<author>/<slug>`. Workaround: pick on 21st.dev, then install from the author's public registry (`https://magicui.design/r/<name>.json`, `https://ui.aceternity.com/registry/<name>.json`). The Motion Primitives registry rate-limited requests. Cursor can also use 21st.dev's Magic MCP if the owner provides an API key.
 
-## 8. Deployment (later milestone, not started)
+## 8. Deployment
 
 - The owner's website is a Next.js app on a Raspberry Pi behind a Cloudflare Tunnel. Its repo is `~/projects/Website`, with deploy notes in `PI_AND_DEPLOYMENT_COMMANDS.md`.
-- Options:
-  - Sub-path: build with `SOLVELAB_BASE_PATH=/solvelab`, served from the site. This needs rewrites, since Next's `public/` won't serve `index.html` for directory URLs.
-  - Subdomain: serve `out/` statically and add a tunnel ingress rule. This is simpler.
-- Build on the Mac and copy `out/`; building on the Pi hits memory limits. If it must build on the Pi, use `NODE_OPTIONS=--max-old-space-size=3072` (not 4096) and load the nvm PATH over SSH.
-- Browser data is per origin. Users move data between origins with Settings → Export/Import backup.
+- **Live URL:** `https://solvelab.bhargava-gumpula.com` (subdomain, empty `SOLVELAB_BASE_PATH`). Public HTML is served in a Cloudflare Pages style (`cache-control: public, max-age=0, must-revalidate`). The Pi copy at `~/Work/solvelab` (pm2 `solvelab` on `127.0.0.1:4173`) is a fallback, not what the hostname currently hits.
+- Build on the Mac (`npm run build`). `bash scripts/deploy-pi.sh` copies `out/` to the Pi. Do not `next build` SolveLab on the Pi. A Pages deploy is a fresh upload of `out/`.
+- Browser data is per origin. Local `127.0.0.1:5173` times do not appear on the live subdomain. Use Settings → Export/Import to move them.
+- **Known live bug (fixed in local `ui-overhaul`, not deployed):** Clear session can leave `1/1` because `pendingSolve` is merged back after IndexedDB is emptied. Fix is in `timer-workspace.tsx` / `times-panel.tsx`.
 
 ## 9. Known limitations and follow-ups
 
@@ -143,10 +147,8 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 ## 10. Waiting on the owner (ask; don't assume)
 
-1. **Feedback on the redesigned UI.** This is the immediate next task; the owner is reviewing it now. Includes whether Nebula should stay the default theme.
-2. Move the repo out of `~/Documents`?
-3. Push `ui-overhaul` (and local `main`) to GitHub, or merge into `main`?
-4. Start **V1.5 algorithm trainer** (spec §22–33, §70)? Only after explicit approval.
-5. Hosting choice: `/solvelab` sub-path or `solvelab.` subdomain?
+1. Later UI-only pass (2.1): small layout uniqueness vs TAGDA. Palettes stay.
+2. Local coach model (2.2 or 3.0): do not start until asked.
+3. Move the repo out of `~/Documents`? Disk is nearly full; iCloud + `.next` is painful.
 
 Reference only: an unfinished idea-scoring council from this chat is in `~/solvelab-council/`. The owner ended it ("we are done finding improvements"). Don't act on it unless asked.

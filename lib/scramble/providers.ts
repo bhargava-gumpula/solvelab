@@ -1,9 +1,17 @@
 import type { CubeEvent } from "@/types/domain";
-import { OUTER_FACES, type OuterFace } from "@/lib/cube/notation";
+import {
+  formatAlgorithm,
+  normalizeNotation,
+  OUTER_FACES,
+  parseAlgorithm,
+  type OuterFace,
+} from "@/lib/cube/notation";
+import { is333SubsetEvent, randomSubset333Pattern, type CubiePatternData } from "./subset-333";
 import type { ScrambleProvider } from "./types";
 
 export interface CubingScrambleModule {
-  randomScrambleForEvent(event: CubeEvent): Promise<{ toString(): string }>;
+  randomScrambleForEvent(event: string): Promise<{ toString(): string }>;
+  scrambleFrom333Pattern?: (patternData: CubiePatternData) => Promise<string>;
 }
 
 /**
@@ -17,8 +25,23 @@ export function createCubingProvider(load: () => Promise<CubingScrambleModule>):
     id: "cubing.js",
     randomState: true,
     async generate(event: CubeEvent) {
-      const { randomScrambleForEvent } = await load();
-      const alg = await randomScrambleForEvent(event);
+      const api = await load();
+      if (is333SubsetEvent(event)) {
+        if (!api.scrambleFrom333Pattern) {
+          throw new Error("Subset scramble solver is not available.");
+        }
+        for (let attempt = 0; attempt < 8; attempt++) {
+          const raw = await api.scrambleFrom333Pattern(randomSubset333Pattern(event));
+          const parsed = parseAlgorithm(normalizeNotation(raw));
+          if (!parsed.ok) {
+            throw new Error(`cubing.js returned invalid subset notation: ${raw}`);
+          }
+          const scramble = formatAlgorithm(parsed.moves);
+          if (scramble) return scramble;
+        }
+        throw new Error("Could not generate a subset scramble.");
+      }
+      const alg = await api.randomScrambleForEvent(event);
       return alg.toString();
     },
   };

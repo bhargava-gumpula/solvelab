@@ -53,7 +53,11 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
               initial={{ opacity: 0, y: 6, filter: "blur(4px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.25 }}
-              className="font-mono text-lg leading-relaxed font-medium text-balance sm:text-xl xl:text-2xl"
+              className={
+                moves.length > 32
+                  ? "font-mono text-sm leading-relaxed font-medium text-balance sm:text-base"
+                  : "font-mono text-lg leading-relaxed font-medium text-balance sm:text-xl xl:text-2xl"
+              }
             >
               {moves.map((move, index) => (
                 <span key={index}>

@@ -81,3 +81,53 @@ The owner found the V1 interface bland and asked for a drastically more polished
 
 63. The owner is moving development to Cursor to save Claude credits. The dev server was restarted with `npm run dev` on `http://127.0.0.1:5173`, the same origin Cursor will use, so solves and settings recorded during the owner's review carry over. Browser smoke check: a random-state scramble loaded, a keyboard solve went armed → running → result and saved (then deleted), there were no console errors, and the phone tab bar is opaque.
 64. Wrote `docs/HANDOFF.md` (state, branches, run/test, code map, gotchas, deployment notes, open questions), `docs/CURSOR_KICKOFF.md` (the message the owner pastes into Cursor) and `.cursor/rules/solvelab.mdc` (always-on rules). Added the key owner rules and a HANDOFF pointer to `AGENTS.md` and `README.md`. Documentation only; no code changes. `ui-overhaul` remains local and unpushed.
+
+## Cursor session — result flash, local data, scramble types (2026-09-13)
+
+65. Owner reported that a newly recorded time lagged: the previous solve flashed before the current one. Confirmed the cause: `getTimerDisplay` used the last IndexedDB solve for the stopped phase, the store notified React before `onComplete` ran, and `savingResult` was cleared before the live query caught up.
+66. `TimerStore` now fires completion listeners before subscribers. Stopped/holding digits prefer the engine result until resting is the same raw time (so +2/DNF still show). The just-finished solve is inserted optimistically so the times list, last-solve bar and stats update in the same paint. NumberFlow digit-spin is disabled so averages don’t roll through the old value. Switching session or puzzle type resets the engine so another session’s time cannot linger.
+67. Owner asked for on-device storage (“cookies and stuff”). No change: solves already live in IndexedDB `speedcubing-local`; appearance and panel layout in localStorage. Cookies are too small and would be sent to a server if the site is hosted. Nothing is uploaded.
+68. Owner asked for scramble types besides 3×3. Added WCA events cubing.js can generate (2×2–7×7, OH, BLD, Pyraminx, Megaminx, Skewb, Square-1, Clock). Puzzle picker next to the session. Empty sessions are retargeted; sessions with solves switch to (or create) a session for that event. 3×3 net/3D preview only for 3×3 / OH / BLD. Fallback random-move generator stays 3×3-only so a failed 4×4 cannot silently become 25 random face turns.
+69. Verification: 72 unit tests pass (was 66). Browser check at `http://127.0.0.1:5173/timer/`: after stop, 20 animation frames never showed the previous time; 2×2 switch produced an 11-move scramble, isolated 0/0 session, and no 3×3 preview. Did not stop the dev server for a full Playwright run so the owner’s review origin stays up. New e2e cases are in `tests/e2e/timer.spec.ts` for the next phase validation.
+
+## Cursor session — CFOP subset scrambles (2026-09-13)
+
+70. Owner asked for F2L, OLL and PLL scrambles (cross solved / F2L solved / OLL solved). These are not WCA event IDs, so they are generated as legal random cubie states with those pieces frozen, then solved with cubing.js (`experimentalSolve3x3x3IgnoringCenters`) and inverted. Added to the puzzle picker under a CFOP group. 3×3 preview stays on. Random-move fallback is not used for subsets. Vendor bundle now also exports `scrambleFrom333Pattern`.
+71. Unit tests: cube + scramble files 19/19 with one worker (an earlier full run hit iCloud/dev-server timeouts on unrelated storage tests). Browser at `http://127.0.0.1:5173/timer/`: F2L produced a new 0/0 session and a scramble with the yellow D-cross visible on the net; PLL produced a short last-layer scramble (`F2 U' R2 B2 L2 D L2 B2 R2 U2 F2 U`). Did not stop the dev server for `validate` / Playwright.
+
+## Cursor session — live subdomain (2026-09-13)
+
+72. Owner chose `solvelab.bhargava-gumpula.com`. Skip WebGL mesh when there is no GPU / reduced motion / background off; lower shader resolution; lighter glass blur on touch. Production static server caches hashed assets (`SOLVELAB_CACHE=1`).
+73. Stopped the local dev server, `npm run build` succeeded. Copied `out/` to the Pi at `~/Work/solvelab` and started pm2 `solvelab` on `127.0.0.1:4173` (200 OK locally). Cloudflare dashboard requires the owner's login, so the public hostname is not attached yet. Added a SolveLab card (demo URL) in the personal Website repo; that site is not rebuilt on the Pi yet.
+
+## Cursor session — live e2e and clear-session fix (2026-09-13)
+
+74. Owner confirmed `https://solvelab.bhargava-gumpula.com` is live (Cloudflare Pages-style HTML headers). All public routes returned HTTP 200. Browser check: random-state 3×3 scramble, Space-hold solve saved as 0.55 and survived reload, Stats showed that solve, Settings/Coach/Train/Algorithms/Learn rendered.
+
+75. Playwright against production (`playwright.live.config.ts`, 1 worker, ~3.5 min): **35 passed / 1 failed**. The failure was `clears a session with undo`: after Clear, solve-count stayed `1/1` instead of `0/0`. Cause: the last solve is kept in React as `pendingSolve` until IndexedDB catches up; after Dexie is emptied that pending row looks new again and is merged back into the list.
+
+76. Fix (local, not on Pages yet): drop pending on session clear, and drop it once it appears in IndexedDB so a later clear cannot resurrect it. Re-ran that spec against `npm run dev` on `:5173`: passed (14.7s). Live site still has the bug until the next `out/` upload. Owner asked to skip to V2 with a large change list; did not start spec V2.
+
+## Cursor session — V2 slice: names, Bluetooth stub, Google gate (2026-09-13)
+
+77. Owner scoped V2 now to: keep theme palettes, rename them, Bluetooth timer compatibility without Web Bluetooth, and real Google Sign-In gating Coach/Train/Learn. Layout uniqueness vs TAGDA is a later UI-only pass. V2.1 is AI/diagnostics/Instagram. Palettes unchanged; labels are Ion, Forge, Fjord, Sencha (default, id `matcha`), Graphite, Linen. Brand is V2.
+
+78. Added `lib/timer/devices` (keyboard adapter + Bluetooth stub that rejects connect). Settings Hardware timer: Keyboard vs Bluetooth, Connect toasts that hardware is not wired. `timerInput` is a settings field filled by `normalizeSettings` (no Dexie version bump).
+
+79. Firebase Auth client: `NEXT_PUBLIC_FIREBASE_*`. Without keys the build still runs; gated pages show Sign in with Google and “Accounts aren’t configured on this build.” Header account button, Settings Account section, AuthGate on Coach/Train/Learn. Timer/Stats/Algorithms stay public. No Firestore, no solve sync.
+
+80. Disk filled during the change (APFS ~100%). Stopped `next dev` and deleted `.next` to free space. Unit tests for appearance, auth, timer devices, and storage: 22/22 passed. ESLint on new files clean. `tsc` hung writing incremental cache on a full disk; did not run the production build or Playwright.
+
+81. Owner: Google sign-in reached the last Google screen then hung, and never returned to the timer. Popup flow cannot close that window reliably. Switched to `signInWithRedirect`, complete with `getRedirectResult` on boot, then `window.location.replace("/timer/")`. Auth uses `initializeAuth` with IndexedDB persistence and `browserPopupRedirectResolver`.
+
+82. Owner: Google redirect completed, but the app stayed signed out. The Google tab finished on Firebase’s `__/auth/handler` page and never handed the session back (Chrome third-party storage). Sign-in now asks Google for a token on this origin (`signInWithCredential`), then falls back to a popup. The header updates in this tab; the client router goes to `/timer/` without a full reload. Auth unit tests 8/8. Did not run `validate` (shares `.next` with the running preview).
+
+83. Owner: Google said the account wasn’t authorized. That was `origin_mismatch` — the OAuth web client was missing JavaScript origins `http://127.0.0.1:5173`, `http://localhost:5173`, and `https://solvelab.bhargava-gumpula.com`. Added those plus `/signed-in/` redirect URIs. Audience is already In production / External (not a test-user cap). Sign-in now uses a same-origin OIDC redirect to `/signed-in/` (no Firebase helper page, no GIS popup). Browser: Google account chooser for SolveLab, Allow, then `/timer/` with Account in the header and Coach unlocked (“Know what to practice next.”). Added Privacy and Terms at `/privacy/` and `/terms/` (solves stay in IndexedDB `speedcubing-local`; Google/Firebase only stores the account). Auth unit tests 8/8. Live Pages still needs a later `out/` deploy for those legal URLs.
+
+## Cursor session — account cloud sync (2026-09-13)
+
+84. Owner: an account is pointless if times vanish when browser data is cleared, and durable storage must not live on his laptop. Enabled Cloud Firestore `(default)` in `nam5` (United States) for `solvelab-1bb6e`, production-mode start, then published rules so only `request.auth.uid` can read/write `users/{uid}/**`. Client sync (`lib/sync`): on sign-in, merge IndexedDB with Firestore (union by id, last-write-wins, tombstones for deletes) and write the result back; Dexie hooks debounce a follow-up push after local edits. Working copy stays in the browser so the timer stays instant; nothing is written to the git checkout or the Pi. Privacy/Terms/Settings Account copy updated. Merge unit tests added. Did not run full `validate` (dev server still using `.next`). Live site still needs an `out/` deploy before production visitors get sync.
+
+## Cursor session — 2.0 ship (2026-09-13)
+
+85. Owner asked to ship this as **2.0**, show the version on the site, optimize without changing behavior, run e2e, push GitHub, and deploy live. Version is `2.0` in `lib/config/brand.ts`, footer (`SolveLab 2.0`), Settings About, and `/overview/`. Overview lists what 2.0 includes and that 2.1 is UI and 2.2/3.0 is a local coach. Sync now diffs against the last pushed snapshot: a new solve is one Firestore write instead of rewriting every document; sign-in still merges. No timer/UI redesign. `npm run validate` passed (99 unit tests, production build includes `/overview`). Playwright 39 tests: two auth locators were ambiguous (header + page Sign in; Overview subtitle + heading); scoped them. Full e2e then green.

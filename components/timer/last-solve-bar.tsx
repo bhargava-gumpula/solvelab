@@ -6,16 +6,22 @@ import { BorderBeam } from "@/components/ui/border-beam";
 import { Button } from "@/components/ui/button";
 import type { Solve } from "@/types/domain";
 import { PenaltyToggle } from "./penalty-toggle";
-import { deleteSolveWithUndo, setSolvePenalty } from "./solve-actions";
+import { setSolvePenalty } from "./solve-actions";
 
 interface LastSolveBarProps {
   solve: Solve | undefined;
   isPersonalBest: boolean;
   onOpenDetails: (solve: Solve) => void;
+  onDelete: (solve: Solve) => void;
 }
 
 /** Quick actions for the most recent solve, directly under the timer. */
-export function LastSolveBar({ solve, isPersonalBest, onOpenDetails }: LastSolveBarProps) {
+export function LastSolveBar({
+  solve,
+  isPersonalBest,
+  onOpenDetails,
+  onDelete,
+}: LastSolveBarProps) {
   return (
     <div className="flex min-h-12 justify-center" data-focus-hide>
       {solve && (
@@ -56,7 +62,7 @@ export function LastSolveBar({ solve, isPersonalBest, onOpenDetails }: LastSolve
             variant="ghost"
             size="sm"
             className="rounded-full hover:text-destructive"
-            onClick={() => deleteSolveWithUndo(solve)}
+            onClick={() => onDelete(solve)}
             aria-label="Delete last solve"
             onMouseUp={(event) => event.currentTarget.blur()}
           >

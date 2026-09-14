@@ -98,7 +98,8 @@ export class SolveRepository {
 
   /** Restores solves removed by `clearSession` or `delete`. */
   async restore(solves: Solve[]): Promise<void> {
-    await this.db.solves.bulkPut(solves);
+    const now = new Date().toISOString();
+    await this.db.solves.bulkPut(solves.map((solve) => ({ ...solve, updatedAt: now })));
   }
 }
 

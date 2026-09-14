@@ -21,9 +21,22 @@ await build({
     // Start with the esbuild-compatible worker strategy so cubing.js doesn't
     // probe (and 404 on) paths that only exist in its unbundled layout.
     contents: [
-      'import { setSearchDebug } from "cubing/search";',
+      'import { experimentalSolve3x3x3IgnoringCenters, setSearchDebug } from "cubing/search";',
+      'import { cube3x3x3 } from "cubing/puzzles";',
+      'import { KPattern } from "cubing/kpuzzle";',
       "setSearchDebug({ prioritizeEsbuildWorkaroundForWorkerInstantiation: true, logPerf: false });",
       'export { randomScrambleForEvent } from "cubing/scramble";',
+      "let kpuzzlePromise;",
+      "export async function scrambleFrom333Pattern(patternData) {",
+      "  kpuzzlePromise ??= cube3x3x3.kpuzzle();",
+      "  const kpuzzle = await kpuzzlePromise;",
+      "  const data = structuredClone(kpuzzle.defaultPattern().patternData);",
+      "  data.EDGES = patternData.EDGES;",
+      "  data.CORNERS = patternData.CORNERS;",
+      "  const pattern = new KPattern(kpuzzle, data);",
+      "  const solution = await experimentalSolve3x3x3IgnoringCenters(pattern);",
+      "  return solution.invert().experimentalSimplify({ cancel: true }).toString();",
+      "}",
     ].join("\n"),
     resolveDir: root,
     sourcefile: "cubing-scramble.js",

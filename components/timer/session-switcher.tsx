@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSessions } from "@/hooks/use-local-data";
+import { eventInfo } from "@/lib/cube/events";
 import { getRepositories } from "@/lib/storage";
 import type { Session } from "@/types/domain";
 import { SessionManagerDialog } from "./session-manager-dialog";
@@ -75,7 +76,12 @@ export function SessionSwitcher({ active }: { active: Session | undefined }) {
           {sessions?.map((session) => (
             <DropdownMenuItem key={session.id} onSelect={() => switchTo(session.id)}>
               <Check className={session.id === active?.id ? "opacity-100" : "opacity-0"} />
-              <span className="truncate">{session.name}</span>
+              <span className="min-w-0 flex-1 truncate">{session.name}</span>
+              {session.event !== "333" && session.name !== eventInfo(session.event).label && (
+                <span className="text-xs text-muted-foreground">
+                  {eventInfo(session.event).shortLabel}
+                </span>
+              )}
             </DropdownMenuItem>
           ))}
           <DropdownMenuSeparator />

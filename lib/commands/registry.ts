@@ -8,7 +8,7 @@ import type { LucideIcon } from "lucide-react";
 export interface Command {
   id: string;
   label: string;
-  group: "Timer" | "Scramble" | "Session" | "Navigate" | "Appearance" | "Data";
+  group: "Timer" | "Scramble" | "Session" | "Navigate" | "Appearance" | "Data" | "Account";
   /** Human-readable shortcut, shown in the palette and help sheet. */
   shortcut?: string;
   icon?: LucideIcon;

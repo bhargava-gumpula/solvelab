@@ -41,6 +41,29 @@ function cueFor(elapsed: number): 8 | 12 | null {
   return null;
 }
 
+/**
+ * Time shown while idle, stopped, or holding for the next solve.
+ *
+ * The engine result is used the instant a solve stops, so the digits never
+ * flash the previous solve while the database catches up. Once resting is the
+ * same raw time (optimistic or saved), it wins so +2/DNF edits show.
+ */
+function resultText(state: TimerState, resting: RestingTime | null): string {
+  const saved = resting ? formatSolve(resting.rawTimeMs, resting.penalty) : null;
+  const live = state.result
+    ? formatSolve(state.result.rawTimeMs, state.result.inspectionPenalty)
+    : null;
+  const justFinished =
+    live !== null &&
+    (state.phase === "stopped" || (state.phase === "ready" && state.holdOrigin === "stopped"));
+
+  if (justFinished) {
+    if (resting && state.result && resting.rawTimeMs === state.result.rawTimeMs) return saved!;
+    return live;
+  }
+  return saved ?? live ?? "0.00";
+}
+
 /** Pure mapping from engine state + clock to what the timer should show. */
 export function getTimerDisplay(
   state: TimerState,
@@ -48,7 +71,7 @@ export function getTimerDisplay(
   config: TimerConfig,
   { hideWhileRunning, resting }: DisplayOptions,
 ): TimerDisplayModel {
-  const restingText = resting ? formatSolve(resting.rawTimeMs, resting.penalty) : "0.00";
+  const restingText = resultText(state, resting);
   const inspectionElapsed = inspectionElapsedMs(state, now);
 
   switch (state.phase) {

@@ -10,9 +10,9 @@
  *
  * Each theme preset sets the tokens under [data-theme="…"]. The animated
  * background colors for each preset live in lib/appearance/themes.ts.
- * :root holds the Nebula values so the page is styled before JS runs.
+ * :root holds the default (Sencha / matcha) values so the page is styled
+ * before JS runs. Preset palettes are unchanged.
  */
-:root,
 [data-theme="nebula"] {
   --background: #0b0a1a;
   --foreground: #efecff;
@@ -91,6 +91,7 @@
   --chart-muted: #3f5a72;
 }
 
+:root,
 [data-theme="matcha"] {
   --background: #060c08;
   --foreground: #e8ffec;
@@ -100,15 +101,32 @@
   --popover-foreground: #e8ffec;
   --primary: #74f294;
   --primary-foreground: #04200d;
+  --secondary: rgb(255 255 255 / 0.07);
+  --secondary-foreground: #e8ffec;
+  --muted: rgb(255 255 255 / 0.06);
   --muted-foreground: #9dbfa4;
   --accent: rgb(116 242 148 / 0.14);
   --accent-foreground: #c8ffd4;
   --accent-2: #d6ff63;
+  --destructive: #ff7a93;
+  --success: #5ef2b0;
+  --warning: #ffd479;
+  --border: rgb(255 255 255 / 0.09);
+  --input: rgb(255 255 255 / 0.14);
   --ring: #74f294;
   --glow: rgb(116 242 148 / 0.4);
   --backdrop: #060c08;
+
   --timer-idle: #dcffe3;
+  --timer-holding: #ff7a93;
   --timer-armed: #b7ff5c;
+  --timer-inspection: #ffd479;
+
+  --chart-1: #3987e5;
+  --chart-2: #d95926;
+  --chart-3: #199e70;
+  --chart-4: #c98500;
+  --chart-5: #d55181;
   --chart-muted: #3f5a46;
 }
 
@@ -311,6 +329,12 @@
   box-shadow:
     0 1px 0 0 rgb(255 255 255 / 0.05) inset,
     0 20px 50px -24px rgb(0 0 0 / 0.55);
+}
+
+@media (pointer: coarse) {
+  .glass {
+    --blur: 8px;
+  }
 }
 
 /* Soft accent glow for emphasized text such as the armed timer. */

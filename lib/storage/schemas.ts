@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { cubeEventSchema } from "@/lib/cube/events";
 import type { UserSettings } from "@/types/domain";
 
 /** Shared validation for anything written to local storage or imported. */
@@ -16,7 +17,7 @@ export const tagsSchema = z.array(z.string().trim().min(1).max(MAX_TAG_LENGTH)).
 export const solveSchema = z.object({
   id: z.string().min(1),
   sessionId: z.string().min(1),
-  event: z.literal("333"),
+  event: cubeEventSchema,
   scramble: z.string().min(1).max(2000),
   rawTimeMs: z.number().finite().nonnegative(),
   penalty: penaltySchema,
@@ -38,11 +39,12 @@ export const sessionNameSchema = z
 export const sessionSchema = z.object({
   id: z.string().min(1),
   name: sessionNameSchema,
-  event: z.literal("333"),
+  event: cubeEventSchema,
   createdAt: isoDate,
   sortOrder: z.number().int(),
   description: z.string().max(500).optional(),
   archivedAt: isoDate.optional(),
+  updatedAt: isoDate.optional(),
 });
 
 export const HOLD_TO_START_OPTIONS_MS = [0, 300, 550] as const;
@@ -57,6 +59,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   hideTimeWhileRunning: false,
   inspectionAudioCues: false,
   showScramblePreview: true,
+  timerInput: "keyboard",
 };
 
 export const settingsSchema = z.object({
@@ -69,6 +72,8 @@ export const settingsSchema = z.object({
   hideTimeWhileRunning: z.boolean(),
   inspectionAudioCues: z.boolean(),
   showScramblePreview: z.boolean(),
+  timerInput: z.enum(["keyboard", "bluetooth"]),
+  updatedAt: isoDate.optional(),
 });
 
 /** Fills settings fields missing from older records, then validates. */
@@ -78,4 +83,8 @@ export function normalizeSettings(record: Partial<UserSettings> | undefined): Us
   return parsed.success
     ? parsed.data
     : { ...DEFAULT_SETTINGS, activeSessionId: merged.activeSessionId };
+}
+
+export function stampSettings(settings: UserSettings): UserSettings {
+  return { ...settings, updatedAt: new Date().toISOString() };
 }

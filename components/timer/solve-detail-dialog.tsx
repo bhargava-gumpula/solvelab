@@ -29,9 +29,15 @@ interface SolveDetailDialogProps {
   solve: Solve | undefined;
   solveNumber: number | undefined;
   onOpenChange: (open: boolean) => void;
+  onDelete?: (solve: Solve) => void;
 }
 
-export function SolveDetailDialog({ solve, solveNumber, onOpenChange }: SolveDetailDialogProps) {
+export function SolveDetailDialog({
+  solve,
+  solveNumber,
+  onOpenChange,
+  onDelete,
+}: SolveDetailDialogProps) {
   return (
     <Dialog open={solve !== undefined} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
@@ -42,6 +48,7 @@ export function SolveDetailDialog({ solve, solveNumber, onOpenChange }: SolveDet
             solve={solve}
             solveNumber={solveNumber}
             onClose={() => onOpenChange(false)}
+            onDelete={onDelete}
           />
         )}
       </DialogContent>
@@ -53,10 +60,12 @@ function SolveDetailForm({
   solve,
   solveNumber,
   onClose,
+  onDelete,
 }: {
   solve: Solve;
   solveNumber: number | undefined;
   onClose: () => void;
+  onDelete?: (solve: Solve) => void;
 }) {
   const [notes, setNotes] = useState(solve.notes ?? "");
   const [tags, setTags] = useState((solve.tags ?? []).join(", "));
@@ -171,6 +180,7 @@ function SolveDetailForm({
           className="text-destructive hover:text-destructive"
           onClick={() => {
             onClose();
+            onDelete?.(solve);
             void deleteSolveWithUndo(solve);
           }}
         >

@@ -1,10 +1,10 @@
 # SolveLab
 
-A local-first speedcubing timer and training platform, built in reviewable phases.
+A local-first speedcubing timer that will grow into a coach.
 
-**Current phase: V1 — daily timer.** Random-state 3×3 scrambles, keyboard and touch timing with optional WCA inspection, sessions, penalties, notes and tags, Ao5/Ao12/Ao50/Ao100 and personal bests, a stats dashboard with charts, and JSON backup/restore. Everything is stored in the browser (IndexedDB); no account or network service is needed. Coach, Train, Algorithms and Learn show planned work for later phases.
+**Current release: 2.0 — Accounts and cloud times.** Random-state scrambles, keyboard and touch timing with optional WCA inspection, sessions, stats, JSON backup, Google sign-in, and times stored on the Google account in Cloud Firestore (a working copy stays in the browser). Coach, Train, Algorithms and Learn are signed-in placeholders for later phases.
 
-The interface was redesigned on the `ui-overhaul` branch: six themes with an animated background, glass panels you can drag, an interactive 3D scramble preview, LCD and dot-matrix digits, and a ⌘K command palette with keyboard shortcuts.
+See [docs/OVERVIEW.md](docs/OVERVIEW.md) for what 2.0 includes and what is planned (2.1 UI, then a local coach in 2.2 or 3.0).
 
 **New to the project (human or AI agent)? Start with [docs/HANDOFF.md](docs/HANDOFF.md).**
 
@@ -46,7 +46,7 @@ Upload the contents of `out/` so they are reachable at `/solvelab/`. Browser dat
 
 ## Project record
 
-- [Handoff: current state, how to run, gotchas, open questions](docs/HANDOFF.md)
+- [Release overview: 2.0 shipped, 2.1 / local coach planned](docs/OVERVIEW.md)
 - [Full product specification](docs/PRODUCT_SPECIFICATION.md)
 - [Step-by-step development log](docs/DEVELOPMENT_LOG.md)
 - [Architecture, migration policy and deployment notes](docs/ARCHITECTURE.md)
@@ -55,6 +55,6 @@ Upload the contents of `out/` so they are reachable at `/solvelab/`. Browser dat
 
 ## Phases
 
-V0 foundation ✓ → **V1 daily timer ✓** → V1.5 algorithm trainer → V1.75 advanced sets → V2 diagnostics and training → V2.5 evaluated local ML → V3 optional AI → V3.5 optional sync → V4 smart cubes.
+**2.0 accounts and cloud times ✓** → 2.1 interface → 2.2 or 3.0 local coach.
 
-Each phase stops for review before the next begins.
+Earlier labels: V0 foundation and V1 daily timer are included in 2.0. Algorithm trainer, diagnostics, and on-device analysis are not in 2.0.

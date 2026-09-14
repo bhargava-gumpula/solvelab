@@ -20,6 +20,7 @@ const GROUP_ORDER: Command["group"][] = [
   "Session",
   "Navigate",
   "Appearance",
+  "Account",
   "Data",
 ];
 

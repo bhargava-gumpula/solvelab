@@ -3,6 +3,9 @@ import {
   applyAlgorithm,
   applyMoves,
   formatAlgorithm,
+  hasCrossSolved,
+  hasF2lSolved,
+  hasOllSolved,
   invertAlgorithm,
   isSolved,
   normalizeNotation,
@@ -83,5 +86,33 @@ describe("cube state engine", () => {
       SOLVED_FACELETS,
     );
     expect(orderOf("R U R' U' R' F R2 U' R' U' R U R' F'")).toBe(2);
+  });
+});
+
+describe("CFOP stage checks", () => {
+  it("treats a solved cube as having cross, F2L and OLL done", () => {
+    expect(hasCrossSolved(SOLVED_FACELETS)).toBe(true);
+    expect(hasF2lSolved(SOLVED_FACELETS)).toBe(true);
+    expect(hasOllSolved(SOLVED_FACELETS)).toBe(true);
+  });
+
+  it("keeps the cross after a U turn, and F2L after a Sune", () => {
+    expect(hasCrossSolved(applyAlgorithm("U"))).toBe(true);
+    expect(hasF2lSolved(applyAlgorithm("U"))).toBe(true);
+    expect(hasOllSolved(applyAlgorithm("U"))).toBe(true);
+
+    const sune = applyAlgorithm("R U R' U R U2 R'");
+    expect(hasF2lSolved(sune)).toBe(true);
+    expect(hasOllSolved(sune)).toBe(false);
+
+    const tPerm = applyAlgorithm("R U R' U' R' F R2 U' R' U' R U R' F'");
+    expect(hasOllSolved(tPerm)).toBe(true);
+    expect(isSolved(tPerm)).toBe(false);
+
+    const sexy = applyAlgorithm("R U R' U'");
+    expect(hasCrossSolved(sexy)).toBe(true);
+    expect(hasF2lSolved(sexy)).toBe(false);
+
+    expect(hasCrossSolved(applyAlgorithm("R"))).toBe(false);
   });
 });

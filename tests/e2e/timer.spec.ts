@@ -35,6 +35,45 @@ test.describe("daily timer", () => {
     expect(failedRequests).toEqual([]);
   });
 
+  test("shows the new time immediately, never the previous solve", async ({ page }) => {
+    await openTimer(page);
+    await keyboardSolve(page, 350);
+    const first = secondsFrom((await display(page).textContent()) ?? "");
+    await keyboardSolve(page, 1100);
+    const second = secondsFrom((await display(page).textContent()) ?? "");
+    expect(second).toBeGreaterThan(first + 0.4);
+    await expect(page.getByTestId("solve-count")).toHaveText("2/2");
+  });
+
+  test("switches scramble type to 2×2", async ({ page }) => {
+    await openTimer(page);
+    await page.getByTestId("event-switcher").click();
+    await page.getByRole("menuitemradio", { name: "2×2" }).click();
+    await expect(page.getByTestId("event-switcher")).toContainText("2×2");
+    await expect
+      .poll(async () => {
+        const moves = ((await page.getByTestId("scramble").textContent()) ?? "")
+          .trim()
+          .split(/\s+/);
+        return moves.length;
+      })
+      .toBeLessThan(15);
+  });
+
+  test("switches scramble type to PLL (OLL solved)", async ({ page }) => {
+    await openTimer(page);
+    await page.getByTestId("event-switcher").click();
+    await page.getByRole("menuitemradio", { name: "PLL — OLL solved" }).click();
+    await expect(page.getByTestId("event-switcher")).toContainText("PLL");
+    await expect
+      .poll(async () => ((await page.getByTestId("scramble").textContent()) ?? "").trim(), {
+        timeout: 20_000,
+      })
+      .not.toBe("");
+    await expect(page.getByText(/Random-move scramble/)).toHaveCount(0);
+    await expect(page.getByText("Scramble preview")).toBeVisible();
+  });
+
   test("ignores mouse clicks: they never start or stop the timer", async ({ page }) => {
     await openTimer(page);
     const surface = page.getByTestId("timer-surface");

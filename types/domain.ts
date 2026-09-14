@@ -1,4 +1,20 @@
-export type CubeEvent = "333";
+export type CubeEvent =
+  | "222"
+  | "333"
+  | "444"
+  | "555"
+  | "666"
+  | "777"
+  | "333bf"
+  | "333oh"
+  | "333f2l"
+  | "333oll"
+  | "333pll"
+  | "clock"
+  | "minx"
+  | "pyram"
+  | "skewb"
+  | "sq1";
 export type Penalty = "none" | "plus2" | "dnf";
 export type SolveSource = "normal" | "diagnostic" | "training" | "algorithm";
 export interface Solve {
@@ -30,10 +46,12 @@ export interface Session {
   sortOrder: number;
   description?: string;
   archivedAt?: string;
+  updatedAt?: string;
 }
 
 export type ThemeMode = "dark" | "light" | "system";
 export type CubingMethod = "beginner" | "cfop" | "roux" | "zz" | "other" | "unknown";
+export type TimerInput = "keyboard" | "bluetooth";
 
 export interface UserSettings {
   id: "preferences";
@@ -49,6 +67,9 @@ export interface UserSettings {
   inspectionAudioCues: boolean;
   /** Schema v2: show a 2D preview of the scrambled cube. */
   showScramblePreview: boolean;
+  /** Preferred start/stop source. Bluetooth connect is stubbed in this build. */
+  timerInput: TimerInput;
+  updatedAt?: string;
 }
 
 export type SkillId =

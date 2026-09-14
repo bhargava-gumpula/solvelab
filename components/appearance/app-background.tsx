@@ -20,13 +20,13 @@ export function AppBackground() {
   const { theme, preferences, reducedMotion, ready } = useAppearance();
   const focused = useIsTimerFocused();
   const background = theme.background;
-
-  // Without a hardware GPU the shader renders one still frame (speed 0 stops its loop).
-  const paused =
-    reducedMotion ||
-    !preferences.animatedBackground ||
-    (preferences.pauseBackgroundWhileSolving && focused) ||
-    (ready && !supportsHardwareWebGL());
+  const useShader =
+    ready &&
+    background.kind === "mesh" &&
+    preferences.animatedBackground &&
+    !reducedMotion &&
+    supportsHardwareWebGL();
+  const paused = Boolean(preferences.pauseBackgroundWhileSolving && focused);
 
   const fallback =
     background.kind === "mesh"
@@ -44,19 +44,21 @@ export function AppBackground() {
       {ready && background.kind === "mesh" && (
         <>
           <div className="absolute inset-0" style={{ background: fallback }} />
-          <MeshGradient
-            key={theme.id}
-            className="absolute inset-0 h-full w-full"
-            colors={background.colors}
-            distortion={background.distortion}
-            swirl={background.swirl}
-            grainMixer={0}
-            grainOverlay={background.grain}
-            speed={paused ? 0 : background.speed}
-            // A soft gradient loses nothing at lower resolution; this keeps GPU cost small.
-            maxPixelCount={1280 * 720}
-            minPixelRatio={1}
-          />
+          {useShader ? (
+            <MeshGradient
+              key={theme.id}
+              className="absolute inset-0 h-full w-full"
+              colors={background.colors}
+              distortion={background.distortion}
+              swirl={background.swirl}
+              grainMixer={0}
+              grainOverlay={background.grain}
+              speed={paused ? 0 : background.speed}
+              // A soft gradient loses nothing at lower resolution; this keeps GPU cost small.
+              maxPixelCount={960 * 540}
+              minPixelRatio={1}
+            />
+          ) : null}
         </>
       )}
       {ready && background.kind === "solid" && (

@@ -6,6 +6,14 @@ import { createBackup, parseBackup, restoreBackup } from "@/lib/export/backup";
 
 const databases: LocalDatabase[] = [];
 
+function withoutUpdatedAt<T extends { updatedAt?: string }>(rows: T[]) {
+  return rows.map((row) => {
+    const copy = { ...row };
+    delete copy.updatedAt;
+    return copy;
+  });
+}
+
 async function freshDatabase(): Promise<{ db: LocalDatabase; repos: Repositories }> {
   const db = new LocalDatabase(`backup-${crypto.randomUUID()}`);
   databases.push(db);
@@ -51,10 +59,15 @@ describe("JSON backup", () => {
     const target = await freshDatabase();
     const summary = await restoreBackup(target.db, parsed.document, "replace");
     expect(summary).toEqual({ sessionsAdded: 2, solvesAdded: 20, solvesSkipped: 0 });
-    expect(await target.db.solves.orderBy("createdAt").toArray()).toEqual(
-      await source.db.solves.orderBy("createdAt").toArray(),
+    expect(withoutUpdatedAt(await target.db.solves.orderBy("createdAt").toArray())).toEqual(
+      withoutUpdatedAt(await source.db.solves.orderBy("createdAt").toArray()),
     );
-    expect(await target.repos.settings.get()).toEqual(await source.repos.settings.get());
+    const importedSettings = await target.repos.settings.get();
+    const sourceSettings = await source.repos.settings.get();
+    expect({ ...importedSettings, updatedAt: undefined }).toEqual({
+      ...sourceSettings,
+      updatedAt: undefined,
+    });
   });
 
   it("merges without duplicating records that already exist", async () => {

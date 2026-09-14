@@ -13,6 +13,7 @@ import {
   sessionSchema,
   settingsSchema,
   solveSchema,
+  stampSettings,
 } from "@/lib/storage/schemas";
 import { withFinalTime } from "@/lib/storage/solve-repository";
 
@@ -156,27 +157,34 @@ export async function restoreBackup(
 
     const existingSessions = new Set((await db.sessions.toCollection().primaryKeys()) as string[]);
     const lastOrder = (await db.sessions.orderBy("sortOrder").last())?.sortOrder ?? -1;
+    const now = new Date().toISOString();
     const newSessions = sessions
       .filter((session) => !existingSessions.has(session.id))
       .map((session, index) =>
-        mode === "merge" ? { ...session, sortOrder: lastOrder + 1 + index } : session,
+        mode === "merge"
+          ? { ...session, sortOrder: lastOrder + 1 + index, updatedAt: now }
+          : { ...session, updatedAt: now },
       );
     await db.sessions.bulkAdd(newSessions);
 
     const existingSolves = new Set((await db.solves.toCollection().primaryKeys()) as string[]);
-    const newSolves = solves.filter((solve) => !existingSolves.has(solve.id));
+    const newSolves = solves
+      .filter((solve) => !existingSolves.has(solve.id))
+      .map((solve) => ({ ...solve, updatedAt: now }));
     await db.solves.bulkAdd(newSolves);
 
     const current = normalizeSettings(await db.settings.get("preferences"));
     const base = mode === "replace" ? settings : current;
     const activeExists = await db.sessions.get(base.activeSessionId);
     const firstSession = await db.sessions.orderBy("sortOrder").first();
-    await db.settings.put({
-      ...base,
-      activeSessionId: activeExists
-        ? base.activeSessionId
-        : (firstSession?.id ?? base.activeSessionId),
-    });
+    await db.settings.put(
+      stampSettings({
+        ...base,
+        activeSessionId: activeExists
+          ? base.activeSessionId
+          : (firstSession?.id ?? base.activeSessionId),
+      }),
+    );
 
     return {
       sessionsAdded: newSessions.length,

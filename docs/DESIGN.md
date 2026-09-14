@@ -1,19 +1,19 @@
 # Design system
 
-The timer is the home screen: no marketing page and no coaching gate. Since the UI overhaul (inspired by [TAGDA Timer](https://tagdatimer.vercel.app) and [csTimer](https://cstimer.net) at the owner's request), the look is immersive rather than neutral: an animated shader background, frosted-glass panels, large expressive digits and motion that responds to input. A still, minimal preset (Carbon) remains for anyone who prefers the earlier calm look.
+The timer is the home screen: no marketing page. Coach, Train and Learn require a Google account; the timer, stats and algorithms stay available signed out. Since the UI overhaul (inspired by [TAGDA Timer](https://tagdatimer.vercel.app) and [csTimer](https://cstimer.net) at the owner's request), the look is immersive rather than neutral: an animated shader background, frosted-glass panels, large expressive digits and motion that responds to input. A still, minimal preset (Graphite, id `carbon`) remains for anyone who prefers the earlier calm look.
 
 ## Themes
 
-Six presets, chosen in the Appearance sheet (press `T`) or Settings, plus "Match system" (Nebula when the device is dark, Paper when light). Appearance is a per-device preference stored in localStorage; a tiny boot script in `<head>` applies it before first paint so there is no flash.
+Six presets, chosen in the Appearance sheet (press `T`) or Settings, plus "Match system" (Sencha when the device is dark, Linen when light). Internal ids are unchanged (`nebula`, `ember`, …) so saved appearance still works. Appearance is a per-device preference stored in localStorage; a tiny boot script in `<head>` applies it before first paint so there is no flash.
 
-| Preset  | Mood                 | Background                  |
-| ------- | -------------------- | --------------------------- |
-| Nebula  | Violet + teal aurora | Animated mesh gradient      |
-| Ember   | Warm orange glow     | Animated mesh gradient      |
-| Glacier | Cold blue depths     | Animated mesh gradient      |
-| Matcha  | Terminal green       | Animated mesh gradient      |
-| Carbon  | Still and minimal    | Solid, no animation         |
-| Paper   | Light and warm       | Soft animated mesh gradient |
+| Label    | Id      | Mood                 | Background                  |
+| -------- | ------- | -------------------- | --------------------------- |
+| Ion      | nebula  | Violet + teal aurora | Animated mesh gradient      |
+| Forge    | ember   | Warm orange glow     | Animated mesh gradient      |
+| Fjord    | glacier | Cold blue depths     | Animated mesh gradient      |
+| Sencha   | matcha  | Terminal green       | Animated mesh gradient      |
+| Graphite | carbon  | Still and minimal    | Solid, no animation         |
+| Linen    | paper   | Light and warm       | Soft animated mesh gradient |
 
 Surface and text tokens live in `app/globals.css` under `[data-theme="…"]`; background recipes and swatches in `lib/appearance/themes.ts`. Components use tokens only.
 

@@ -1,5 +1,6 @@
 import type { CubeEvent } from "@/types/domain";
-import { isValidAlgorithm, normalizeNotation } from "@/lib/cube/notation";
+import { allowsRandomMoveFallback, isValidScramble } from "@/lib/cube/events";
+import { normalizeNotation } from "@/lib/cube/notation";
 import type { GeneratedScramble, ScrambleProvider } from "./types";
 
 export interface ScrambleServiceOptions {
@@ -34,7 +35,7 @@ export class ScrambleService {
   private readonly timeoutMs: number;
 
   constructor(private readonly options: ScrambleServiceOptions) {
-    this.timeoutMs = options.timeoutMs ?? 8000;
+    this.timeoutMs = options.timeoutMs ?? 20_000;
   }
 
   /** Returns the prepared scramble (or generates one) and prepares the next. */
@@ -55,6 +56,7 @@ export class ScrambleService {
     try {
       return await this.fromProvider(primary, event);
     } catch (error) {
+      if (!allowsRandomMoveFallback(event)) throw error;
       console.warn(`Scramble provider ${primary.id} failed; using ${fallback.id}.`, error);
       return this.fromProvider(fallback, event);
     }
@@ -65,7 +67,7 @@ export class ScrambleService {
     event: CubeEvent,
   ): Promise<GeneratedScramble> {
     const scramble = normalizeNotation(await withTimeout(provider.generate(event), this.timeoutMs));
-    if (!scramble || !isValidAlgorithm(scramble)) {
+    if (!isValidScramble(event, scramble)) {
       throw new Error(`Provider ${provider.id} returned an invalid scramble.`);
     }
     return { event, scramble, providerId: provider.id, randomState: provider.randomState };

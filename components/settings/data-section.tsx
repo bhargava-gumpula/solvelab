@@ -27,10 +27,13 @@ import {
 } from "@/lib/export/backup";
 import { getRepositories } from "@/lib/storage";
 import { DATABASE_VERSION } from "@/lib/storage/database";
+import { useAuth } from "@/components/auth/auth-provider";
 import { SettingsSection } from "./settings-section";
 
 export function DataSection() {
   const { status, retry } = useStorageStatus();
+  const { status: authStatus } = useAuth();
+  const signedIn = authStatus === "signedIn";
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<BackupDocument | null>(null);
   const [mode, setMode] = useState<ImportMode>("merge");
@@ -86,7 +89,11 @@ export function DataSection() {
     <SettingsSection
       id="data"
       title="Your data"
-      description="Everything is stored in this browser on this device. No account, no uploads."
+      description={
+        signedIn
+          ? "This browser keeps a working copy so the timer stays fast. Signed-in times also live on the Google account in Google Cloud — not on the operator’s laptop."
+          : "Signed out, everything stays in this browser. Sign in to keep times on the Google account so a new device can restore them."
+      }
     >
       <div className="bg-surface-sunken flex items-start gap-3 rounded-lg p-4" role="status">
         <Database className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
@@ -101,7 +108,7 @@ export function DataSection() {
           <p className="mt-0.5 text-muted-foreground">
             {status === "error"
               ? "Your browser may be blocking site storage. Existing data has not been reset."
-              : `Schema version ${DATABASE_VERSION}. Clearing this site’s data in your browser deletes your solves.`}
+              : `Schema version ${DATABASE_VERSION}. Clearing this site’s data removes the local copy${signedIn ? "; sign in again to restore from the Google account" : ""}.`}
           </p>
         </div>
         {status === "error" && (
