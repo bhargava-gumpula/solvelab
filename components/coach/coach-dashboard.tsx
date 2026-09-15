@@ -116,12 +116,16 @@ export function CoachDashboard() {
         <FeatureCard
           icon={Target}
           title="Primary focus"
-          description={skills[diagnosis.primarySkill].label}
-          badge={`${Math.round(diagnosis.confidence * 100)}% conf.`}
+          description={diagnosis.ready ? skills[diagnosis.primarySkill].label : "Not diagnosed yet"}
+          badge={
+            diagnosis.ready ? `${Math.round(diagnosis.confidence * 100)}% conf.` : "needs evidence"
+          }
           footer={
-            diagnosis.secondarySkills.length
-              ? `Also: ${diagnosis.secondarySkills.map((id) => skills[id].label).join(", ")}`
-              : "No secondary signal yet"
+            diagnosis.ready
+              ? diagnosis.secondarySkills.length
+                ? `Also: ${diagnosis.secondarySkills.map((id) => skills[id].label).join(", ")}`
+                : "No secondary signal"
+              : "Finish the next diagnostic first"
           }
         />
         <FeatureCard

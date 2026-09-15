@@ -45,7 +45,7 @@ describe("coach diagnosis pipeline", () => {
     expect(diagnosis.nextDiagnosticExerciseId).toBe("normal_solves");
   });
 
-  it("recommends a cross diagnostic after a solid baseline", () => {
+  it("recommends a cross diagnostic after a solid baseline without inventing a weakness", () => {
     const solves = Array.from({ length: 12 }, (_, i) =>
       solve({
         id: `s${i}`,
@@ -59,6 +59,10 @@ describe("coach diagnosis pipeline", () => {
     const scores = scoreSkillsFromSolves(solves, baseline);
     const diagnosis = diagnose(scores, baseline);
     expect(diagnosis.ready).toBe(false);
+    expect(diagnosis.confidence).toBe(0);
+    expect(diagnosis.primarySkill).toBe("consistency");
+    expect(diagnosis.explanation).not.toMatch(/Primary weakness|F2L lookahead/i);
+    expect(diagnosis.explanation).toMatch(/No skill weakness is claimed/i);
     expect(diagnosis.nextDiagnosticExerciseId).toBe("cross_only");
   });
 

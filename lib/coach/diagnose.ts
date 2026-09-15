@@ -2,7 +2,6 @@ import type { SkillId, SkillScore } from "@/types/domain";
 import { exercises } from "@/data/exercises";
 import { skills } from "@/data/skills";
 import type { BaselineSummary } from "./baseline";
-import { recommendedSkillsForMilestone } from "./baseline";
 import { clamp01 } from "./stats";
 
 export interface Diagnosis {
@@ -68,13 +67,13 @@ export function diagnose(
   );
 
   if (!hasDiagnostic) {
-    const focus = recommendedSkillsForMilestone(targetMilestone)[0] ?? "cross_planning";
-    const next = pickNextDiagnostic(focus, skillScores);
+    // Baseline pace only tells us which diagnostic ladder to start — not a weakness.
+    const next = pickNextDiagnostic("cross_planning", skillScores);
     return {
-      primarySkill: focus,
-      secondarySkills: recommendedSkillsForMilestone(targetMilestone).slice(1, 3),
-      confidence: clamp01(baseline.sampleCount / 40) * 0.35,
-      explanation: explainMissingEvidence(baseline, focus),
+      primarySkill: "consistency",
+      secondarySkills: [],
+      confidence: 0,
+      explanation: explainMissingEvidence(baseline),
       targetMilestone,
       recommendedExerciseIds: next ? [next] : ["cross_only"],
       nextDiagnosticExerciseId: next,
@@ -174,10 +173,10 @@ function pickNextDiagnostic(focus: SkillId, scores: SkillScore[]): string | null
   return "cross_only";
 }
 
-function explainMissingEvidence(baseline: BaselineSummary, focus: SkillId): string {
+function explainMissingEvidence(baseline: BaselineSummary): string {
   const pace = baseline.ao12Ms ?? baseline.meanMs;
   const paceText = pace ? `${(pace / 1000).toFixed(2)}s` : "your current pace";
-  return `Your recent solves put you around ${baseline.inferredMilestone.label} (${paceText}). The next useful test is focused on ${skills[focus].label} — that skill usually matters most at this milestone, but there isn’t enough diagnostic evidence yet.`;
+  return `Baseline locked around ${baseline.inferredMilestone.label} (${paceText}). Full solves alone can’t show where time leaks — run the next focused diagnostic so we can compare stage times to this pace. No skill weakness is claimed yet.`;
 }
 
 function explainDiagnosis(
