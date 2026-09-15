@@ -49,6 +49,11 @@ export const sessionSchema = z.object({
 
 export const HOLD_TO_START_OPTIONS_MS = [0, 300, 550] as const;
 
+const panelOffsetSchema = z.object({
+  x: z.number().finite(),
+  y: z.number().finite(),
+});
+
 export const DEFAULT_SETTINGS: UserSettings = {
   id: "preferences",
   inspectionSeconds: 0,
@@ -60,6 +65,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   inspectionAudioCues: false,
   showScramblePreview: true,
   timerInput: "keyboard",
+  panelOffsets: {},
 };
 
 export const settingsSchema = z.object({
@@ -73,6 +79,7 @@ export const settingsSchema = z.object({
   inspectionAudioCues: z.boolean(),
   showScramblePreview: z.boolean(),
   timerInput: z.enum(["keyboard", "bluetooth"]),
+  panelOffsets: z.record(panelOffsetSchema).default({}),
   updatedAt: isoDate.optional(),
 });
 

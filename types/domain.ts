@@ -69,6 +69,8 @@ export interface UserSettings {
   showScramblePreview: boolean;
   /** Preferred start/stop source. Bluetooth connect is stubbed in this build. */
   timerInput: TimerInput;
+  /** Desktop drag offsets for timer panels (stats / cube / times). Synced with the account. */
+  panelOffsets: Record<string, { x: number; y: number }>;
   updatedAt?: string;
 }
 

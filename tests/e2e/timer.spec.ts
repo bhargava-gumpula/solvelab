@@ -341,6 +341,29 @@ test.describe("interactive timer controls", () => {
     await expect
       .poll(() => page.evaluate(() => localStorage.getItem("solvelab.panels.v4") ?? ""))
       .toContain('"stats"');
+    await expect
+      .poll(() =>
+        page.evaluate(async () => {
+          const db = await new Promise<IDBDatabase>((resolve, reject) => {
+            const req = indexedDB.open("speedcubing-local");
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          });
+          const settings = await new Promise<Record<string, unknown> | undefined>(
+            (resolve, reject) => {
+              const tx = db.transaction("settings", "readonly");
+              const req = tx.objectStore("settings").get("preferences");
+              req.onsuccess = () => resolve(req.result as Record<string, unknown> | undefined);
+              req.onerror = () => reject(req.error);
+            },
+          );
+          db.close();
+          return JSON.stringify(
+            (settings as { panelOffsets?: unknown } | undefined)?.panelOffsets ?? null,
+          );
+        }),
+      )
+      .toContain('"stats"');
 
     await page.reload();
     await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });

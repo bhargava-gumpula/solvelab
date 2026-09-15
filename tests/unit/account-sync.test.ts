@@ -41,6 +41,7 @@ function settings(activeSessionId: string): UserSettings {
     inspectionAudioCues: false,
     showScramblePreview: true,
     timerInput: "keyboard",
+    panelOffsets: {},
   };
 }
 
@@ -181,6 +182,32 @@ describe("mergeAccountSnapshots", () => {
       tombstones: [],
     };
     expect(mergeAccountSnapshots(local, cloud).settings?.inspectionSeconds).toBe(0);
+  });
+
+  it("keeps newer panelOffsets with other timer settings", () => {
+    const local: AccountSnapshot = {
+      sessions: [session("main")],
+      solves: [],
+      settings: {
+        ...settings("main"),
+        panelOffsets: { stats: { x: -40, y: 10 } },
+        updatedAt: "2026-04-01T00:00:00.000Z",
+      },
+      tombstones: [],
+    };
+    const cloud: AccountSnapshot = {
+      sessions: [session("main")],
+      solves: [],
+      settings: {
+        ...settings("main"),
+        panelOffsets: {},
+        updatedAt: "2026-01-01T00:00:00.000Z",
+      },
+      tombstones: [],
+    };
+    expect(mergeAccountSnapshots(local, cloud).settings?.panelOffsets).toEqual({
+      stats: { x: -40, y: 10 },
+    });
   });
 });
 

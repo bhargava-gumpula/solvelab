@@ -2,7 +2,7 @@
 
 ## Shipped
 
-**2.1 — Interface.** Screen-fitting timer layout with even panel spacing, optional 3 decimal places, and a slightly wider scramble bar.
+**2.1 — Interface.** Screen-fitting timer layout with even panel spacing, optional 3 decimal places, panel positions synced to the Google account, and a slightly wider scramble bar.
 
 **2.0 — Accounts and cloud times**
 

@@ -93,6 +93,7 @@ describe("schema migrations", () => {
       holdToStartMs: 300,
       showScramblePreview: true,
       timerInput: "keyboard",
+      panelOffsets: {},
     });
     expect((await upgradedRepos.solves.list("main"))[0].rawTimeMs).toBe(12345);
     upgraded.close();

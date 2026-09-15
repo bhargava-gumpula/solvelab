@@ -7,6 +7,7 @@ export const shipped = [
       "Timer layout that fits the screen and spaces panels evenly as the window changes size",
       "Optional 3 decimal places for times (Appearance → Decimal places)",
       "Scramble bar and side panels tightened for short laptop screens",
+      "Panel positions sync with the Google account (inspection and other timer settings already did)",
     ],
   },
   {

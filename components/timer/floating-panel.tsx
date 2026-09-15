@@ -5,23 +5,16 @@ import { GripHorizontal } from "lucide-react";
 import { motion, useDragControls, useMotionValue } from "motion/react";
 import { PANEL_LAYOUT_RESET_EVENT } from "@/components/appearance/appearance-controls";
 import { GlowingEffect } from "@/components/ui/glowing-effect";
+import { useSettings } from "@/hooks/use-local-data";
+import { getRepositories } from "@/lib/storage";
+import {
+  readLocalPanelOffsets,
+  sanitizePanelOffsets,
+  usableOffset,
+  writeLocalPanelOffsets,
+  type PanelOffsets,
+} from "@/lib/timer/panel-offsets";
 import { cn } from "@/lib/utils";
-
-const STORAGE_KEY = "solvelab.panels.v4";
-
-function readOffsets(): Record<string, { x: number; y: number }> {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "{}");
-  } catch {
-    return {};
-  }
-}
-
-function usableOffset(saved: { x: number; y: number } | undefined) {
-  if (!saved) return null;
-  if (Math.abs(saved.x) > 240 || Math.abs(saved.y) > 64) return null;
-  return saved;
-}
 
 interface FloatingPanelProps {
   id: string;
@@ -36,9 +29,16 @@ interface FloatingPanelProps {
   children: React.ReactNode;
 }
 
+function mergedOffsets(settingsOffsets: PanelOffsets | undefined): PanelOffsets {
+  const fromSettings = sanitizePanelOffsets(settingsOffsets);
+  const fromLocal = readLocalPanelOffsets();
+  return { ...fromLocal, ...fromSettings };
+}
+
 /**
  * A frosted panel that floats over the timer canvas. On large screens it can
- * be dragged by its handle and remembers where you left it.
+ * be dragged by its handle and remembers where you left it (IndexedDB settings,
+ * synced to the Google account when signed in; localStorage is a cache).
  */
 export function FloatingPanel({
   id,
@@ -55,17 +55,28 @@ export function FloatingPanel({
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const panelRef = useRef<HTMLElement>(null);
+  const settings = useSettings();
+  const migratedRef = useRef(false);
 
-  const persist = useCallback(() => {
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({ ...readOffsets(), [id]: { x: x.get(), y: y.get() } }),
-      );
-    } catch {
-      // Position is a convenience; ignore storage failures.
-    }
-  }, [id, x, y]);
+  const persist = useCallback(
+    (nextForId: { x: number; y: number } | null) => {
+      const current = {
+        ...readLocalPanelOffsets(),
+        ...sanitizePanelOffsets(settings?.panelOffsets),
+      };
+      const next: PanelOffsets = { ...current };
+      if (nextForId) next[id] = nextForId;
+      else delete next[id];
+      const sanitized = sanitizePanelOffsets(next);
+      writeLocalPanelOffsets(sanitized);
+      void getRepositories()
+        .settings.update({ panelOffsets: sanitized })
+        .catch(() => {
+          // Settings may not be ready yet; local cache still holds the position.
+        });
+    },
+    [id, settings?.panelOffsets],
+  );
 
   useEffect(() => {
     if (!draggable) {
@@ -73,21 +84,40 @@ export function FloatingPanel({
       y.set(0);
       return;
     }
-    const saved = usableOffset(readOffsets()[id]);
+    const saved = usableOffset(mergedOffsets(settings?.panelOffsets)[id]);
     if (saved) {
       x.set(saved.x);
       y.set(saved.y);
+    } else {
+      x.set(0);
+      y.set(0);
     }
+
+    // One-time migrate legacy local-only offsets into account settings.
+    if (settings && !migratedRef.current) {
+      migratedRef.current = true;
+      const local = readLocalPanelOffsets();
+      const cloud = sanitizePanelOffsets(settings.panelOffsets);
+      if (Object.keys(local).length > 0 && Object.keys(cloud).length === 0) {
+        void getRepositories().settings.update({ panelOffsets: local });
+      } else if (Object.keys(cloud).length > 0) {
+        writeLocalPanelOffsets({ ...local, ...cloud });
+      }
+    }
+
     const reset = () => {
       x.set(0);
       y.set(0);
-      persist();
+      writeLocalPanelOffsets({});
+      void getRepositories()
+        .settings.update({ panelOffsets: {} })
+        .catch(() => {});
     };
     window.addEventListener(PANEL_LAYOUT_RESET_EVENT, reset);
     return () => {
       window.removeEventListener(PANEL_LAYOUT_RESET_EVENT, reset);
     };
-  }, [draggable, id, x, y, persist]);
+  }, [draggable, id, settings, x, y]);
 
   return (
     <motion.section
@@ -99,7 +129,7 @@ export function FloatingPanel({
       dragMomentum={false}
       dragElastic={0.08}
       dragConstraints={draggable ? constraints : undefined}
-      onDragEnd={persist}
+      onDragEnd={() => persist({ x: x.get(), y: y.get() })}
       style={{ x, y }}
       className={cn("relative flex min-h-0 flex-col overflow-hidden rounded-2xl glass", className)}
     >
