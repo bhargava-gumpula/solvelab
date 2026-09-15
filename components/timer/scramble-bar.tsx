@@ -33,9 +33,9 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
     <section
       aria-label="Scramble"
       data-focus-hide
-      className="relative mx-auto w-full max-w-[67rem] rounded-2xl px-1.5 py-2 glass sm:px-2.5"
+      className="relative mx-auto w-full max-w-[72rem] rounded-2xl px-2 py-2.5 glass sm:px-3.5 sm:py-3"
     >
-      <div className="flex items-center gap-0.5 sm:gap-1">
+      <div className="flex items-center gap-0.5 sm:gap-1.5">
         <BarButton
           label="Previous scramble"
           shortcut="P"
@@ -45,7 +45,7 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
           <ChevronLeft />
         </BarButton>
 
-        <div className="min-w-0 flex-1 py-0.5 text-center">
+        <div className="min-w-0 flex-1 py-1 text-center">
           {scramble ? (
             <motion.p
               key={scramble.scramble}
@@ -55,8 +55,8 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
               transition={{ duration: 0.25 }}
               className={
                 moves.length > 32
-                  ? "font-mono text-[11px] leading-snug font-medium text-balance sm:text-xs"
-                  : "font-mono text-sm leading-snug font-medium whitespace-nowrap sm:text-base"
+                  ? "font-mono text-xs leading-snug font-medium text-balance sm:text-sm"
+                  : "font-mono text-base leading-snug font-medium whitespace-nowrap sm:text-lg"
               }
             >
               {moves.map((move, index) => (
@@ -73,7 +73,7 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
               role="status"
               aria-label="Preparing scramble"
             >
-              <Skeleton className="mx-auto h-3.5 w-2/3" />
+              <Skeleton className="mx-auto h-4 w-2/3" />
             </div>
           )}
           {scramble && !scramble.randomState && (

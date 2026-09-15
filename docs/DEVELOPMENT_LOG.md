@@ -153,3 +153,5 @@ The owner found the V1 interface bland and asked for a drastically more polished
 94. Owner: ship **2.1** — add optional 3 decimal places (Appearance), mark 2.1 complete, plan 2.2 as Bluetooth + initial AI coach/training/lessons, run e2e, push and deploy. `timeDecimals` is an appearance preference (2|3, default 2); `formatTime` / timer display / stats / lists honor it. Brand version `2.1`. Overview and planned copy updated for Interface / 2.2 hardware+coach. Auth e2e expected “SolveLab 2.0”; updated to 2.1. Full Playwright: **40 passed**.
 
 95. Owner: panel drag positions and inspection should restore when signed in elsewhere. Inspection (and other `UserSettings`) already sync via Firestore `settings/preferences`. Added `panelOffsets` to `UserSettings` so desktop panel drags write IndexedDB (and therefore the account) while keeping `solvelab.panels.v4` as a local cache/migrate path. Privacy copy updated.
+
+96. Owner: scramble box a little bigger. Bumped bar `max-w` `67rem` → `72rem`, padding, and scramble type one step (`text-base` / `sm:text-lg`; long scrambles `text-xs` / `sm:text-sm`).
