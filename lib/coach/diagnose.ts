@@ -16,6 +16,12 @@ export interface Diagnosis {
   skillScores: SkillScore[];
   ready: boolean;
   statusMessage: string;
+  /** Present when the on-device MLP agreed with or overrode the rule engine. */
+  ml?: {
+    label: SkillId;
+    confidence: number;
+    agreedWithRules: boolean;
+  };
 }
 
 const MIN_BASELINE = 8;
@@ -24,7 +30,10 @@ const MIN_DIAGNOSTIC_SAMPLES = 5;
 export function diagnose(
   skillScores: SkillScore[],
   baseline: BaselineSummary,
-  options?: { targetMilestoneId?: string | null },
+  options?: {
+    targetMilestoneId?: string | null;
+    ml?: { skillId: SkillId; confidence: number } | null;
+  },
 ): Diagnosis {
   const targetMilestone =
     options?.targetMilestoneId && options.targetMilestoneId.length > 0
@@ -76,18 +85,39 @@ export function diagnose(
   }
 
   const primary = ranked[0]!;
-  const secondary = ranked
+  let secondary = ranked
     .slice(1)
     .filter((s) => s.skillId !== primary.skillId)
     .slice(0, 2)
     .map((s) => s.skillId);
 
-  const confidence = clamp01(primary.confidence * (0.55 + (1 - primary.score) * 0.45));
+  let primarySkill = primary.skillId;
+  let confidence = clamp01(primary.confidence * (0.55 + (1 - primary.score) * 0.45));
+  let mlMeta: Diagnosis["ml"];
+
+  const ml = options?.ml;
+  if (ml && ml.confidence >= 0.45) {
+    const agreed = ml.skillId === primary.skillId;
+    if (!agreed && ml.confidence >= 0.55) {
+      // High-confidence network overrides the rule ranking.
+      secondary = [primary.skillId, ...secondary.filter((s) => s !== ml.skillId)].slice(0, 2);
+      primarySkill = ml.skillId;
+      confidence = clamp01(0.55 * confidence + 0.45 * ml.confidence);
+    } else if (agreed) {
+      confidence = clamp01(confidence * 0.65 + ml.confidence * 0.35 + 0.05);
+    }
+    mlMeta = {
+      label: ml.skillId,
+      confidence: ml.confidence,
+      agreedWithRules: agreed,
+    };
+  }
+
   const training = exercises
     .filter(
       (e) =>
         e.type === "training" &&
-        (e.skillsTrained.includes(primary.skillId) ||
+        (e.skillsTrained.includes(primarySkill) ||
           secondary.some((s) => e.skillsTrained.includes(s))),
     )
     .map((e) => e.id);
@@ -97,21 +127,27 @@ export function diagnose(
       (e) =>
         e.type === "diagnostic" &&
         e.id !== "normal_solves" &&
-        e.skillsMeasured.includes(primary.skillId),
+        e.skillsMeasured.includes(primarySkill),
     )
     .map((e) => e.id);
 
+  const primaryScore: SkillScore = {
+    ...primary,
+    skillId: primarySkill,
+  };
+
   return {
-    primarySkill: primary.skillId,
+    primarySkill,
     secondarySkills: secondary,
     confidence,
-    explanation: explainDiagnosis(primary, secondary, baseline),
+    explanation: explainDiagnosis(primaryScore, secondary, baseline, mlMeta),
     targetMilestone,
     recommendedExerciseIds: [...new Set([...training, ...diagnosticFollowups])].slice(0, 4),
     nextDiagnosticExerciseId: null,
     skillScores,
     ready: confidence >= 0.35,
     statusMessage: confidence >= 0.35 ? "Diagnosis ready." : "More samples would raise confidence.",
+    ml: mlMeta,
   };
 }
 
@@ -148,10 +184,16 @@ function explainDiagnosis(
   primary: SkillScore,
   secondary: SkillId[],
   baseline: BaselineSummary,
+  ml?: Diagnosis["ml"],
 ): string {
   const secondaryText =
     secondary.length > 0
       ? ` Secondary signals: ${secondary.map((id) => skills[id].label).join(", ")}.`
       : "";
-  return `Primary weakness: ${skills[primary.skillId].label} (score ${(primary.score * 100).toFixed(0)}/100, confidence ${(primary.confidence * 100).toFixed(0)}%). Compared with your ${baseline.inferredMilestone.label} baseline, this is where time is most likely leaking.${secondaryText}`;
+  const mlText = ml
+    ? ml.agreedWithRules
+      ? ` The on-device model (${(ml.confidence * 100).toFixed(0)}% conf.) agrees.`
+      : ` The on-device model leans ${skills[ml.label].label} (${(ml.confidence * 100).toFixed(0)}% conf.).`
+    : "";
+  return `Primary weakness: ${skills[primary.skillId].label} (score ${(primary.score * 100).toFixed(0)}/100, confidence ${(primary.confidence * 100).toFixed(0)}%). Compared with your ${baseline.inferredMilestone.label} baseline, this is where time is most likely leaking.${secondaryText}${mlText}`;
 }
