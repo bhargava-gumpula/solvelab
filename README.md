@@ -4,7 +4,7 @@ A local-first speedcubing timer that will grow into a coach.
 
 **Current release: 2.0 — Accounts and cloud times.** Random-state scrambles, keyboard and touch timing with optional WCA inspection, sessions, stats, JSON backup, Google sign-in, and times stored on the Google account in Cloud Firestore (a working copy stays in the browser). Coach, Train, Algorithms and Learn are signed-in placeholders for later phases.
 
-See [docs/OVERVIEW.md](docs/OVERVIEW.md) for what 2.0 includes and what is planned (2.1 UI, then a local coach in 2.2 or 3.0).
+See [docs/OVERVIEW.md](docs/OVERVIEW.md) for what is shipped (through 2.2) and what is planned next.
 
 **New to the project (human or AI agent)? Start with [docs/HANDOFF.md](docs/HANDOFF.md).**
 
@@ -46,7 +46,7 @@ Upload the contents of `out/` so they are reachable at `/solvelab/`. Browser dat
 
 ## Project record
 
-- [Release overview: 2.0 shipped, 2.1 / local coach planned](docs/OVERVIEW.md)
+- [Release overview](docs/OVERVIEW.md)
 - [Full product specification](docs/PRODUCT_SPECIFICATION.md)
 - [Step-by-step development log](docs/DEVELOPMENT_LOG.md)
 - [Architecture, migration policy and deployment notes](docs/ARCHITECTURE.md)
@@ -55,6 +55,6 @@ Upload the contents of `out/` so they are reachable at `/solvelab/`. Browser dat
 
 ## Phases
 
-**2.0 accounts and cloud times ✓** → 2.1 interface → 2.2 or 3.0 local coach.
+**2.2 hardware & coach ✓** → 2.3 deeper diagnostics / device profiles.
 
 Earlier labels: V0 foundation and V1 daily timer are included in 2.0. Algorithm trainer, diagnostics, and on-device analysis are not in 2.0.

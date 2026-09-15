@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowUpRight, Repeat2, ScanLine, Target, Timer } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Repeat2, ScanLine, Target, Timer } from "lucide-react";
 import { FeatureCard } from "@/components/layout/feature-card";
 import { PageHeading } from "@/components/layout/page-heading";
-import { PhaseNotice } from "@/components/layout/phase-notice";
+import { CoachDashboard } from "@/components/coach/coach-dashboard";
 import { milestones } from "@/data/milestones";
 
 export const metadata: Metadata = { title: "Coach" };
@@ -30,25 +28,11 @@ export default function CoachPage() {
       <PageHeading
         eyebrow="Evidence before advice"
         title="Know what to practice next."
-        description="A coach that runs experiments on your solving instead of guessing."
+        description="A coach that runs experiments on your solving instead of guessing — entirely on this device."
       />
-      <section className="relative overflow-hidden rounded-3xl p-6 glass md:p-10">
-        <p className="eyebrow">Your starting point</p>
-        <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight">
-          Every improvement starts with understanding your solves.
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          There isn’t enough evidence to identify a weakness yet. Keep solving with the timer — your
-          sessions become the baseline that diagnostics compare against.
-        </p>
-        <Button asChild variant="outline" className="mt-5">
-          <Link href="/timer">
-            Back to the timer <ArrowUpRight />
-          </Link>
-        </Button>
-      </section>
+      <CoachDashboard />
 
-      <h2 className="mt-8 mb-4 text-lg font-semibold tracking-tight">How coaching will work</h2>
+      <h2 className="mt-8 mb-4 text-lg font-semibold tracking-tight">How coaching works</h2>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {steps.map((step, index) => (
           <FeatureCard
@@ -74,13 +58,9 @@ export default function CoachPage() {
           ))}
         </ol>
         <p className="mt-4 text-sm text-muted-foreground">
-          Progress will be based on sustained performance, never a single lucky solve.
+          Progress uses sustained performance from your real solves — never a single lucky time.
         </p>
       </section>
-      <PhaseNotice phase="V2">
-        Diagnostics, skill scores and training plans will use your real results. No diagnosis has
-        been generated.
-      </PhaseNotice>
     </>
   );
 }

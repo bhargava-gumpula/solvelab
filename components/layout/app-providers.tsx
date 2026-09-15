@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AccountSyncProvider } from "./account-sync-provider";
 import { StorageProvider } from "./storage-provider";
+import { TimerDeviceProvider } from "@/components/timer/timer-device-provider";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -15,7 +16,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <SignInReturn />
           <StorageProvider>
-            <AccountSyncProvider>{children}</AccountSyncProvider>
+            <TimerDeviceProvider>
+              <AccountSyncProvider>{children}</AccountSyncProvider>
+            </TimerDeviceProvider>
           </StorageProvider>
         </AuthProvider>
         <Toaster position="bottom-center" />

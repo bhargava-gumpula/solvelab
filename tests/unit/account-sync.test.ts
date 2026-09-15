@@ -41,6 +41,7 @@ function settings(activeSessionId: string): UserSettings {
     inspectionAudioCues: false,
     showScramblePreview: true,
     timerInput: "keyboard",
+    activeExerciseId: null,
     panelOffsets: {},
   };
 }

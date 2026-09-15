@@ -1,5 +1,6 @@
 import type { ExerciseDefinition } from "@/types/domain";
-// Definitions only; V2 supplies measurement protocols and execution flows.
+
+/** Definitions only; coach engine scores times against the baseline. */
 export const exercises: ExerciseDefinition[] = [
   {
     id: "normal_solves",
@@ -44,6 +45,22 @@ export const exercises: ExerciseDefinition[] = [
     measurementType: "time",
   },
   {
+    id: "f2l_only",
+    name: "F2L only",
+    type: "diagnostic",
+    category: "f2l",
+    description: "Time four F2L pairs after a pre-made cross.",
+    instructions: [
+      "Solve or set up a cross without timing.",
+      "Start the timer and finish all four F2L pairs, then stop before OLL.",
+    ],
+    skillsMeasured: ["f2l_recognition", "f2l_efficiency", "f2l_lookahead"],
+    skillsTrained: ["f2l_efficiency"],
+    recommendedSampleCount: 8,
+    applicableMilestones: ["sub45", "sub30", "sub25", "sub20", "sub15", "sub12", "sub10"],
+    measurementType: "time",
+  },
+  {
     id: "slow_f2l",
     name: "Slow F2L",
     type: "training",
@@ -59,4 +76,40 @@ export const exercises: ExerciseDefinition[] = [
     applicableMilestones: ["sub30", "sub25", "sub20", "sub15", "sub12", "sub10"],
     measurementType: "mixed",
   },
+  {
+    id: "cross_drills",
+    name: "Cross drills",
+    type: "training",
+    category: "cross",
+    description: "Repeat cross-only solves with inspection planning.",
+    instructions: [
+      "Use full inspection to plan the entire cross.",
+      "Execute without pauses; stop when the cross is done.",
+    ],
+    skillsMeasured: [],
+    skillsTrained: ["cross_planning", "cross_execution"],
+    recommendedSampleCount: 12,
+    applicableMilestones: ["sub60", "sub45", "sub30", "sub25", "sub20"],
+    measurementType: "time",
+  },
+  {
+    id: "pll_execution_drills",
+    name: "PLL execution",
+    type: "training",
+    category: "pll",
+    description: "Execute known PLLs from a ready last-layer state.",
+    instructions: [
+      "Set up or recognize a PLL.",
+      "Start, execute the algorithm cleanly, and stop after AUF.",
+    ],
+    skillsMeasured: [],
+    skillsTrained: ["pll_execution", "pll_recognition"],
+    recommendedSampleCount: 10,
+    applicableMilestones: ["sub25", "sub20", "sub15", "sub12", "sub10"],
+    measurementType: "execution",
+  },
 ];
+
+export function getExercise(id: string): ExerciseDefinition | undefined {
+  return exercises.find((e) => e.id === id);
+}

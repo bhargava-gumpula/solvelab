@@ -8,7 +8,7 @@ A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer 
 
 - Next.js 16.3 App Router, **static export** (`out/`), webpack, React 19, strict TypeScript, Tailwind 4, shadcn/ui, Dexie (IndexedDB), Zod, Recharts, motion, cubing.js, Firebase Auth (Google) and Cloud Firestore when env vars are set.
 - Signed-in timer data lives in Firestore (`users/{uid}/…`). IndexedDB is a working copy so the timer stays fast. Signed-out use stays browser-only. Google sign-in also unlocks Coach, Train and Learn.
-- Branding is centralized in `lib/config/brand.ts`. Product version is **2.1**.
+- Branding is centralized in `lib/config/brand.ts`. Product version is **2.2**.
 
 ## 2. How the owner works (follow these)
 
@@ -147,7 +147,9 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 ## 10. Waiting on the owner (ask; don't assume)
 
-1. **2.2:** working Bluetooth timer connection and an initial AI coach / training / lessons — do not start until asked.
-2. Move the repo out of `~/Documents`? Disk is nearly full; iCloud + `.next` is painful.
+1. **2.3:** richer diagnostics, more Bluetooth profiles, optional local ML on real history.
+2. Real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
+3. Algorithm case content (V1.5) remains separate from the coach slice.
+4. Move the repo out of `~/Documents`? Disk is nearly full; iCloud + `.next` is painful.
 
 Reference only: an unfinished idea-scoring council from this chat is in `~/solvelab-council/`. The owner ended it ("we are done finding improvements"). Don't act on it unless asked.

@@ -67,8 +67,10 @@ export interface UserSettings {
   inspectionAudioCues: boolean;
   /** Schema v2: show a 2D preview of the scrambled cube. */
   showScramblePreview: boolean;
-  /** Preferred start/stop source. Bluetooth connect is stubbed in this build. */
+  /** Preferred start/stop source. Bluetooth uses Web Bluetooth when available, else simulator. */
   timerInput: TimerInput;
+  /** Exercise id selected on Train — tagged onto new timer solves while set. */
+  activeExerciseId: string | null;
   /** Desktop drag offsets for timer panels (stats / cube / times). Synced with the account. */
   panelOffsets: Record<string, { x: number; y: number }>;
   updatedAt?: string;

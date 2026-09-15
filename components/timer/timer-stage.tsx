@@ -256,8 +256,23 @@ function InspectionBar({
   );
 }
 
-export function TimerHint({ ready, inspectionOn }: { ready: boolean; inspectionOn: boolean }) {
+export function TimerHint({
+  ready,
+  inspectionOn,
+  bluetooth,
+}: {
+  ready: boolean;
+  inspectionOn: boolean;
+  bluetooth?: boolean;
+}) {
   if (!ready) return <span role="status">Preparing timer…</span>;
+  if (bluetooth) {
+    return (
+      <span role="status">
+        Bluetooth timer mode — use the device or simulator pads (Space still stops a run)
+      </span>
+    );
+  }
   return (
     <>
       <span className="hidden md:inline">

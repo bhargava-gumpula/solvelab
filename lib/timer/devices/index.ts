@@ -1,12 +1,17 @@
+export type {
+  TimerDeviceAdapter,
+  TimerDeviceEvent,
+  TimerDeviceEventType,
+  TimerDeviceKind,
+  TimerDeviceMode,
+  TimerDeviceSession,
+} from "./types";
+export { TimerDeviceUnavailableError } from "./types";
 export {
   BluetoothTimerAdapter,
   KeyboardTimerAdapter,
+  connectStackmatSimulator,
   disconnectedSession,
   getTimerDeviceAdapter,
 } from "./adapters";
-export {
-  TimerDeviceUnavailableError,
-  type TimerDeviceAdapter,
-  type TimerDeviceKind,
-  type TimerDeviceSession,
-} from "./types";
+export { decodeStackmatPacket, interpretStackmatStatus } from "./stackmat";

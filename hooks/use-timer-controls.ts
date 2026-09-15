@@ -3,18 +3,38 @@
 import { useEffect, type RefObject } from "react";
 import type { TimerStore } from "@/lib/timer/store";
 import { eventTimestamp, isSpaceKey, shouldTimerHandleKey } from "@/lib/timer/input";
+import type { TimerDeviceSession } from "@/lib/timer/devices";
 
 interface TimerControlsOptions {
   enabled: boolean;
   surfaceRef: RefObject<HTMLElement | null>;
+  /** When bluetooth mode is connected, Space does not start — device events do. */
+  inputSource?: "keyboard" | "bluetooth";
+  deviceSession?: TimerDeviceSession | null;
 }
 
 /**
  * Connects keyboard (hold Space) and touch (hold the timer surface) input to
  * the timer store. While running, any key or a tap anywhere stops. Mouse
- * clicks are ignored entirely.
+ * clicks are ignored entirely. Bluetooth sessions inject press/release events.
  */
-export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: TimerControlsOptions) {
+export function useTimerControls(
+  store: TimerStore,
+  { enabled, surfaceRef, inputSource = "keyboard", deviceSession = null }: TimerControlsOptions,
+) {
+  const deviceControls = inputSource === "bluetooth" && !!deviceSession?.connected;
+
+  useEffect(() => {
+    if (!enabled || !deviceControls || !deviceSession) return;
+    return deviceSession.subscribe((event) => {
+      if (event.type === "reset") {
+        store.dispatch({ type: "cancel" });
+        return;
+      }
+      store.dispatch({ type: event.type, at: event.at });
+    });
+  }, [store, enabled, deviceControls, deviceSession]);
+
   useEffect(() => {
     if (!enabled) return;
 
@@ -23,6 +43,7 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
       if (!shouldTimerHandleKey(event, phase)) return;
 
       if (phase === "running") {
+        // Always allow keyboard to stop a running solve (safety), even in bluetooth mode.
         event.preventDefault();
         if (!event.repeat) store.dispatch({ type: "press", at: eventTimestamp(event) });
         return;
@@ -32,6 +53,7 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
         store.dispatch({ type: "cancel" });
         return;
       }
+      if (deviceControls) return;
       if (!isSpaceKey(event)) return;
       event.preventDefault();
       if (!event.repeat) store.dispatch({ type: "press", at: eventTimestamp(event) });
@@ -44,6 +66,7 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
         store.dispatch({ type: "release", at: eventTimestamp(event) });
         return;
       }
+      if (deviceControls) return;
       if (state.phase !== "ready" || !isSpaceKey(event)) return;
       event.preventDefault();
       store.dispatch({ type: "release", at: eventTimestamp(event) });
@@ -63,6 +86,7 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
     const isTouchInput = (event: PointerEvent) => event.pointerType !== "mouse";
 
     const onSurfaceDown = (event: PointerEvent) => {
+      if (deviceControls) return;
       if (!isTouchInput(event) || !event.isPrimary || event.button > 0) return;
       const { phase } = store.getState();
       if (phase === "running") return; // handled by the window listener
@@ -72,6 +96,7 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
     };
 
     const onSurfaceUp = (event: PointerEvent) => {
+      if (deviceControls) return;
       if (!isTouchInput(event) || !event.isPrimary) return;
       const state = store.getState();
       if (state.phase !== "ready" && !state.awaitingRelease) return;
@@ -113,5 +138,5 @@ export function useTimerControls(store: TimerStore, { enabled, surfaceRef }: Tim
       surface?.removeEventListener("pointercancel", onSurfaceUp);
       surface?.removeEventListener("contextmenu", preventContextMenu);
     };
-  }, [store, enabled, surfaceRef]);
+  }, [store, enabled, surfaceRef, deviceControls]);
 }

@@ -2,9 +2,9 @@
 
 import { Bluetooth, Keyboard } from "lucide-react";
 import { toast } from "sonner";
+import { useTimerDevice } from "@/components/timer/timer-device-provider";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { getTimerDeviceAdapter } from "@/lib/timer/devices";
 import type { TimerInput } from "@/types/domain";
 
 export function HardwareTimerControls({
@@ -14,15 +14,24 @@ export function HardwareTimerControls({
   value: TimerInput;
   onChange: (value: TimerInput) => void;
 }) {
-  const connect = async () => {
+  const { session, connectBluetooth, connectSimulator, disconnect } = useTimerDevice();
+  const connected = session.connected && session.mode !== "idle";
+
+  const connect = async (preferSimulator: boolean) => {
     try {
-      await getTimerDeviceAdapter("bluetooth").connect();
+      const next = preferSimulator
+        ? await connectSimulator()
+        : await connectBluetooth({ preferSimulator: false });
+      if (next.mode === "simulator") {
+        toast.success("Stackmat simulator connected", {
+          description: "Use the simulator buttons on the timer, or pair a real device in Chrome.",
+        });
+      } else {
+        toast.success(`Connected to ${next.label}`);
+      }
+      onChange("bluetooth");
     } catch (error) {
-      toast.error(
-        error instanceof Error
-          ? error.message
-          : "Bluetooth timers aren’t connected in this build yet.",
-      );
+      toast.error(error instanceof Error ? error.message : "Couldn’t connect a Bluetooth timer.");
     }
   };
 
@@ -34,8 +43,8 @@ export function HardwareTimerControls({
             Start and stop
           </p>
           <p className="text-sm text-muted-foreground">
-            Keyboard (Space) stays the default. A Bluetooth timer can be selected; connecting a
-            device comes in a later update.
+            Keyboard (Space) is the default. Bluetooth mode uses a paired Stackmat-compatible timer
+            when the browser allows it, or the on-device simulator.
           </p>
         </div>
         <ToggleGroup
@@ -58,22 +67,43 @@ export function HardwareTimerControls({
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
-      <div className="flex items-center justify-between gap-4 rounded-xl border border-border px-3 py-2.5">
+      <div className="flex flex-col gap-3 rounded-xl border border-border px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium">Bluetooth timer</p>
           <p className="text-xs text-muted-foreground" role="status">
-            Not connected
+            {connected
+              ? `${session.label} · ${session.mode === "simulator" ? "Simulator" : "Device"}`
+              : "Not connected"}
           </p>
         </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={value !== "bluetooth"}
-          onClick={() => void connect()}
-        >
-          Connect
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {connected ? (
+            <Button type="button" variant="outline" size="sm" onClick={() => void disconnect()}>
+              Disconnect
+            </Button>
+          ) : (
+            <>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={value !== "bluetooth"}
+                onClick={() => void connect(false)}
+              >
+                Connect device
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                disabled={value !== "bluetooth"}
+                onClick={() => void connect(true)}
+              >
+                Use simulator
+              </Button>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

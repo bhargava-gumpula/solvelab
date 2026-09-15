@@ -1,6 +1,16 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "2.2",
+    title: "Hardware timer and first coach",
+    items: [
+      "Bluetooth timer mode with Stackmat-compatible Web Bluetooth when available, plus an on-device simulator",
+      "Rule-based on-device coach: baseline, diagnostics, skill scores, training plans, and retest comparison",
+      "Train arms exercises onto the timer; Learn ships beginner / CFOP / advanced lesson plans with local progress",
+      "Tiny local “LM” weight trainer on synthetic diagnostic features (no cloud model)",
+    ],
+  },
+  {
     version: "2.1",
     title: "Interface",
     items: [
@@ -25,11 +35,12 @@ export const shipped = [
 
 export const planned = [
   {
-    version: "2.2",
-    title: "Hardware timer and first coach",
+    version: "2.3",
+    title: "Deeper coach and hardware",
     items: [
-      "Working Bluetooth timer connection (Stackmat / compatible devices)",
-      "Initial AI coach, training plans, and lessons on device",
+      "Richer diagnostic set (OLL/PLL recognition timing, unlimited-inspection cross)",
+      "Firestore Bluetooth pairing profiles for more timer brands",
+      "Optional local ML refinements on your own solve history",
     ],
   },
 ] as const;

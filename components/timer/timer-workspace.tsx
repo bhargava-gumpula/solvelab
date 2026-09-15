@@ -33,6 +33,8 @@ import { useActiveSession, useSessionSolves, useSettings } from "@/hooks/use-loc
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useScramble } from "@/hooks/use-scramble";
 import { useTimerControls } from "@/hooks/use-timer-controls";
+import { useTimerDevice } from "@/components/timer/timer-device-provider";
+import { getExercise } from "@/data/exercises";
 import { celebrate } from "@/lib/appearance/celebrate";
 import type { Command } from "@/lib/commands/registry";
 import {
@@ -60,6 +62,7 @@ import { EventSwitcher } from "./event-switcher";
 import { FloatingPanel } from "./floating-panel";
 import { LastSolveBar } from "./last-solve-bar";
 import { ScrambleBar } from "./scramble-bar";
+import { StackmatSimulatorPad } from "./stackmat-simulator-pad";
 import { NEW_SESSION_EVENT, SESSION_MENU_EVENT, SessionSwitcher } from "./session-switcher";
 import { deleteSolveWithUndo, setSolvePenalty } from "./solve-actions";
 import { SolveDetailDialog } from "./solve-detail-dialog";
@@ -72,6 +75,7 @@ export function TimerWorkspace() {
   const settings = useSettings();
   const { preferences } = useAppearance();
   const { session } = useActiveSession();
+  const { session: deviceSession } = useTimerDevice();
   const storedSolves = useSessionSolves(session?.id);
   const event = session?.event ?? "333";
   const scrambles = useScramble(event);
@@ -101,8 +105,14 @@ export function TimerWorkspace() {
   );
   const canTime = storage.status === "ready" && !!settings && !!session && !!scramble;
   const idle = phase === "idle" || phase === "stopped";
+  const inputSource = settings?.timerInput === "bluetooth" ? "bluetooth" : "keyboard";
 
-  useTimerControls(store, { enabled: canTime, surfaceRef });
+  useTimerControls(store, {
+    enabled: canTime,
+    surfaceRef,
+    inputSource,
+    deviceSession: inputSource === "bluetooth" ? deviceSession : null,
+  });
   useInspectionCues(store, settings?.inspectionAudioCues ?? false);
   useFocusMode(isTimerFocused(phase));
 
@@ -135,6 +145,13 @@ export function TimerWorkspace() {
 
   const handleComplete = useEffectEvent(async (result: TimerResult) => {
     if (!session || !scramble) return;
+    const exerciseId = settings?.activeExerciseId ?? undefined;
+    const exercise = exerciseId ? getExercise(exerciseId) : undefined;
+    const source = exercise
+      ? exercise.type === "training"
+        ? ("training" as const)
+        : ("diagnostic" as const)
+      : ("normal" as const);
     const draft = {
       id: createId(),
       sessionId: session.id,
@@ -143,7 +160,8 @@ export function TimerWorkspace() {
       rawTimeMs: result.rawTimeMs,
       penalty: result.inspectionPenalty,
       createdAt: new Date().toISOString(),
-      source: "normal" as const,
+      source,
+      ...(exerciseId && { exerciseId }),
       ...(result.inspectionMs !== null && { inspectionMs: result.inspectionMs }),
     };
     const optimistic = withFinalTime(draft);
@@ -415,7 +433,16 @@ export function TimerWorkspace() {
               }
             : null
         }
-        hint={<TimerHint ready={canTime} inspectionOn={inspectionOn} />}
+        hint={
+          <TimerHint
+            ready={canTime}
+            inspectionOn={inspectionOn}
+            bluetooth={inputSource === "bluetooth" && deviceSession.connected}
+          />
+        }
+      />
+      <StackmatSimulatorPad
+        visible={inputSource === "bluetooth" && deviceSession.mode === "simulator"}
       />
     </div>
   );
