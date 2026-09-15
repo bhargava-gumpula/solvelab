@@ -154,4 +154,4 @@ The owner found the V1 interface bland and asked for a drastically more polished
 
 95. Owner: panel drag positions and inspection should restore when signed in elsewhere. Inspection (and other `UserSettings`) already sync via Firestore `settings/preferences`. Added `panelOffsets` to `UserSettings` so desktop panel drags write IndexedDB (and therefore the account) while keeping `solvelab.panels.v4` as a local cache/migrate path. Privacy copy updated.
 
-96. Owner: scramble box a little bigger. Bumped bar `max-w` `67rem` → `72rem`, padding, and scramble type one step (`text-base` / `sm:text-lg`; long scrambles `text-xs` / `sm:text-sm`).
+96. Owner: scramble box a little bigger. Bumped bar `max-w` `67rem` → `72rem`, padding, and scramble type one step (`text-base` / `sm:text-lg`; long scrambles `text-xs` / `sm:text-sm`). Pushed `6c41f3c` to `ui-overhaul`/`main`; Pi + Cloudflare Pages redeployed; temporary Pages deploy token revoked.
