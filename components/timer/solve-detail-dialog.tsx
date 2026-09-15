@@ -18,9 +18,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { CubeNet } from "@/components/cube/cube-net";
 import { applyAlgorithm } from "@/lib/cube/cube-state";
+import { useTimeFormat } from "@/hooks/use-time-format";
 import { getRepositories } from "@/lib/storage";
 import { MAX_NOTES_LENGTH } from "@/lib/storage/schemas";
-import { formatSolve, formatTime } from "@/lib/timer/format";
 import type { Solve } from "@/types/domain";
 import { PenaltyToggle } from "./penalty-toggle";
 import { deleteSolveWithUndo, setSolvePenalty } from "./solve-actions";
@@ -67,6 +67,7 @@ function SolveDetailForm({
   onClose: () => void;
   onDelete?: (solve: Solve) => void;
 }) {
+  const { formatSolve, formatTime } = useTimeFormat();
   const [notes, setNotes] = useState(solve.notes ?? "");
   const [tags, setTags] = useState((solve.tags ?? []).join(", "));
   const facelets = useMemo(() => {

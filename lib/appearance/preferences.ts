@@ -15,12 +15,20 @@ export const DIGIT_FONTS = [
 
 export type DigitFont = (typeof DIGIT_FONTS)[number]["id"];
 
+export const TIME_DECIMALS = [
+  { id: 2, label: "2 decimals", sample: "12.34" },
+  { id: 3, label: "3 decimals", sample: "12.345" },
+] as const;
+
+export type TimeDecimalsPreference = (typeof TIME_DECIMALS)[number]["id"];
+
 const themeIds = ["nebula", "ember", "glacier", "matcha", "carbon", "paper"] as const;
 
 export const appearanceSchema = z.object({
   theme: z.enum([...themeIds, "system"]),
   digitFont: z.enum(["clean", "lcd", "dot"]),
   timerScale: z.number().min(0.7).max(1.4),
+  timeDecimals: z.union([z.literal(2), z.literal(3)]),
   animatedBackground: z.boolean(),
   pauseBackgroundWhileSolving: z.boolean(),
   cubePreview: z.enum(["3d", "2d", "off"]),
@@ -34,6 +42,7 @@ export const DEFAULT_APPEARANCE: AppearancePreferences = {
   theme: DEFAULT_THEME,
   digitFont: "clean",
   timerScale: 1,
+  timeDecimals: 2,
   animatedBackground: true,
   pauseBackgroundWhileSolving: true,
   cubePreview: "3d",

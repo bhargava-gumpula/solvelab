@@ -339,7 +339,7 @@ test.describe("interactive timer controls", () => {
     const moved = await panel.boundingBox();
     expect(moved!.x).toBeLessThan(start.x - 150);
     await expect
-      .poll(() => page.evaluate(() => localStorage.getItem("solvelab.panels.v1") ?? ""))
+      .poll(() => page.evaluate(() => localStorage.getItem("solvelab.panels.v4") ?? ""))
       .toContain('"stats"');
 
     await page.reload();

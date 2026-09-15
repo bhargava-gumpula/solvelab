@@ -76,7 +76,7 @@ export function Cube3D({ facelets, size = 132, autoRotate = true, className }: C
         "grid cursor-grab touch-none place-items-center select-none active:cursor-grabbing",
         className,
       )}
-      style={{ width: size * 1.7, height: size * 1.7, perspective: size * 6 }}
+      style={{ width: size * 1.42, height: size * 1.42, perspective: size * 6 }}
       onPointerDown={(event) => {
         event.currentTarget.setPointerCapture(event.pointerId);
         dragging.current = { x: event.clientX, y: event.clientY };

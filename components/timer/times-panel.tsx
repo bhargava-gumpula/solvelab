@@ -15,9 +15,9 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { useTimeFormat } from "@/hooks/use-time-format";
 import { getRepositories } from "@/lib/storage";
 import { getAverage, type SessionStatistics } from "@/lib/stats";
-import { formatAverage, formatSolve } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
 import type { Solve } from "@/types/domain";
 
@@ -41,6 +41,7 @@ export function TimesPanelBody({
   onSelect,
   onCleared,
 }: TimesPanelBodyProps) {
+  const { formatAverage, formatSolve } = useTimeFormat();
   const [sort, setSort] = useState<SortKey>("order");
   const [visible, setVisible] = useState(PAGE);
   const [confirmClear, setConfirmClear] = useState(false);
@@ -78,7 +79,7 @@ export function TimesPanelBody({
 
   if (solves.length === 0) {
     return (
-      <div className="grid place-items-center gap-2 px-4 py-10 text-center">
+      <div className="grid place-items-center gap-2 px-4 py-8 text-center">
         <span className="grid size-10 place-items-center rounded-full bg-muted">
           <Timer className="size-5 text-muted-foreground" />
         </span>

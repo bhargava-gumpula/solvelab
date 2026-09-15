@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { DNF } from "@/lib/stats/averages";
-import { formatAverage, formatTime } from "@/lib/timer/format";
+import { useTimeFormat } from "@/hooks/use-time-format";
 
 interface SparklineProps {
   values: readonly number[];
@@ -21,6 +21,7 @@ const PAD = 6;
  */
 export function Sparkline({ values, rolling, offset }: SparklineProps) {
   const [hover, setHover] = useState<number | null>(null);
+  const { formatAverage, formatTime } = useTimeFormat();
 
   const geometry = useMemo(() => {
     const finite = values.filter((value) => value !== DNF);
@@ -44,7 +45,7 @@ export function Sparkline({ values, rolling, offset }: SparklineProps) {
 
   if (!geometry) {
     return (
-      <p className="px-1 py-6 text-center text-xs text-muted-foreground">
+      <p className="px-1 py-1.5 text-center text-xs text-muted-foreground">
         A trend appears after a few solves.
       </p>
     );
@@ -56,7 +57,7 @@ export function Sparkline({ values, rolling, offset }: SparklineProps) {
     <div className="relative">
       <svg
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        className="h-[72px] w-full overflow-visible"
+        className="h-9 w-full overflow-visible"
         role="img"
         aria-label={`Trend of the last ${values.length} solves`}
         onPointerLeave={() => setHover(null)}

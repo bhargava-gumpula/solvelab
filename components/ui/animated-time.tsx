@@ -7,6 +7,7 @@
  * available to screen readers, copy/paste and tests.
  */
 import NumberFlow from "@number-flow/react";
+import { useAppearance } from "@/components/appearance/appearance-provider";
 import { formatTime, type Rounding } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,9 @@ interface AnimatedTimeProps {
 }
 
 export function AnimatedTime({ ms, rounding = "round", className, testId }: AnimatedTimeProps) {
-  const text = formatTime(ms, rounding);
+  const { preferences } = useAppearance();
+  const decimals = preferences.timeDecimals;
+  const text = formatTime(ms, rounding, decimals);
   if (ms === null || ms === Number.POSITIVE_INFINITY || ms >= 60_000 || Number.isNaN(ms)) {
     return (
       <span className={cn("tabular", className)} data-testid={testId}>
@@ -27,7 +30,9 @@ export function AnimatedTime({ ms, rounding = "round", className, testId }: Anim
       </span>
     );
   }
-  const centiseconds = rounding === "truncate" ? Math.floor(ms / 10) : Math.round(ms / 10);
+  const unitMs = decimals === 3 ? 1 : 10;
+  const units = rounding === "truncate" ? Math.floor(ms / unitMs) : Math.round(ms / unitMs);
+  const scale = decimals === 3 ? 1000 : 100;
   return (
     <span className={cn("tabular", className)}>
       <span className="sr-only" data-testid={testId}>
@@ -35,8 +40,12 @@ export function AnimatedTime({ ms, rounding = "round", className, testId }: Anim
       </span>
       <NumberFlow
         aria-hidden
-        value={centiseconds / 100}
-        format={{ minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: false }}
+        value={units / scale}
+        format={{
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+          useGrouping: false,
+        }}
         transformTiming={{ duration: 0 }}
         spinTiming={{ duration: 0 }}
         opacityTiming={{ duration: 0 }}

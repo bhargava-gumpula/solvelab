@@ -23,7 +23,7 @@ export function LastSolveBar({
   onDelete,
 }: LastSolveBarProps) {
   return (
-    <div className="flex min-h-12 justify-center" data-focus-hide>
+    <div className="flex min-h-0 justify-center" data-focus-hide>
       {solve && (
         <motion.div
           key={solve.id}

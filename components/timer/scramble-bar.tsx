@@ -33,9 +33,9 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
     <section
       aria-label="Scramble"
       data-focus-hide
-      className="relative mx-auto w-full max-w-5xl rounded-2xl px-2 py-2.5 glass sm:px-3"
+      className="relative mx-auto w-full max-w-[67rem] rounded-2xl px-1.5 py-2 glass sm:px-2.5"
     >
-      <div className="flex items-center gap-1 sm:gap-2">
+      <div className="flex items-center gap-0.5 sm:gap-1">
         <BarButton
           label="Previous scramble"
           shortcut="P"
@@ -45,7 +45,7 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
           <ChevronLeft />
         </BarButton>
 
-        <div className="min-w-0 flex-1 py-1 text-center">
+        <div className="min-w-0 flex-1 py-0.5 text-center">
           {scramble ? (
             <motion.p
               key={scramble.scramble}
@@ -55,13 +55,13 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
               transition={{ duration: 0.25 }}
               className={
                 moves.length > 32
-                  ? "font-mono text-sm leading-relaxed font-medium text-balance sm:text-base"
-                  : "font-mono text-lg leading-relaxed font-medium text-balance sm:text-xl xl:text-2xl"
+                  ? "font-mono text-[11px] leading-snug font-medium text-balance sm:text-xs"
+                  : "font-mono text-sm leading-snug font-medium whitespace-nowrap sm:text-base"
               }
             >
               {moves.map((move, index) => (
                 <span key={index}>
-                  <span className="inline-block rounded-md px-1 transition-colors hover:bg-accent hover:text-accent-foreground">
+                  <span className="inline-block rounded-md px-0.5 transition-colors hover:bg-accent hover:text-accent-foreground">
                     {move}
                   </span>{" "}
                 </span>
@@ -69,12 +69,11 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
             </motion.p>
           ) : (
             <div
-              className="mx-auto grid max-w-xl gap-2 py-1"
+              className="mx-auto grid max-w-xl py-0.5"
               role="status"
               aria-label="Preparing scramble"
             >
-              <Skeleton className="h-6 w-full" />
-              <Skeleton className="mx-auto h-6 w-2/3" />
+              <Skeleton className="mx-auto h-3.5 w-2/3" />
             </div>
           )}
           {scramble && !scramble.randomState && (
@@ -134,7 +133,7 @@ function BarButton({
       <TooltipTrigger asChild>
         <Button
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           aria-label={label}
           onClick={onClick}
           disabled={disabled}

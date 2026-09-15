@@ -158,7 +158,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         className={cn(
           "relative w-full outline-none",
           fullBleed
-            ? "px-3 pb-24 sm:px-5 md:pb-5"
+            ? "px-3 pb-24 sm:px-5 md:pb-0"
             : "mx-auto max-w-[1280px] px-4 pt-4 pb-28 md:px-6 md:pb-12",
         )}
       >

@@ -155,6 +155,10 @@ describe("time formatting", () => {
     expect(formatTime(0)).toBe("0.00");
     expect(formatTime(null)).toBe("—");
     expect(formatTime(Number.POSITIVE_INFINITY)).toBe("DNF");
+    expect(formatTime(12345, "truncate", 3)).toBe("12.345");
+    expect(formatTime(12345, "round", 3)).toBe("12.345");
+    expect(formatAverage(12345, 3)).toBe("12.345");
+    expect(formatTime(0, "truncate", 3)).toBe("0.000");
   });
 
   it("formats penalties without altering raw time", () => {

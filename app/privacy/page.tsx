@@ -35,7 +35,7 @@ export default function PrivacyPage() {
           <code className="text-foreground">speedcubing-local</code>, so the timer stays instant
           while you solve. Appearance (theme, digit style, panel layout) stays in this browser’s
           localStorage (<code className="text-foreground">solvelab.appearance.v1</code> and{" "}
-          <code className="text-foreground">solvelab.panels.v1</code>) and is not synced.
+          <code className="text-foreground">solvelab.panels.v4</code>) and is not synced.
         </li>
         <li>
           <strong className="text-foreground">When you are signed out</strong>, solves stay only in

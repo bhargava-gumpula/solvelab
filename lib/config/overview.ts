@@ -1,6 +1,15 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "2.1",
+    title: "Interface",
+    items: [
+      "Timer layout that fits the screen and spaces panels evenly as the window changes size",
+      "Optional 3 decimal places for times (Appearance → Decimal places)",
+      "Scramble bar and side panels tightened for short laptop screens",
+    ],
+  },
+  {
     version: "2.0",
     title: "Accounts and cloud times",
     items: [
@@ -15,17 +24,11 @@ export const shipped = [
 
 export const planned = [
   {
-    version: "2.1",
-    title: "Interface",
+    version: "2.2",
+    title: "Hardware timer and first coach",
     items: [
-      "A UI pass so the layout feels more distinct, without changing the timer or your saved times",
-    ],
-  },
-  {
-    version: "2.2 or 3.0",
-    title: "Local coach",
-    items: [
-      "A model that runs on your device to analyze solves and suggest what to train. That is a major update and may wait for 3.0.",
+      "Working Bluetooth timer connection (Stackmat / compatible devices)",
+      "Initial AI coach, training plans, and lessons on device",
     ],
   },
 ] as const;

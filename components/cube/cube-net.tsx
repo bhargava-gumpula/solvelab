@@ -41,7 +41,7 @@ export function CubeNet({ facelets, className, title = "Scrambled cube preview" 
       viewBox={`-1 -1 ${width + 2} ${height + 2}`}
       role="img"
       aria-label={title}
-      className={cn("h-auto w-full", className)}
+      className={cn("h-auto max-h-full w-full", className)}
     >
       {FACE_ORDER.map((face) => {
         const [column, row] = NET_POSITION[face];

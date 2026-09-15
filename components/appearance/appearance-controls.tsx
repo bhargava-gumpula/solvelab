@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { DIGIT_FONTS } from "@/lib/appearance/preferences";
+import { DIGIT_FONTS, TIME_DECIMALS } from "@/lib/appearance/preferences";
 import { THEMES } from "@/lib/appearance/themes";
 import { cn } from "@/lib/utils";
 import { useAppearance } from "./appearance-provider";
@@ -147,6 +147,31 @@ export function AppearanceControls() {
             onValueChange={([value]) => update({ timerScale: value })}
             aria-label="Timer size"
           />
+        </div>
+        <div className="grid gap-2">
+          <Label id="time-decimals-label" className="text-sm">
+            Decimal places
+          </Label>
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            value={String(preferences.timeDecimals)}
+            onValueChange={(value) => value && update({ timeDecimals: Number(value) as 2 | 3 })}
+            aria-labelledby="time-decimals-label"
+            className="w-full"
+          >
+            {TIME_DECIMALS.map((option) => (
+              <ToggleGroupItem
+                key={option.id}
+                value={String(option.id)}
+                className="h-auto flex-1 flex-col gap-1 py-2.5"
+                aria-label={option.label}
+              >
+                <span className="font-mono tabular text-xl leading-none">{option.sample}</span>
+                <span className="text-[11px] text-muted-foreground">{option.label}</span>
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
         </div>
       </section>
 

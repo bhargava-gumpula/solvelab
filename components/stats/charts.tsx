@@ -28,7 +28,9 @@ import {
 } from "@/components/ui/chart";
 import type { BestSoFarPoint, HistogramBin, ProgressPoint } from "@/lib/stats/series";
 import { downsample } from "@/lib/stats/series";
-import { formatAverage, formatTime } from "@/lib/timer/format";
+import { useTimeFormat } from "@/hooks/use-time-format";
+import type { TimeDecimals } from "@/lib/timer/format";
+import { formatTime } from "@/lib/timer/format";
 
 const SERIES_COLOR: Record<string, string> = {
   single: "var(--foreground)",
@@ -48,8 +50,8 @@ const AXIS_PROPS = {
 const GRID_PROPS = { vertical: false, stroke: "var(--border)" } as const;
 
 /** Seconds for tick labels: "12" or "12.5"; minutes when needed. */
-const secondsTick = (ms: number) =>
-  ms >= 60000 ? formatTime(ms) : `${Number((ms / 1000).toFixed(1))}`;
+const secondsTick = (ms: number, decimals: TimeDecimals = 2) =>
+  ms >= 60000 ? formatTime(ms, "truncate", decimals) : `${Number((ms / 1000).toFixed(1))}`;
 
 const TICK_STEPS_MS = [250, 500, 1000, 2000, 5000, 10000, 15000, 30000, 60000, 120000, 300000];
 
@@ -119,6 +121,7 @@ interface ProgressChartProps {
 }
 
 export function ProgressChart({ points, rollingSizes }: ProgressChartProps) {
+  const { decimals, formatAverage, formatTime } = useTimeFormat();
   const averageKeys = rollingSizes.map((size) => `ao${size}`);
   const data = downsample(points).map((point) => ({
     solve: point.solve,
@@ -152,7 +155,7 @@ export function ProgressChart({ points, rollingSizes }: ProgressChartProps) {
           domain={scale?.domain ?? ["auto", "auto"]}
           ticks={scale?.ticks}
           allowDataOverflow
-          tickFormatter={secondsTick}
+          tickFormatter={(ms: number) => secondsTick(ms, decimals)}
         />
         <ChartTooltip
           cursor={{ stroke: "var(--muted-foreground)", strokeWidth: 1 }}
@@ -218,6 +221,7 @@ interface BestChartProps {
 }
 
 export function PersonalBestChart({ points, averageSizes }: BestChartProps) {
+  const { decimals, formatAverage, formatTime } = useTimeFormat();
   const keys = ["single", ...averageSizes.map((size) => `ao${size}`)];
   const data = downsample(points).map((point) => ({
     solve: point.solve,
@@ -250,7 +254,7 @@ export function PersonalBestChart({ points, averageSizes }: BestChartProps) {
           width={44}
           domain={scale?.domain ?? ["auto", "auto"]}
           ticks={scale?.ticks}
-          tickFormatter={secondsTick}
+          tickFormatter={(ms: number) => secondsTick(ms, decimals)}
         />
         <ChartTooltip
           cursor={{ stroke: "var(--muted-foreground)", strokeWidth: 1 }}
@@ -290,7 +294,8 @@ export function PersonalBestChart({ points, averageSizes }: BestChartProps) {
 }
 
 export function DistributionChart({ bins }: { bins: HistogramBin[] }) {
-  const data = bins.map((bin) => ({ ...bin, label: secondsTick(bin.startMs) }));
+  const { decimals, formatTime } = useTimeFormat();
+  const data = bins.map((bin) => ({ ...bin, label: secondsTick(bin.startMs, decimals) }));
   const config: ChartConfig = { count: { label: "Solves", color: "var(--chart-1)" } };
   return (
     <ChartContainer config={config} className="aspect-auto h-64 w-full">

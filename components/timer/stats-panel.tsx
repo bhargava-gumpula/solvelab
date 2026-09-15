@@ -10,14 +10,21 @@ import { Sparkline } from "./sparkline";
 
 const TREND_WINDOW = 60;
 
-export function StatsPanelBody({ stats }: { stats: SessionStatistics }) {
-  const rows = [5, 12, 100].map((size) => ({ size, average: getAverage(stats, size) }));
+export function StatsPanelBody({
+  stats,
+  compact = false,
+}: {
+  stats: SessionStatistics;
+  compact?: boolean;
+}) {
+  const sizes = compact ? [5, 12] : [5, 12, 100];
+  const rows = sizes.map((size) => ({ size, average: getAverage(stats, size) }));
   const start = Math.max(0, stats.values.length - TREND_WINDOW);
   const ao5 = getAverage(stats, 5)?.rolling ?? [];
 
   return (
-    <div className="grid gap-3 p-3">
-      <div className="grid grid-cols-[auto_1fr_1fr] items-center gap-x-3 gap-y-1.5 text-sm">
+    <div className={cn("grid", compact ? "gap-1.5 p-1.5" : "gap-2 p-2")}>
+      <div className="grid grid-cols-[auto_1fr_1fr] items-center gap-x-3 gap-y-1 text-sm">
         <span />
         <span className="text-right text-[11px] text-muted-foreground">Current</span>
         <span className="text-right text-[11px] text-muted-foreground">Best</span>
@@ -41,7 +48,7 @@ export function StatsPanelBody({ stats }: { stats: SessionStatistics }) {
         ))}
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className={cn("grid grid-cols-3", compact ? "gap-1.5" : "gap-2")}>
         <Tile label="Mean">
           <AnimatedTime ms={stats.mean} testId="session-mean" />
         </Tile>
@@ -58,15 +65,27 @@ export function StatsPanelBody({ stats }: { stats: SessionStatistics }) {
         </Tile>
       </div>
 
-      <div className="rounded-xl bg-muted/60 px-2 pt-2 pb-1">
-        <div className="mb-1 flex items-center justify-between px-1 text-[11px] text-muted-foreground">
-          <span>Last {Math.min(TREND_WINDOW, stats.count)} solves</span>
-          <Link href="/stats" className="flex items-center gap-0.5 hover:text-foreground">
+      {(stats.count > 0 || !compact) && (
+        <div className={cn("rounded-xl bg-muted/60 pb-1", compact ? "px-1.5 pt-1.5" : "px-2 pt-2")}>
+          <div className="mb-1 flex items-center justify-between px-1 text-[11px] text-muted-foreground">
+            <span>Last {Math.min(TREND_WINDOW, stats.count)} solves</span>
+            <Link href="/stats" className="flex items-center gap-0.5 hover:text-foreground">
+              Full stats <ArrowUpRight className="size-3" />
+            </Link>
+          </div>
+          <Sparkline values={stats.values.slice(start)} rolling={ao5.slice(start)} offset={start} />
+        </div>
+      )}
+      {compact && stats.count === 0 && (
+        <div className="px-1.5 pb-0.5 text-right">
+          <Link
+            href="/stats"
+            className="inline-flex items-center gap-0.5 text-[11px] text-muted-foreground hover:text-foreground"
+          >
             Full stats <ArrowUpRight className="size-3" />
           </Link>
         </div>
-        <Sparkline values={stats.values.slice(start)} rolling={ao5.slice(start)} offset={start} />
-      </div>
+      )}
     </div>
   );
 }
@@ -96,7 +115,7 @@ function Row({
 
 function Tile({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <SpotlightCard className="rounded-xl bg-muted/60 px-2 py-2 text-center">
+    <SpotlightCard className="rounded-xl bg-muted/60 px-2 py-1 text-center">
       <p className="text-[11px] text-muted-foreground">{label}</p>
       <p className="mt-0.5 font-mono tabular text-sm font-medium">{children}</p>
     </SpotlightCard>

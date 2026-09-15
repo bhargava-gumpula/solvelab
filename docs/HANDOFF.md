@@ -8,7 +8,7 @@ A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer 
 
 - Next.js 16.3 App Router, **static export** (`out/`), webpack, React 19, strict TypeScript, Tailwind 4, shadcn/ui, Dexie (IndexedDB), Zod, Recharts, motion, cubing.js, Firebase Auth (Google) and Cloud Firestore when env vars are set.
 - Signed-in timer data lives in Firestore (`users/{uid}/…`). IndexedDB is a working copy so the timer stays fast. Signed-out use stays browser-only. Google sign-in also unlocks Coach, Train and Learn.
-- Branding is centralized in `lib/config/brand.ts`. Product version is **2.0**.
+- Branding is centralized in `lib/config/brand.ts`. Product version is **2.1**.
 
 ## 2. How the owner works (follow these)
 
@@ -112,7 +112,7 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 | Adapted UI components | `components/ui/glowing-effect.tsx`, `border-beam.tsx`, `spotlight-card.tsx`, `animated-time.tsx` (plus stock shadcn/ui)                                                                                     |
 | Tests                 | `tests/unit/*` (Vitest; jsdom where needed), `tests/e2e/*` (Playwright), `tests/e2e/helpers.ts`                                                                                                             |
 
-**Saved data keys:** IndexedDB `speedcubing-local` (schema v2; never rename, add migrations with tests); localStorage `solvelab.appearance.v1`, `solvelab.panels.v1`, and `solvelab.sync.tombstones.v1`; backup format id `speedcubing-local-backup` v1. Signed-in solves/sessions/settings also live in Cloud Firestore `users/{uid}/{sessions,solves,settings,tombstones}`.
+**Saved data keys:** IndexedDB `speedcubing-local` (schema v2; never rename, add migrations with tests); localStorage `solvelab.appearance.v1`, `solvelab.panels.v4`, and `solvelab.sync.tombstones.v1`; backup format id `speedcubing-local-backup` v1. Signed-in solves/sessions/settings also live in Cloud Firestore `users/{uid}/{sessions,solves,settings,tombstones}`.
 
 **Firebase (optional at build time):** `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, optional `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in `.env.local` (gitignored). Authorized domains: `localhost`, `127.0.0.1`, `solvelab.bhargava-gumpula.com`. Google sign-in uses a same-origin OIDC redirect to `/signed-in/`. After sign-in the client router goes to `/timer/` without a full reload, then merges local IndexedDB with Firestore.
 
@@ -147,8 +147,7 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 ## 10. Waiting on the owner (ask; don't assume)
 
-1. Later UI-only pass (2.1): small layout uniqueness vs TAGDA. Palettes stay.
-2. Local coach model (2.2 or 3.0): do not start until asked.
-3. Move the repo out of `~/Documents`? Disk is nearly full; iCloud + `.next` is painful.
+1. **2.2:** working Bluetooth timer connection and an initial AI coach / training / lessons — do not start until asked.
+2. Move the repo out of `~/Documents`? Disk is nearly full; iCloud + `.next` is painful.
 
 Reference only: an unfinished idea-scoring council from this chat is in `~/solvelab-council/`. The owner ended it ("we are done finding improvements"). Don't act on it unless asked.

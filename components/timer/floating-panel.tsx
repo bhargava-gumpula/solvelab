@@ -7,7 +7,7 @@ import { PANEL_LAYOUT_RESET_EVENT } from "@/components/appearance/appearance-con
 import { GlowingEffect } from "@/components/ui/glowing-effect";
 import { cn } from "@/lib/utils";
 
-const STORAGE_KEY = "solvelab.panels.v1";
+const STORAGE_KEY = "solvelab.panels.v4";
 
 function readOffsets(): Record<string, { x: number; y: number }> {
   try {
@@ -15,6 +15,12 @@ function readOffsets(): Record<string, { x: number; y: number }> {
   } catch {
     return {};
   }
+}
+
+function usableOffset(saved: { x: number; y: number } | undefined) {
+  if (!saved) return null;
+  if (Math.abs(saved.x) > 240 || Math.abs(saved.y) > 64) return null;
+  return saved;
 }
 
 interface FloatingPanelProps {
@@ -26,6 +32,7 @@ interface FloatingPanelProps {
   draggable: boolean;
   className?: string;
   bodyClassName?: string;
+  headerClassName?: string;
   children: React.ReactNode;
 }
 
@@ -41,6 +48,7 @@ export function FloatingPanel({
   draggable,
   className,
   bodyClassName,
+  headerClassName,
   children,
 }: FloatingPanelProps) {
   const controls = useDragControls();
@@ -65,7 +73,7 @@ export function FloatingPanel({
       y.set(0);
       return;
     }
-    const saved = readOffsets()[id];
+    const saved = usableOffset(readOffsets()[id]);
     if (saved) {
       x.set(saved.x);
       y.set(saved.y);
@@ -75,12 +83,9 @@ export function FloatingPanel({
       y.set(0);
       persist();
     };
-    // onDragEnd runs on the next frame; also save when the page is being left.
     window.addEventListener(PANEL_LAYOUT_RESET_EVENT, reset);
-    window.addEventListener("pagehide", persist);
     return () => {
       window.removeEventListener(PANEL_LAYOUT_RESET_EVENT, reset);
-      window.removeEventListener("pagehide", persist);
     };
   }, [draggable, id, x, y, persist]);
 
@@ -96,10 +101,10 @@ export function FloatingPanel({
       dragConstraints={draggable ? constraints : undefined}
       onDragEnd={persist}
       style={{ x, y }}
-      className={cn("relative flex min-h-0 flex-col rounded-2xl glass", className)}
+      className={cn("relative flex min-h-0 flex-col overflow-hidden rounded-2xl glass", className)}
     >
       <GlowingEffect disabled={!draggable} />
-      <header className="flex items-center gap-2 border-b px-3 py-2">
+      <header className={cn("flex items-center gap-2 border-b px-3 py-1", headerClassName)}>
         {draggable && (
           <button
             type="button"

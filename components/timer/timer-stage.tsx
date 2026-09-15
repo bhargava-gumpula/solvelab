@@ -75,7 +75,11 @@ export function TimerStage({
 }: TimerStageProps) {
   const { preferences } = useAppearance();
   const { state, now } = useTimerClock(store);
-  const display = getTimerDisplay(state, now, config, { hideWhileRunning, resting });
+  const display = getTimerDisplay(state, now, config, {
+    hideWhileRunning,
+    resting,
+    decimals: preferences.timeDecimals,
+  });
   const isWord = !/\d/.test(display.text);
   const font = preferences.digitFont;
 

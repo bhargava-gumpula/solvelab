@@ -72,6 +72,18 @@ test("appearance sheet switches themes and digit styles from the keyboard", asyn
   await expect(page.getByTestId("timer-display")).toHaveClass(/font-lcd/);
 });
 
+test("appearance sheet can show three decimal places on the timer", async ({ page }) => {
+  await page.goto("/timer/");
+  await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });
+  await expect(page.getByTestId("timer-display")).toHaveText("0.00");
+  await page.keyboard.press("t");
+  const sheet = page.getByRole("dialog", { name: "Appearance" });
+  await expect(sheet).toBeVisible();
+  await sheet.getByRole("radio", { name: "3 decimals" }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByTestId("timer-display")).toHaveText("0.000");
+});
+
 test("command palette runs actions", async ({ page }) => {
   await page.goto("/timer/");
   await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });

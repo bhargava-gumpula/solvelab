@@ -50,7 +50,7 @@ import { withFinalTime } from "@/lib/storage/solve-repository";
 import { computeFinalTimeMs } from "@/lib/solves/penalty";
 import { isTimerFocused, type TimerConfig, type TimerResult } from "@/lib/timer/engine";
 import type { RestingTime } from "@/lib/timer/display";
-import { formatAverage, formatTime } from "@/lib/timer/format";
+import { formatAverage, formatTime, type TimeDecimals } from "@/lib/timer/format";
 import { createTimerStore } from "@/lib/timer/store";
 import { cn } from "@/lib/utils";
 import type { Penalty, Solve } from "@/types/domain";
@@ -77,6 +77,7 @@ export function TimerWorkspace() {
   const scrambles = useScramble(event);
   const { scramble } = scrambles;
   const isDesktop = useMediaQuery("(min-width: 1024px)", true);
+  const shortViewport = useMediaQuery("(max-height: 820px)", true);
   const canvasRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
 
@@ -147,7 +148,7 @@ export function TimerWorkspace() {
     };
     const optimistic = withFinalTime(draft);
     setPendingSolve(optimistic);
-    const achievements = personalBestsFor(result, stats);
+    const achievements = personalBestsFor(result, stats, preferences.timeDecimals);
     try {
       await getRepositories().solves.add(draft);
       if (discardedIds.current.has(draft.id)) {
@@ -342,8 +343,14 @@ export function TimerWorkspace() {
   useRegisterCommands("timer", commands);
 
   const statsPanel = (
-    <FloatingPanel id="stats" title="Session stats" draggable={isDesktop} constraints={canvasRef}>
-      <StatsPanelBody stats={stats} />
+    <FloatingPanel
+      id="stats"
+      title="Session stats"
+      draggable={isDesktop}
+      constraints={canvasRef}
+      className="shrink-0"
+    >
+      <StatsPanelBody stats={stats} compact={shortViewport} />
     </FloatingPanel>
   );
   const cubePanel =
@@ -354,6 +361,8 @@ export function TimerWorkspace() {
         draggable={isDesktop}
         constraints={canvasRef}
         actions={<CubeModeToggle />}
+        className="w-full shrink-0"
+        headerClassName="px-3 py-1.5"
       >
         <CubePreviewBody facelets={facelets} />
       </FloatingPanel>
@@ -371,7 +380,7 @@ export function TimerWorkspace() {
       }
       draggable={isDesktop}
       constraints={canvasRef}
-      className={cn(isDesktop ? "h-full" : "max-h-[60svh]")}
+      className={cn(isDesktop ? "max-h-full min-h-0" : "max-h-[60svh]")}
     >
       <TimesPanelBody
         solves={solves ?? []}
@@ -384,95 +393,119 @@ export function TimerWorkspace() {
     </FloatingPanel>
   );
 
+  const timerSurface = (
+    <div
+      ref={surfaceRef}
+      data-timer-surface
+      data-testid="timer-surface"
+      aria-label="Timer. Hold the space bar, or press and hold here on a touch screen, then release to start."
+      role="application"
+      className="relative flex min-h-[44svh] flex-1 touch-none flex-col items-center justify-center rounded-3xl select-none [-webkit-touch-callout:none] lg:min-h-0"
+    >
+      <TimerStage
+        store={store}
+        config={config}
+        resting={resting}
+        hideWhileRunning={settings?.hideTimeWhileRunning ?? false}
+        liveAverages={
+          preferences.liveAverages && stats.count > 0
+            ? {
+                ao5: getAverage(stats, 5)?.current ?? null,
+                ao12: getAverage(stats, 12)?.current ?? null,
+              }
+            : null
+        }
+        hint={<TimerHint ready={canTime} inspectionOn={inspectionOn} />}
+      />
+    </div>
+  );
+
   return (
-    <div ref={canvasRef} className="relative lg:h-[calc(100svh-4rem)]">
+    <div
+      ref={canvasRef}
+      className="relative flex min-h-0 flex-col gap-1.5 lg:h-[calc(100svh-4rem)] lg:overflow-hidden"
+    >
       <h1 className="sr-only">Timer</h1>
 
-      <div className="flex flex-col gap-3 lg:h-full lg:pb-3">
-        <div data-focus-hide className="flex flex-wrap items-center justify-center gap-2 pt-1">
-          <SessionSwitcher active={session} />
-          <EventSwitcher session={session} disabled={!idle} />
-          <button
-            type="button"
-            onClick={actions.toggleInspection}
-            aria-pressed={inspectionOn}
-            className={cn(
-              "flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm glass transition-colors hover:text-foreground",
-              inspectionOn ? "text-foreground" : "text-muted-foreground",
-            )}
-            onMouseUp={(event) => event.currentTarget.blur()}
-          >
-            <Eye className={cn("size-4", inspectionOn && "text-primary")} aria-hidden />
-            Inspection {inspectionOn ? "15s" : "off"}
-          </button>
-        </div>
-
-        <ScrambleBar
-          scramble={scramble}
-          canGoBack={scrambles.canGoBack}
-          onPrevious={scrambles.previous}
-          onNext={scrambles.next}
-          onEdit={actions.customScramble}
-        />
-
-        <div
-          ref={surfaceRef}
-          data-timer-surface
-          data-testid="timer-surface"
-          aria-label="Timer. Hold the space bar, or press and hold here on a touch screen, then release to start."
-          role="application"
-          className="relative flex min-h-[44svh] flex-1 touch-none flex-col items-center justify-center rounded-3xl select-none [-webkit-touch-callout:none] lg:mx-[20rem] lg:min-h-0"
+      <div data-focus-hide className="flex flex-wrap items-center justify-center gap-2">
+        <SessionSwitcher active={session} />
+        <EventSwitcher session={session} disabled={!idle} />
+        <button
+          type="button"
+          onClick={actions.toggleInspection}
+          aria-pressed={inspectionOn}
+          className={cn(
+            "flex h-8 items-center gap-1.5 rounded-full px-3 text-sm glass transition-colors hover:text-foreground",
+            inspectionOn ? "text-foreground" : "text-muted-foreground",
+          )}
+          onMouseUp={(event) => event.currentTarget.blur()}
         >
-          <TimerStage
-            store={store}
-            config={config}
-            resting={resting}
-            hideWhileRunning={settings?.hideTimeWhileRunning ?? false}
-            liveAverages={
-              preferences.liveAverages && stats.count > 0
-                ? {
-                    ao5: getAverage(stats, 5)?.current ?? null,
-                    ao12: getAverage(stats, 12)?.current ?? null,
-                  }
-                : null
-            }
-            hint={<TimerHint ready={canTime} inspectionOn={inspectionOn} />}
-          />
+          <Eye className={cn("size-4", inspectionOn && "text-primary")} aria-hidden />
+          Inspection {inspectionOn ? "15s" : "off"}
+        </button>
+      </div>
+
+      <ScrambleBar
+        scramble={scramble}
+        canGoBack={scrambles.canGoBack}
+        onPrevious={scrambles.previous}
+        onNext={scrambles.next}
+        onEdit={actions.customScramble}
+      />
+
+      {isDesktop ? (
+        <div
+          className={cn(
+            "grid min-h-0 flex-1 grid-cols-[clamp(14rem,16vw,16.5rem)_minmax(0,1fr)_clamp(14rem,16vw,16.5rem)] gap-x-3",
+            cubePanel
+              ? "grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)_auto_minmax(0,1fr)]"
+              : "grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)]",
+          )}
+        >
+          <aside
+            data-focus-hide
+            aria-label="Session times"
+            className={cn(
+              "col-start-1 row-start-2 max-h-full min-h-0 self-start overflow-hidden",
+              cubePanel ? "row-end-[-1]" : "row-end-3",
+            )}
+          >
+            {timesPanel}
+          </aside>
+          {/*
+            Center spans all rows but must not inflate the 1fr spacers:
+            min-h-0 + overflow-hidden zeroes its automatic minimum contribution.
+          */}
+          <div className="col-start-2 row-[1/-1] flex min-h-0 flex-col gap-2 overflow-hidden">
+            {timerSurface}
+            <LastSolveBar
+              solve={latestSolve}
+              isPersonalBest={latestIsBest}
+              onOpenDetails={(solve) => setSelectedId(solve.id)}
+              onDelete={removeSolve}
+            />
+          </div>
+          <div className="col-start-3 row-start-2 min-h-0 self-start">{statsPanel}</div>
+          {cubePanel ? (
+            <div className="col-start-3 row-start-4 min-h-0 self-start">{cubePanel}</div>
+          ) : null}
         </div>
-
-        <LastSolveBar
-          solve={latestSolve}
-          isPersonalBest={latestIsBest}
-          onOpenDetails={(solve) => setSelectedId(solve.id)}
-          onDelete={removeSolve}
-        />
-
-        {isDesktop ? (
-          <>
-            <aside
-              data-focus-hide
-              aria-label="Session times"
-              className="absolute top-[9.5rem] bottom-3 left-0 z-10 w-[18.5rem]"
-            >
-              {timesPanel}
-            </aside>
-            <aside
-              data-focus-hide
-              aria-label="Session overview"
-              className="absolute top-[9.5rem] right-0 z-10 flex w-[18.5rem] flex-col gap-3"
-            >
-              {statsPanel}
-              {cubePanel}
-            </aside>
-          </>
-        ) : (
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col gap-3">
+          {timerSurface}
+          <LastSolveBar
+            solve={latestSolve}
+            isPersonalBest={latestIsBest}
+            onOpenDetails={(solve) => setSelectedId(solve.id)}
+            onDelete={removeSolve}
+          />
           <div data-focus-hide className="grid gap-3 md:grid-cols-2">
             {statsPanel}
             {cubePanel}
             <div className="md:col-span-2">{timesPanel}</div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <SolveDetailDialog
         solve={selectedSolve}
@@ -496,19 +529,23 @@ interface Achievement {
 }
 
 /** Which personal bests the just-finished solve sets (computed before saving). */
-function personalBestsFor(result: TimerResult, stats: SessionStatistics): Achievement[] {
+function personalBestsFor(
+  result: TimerResult,
+  stats: SessionStatistics,
+  decimals: TimeDecimals,
+): Achievement[] {
   if (stats.count === 0) return [];
   const value = computeFinalTimeMs(result.rawTimeMs, result.inspectionPenalty) ?? DNF;
   const achievements: Achievement[] = [];
   if (value !== DNF && value < (stats.bestSingle?.value ?? DNF)) {
-    achievements.push({ label: "Single", value: formatTime(value) });
+    achievements.push({ label: "Single", value: formatTime(value, "truncate", decimals) });
   }
   const values = [...stats.values, value];
   for (const size of [5, 12, 100]) {
     const previousBest = getAverage(stats, size)?.best?.value ?? DNF;
     const average = currentAverage(values, size);
     if (previousBest !== DNF && average !== null && average !== DNF && average < previousBest) {
-      achievements.push({ label: `Ao${size}`, value: formatAverage(average) });
+      achievements.push({ label: `Ao${size}`, value: formatAverage(average, decimals) });
     }
   }
   return achievements;

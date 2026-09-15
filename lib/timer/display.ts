@@ -6,7 +6,7 @@ import {
   type TimerConfig,
   type TimerState,
 } from "./engine";
-import { formatSolve, formatTime } from "./format";
+import { formatSolve, formatTime, type TimeDecimals } from "./format";
 
 export type DisplayTone = "idle" | "holding" | "armed" | "inspection" | "running" | "result";
 
@@ -28,6 +28,8 @@ interface DisplayOptions {
   hideWhileRunning: boolean;
   /** Time shown while idle or stopped (normally the latest saved solve). */
   resting: RestingTime | null;
+  /** Hundredths (2) or thousandths (3). */
+  decimals?: TimeDecimals;
 }
 
 function inspectionText(elapsed: number, limit: number): string {
@@ -48,20 +50,25 @@ function cueFor(elapsed: number): 8 | 12 | null {
  * flash the previous solve while the database catches up. Once resting is the
  * same raw time (optimistic or saved), it wins so +2/DNF edits show.
  */
-function resultText(state: TimerState, resting: RestingTime | null): string {
-  const saved = resting ? formatSolve(resting.rawTimeMs, resting.penalty) : null;
+function resultText(
+  state: TimerState,
+  resting: RestingTime | null,
+  decimals: TimeDecimals,
+): string {
+  const saved = resting ? formatSolve(resting.rawTimeMs, resting.penalty, decimals) : null;
   const live = state.result
-    ? formatSolve(state.result.rawTimeMs, state.result.inspectionPenalty)
+    ? formatSolve(state.result.rawTimeMs, state.result.inspectionPenalty, decimals)
     : null;
   const justFinished =
     live !== null &&
     (state.phase === "stopped" || (state.phase === "ready" && state.holdOrigin === "stopped"));
+  const zero = formatTime(0, "truncate", decimals);
 
   if (justFinished) {
     if (resting && state.result && resting.rawTimeMs === state.result.rawTimeMs) return saved!;
     return live;
   }
-  return saved ?? live ?? "0.00";
+  return saved ?? live ?? zero;
 }
 
 /** Pure mapping from engine state + clock to what the timer should show. */
@@ -69,15 +76,18 @@ export function getTimerDisplay(
   state: TimerState,
   now: number,
   config: TimerConfig,
-  { hideWhileRunning, resting }: DisplayOptions,
+  { hideWhileRunning, resting, decimals = 2 }: DisplayOptions,
 ): TimerDisplayModel {
-  const restingText = resultText(state, resting);
+  const restingText = resultText(state, resting, decimals);
+  const zero = formatTime(0, "truncate", decimals);
   const inspectionElapsed = inspectionElapsedMs(state, now);
 
   switch (state.phase) {
     case "running":
       return {
-        text: hideWhileRunning ? "Solving" : formatTime(now - (state.startedAt ?? now)),
+        text: hideWhileRunning
+          ? "Solving"
+          : formatTime(now - (state.startedAt ?? now), "truncate", decimals),
         tone: "running",
         status: "Timing. Press any key or tap to stop.",
         inspectionCue: null,
@@ -96,7 +106,7 @@ export function getTimerDisplay(
           inspectionElapsed === null
             ? state.holdOrigin === "stopped" || state.holdOrigin === "idle"
               ? restingText
-              : "0.00"
+              : zero
             : inspectionText(inspectionElapsed, config.inspectionMs),
         tone: armed ? "armed" : "holding",
         status: armed ? "Ready. Release to start." : "Keep holding…",

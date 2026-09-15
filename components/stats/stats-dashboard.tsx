@@ -44,7 +44,7 @@ import {
   buildPersonalBestHistory,
   buildProgressSeries,
 } from "@/lib/stats/series";
-import { formatAverage, formatSolve, formatTime } from "@/lib/timer/format";
+import { useTimeFormat } from "@/hooks/use-time-format";
 import { ChartCard, DataTable } from "./chart-card";
 import { StatTile } from "./stat-tile";
 
@@ -76,6 +76,7 @@ const RANGES = [
 ] as const;
 
 export function StatsDashboard() {
+  const { formatAverage, formatSolve, formatTime } = useTimeFormat();
   const sessions = useSessions();
   const { session: activeSession } = useActiveSession();
   const [selected, setSelected] = useState<string | null>(null);
