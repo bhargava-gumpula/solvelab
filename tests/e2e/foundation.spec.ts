@@ -3,12 +3,11 @@ import { expect, test } from "@playwright/test";
 const navRoutes = [
   { path: "timer", nav: "Timer" },
   { path: "coach", nav: "Coach" },
+  { path: "train", nav: "Train" },
   { path: "algorithms", nav: "Algorithms" },
+  { path: "learn", nav: "Learn" },
   { path: "stats", nav: "Stats" },
-  { path: "settings", nav: "Settings" },
 ];
-
-const extraRoutes = [{ path: "train" }, { path: "learn" }];
 
 for (const width of [375, 768, 1024, 1440]) {
   test(`all routes render without horizontal overflow at ${width}px`, async ({ page }) => {
@@ -26,14 +25,9 @@ for (const width of [375, 768, 1024, 1440]) {
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       ).toBe(true);
     }
-    for (const route of extraRoutes) {
-      const response = await page.goto(`/${route.path}/`);
-      expect(response?.status()).toBe(200);
-      await expect(page.locator("h1")).toHaveCount(1);
-      expect(
-        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
-      ).toBe(true);
-    }
+    const settings = await page.goto("/settings/");
+    expect(settings?.status()).toBe(200);
+    await expect(page.locator("h1")).toHaveCount(1);
     expect(errors).toEqual([]);
   });
 }

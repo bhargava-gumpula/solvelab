@@ -30,17 +30,27 @@ export function NavPill({ items, pathname, layoutId, variant, label }: NavPillPr
             : "justify-between border bg-background shadow-[0_12px_40px_-12px_rgb(0_0_0/0.6)]",
         )}
       >
-        {items.map(({ href, label: itemLabel, icon: Icon }) => {
+        {items.map(({ href, label: itemLabel, icon: Icon, enabled, comingIn }) => {
           const active = isActivePath(pathname, href);
+          const preview = !enabled;
           return (
             <li key={href} className={cn(variant === "bottom" && "flex-1")}>
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
+                aria-description={
+                  preview && comingIn ? `${itemLabel} planned for ${comingIn}` : undefined
+                }
+                title={preview && comingIn ? `Planned for ${comingIn}` : undefined}
+                data-preview={preview ? "true" : undefined}
                 className={cn(
                   "relative flex items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors",
                   variant === "top" ? "px-3.5 py-1.5" : "flex-col gap-0.5 px-2 py-1.5 text-[11px]",
-                  active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  active
+                    ? "text-foreground"
+                    : preview
+                      ? "text-muted-foreground/70 hover:text-muted-foreground"
+                      : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 {active && (
@@ -66,11 +76,20 @@ export function NavPill({ items, pathname, layoutId, variant, label }: NavPillPr
                     "relative size-4",
                     variant === "bottom" && "size-5",
                     !active && "opacity-80",
+                    preview && "opacity-55",
                   )}
                 />
                 <span className={cn("relative", variant === "top" && "sr-only lg:not-sr-only")}>
                   {itemLabel}
                 </span>
+                {preview && variant === "top" ? (
+                  <span
+                    aria-hidden
+                    className="relative hidden text-[10px] font-normal text-muted-foreground xl:inline"
+                  >
+                    Soon
+                  </span>
+                ) : null}
               </Link>
             </li>
           );

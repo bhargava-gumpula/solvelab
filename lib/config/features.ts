@@ -1,12 +1,12 @@
-/** Product surface flags for this release. Hidden features stay in the repo for later. */
+/** Product surface flags for this release. Disabled surfaces stay visible but inert. */
 export const features = {
-  /** Practice sessions after a diagnostic. */
+  /** Practice sessions after a diagnostic. Visible in nav; page is coming-soon until 3.1. */
   train: false,
-  /** Lesson plans. */
+  /** Lesson plans. Visible in nav; page is coming-soon until 3.2. */
   learn: false,
   /**
-   * Algorithm catalog is visible as a preview; drills and tracking are later.
-   * Keep `true` so the page stays in nav.
+   * Algorithm catalog is browsable; drills and tracking are later.
+   * Keep `true` so the catalog itself stays usable.
    */
   algorithms: true,
 } as const;

@@ -13,9 +13,9 @@ test.describe("v3 diagnostic coach", () => {
     await expect(page.getByTestId("start-full-diagnostic")).toHaveCount(0);
 
     await page.getByRole("button", { name: /Sub 20/ }).click();
-    await expect(
-      page.getByRole("heading", { name: /Time your stages for Sub 20/ }),
-    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("heading", { name: /Time your stages for Sub 20/ })).toBeVisible({
+      timeout: 15_000,
+    });
     await expect(page.getByRole("link", { name: /Start diagnostic/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /Start training/ })).toHaveCount(0);
     await expect(page.getByText("Choose your goal")).toBeVisible();
@@ -121,37 +121,35 @@ test.describe("v3 diagnostic coach", () => {
     await expect(page.getByTestId("solve-count")).toHaveText(beforeCount);
   });
 
-  test("Train and Learn are disabled; Algorithms is planned for 3.1–3.2", async ({ page }) => {
+  test("Train and Learn show in nav but open coming-soon pages", async ({ page }) => {
     test.setTimeout(90_000);
     await page.goto("/timer/");
-    await expect(page.getByRole("navigation", { name: "Main navigation" })).toBeVisible();
+    const mainNav = page.getByRole("navigation", { name: "Main navigation" });
+    await expect(mainNav).toBeVisible();
+    const train = mainNav.getByRole("link", { name: "Train", exact: true });
+    const learn = mainNav.getByRole("link", { name: "Learn", exact: true });
+    await expect(train).toBeVisible();
+    await expect(learn).toBeVisible();
+    await expect(train).toHaveAttribute("data-preview", "true");
+    await expect(learn).toHaveAttribute("data-preview", "true");
     await expect(
-      page
-        .getByRole("navigation", { name: "Main navigation" })
-        .getByRole("link", { name: "Train" }),
-    ).toHaveCount(0);
-    await expect(
-      page
-        .getByRole("navigation", { name: "Main navigation" })
-        .getByRole("link", { name: "Learn" }),
-    ).toHaveCount(0);
-    await expect(
-      page
-        .getByRole("navigation", { name: "Main navigation" })
-        .getByRole("link", { name: "Algorithms" }),
-    ).toBeVisible();
+      mainNav.getByRole("link", { name: "Algorithms", exact: true }),
+    ).not.toHaveAttribute("data-preview", "true");
 
     await page.keyboard.press("ControlOrMeta+k");
     const palette = page.getByRole("dialog", { name: "Command palette" });
     await expect(palette).toBeVisible();
     await expect(palette.getByText("Go to Coach")).toBeVisible();
-    await expect(palette.getByText("Go to Train")).toHaveCount(0);
-    await expect(palette.getByText("Go to Learn")).toHaveCount(0);
+    await expect(palette.getByText("Go to Train")).toBeVisible();
+    await expect(palette.getByText("Go to Learn")).toBeVisible();
     await page.keyboard.press("Escape");
 
-    await page.goto("/train/");
+    await train.click();
+    await expect(page).toHaveURL(/\/train\/?$/);
     await expect(page.getByRole("heading", { name: "Practice is coming later." })).toBeVisible();
-    await expect(page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.1\.$/ })).toBeVisible();
+    await expect(
+      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.1\.$/ }),
+    ).toBeVisible();
     await expect(page.getByTestId("start-topic-cross")).toHaveCount(0);
 
     await page.goto("/train/slow_f2l/");
@@ -159,7 +157,9 @@ test.describe("v3 diagnostic coach", () => {
 
     await page.goto("/learn/");
     await expect(page.getByRole("heading", { name: "Lessons are coming later." })).toBeVisible();
-    await expect(page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.2\.$/ })).toBeVisible();
+    await expect(
+      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.2\.$/ }),
+    ).toBeVisible();
 
     await page.goto("/algorithms/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(

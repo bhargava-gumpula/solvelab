@@ -28,12 +28,22 @@ describe("domain configuration integrity", () => {
     );
     expect(thresholds).toEqual([...thresholds].sort((a, b) => b - a));
   });
-  it("ships 3.0 as diagnostic-only", () => {
+  it("ships 3.0 with Train/Learn visible but not enabled", () => {
     expect(brand.version).toBe("3.0");
     expect(features.train).toBe(false);
     expect(features.learn).toBe(false);
     expect(features.algorithms).toBe(true);
     expect(upcoming.algorithms).toBe("3.1–3.2");
-    expect(navigation.map((item) => item.label)).toEqual(["Timer", "Coach", "Algorithms", "Stats"]);
+    expect(navigation.map((item) => item.label)).toEqual([
+      "Timer",
+      "Coach",
+      "Train",
+      "Algorithms",
+      "Learn",
+      "Stats",
+    ]);
+    expect(navigation.find((item) => item.href === "/train")?.enabled).toBe(false);
+    expect(navigation.find((item) => item.href === "/learn")?.enabled).toBe(false);
+    expect(navigation.find((item) => item.href === "/algorithms")?.enabled).toBe(true);
   });
 });
