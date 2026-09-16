@@ -93,8 +93,10 @@ export function SettingsPanel() {
               </ToggleGroup>
             </div>
             <HardwareTimerControls
-              value={settings.timerInput}
-              onChange={(timerInput) => void updateSettings({ timerInput })}
+              timerInput={settings.timerInput}
+              bluetoothTimerBrand={settings.bluetoothTimerBrand}
+              onChangeTimerInput={(timerInput) => void updateSettings({ timerInput })}
+              onChangeBrand={(bluetoothTimerBrand) => void updateSettings({ bluetoothTimerBrand })}
             />
             <SettingRow
               id="hide-time"

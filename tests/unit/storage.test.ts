@@ -93,6 +93,7 @@ describe("schema migrations", () => {
       holdToStartMs: 300,
       showScramblePreview: true,
       timerInput: "keyboard",
+      bluetoothTimerBrand: "auto",
       activeExerciseId: null,
       panelOffsets: {},
     });

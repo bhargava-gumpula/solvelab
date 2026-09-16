@@ -15,9 +15,9 @@ export default function TermsPage() {
 
       <h2>What {brand.name} is</h2>
       <p>
-        {brand.name} is a personal speedcubing timer and (later) coach. The timer runs in your
-        browser. Google Sign-In is required only for Coach, Train, and Learn. {brand.name} is not
-        affiliated with the World Cube Association.
+        {brand.name} is a personal speedcubing timer and diagnostic coach. The timer and Coach run
+        in your browser without an account. Google Sign-In is optional, for syncing times to another
+        device. {brand.name} is not affiliated with the World Cube Association.
       </p>
 
       <h2>Your data</h2>

@@ -124,7 +124,8 @@ export const lessons: Lesson[] = [
         body: "Once standard crosses are automatic, look for a free first pair during inspection (x-cross).",
       },
     ],
-    practiceHint: "Do a Cross only diagnostic set on Train and compare to ~18% of your ao12.",
+    practiceHint:
+      "Start a Cross diagnostic on Train and see how it compares to the rest of your solve.",
   },
   {
     id: "cfop-f2l",
@@ -146,7 +147,7 @@ export const lessons: Lesson[] = [
         body: "Turning slower while tracking the next pair beats frantic turning that forces pauses.",
       },
     ],
-    practiceHint: "Run Slow F2L drills from Train — deliberate TPS with continuous looking.",
+    practiceHint: "Start F2L training on Train — turn a bit slower and look for the next pair.",
   },
   {
     id: "cfop-2look-oll",
@@ -189,7 +190,7 @@ export const lessons: Lesson[] = [
         body: "Finish with an intentional U adjustment. Guessing AUF mid-alg creates lockups.",
       },
     ],
-    practiceHint: "Use PLL execution drills once you can set up cases reliably.",
+    practiceHint: "Start PLL training once you can set up cases reliably.",
   },
   {
     id: "advanced-first-pair",
@@ -235,14 +236,14 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Lower TPS on purpose",
-        body: "Lookahead is a seeing skill. Slow F2L forces your eyes ahead of your hands.",
+        body: "Lookahead is a seeing skill. Slower F2L turning forces your eyes ahead of your hands.",
       },
       {
         title: "Track one piece early",
         body: "During an insert, keep peripheral attention on one unsolved corner or edge.",
       },
     ],
-    practiceHint: "Eight slow F2L solves focusing only on never pausing between pairs.",
+    practiceHint: "Eight F2L training solves focusing only on never pausing between pairs.",
   },
   {
     id: "advanced-last-layer",

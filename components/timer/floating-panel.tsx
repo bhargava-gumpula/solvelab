@@ -150,7 +150,9 @@ export function FloatingPanel({
         </h2>
         {actions}
       </header>
-      <div className={cn("min-h-0 flex-1", bodyClassName)}>{children}</div>
+      <div className={cn("flex min-h-0 flex-1 flex-col overflow-hidden", bodyClassName)}>
+        {children}
+      </div>
     </motion.section>
   );
 }

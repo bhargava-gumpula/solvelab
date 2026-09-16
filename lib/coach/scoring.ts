@@ -1,16 +1,10 @@
 import type { ExerciseDefinition, SkillId, SkillScore, Solve } from "@/types/domain";
 import { exercises } from "@/data/exercises";
 import { skills } from "@/data/skills";
+import { stageBarsFor } from "@/data/milestones/stage-bars";
 import type { BaselineSummary } from "./baseline";
+import { barForStage, stageForExercise } from "./pace";
 import { clamp01, coefficientOfVariation, mean, validTimes } from "./stats";
-
-/** Expected share of a full solve spent on each diagnostic category. */
-const EXPECTED_FRACTION: Record<string, number> = {
-  cross_only: 0.18,
-  cross_first_pair: 0.32,
-  f2l_only: 0.55,
-  normal_solves: 1,
-};
 
 export interface ScoredSkill {
   skillId: SkillId;
@@ -24,8 +18,9 @@ export function scoreSkillsFromSolves(
   solves: Solve[],
   baseline: BaselineSummary,
   now = new Date().toISOString(),
+  options?: { targetMilestoneId?: string | null },
 ): SkillScore[] {
-  const scored = collectSkillEvidence(solves, baseline);
+  const scored = collectSkillEvidence(solves, baseline, options);
   return scored.map((s) => ({
     skillId: s.skillId,
     score: s.score,
@@ -35,7 +30,11 @@ export function scoreSkillsFromSolves(
   }));
 }
 
-export function collectSkillEvidence(solves: Solve[], baseline: BaselineSummary): ScoredSkill[] {
+export function collectSkillEvidence(
+  solves: Solve[],
+  baseline: BaselineSummary,
+  options?: { targetMilestoneId?: string | null },
+): ScoredSkill[] {
   const byExercise = new Map<string, Solve[]>();
   for (const solve of solves) {
     if (!solve.exerciseId || solve.finalTimeMs === null) continue;
@@ -45,8 +44,9 @@ export function collectSkillEvidence(solves: Solve[], baseline: BaselineSummary)
   }
 
   const results: ScoredSkill[] = [];
+  const bars = options?.targetMilestoneId ? stageBarsFor(options.targetMilestoneId) : null;
 
-  // Consistency from baseline normal solves.
+  // Consistency from baseline normal solves (optional — goal path does not require it).
   if (baseline.sampleCount >= 5 && baseline.meanMs) {
     const normals = solves.filter(
       (s) => s.finalTimeMs !== null && (s.source === "normal" || s.exerciseId === "normal_solves"),
@@ -54,7 +54,6 @@ export function collectSkillEvidence(solves: Solve[], baseline: BaselineSummary)
     const times = validTimes(normals.map((s) => s.finalTimeMs));
     const cv = coefficientOfVariation(times);
     if (cv !== null) {
-      // CV 0.05 → strong; 0.25 → weak.
       const score = clamp01(1 - (cv - 0.05) / 0.2);
       results.push({
         skillId: "consistency",
@@ -74,7 +73,7 @@ export function collectSkillEvidence(solves: Solve[], baseline: BaselineSummary)
     const exerciseMean = mean(times);
     if (exerciseMean === null) continue;
 
-    const skillScores = scoreExercise(exercise, exerciseMean, times.length, baseline);
+    const skillScores = scoreExercise(exercise, exerciseMean, times.length, baseline, bars);
     results.push(...skillScores);
   }
 
@@ -86,6 +85,7 @@ function scoreExercise(
   exerciseMean: number,
   sampleCount: number,
   baseline: BaselineSummary,
+  bars: ReturnType<typeof stageBarsFor>,
 ): ScoredSkill[] {
   const measured = exercise.skillsMeasured.length
     ? exercise.skillsMeasured
@@ -96,15 +96,32 @@ function scoreExercise(
   let score = 0.55;
   let evidence = `${exercise.name}: mean ${formatSec(exerciseMean)}.`;
 
-  if (exercise.id === "normal_solves" && baseline.meanMs) {
+  const stage = stageForExercise(exercise.id);
+  if (bars && stage) {
+    const expected = barForStage(bars, stage);
+    const ratio = exerciseMean / expected;
+    // ratio < 1 → strong; 1.0 → ok; 1.6 → weak
+    score = clamp01(1.15 - (ratio - 0.7) * 0.7);
+    evidence = `${exercise.name} averages ${formatSec(exerciseMean)} vs ${formatSec(expected)} goal bar (${(ratio * 100).toFixed(0)}%).`;
+  } else if (exercise.id === "normal_solves" && baseline.meanMs) {
     score = 0.6;
     evidence = `Baseline mean ${formatSec(exerciseMean)}.`;
-  } else if (baseline.meanMs && EXPECTED_FRACTION[exercise.id]) {
-    const expected = baseline.meanMs * EXPECTED_FRACTION[exercise.id]!;
-    const ratio = exerciseMean / expected;
-    // ratio 1.0 → ok (~0.65); 1.6 → weak (~0.25); 0.7 → strong (~0.9)
-    score = clamp01(1.15 - (ratio - 0.7) * 0.7);
-    evidence = `${exercise.name} averages ${formatSec(exerciseMean)} vs ~${formatSec(expected)} expected from your full-solve pace (${(ratio * 100).toFixed(0)}%).`;
+  } else if (baseline.meanMs) {
+    // Legacy fraction fallback when no goal bars.
+    const fractions: Record<string, number> = {
+      cross_only: 0.18,
+      cross_first_pair: 0.32,
+      f2l_only: 0.55,
+      oll_only: 0.15,
+      pll_only: 0.15,
+    };
+    const frac = fractions[exercise.id];
+    if (frac) {
+      const expected = baseline.meanMs * frac;
+      const ratio = exerciseMean / expected;
+      score = clamp01(1.15 - (ratio - 0.7) * 0.7);
+      evidence = `${exercise.name} averages ${formatSec(exerciseMean)} vs ~${formatSec(expected)} from full-solve pace (${(ratio * 100).toFixed(0)}%).`;
+    }
   }
 
   return measured.map((skillId) => ({

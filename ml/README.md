@@ -1,28 +1,21 @@
 # On-device coach MLP
 
-Replaces the overnight 20-weight logistic stub.
-
 ## Model
 
 - **18,408 parameters** — `40 → 128 → 96 → 8` (ReLU, softmax)
-- 8 weakness classes: cross execution/planning, cross→F2L, first-pair, F2L efficiency/lookahead, PLL execution, consistency
+- 8 weakness classes with **separable causal signatures** (aligned with the rule coach)
 - Pure TypeScript train + infer (no Python, no cloud)
 
 ## Train
 
 ```bash
-node --experimental-strip-types ml/scripts/train-mlp.mjs
+node --experimental-strip-types ml/scripts/train-loop.mjs
 ```
 
-Writes `ml/coach-mlp.json`. Last run (10k synthetic samples, causal feature generator):
+Writes `ml/coach-mlp.json`. Target held-out accuracy **≥ 98.5%** (chance 12.5%).
 
-| Split          | Accuracy |
-| -------------- | -------- |
-| Train          | ~87%     |
-| Val            | ~83%     |
-| Test           | ~84%     |
-| Chance (8-way) | 12.5%    |
+See `metrics` in the JSON for the latest train/val/test numbers.
 
 ## Runtime
 
-`lib/coach` loads the JSON weights and blends MLP predictions with the rule engine when diagnostic solves exist.
+`lib/coach` loads the JSON weights. Rules rank weaknesses from diagnostic times vs baseline; the MLP **confirms** (boosts confidence) and only overrides when rules are weak and the model is extremely sure (≥92%).

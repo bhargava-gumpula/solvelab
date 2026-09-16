@@ -1,27 +1,35 @@
 import { expect, test } from "@playwright/test";
 
-const routes = [
+const navRoutes = [
   { path: "timer", nav: "Timer" },
   { path: "coach", nav: "Coach" },
-  { path: "train", nav: "Train" },
   { path: "algorithms", nav: "Algorithms" },
-  { path: "learn", nav: "Learn" },
   { path: "stats", nav: "Stats" },
   { path: "settings", nav: "Settings" },
 ];
+
+const extraRoutes = [{ path: "train" }, { path: "learn" }];
 
 for (const width of [375, 768, 1024, 1440]) {
   test(`all routes render without horizontal overflow at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    for (const route of routes) {
+    for (const route of navRoutes) {
       const response = await page.goto(`/${route.path}/`);
       expect(response?.status()).toBe(200);
       await expect(page.locator("h1")).toHaveCount(1);
       await expect(
         page.getByRole("link", { name: route.nav, exact: true }).filter({ visible: true }).first(),
       ).toHaveAttribute("aria-current", "page");
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
+    }
+    for (const route of extraRoutes) {
+      const response = await page.goto(`/${route.path}/`);
+      expect(response?.status()).toBe(200);
+      await expect(page.locator("h1")).toHaveCount(1);
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       ).toBe(true);

@@ -46,8 +46,13 @@ export interface TimerState {
 }
 
 export type TimerEvent =
-  | { type: "press"; at: number }
+  | {
+      type: "press";
+      at: number;
+      /** Hardware-reported solve time (e.g. GAN STOPPED). */ solveTimeMs?: number;
+    }
   | { type: "release"; at: number }
+  | { type: "sync"; at: number; solveTimeMs: number }
   | { type: "cancel" }
   | { type: "reset" };
 
@@ -95,7 +100,7 @@ export function transition(state: TimerState, event: TimerEvent, config: TimerCo
       if (state.awaitingRelease) return state;
       switch (state.phase) {
         case "running":
-          return stop(state, event.at, config);
+          return stop(state, event.at, config, event.solveTimeMs);
         case "idle":
         case "stopped":
           if (config.inspectionMs > 0) {
@@ -133,10 +138,23 @@ export function transition(state: TimerState, event: TimerEvent, config: TimerCo
         holdStartedAt: null,
         holdOrigin: null,
       };
+
+    case "sync":
+      if (state.phase !== "running") return state;
+      return {
+        ...state,
+        // Rebase start so `now - startedAt` matches the hardware digits.
+        startedAt: event.at - event.solveTimeMs,
+      };
   }
 }
 
-function stop(state: TimerState, at: number, config: TimerConfig): TimerState {
+function stop(
+  state: TimerState,
+  at: number,
+  config: TimerConfig,
+  hardwareTimeMs?: number,
+): TimerState {
   const startedAt = state.startedAt ?? at;
   const inspectionElapsed =
     state.inspectionStartedAt === null ? null : toMs(startedAt - state.inspectionStartedAt);
@@ -146,7 +164,11 @@ function stop(state: TimerState, at: number, config: TimerConfig): TimerState {
     stoppedAt: at,
     awaitingRelease: true,
     result: {
-      rawTimeMs: toMs(at - startedAt),
+      // Prefer the timer's own display time so the UI matches the hardware exactly.
+      rawTimeMs:
+        hardwareTimeMs !== undefined && Number.isFinite(hardwareTimeMs)
+          ? toMs(hardwareTimeMs)
+          : toMs(at - startedAt),
       inspectionMs: inspectionElapsed,
       inspectionPenalty:
         inspectionElapsed === null

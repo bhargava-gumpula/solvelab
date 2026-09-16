@@ -1,182 +1,161 @@
 "use client";
 
-import { useMemo } from "react";
-import Link from "next/link";
-import { Crosshair, Layers3, Timer, Check } from "lucide-react";
-import { toast } from "sonner";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Crosshair, Layers3, RotateCcw, Timer } from "lucide-react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/layout/feature-card";
-import { exercises, getExercise } from "@/data/exercises";
-import { skills } from "@/data/skills";
-import { useLiveQuery } from "dexie-react-hooks";
-import { useSettings } from "@/hooks/use-local-data";
+import { PaceBadge } from "@/components/coach/pace-badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  PRACTICE_TOPICS,
+  practiceHref,
+  topicForExercise,
+  type PracticeTopic,
+} from "@/data/exercises";
 import { useStorageStatus } from "@/components/layout/storage-provider";
 import { getRepositories } from "@/lib/storage";
-import { isPlanComplete, markPlanProgress } from "@/lib/coach";
-import { cn } from "@/lib/utils";
+import { useCoachPace } from "@/hooks/use-coach-pace";
+import { latestIncompleteRun, stageForExercise, STAGE_TIPS } from "@/lib/coach";
 
 const icons: Record<string, typeof Timer> = {
-  normal_solves: Timer,
-  cross_only: Crosshair,
+  cross: Crosshair,
   cross_first_pair: Crosshair,
-  cross_drills: Crosshair,
-  f2l_only: Layers3,
-  slow_f2l: Layers3,
-  pll_execution_drills: Timer,
+  f2l: Layers3,
+  oll: RotateCcw,
+  pll: Timer,
+  oll_pll: RotateCcw,
 };
 
 export function TrainDashboard() {
-  const settings = useSettings();
+  const router = useRouter();
+  const { loaded, diagnosticRuns, tagFor, goalId: settingsGoal } = useCoachPace();
   const ready = useStorageStatus().status === "ready";
   const plan = useLiveQuery(
     () => (ready ? getRepositories().coach.getActivePlan() : undefined),
     [ready],
   );
+  const [chooser, setChooser] = useState<PracticeTopic | null>(null);
 
-  const catalog = useMemo(() => exercises.filter((e) => e.id !== "normal_solves" || true), []);
-
-  const setExercise = async (exerciseId: string | null) => {
-    await getRepositories().settings.update({ activeExerciseId: exerciseId });
-    if (exerciseId) {
-      const exercise = getExercise(exerciseId);
-      toast.success(`${exercise?.name ?? "Exercise"} armed`, {
-        description: "New timer solves are tagged for this exercise until you clear it.",
-      });
-    } else {
-      toast.message("Cleared active exercise — new solves are normal again.");
+  const goalId = settingsGoal ?? plan?.targetMilestone ?? null;
+  const runs = diagnosticRuns;
+  const suggested = useMemo(() => {
+    const ids = new Set<string>();
+    for (const item of plan?.exercises ?? []) {
+      const topic = topicForExercise(item.exerciseId);
+      if (topic) ids.add(topic.id);
     }
-  };
+    return ids;
+  }, [plan]);
 
-  const bumpPlanItem = async (exerciseId: string) => {
-    if (!plan) return;
-    const item = plan.exercises.find((e) => e.exerciseId === exerciseId);
-    if (!item) return;
-    const next = markPlanProgress(plan, exerciseId, item.completedRepetitions + 1);
-    const finished = isPlanComplete(next);
-    await getRepositories().coach.savePlan(
-      finished ? { ...next, completedAt: new Date().toISOString() } : next,
-    );
-    toast.success(finished ? "Training plan complete" : "Logged a repetition");
-  };
+  if (!loaded) {
+    return <p className="text-sm text-muted-foreground">Loading…</p>;
+  }
 
   return (
     <div className="grid gap-6">
-      <section className="rounded-3xl p-5 glass">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <p className="eyebrow">Active exercise</p>
-            <h2 className="mt-1 text-lg font-semibold">
-              {settings?.activeExerciseId
-                ? (getExercise(settings.activeExerciseId)?.name ?? settings.activeExerciseId)
-                : "None — normal solves"}
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Arm an exercise, then time it on the timer. Solves are tagged automatically for the
-              coach.
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" size="sm">
-              <Link href="/timer">Open timer</Link>
-            </Button>
-            {settings?.activeExerciseId ? (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => void setExercise(null)}
-              >
-                Clear
-              </Button>
-            ) : null}
-          </div>
-        </div>
-      </section>
-
-      {plan ? (
-        <section className="rounded-3xl p-5 glass">
-          <p className="eyebrow">Your plan</p>
-          <h2 className="mt-1 text-lg font-semibold">Focus: {skills[plan.primarySkill].label}</h2>
-          <ul className="mt-4 grid gap-2">
-            {plan.exercises.map((item) => {
-              const exercise = getExercise(item.exerciseId);
-              const done = item.completedRepetitions >= item.repetitions;
-              return (
-                <li
-                  key={item.exerciseId}
-                  className="flex flex-wrap items-center justify-between gap-2 rounded-xl border px-3 py-2"
-                >
-                  <div>
-                    <p className="text-sm font-medium">{exercise?.name ?? item.exerciseId}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {item.completedRepetitions}/{item.repetitions}
-                      {exercise?.type === "diagnostic" ? " · retest/diagnostic" : " · drill"}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant={
-                        settings?.activeExerciseId === item.exerciseId ? "secondary" : "outline"
-                      }
-                      onClick={() => void setExercise(item.exerciseId)}
-                    >
-                      Arm
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      disabled={done}
-                      onClick={() => void bumpPlanItem(item.exerciseId)}
-                    >
-                      {done ? <Check className="size-4" /> : "+1"}
-                    </Button>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          No saved plan yet. Visit Coach after you have a baseline (and ideally a diagnostic) to
-          generate one.
-        </p>
-      )}
-
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {catalog.map((item) => {
-          const Icon = icons[item.id] ?? Timer;
-          const armed = settings?.activeExerciseId === item.id;
+        {PRACTICE_TOPICS.map((topic) => {
+          const Icon = icons[topic.id] ?? Timer;
+          const tag = goalId ? tagFor(topic.trainingId) : "untested";
+          const diagIncomplete = latestIncompleteRun(runs, topic.diagnosticId);
+          const trainIncomplete = latestIncompleteRun(runs, topic.trainingId);
+          const canContinue = !!diagIncomplete || !!trainIncomplete;
+          const stage = stageForExercise(topic.diagnosticId);
+          const tip = tag === "slow" && stage ? STAGE_TIPS[stage][0] : null;
+          const recommended = suggested.has(topic.id);
           return (
             <FeatureCard
-              key={item.id}
+              key={topic.id}
               icon={Icon}
-              title={item.name}
-              description={item.description}
-              badge={item.type}
-              footer={`${item.recommendedSampleCount} suggested · ${item.category.replaceAll("_", " ")}`}
+              title={topic.label}
+              description={topic.description}
+              badge={recommended ? "Suggested" : undefined}
             >
-              <ol className="my-3 list-decimal space-y-1 pl-4 text-xs text-muted-foreground">
-                {item.instructions.map((step) => (
-                  <li key={step}>{step}</li>
-                ))}
-              </ol>
+              <div className="mt-3 mb-3" data-testid={`pace-${topic.id}`}>
+                <PaceBadge tag={tag} />
+              </div>
+              {tip ? <p className="mb-3 text-xs text-muted-foreground">{tip}</p> : null}
               <Button
                 type="button"
                 size="sm"
-                className={cn("mt-1", armed && "ring-2 ring-primary/40")}
-                variant={armed ? "secondary" : "outline"}
-                onClick={() => void setExercise(item.id)}
+                className="mt-auto"
+                data-testid={`start-topic-${topic.id}`}
+                onClick={() => setChooser(topic)}
               >
-                {armed ? "Armed" : "Arm on timer"}
+                {canContinue ? "Continue" : "Start"}
               </Button>
             </FeatureCard>
           );
         })}
       </div>
+
+      <Dialog open={!!chooser} onOpenChange={(open) => !open && setChooser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{chooser?.label}</DialogTitle>
+            <DialogDescription>Measure it, or practice it.</DialogDescription>
+          </DialogHeader>
+          {chooser ? (
+            <div className="grid gap-2">
+              <ModeChoice
+                testId="choose-diagnostic"
+                title={
+                  latestIncompleteRun(runs, chooser.diagnosticId)
+                    ? "Continue diagnostic"
+                    : "Start diagnostic"
+                }
+                detail="Time this stage to see where you stand."
+                onPick={() => router.push(practiceHref(chooser.diagnosticId, "diagnostic"))}
+              />
+              <ModeChoice
+                testId="choose-training"
+                title={
+                  latestIncompleteRun(runs, chooser.trainingId)
+                    ? "Continue training"
+                    : "Start training"
+                }
+                detail="Practice this stage."
+                onPick={() => router.push(practiceHref(chooser.trainingId, "training"))}
+              />
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+function ModeChoice({
+  title,
+  detail,
+  testId,
+  onPick,
+}: {
+  title: string;
+  detail: string;
+  testId: string;
+  onPick: () => void;
+}) {
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      className="h-auto justify-start py-3 text-left"
+      data-testid={testId}
+      onClick={onPick}
+    >
+      <span className="flex flex-col gap-0.5">
+        <span className="text-sm font-medium">{title}</span>
+        <span className="text-xs font-normal text-muted-foreground">{detail}</span>
+      </span>
+    </Button>
   );
 }

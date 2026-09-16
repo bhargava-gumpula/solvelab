@@ -103,9 +103,9 @@ function clamp(n: number, lo: number, hi: number): number {
 }
 
 /**
- * Causal synthetic generator: pick a true weakness, then emit features that
- * cubing diagnostics would actually move (ratios, CVs, counts, milestone).
- * Overlap + noise keep accuracy honest (not a trivial memorization task).
+ * Causal synthetic generator aligned with the rule coach:
+ * each label gets one dominant, separable signature (not overlapping F2L mush).
+ * Small noise only — this analysis should be near-deterministic for clear cases.
  */
 export function synthesizeDataset(n = 8000, seed = 42): Sample[] {
   const rand = mulberry32(seed);
@@ -113,80 +113,83 @@ export function synthesizeDataset(n = 8000, seed = 42): Sample[] {
 
   for (let i = 0; i < n; i++) {
     const label = LABELS[Math.floor(rand() * LABELS.length)]!;
-    const paceSec = 12 + rand() * 50; // 12–62s full-solve mean
-    const cv = 0.08 + rand() * 0.18;
-    let crossRatio = 0.16 + randn(rand) * 0.03;
-    let pairRatio = 0.3 + randn(rand) * 0.04;
-    let f2lRatio = 0.52 + randn(rand) * 0.05;
-    let pllShare = 0.12 + randn(rand) * 0.03;
-    let crossCv = 0.12 + rand() * 0.1;
-    let pairCv = 0.12 + rand() * 0.1;
-    let f2lCv = 0.12 + rand() * 0.1;
-    let inspectUsed = 0.4 + rand() * 0.5;
-    let sampleCross = 6 + Math.floor(rand() * 10);
-    let samplePair = 4 + Math.floor(rand() * 10);
-    let sampleF2l = 4 + Math.floor(rand() * 10);
-    let samplePll = 2 + Math.floor(rand() * 8);
-    let baselineN = 20 + Math.floor(rand() * 80);
+    const paceSec = 14 + rand() * 40;
+    // Healthy baseline ratios (tight)
+    let crossRatio = 0.17 + randn(rand) * 0.012;
+    let pairRatio = 0.31 + randn(rand) * 0.015;
+    let f2lRatio = 0.53 + randn(rand) * 0.018;
+    let pllShare = 0.13 + randn(rand) * 0.012;
+    let crossCv = 0.1 + rand() * 0.04;
+    let pairCv = 0.1 + rand() * 0.04;
+    let f2lCv = 0.1 + rand() * 0.04;
+    let inspectUsed = 0.55 + rand() * 0.3;
+    let globalCv = 0.1 + rand() * 0.05;
+    const sampleCross = 8 + Math.floor(rand() * 8);
+    const samplePair = 8 + Math.floor(rand() * 8);
+    const sampleF2l = 8 + Math.floor(rand() * 8);
+    const samplePll = 6 + Math.floor(rand() * 8);
+    const baselineN = 25 + Math.floor(rand() * 50);
 
-    // Causal shifts by weakness
     switch (label) {
       case "cross_execution":
-        crossRatio += 0.12 + rand() * 0.1;
-        crossCv += 0.08;
+        // Slow + inconsistent cross; inspection still used.
+        crossRatio += 0.18 + rand() * 0.06;
+        crossCv += 0.14 + rand() * 0.06;
+        inspectUsed = clamp(inspectUsed, 0.45, 1);
         break;
       case "cross_planning":
-        crossRatio += 0.08 + rand() * 0.08;
-        inspectUsed -= 0.25;
-        crossCv += 0.05;
+        // Slow cross mainly from poor inspection / planning.
+        crossRatio += 0.14 + rand() * 0.05;
+        inspectUsed = 0.05 + rand() * 0.18;
+        crossCv += 0.04;
         break;
       case "cross_to_f2l":
-        pairRatio += 0.14 + rand() * 0.1;
-        crossRatio += 0.02;
+        // Cross ok; first-pair transition bloated.
+        pairRatio += 0.2 + rand() * 0.07;
+        pairCv += 0.08;
+        crossRatio = clamp(crossRatio, 0.12, 0.22);
         break;
       case "first_pair_prediction":
-        pairRatio += 0.1 + rand() * 0.08;
-        inspectUsed -= 0.15;
+        // Pair slow because inspection didn't set up the first pair.
+        pairRatio += 0.16 + rand() * 0.05;
+        inspectUsed = 0.08 + rand() * 0.2;
+        pairCv += 0.05;
         break;
       case "f2l_efficiency":
-        f2lRatio += 0.14 + rand() * 0.1;
-        f2lCv += 0.06;
+        // F2L slow but relatively steady (moves/alg inefficiency).
+        f2lRatio += 0.2 + rand() * 0.07;
+        f2lCv = 0.08 + rand() * 0.05;
         break;
       case "f2l_lookahead":
-        f2lRatio += 0.1 + rand() * 0.08;
-        f2lCv += 0.12;
+        // F2L moderately slow with high pause variance.
+        f2lRatio += 0.1 + rand() * 0.05;
+        f2lCv = 0.22 + rand() * 0.1;
         break;
       case "pll_execution":
-        pllShare += 0.1 + rand() * 0.08;
+        pllShare += 0.16 + rand() * 0.07;
         break;
       case "consistency":
-        // high overall CV, ratios near expected
+        globalCv = 0.26 + rand() * 0.1;
+        // Ratios stay near healthy.
         break;
     }
-
-    if (label === "consistency") {
-      // bump global CV feature via dedicated slot; ratios stay normal-ish
-    }
-
-    const globalCv = label === "consistency" ? 0.22 + rand() * 0.12 : cv;
 
     const x = buildFeatureVector({
       paceSec,
       globalCv,
       crossRatio: clamp(crossRatio, 0.05, 0.55),
-      pairRatio: clamp(pairRatio, 0.1, 0.7),
-      f2lRatio: clamp(f2lRatio, 0.25, 0.85),
-      pllShare: clamp(pllShare, 0.04, 0.4),
-      crossCv: clamp(crossCv, 0.04, 0.5),
-      pairCv: clamp(pairCv, 0.04, 0.5),
-      f2lCv: clamp(f2lCv, 0.04, 0.5),
+      pairRatio: clamp(pairRatio, 0.1, 0.75),
+      f2lRatio: clamp(f2lRatio, 0.25, 0.88),
+      pllShare: clamp(pllShare, 0.04, 0.45),
+      crossCv: clamp(crossCv, 0.04, 0.55),
+      pairCv: clamp(pairCv, 0.04, 0.55),
+      f2lCv: clamp(f2lCv, 0.04, 0.55),
       inspectUsed: clamp(inspectUsed, 0, 1),
       sampleCross,
       samplePair,
       sampleF2l,
       samplePll,
       baselineN,
-      rand,
     });
 
     samples.push({ x, label });
@@ -210,9 +213,7 @@ export function buildFeatureVector(input: {
   sampleF2l: number;
   samplePll: number;
   baselineN: number;
-  rand?: () => number;
 }): FeatureVector {
-  const r = input.rand ?? (() => 0.5);
   // Expected fractions at this pace (slightly pace-dependent)
   const expCross = 0.18 - clamp((25 - input.paceSec) / 200, -0.03, 0.03);
   const expPair = 0.32;
@@ -256,7 +257,8 @@ export function buildFeatureVector(input: {
   x[36] = Math.min(1, input.sampleF2l / 10) * x[8]!;
   x[37] = (x[6]! + x[7]! + x[8]!) / 3;
   x[38] = Math.max(x[6]!, x[7]!, x[8]!, x[9]!);
-  x[39] = r() * 0; // reserved (deterministic zero unless training wants jitter later)
+  // Discriminators: F2L slow-but-steady vs pause-y lookahead; inspect deficit.
+  x[39] = clamp(input.f2lCv - 0.12, -0.2, 0.4) * 2 + (1 - input.inspectUsed);
 
   return x;
 }
@@ -357,11 +359,24 @@ export function accuracy(model: MlpModel, samples: Sample[]): number {
   return ok / samples.length;
 }
 
+/** Per-class accuracy for training QA. */
+export function perLabelAccuracy(
+  model: MlpModel,
+  samples: Sample[],
+): Record<WeaknessLabel, number> {
+  const out = {} as Record<WeaknessLabel, number>;
+  for (const label of LABELS) {
+    const subset = samples.filter((s) => s.label === label);
+    out[label] = accuracy(model, subset);
+  }
+  return out;
+}
+
 function labelIndex(label: WeaknessLabel): number {
   return LABELS.indexOf(label);
 }
 
-/** Mini-batch SGD with momentum on cross-entropy. */
+/** Mini-batch SGD with momentum on cross-entropy + early stopping on val. */
 export function trainMlp(
   samples: Sample[],
   options?: {
@@ -371,14 +386,17 @@ export function trainMlp(
     momentum?: number;
     seed?: number;
     valFraction?: number;
+    /** Stop after this many epochs without val improvement. */
+    patience?: number;
   },
-): { model: MlpModel; trainAccuracy: number; valAccuracy: number } {
+): { model: MlpModel; trainAccuracy: number; valAccuracy: number; bestEpoch: number } {
   const epochs = options?.epochs ?? 40;
   const batchSize = options?.batchSize ?? 64;
   const lr = options?.lr ?? 0.05;
   const momentum = options?.momentum ?? 0.9;
   const seed = options?.seed ?? 7;
   const valFraction = options?.valFraction ?? 0.15;
+  const patience = options?.patience ?? 8;
 
   const rand = mulberry32(seed);
   const shuffled = [...samples];
@@ -398,12 +416,20 @@ export function trainMlp(
   const vW3 = zeros(OUTPUT_DIM, HIDDEN2);
   const vB3 = Array.from({ length: OUTPUT_DIM }, () => 0);
 
+  let bestVal = -1;
+  let bestEpoch = 0;
+  let idle = 0;
+  let bestSnapshot: ReturnType<typeof snapshotWeights> | null = null;
+
   for (let epoch = 0; epoch < epochs; epoch++) {
     // shuffle train each epoch
     for (let i = train.length - 1; i > 0; i--) {
       const j = Math.floor(rand() * (i + 1));
       [train[i], train[j]] = [train[j]!, train[i]!];
     }
+
+    // mild LR decay keeps the training loop stable on longer runs
+    const epochLr = lr * 0.92 ** Math.floor(epoch / 6);
 
     for (let start = 0; start < train.length; start += batchSize) {
       const batch = train.slice(start, start + batchSize);
@@ -419,13 +445,11 @@ export function trainMlp(
         const y = labelIndex(sample.label);
         const dLogits = probs.map((p, i) => p - (i === y ? 1 : 0));
 
-        // W3/b3
         for (let i = 0; i < OUTPUT_DIM; i++) {
           gB3[i]! += dLogits[i]!;
           for (let j = 0; j < HIDDEN2; j++) gW3[i]![j]! += dLogits[i]! * h2[j]!;
         }
 
-        // back to h2
         const dH2 = Array.from({ length: HIDDEN2 }, () => 0);
         for (let j = 0; j < HIDDEN2; j++) {
           let s = 0;
@@ -452,7 +476,7 @@ export function trainMlp(
       }
 
       const n = batch.length;
-      const step = (v: number, g: number) => momentum * v - (lr * g) / n;
+      const step = (v: number, g: number) => momentum * v - (epochLr * g) / n;
 
       for (let i = 0; i < HIDDEN1; i++) {
         vB1[i] = step(vB1[i]!, gB1[i]!);
@@ -479,13 +503,47 @@ export function trainMlp(
         }
       }
     }
+
+    const valAcc = accuracy(model, val);
+    if (valAcc > bestVal + 0.002) {
+      bestVal = valAcc;
+      bestEpoch = epoch + 1;
+      idle = 0;
+      bestSnapshot = snapshotWeights(model);
+    } else {
+      idle += 1;
+      if (idle >= patience) break;
+    }
   }
+
+  if (bestSnapshot) restoreWeights(model, bestSnapshot);
 
   return {
     model,
     trainAccuracy: accuracy(model, train),
     valAccuracy: accuracy(model, val),
+    bestEpoch,
   };
+}
+
+function snapshotWeights(model: MlpModel) {
+  return {
+    w1: model.w1.map((row) => row.slice()),
+    b1: model.b1.slice(),
+    w2: model.w2.map((row) => row.slice()),
+    b2: model.b2.slice(),
+    w3: model.w3.map((row) => row.slice()),
+    b3: model.b3.slice(),
+  };
+}
+
+function restoreWeights(model: MlpModel, snap: ReturnType<typeof snapshotWeights>) {
+  model.w1 = snap.w1.map((row) => row.slice());
+  model.b1 = snap.b1.slice();
+  model.w2 = snap.w2.map((row) => row.slice());
+  model.b2 = snap.b2.slice();
+  model.w3 = snap.w3.map((row) => row.slice());
+  model.b3 = snap.b3.slice();
 }
 
 export function splitDataset(

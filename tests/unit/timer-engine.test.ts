@@ -112,6 +112,25 @@ describe("timer state machine", () => {
     expect(inspectionPenaltyFor(99999, 0)).toBe("none");
   });
 
+  it("uses the hardware-reported time when the stop event carries one", () => {
+    const instant = { inspectionMs: 0, holdToStartMs: 0 };
+    const running = run([press(0), release(1)], instant);
+    const stopped = transition(
+      running,
+      { type: "press", at: 80_000, solveTimeMs: 12_345 },
+      instant,
+    );
+    expect(stopped.result?.rawTimeMs).toBe(12_345);
+  });
+
+  it("rebases a running clock to match the hardware digits", () => {
+    const instant = { inspectionMs: 0, holdToStartMs: 0 };
+    const running = run([press(0), release(1)], instant);
+    const synced = transition(running, { type: "sync", at: 10_000, solveTimeMs: 3_210 }, instant);
+    expect(elapsedMs(synced, 10_000)).toBe(3_210);
+    expect(elapsedMs(synced, 10_100)).toBe(3_310);
+  });
+
   it("cancels inspection without discarding the previous result", () => {
     const solved = run(
       [press(0), release(10), press(1000), release(1400), press(11400), release(11500)],

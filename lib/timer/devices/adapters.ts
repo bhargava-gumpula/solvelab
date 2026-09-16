@@ -5,7 +5,12 @@ import {
   type TimerDeviceKind,
   type TimerDeviceSession,
 } from "./types";
-import { decodeStackmatPacket } from "./stackmat";
+import {
+  buildTimerRequestDeviceOptions,
+  getBluetoothTimerBrandProfile,
+  type BluetoothTimerBrand,
+} from "./brands";
+import { decodeGanSmartTimerPacket, GanState } from "./gan-timer";
 
 function createEmitterSession(
   label: string,
@@ -53,19 +58,16 @@ export class KeyboardTimerAdapter implements TimerDeviceAdapter {
   }
 }
 
-/**
- * Bluetooth / Stackmat-compatible adapter.
- * - Tries Web Bluetooth when available and preferSimulator is false.
- * - Falls back to an on-device simulator that emits the same press/release events
- *   (usable overnight without pairing UI, and for automated tests).
- */
 export class BluetoothTimerAdapter implements TimerDeviceAdapter {
   readonly kind = "bluetooth" as const;
   readonly label = "Bluetooth timer";
 
-  async connect(options?: { preferSimulator?: boolean }): Promise<TimerDeviceSession> {
+  async connect(options?: {
+    preferSimulator?: boolean;
+    brand?: BluetoothTimerBrand;
+  }): Promise<TimerDeviceSession> {
     if (!options?.preferSimulator) {
-      const native = await tryWebBluetoothStackmat();
+      const native = await tryWebBluetoothTimer(options?.brand ?? "auto");
       if (native) return native;
     }
     return connectStackmatSimulator();
@@ -76,25 +78,22 @@ export function connectStackmatSimulator(label = "Stackmat simulator"): TimerDev
   return createEmitterSession(label, "simulator");
 }
 
-async function tryWebBluetoothStackmat(): Promise<TimerDeviceSession | null> {
+async function tryWebBluetoothTimer(
+  brand: BluetoothTimerBrand,
+): Promise<TimerDeviceSession | null> {
   const bluetooth = typeof navigator !== "undefined" ? navigator.bluetooth : undefined;
   if (!bluetooth?.requestDevice) return null;
 
+  const profile = getBluetoothTimerBrandProfile(brand);
+
   try {
-    const device = await bluetooth.requestDevice({
-      acceptAllDevices: true,
-      optionalServices: [
-        // Common vendor service UUIDs used by cubing timers; discovery still depends on the device.
-        "0000fff0-0000-1000-8000-00805f9b34fb",
-        "0000ffe0-0000-1000-8000-00805f9b34fb",
-      ],
-    });
+    const device = await bluetooth.requestDevice(buildTimerRequestDeviceOptions(brand));
     const server = await device.gatt?.connect();
     if (!server) {
       throw new TimerDeviceUnavailableError("Bluetooth device had no GATT server.");
     }
 
-    const session = createEmitterSession(device.name || "Bluetooth timer", "native", async () => {
+    const session = createEmitterSession(device.name || profile.shortLabel, "native", async () => {
       try {
         device.gatt?.disconnect();
       } catch {
@@ -102,12 +101,42 @@ async function tryWebBluetoothStackmat(): Promise<TimerDeviceSession | null> {
       }
     });
 
-    // Best-effort: listen on the first notifiable characteristic we can find.
-    void attachBluetoothNotifications(server, (bytes) => {
-      const signal = decodeStackmatPacket(bytes);
+    let lastSignal: string | null = null;
+    const onBytes = (bytes: Uint8Array) => {
+      const now = performance.now();
+      // Prefer full GAN decode so RUNNING/STOPPED carry the official solve time.
+      const gan = decodeGanSmartTimerPacket(bytes);
+      if (gan) {
+        if (gan.state === GanState.RUNNING && gan.solveTimeMs !== undefined) {
+          // RUNNING: start if needed, then keep UI digits locked to the hardware.
+          if (lastSignal !== "release") {
+            session.emit?.({ type: "release", at: now });
+            lastSignal = "release";
+          }
+          session.emit?.({ type: "sync", at: now, solveTimeMs: gan.solveTimeMs });
+          return;
+        }
+        if (gan.signal === "ignore") return;
+        if (gan.signal === lastSignal && gan.signal !== "reset") return;
+        lastSignal = gan.signal;
+        session.emit?.({
+          type: gan.signal,
+          at: now,
+          ...(gan.solveTimeMs !== undefined ? { solveTimeMs: gan.solveTimeMs } : {}),
+        });
+        return;
+      }
+      const signal = profile.decode(bytes);
       if (signal === "ignore") return;
-      session.emit?.({ type: signal, at: performance.now() });
-    });
+      if (signal === lastSignal && signal !== "reset") return;
+      lastSignal = signal;
+      session.emit?.({ type: signal, at: now });
+    };
+
+    const preferred = await attachPreferredNotifications(server, profile.preferredNotify, onBytes);
+    if (!preferred) {
+      await attachAnyNotifications(server, onBytes);
+    }
 
     device.addEventListener("gattserverdisconnected", () => {
       void session.disconnect();
@@ -116,36 +145,66 @@ async function tryWebBluetoothStackmat(): Promise<TimerDeviceSession | null> {
     return session;
   } catch (error) {
     if (error instanceof TimerDeviceUnavailableError) throw error;
-    // User cancelled, permissions, or unsupported device — caller falls back to simulator.
     return null;
   }
 }
 
-async function attachBluetoothNotifications(
+async function attachPreferredNotifications(
+  server: BluetoothRemoteGATTServer,
+  preferred: { service: string; characteristic: string } | undefined,
+  onBytes: (bytes: Uint8Array) => void,
+): Promise<boolean> {
+  if (!preferred) return false;
+  try {
+    const service = await server.getPrimaryService(preferred.service);
+    const characteristic = await service.getCharacteristic(preferred.characteristic);
+    await characteristic.startNotifications();
+    characteristic.addEventListener("characteristicvaluechanged", (event) => {
+      const value = (event.target as BluetoothRemoteGATTCharacteristic).value;
+      if (!value) return;
+      onBytes(
+        new Uint8Array(value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength)),
+      );
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function attachAnyNotifications(
   server: BluetoothRemoteGATTServer,
   onBytes: (bytes: Uint8Array) => void,
 ): Promise<void> {
   try {
     const services = await server.getPrimaryServices();
+    let attached = 0;
     for (const service of services) {
       const characteristics = await service.getCharacteristics();
       for (const characteristic of characteristics) {
         if (!characteristic.properties.notify && !characteristic.properties.indicate) continue;
-        await characteristic.startNotifications();
-        characteristic.addEventListener("characteristicvaluechanged", (event) => {
-          const value = (event.target as BluetoothRemoteGATTCharacteristic).value;
-          if (!value) return;
-          onBytes(
-            new Uint8Array(
-              value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength),
-            ),
-          );
-        });
-        return;
+        try {
+          await characteristic.startNotifications();
+          characteristic.addEventListener("characteristicvaluechanged", (event) => {
+            const value = (event.target as BluetoothRemoteGATTCharacteristic).value;
+            if (!value) return;
+            onBytes(
+              new Uint8Array(
+                value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength),
+              ),
+            );
+          });
+          attached += 1;
+        } catch {
+          /* try next */
+        }
       }
     }
+    if (attached === 0) {
+      console.warn("Bluetooth timer connected but no notify characteristics could be subscribed.");
+    }
   } catch {
-    // Native connection still counts; packets may be unavailable for unknown firmwares.
+    /* native connection still counts */
   }
 }
 

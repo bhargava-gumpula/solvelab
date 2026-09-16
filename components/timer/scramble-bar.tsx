@@ -36,16 +36,18 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
       className="relative mx-auto w-full max-w-[72rem] rounded-2xl px-2 py-2.5 glass sm:px-3.5 sm:py-3"
     >
       <div className="flex items-center gap-0.5 sm:gap-1.5">
-        <BarButton
-          label="Previous scramble"
-          shortcut="P"
-          onClick={onPrevious}
-          disabled={!canGoBack}
-        >
-          <ChevronLeft />
-        </BarButton>
+        <div className="flex shrink-0 items-center">
+          <BarButton
+            label="Previous scramble"
+            shortcut="P"
+            onClick={onPrevious}
+            disabled={!canGoBack}
+          >
+            <ChevronLeft />
+          </BarButton>
+        </div>
 
-        <div className="min-w-0 flex-1 py-1 text-center">
+        <div className="min-w-0 flex-1 px-1 py-1 text-center sm:px-2">
           {scramble ? (
             <motion.p
               key={scramble.scramble}
@@ -55,8 +57,8 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
               transition={{ duration: 0.25 }}
               className={
                 moves.length > 32
-                  ? "font-mono text-xs leading-snug font-medium text-balance sm:text-sm"
-                  : "font-mono text-base leading-snug font-medium whitespace-nowrap sm:text-lg"
+                  ? "font-mono text-xs leading-relaxed font-medium text-balance sm:text-sm"
+                  : "font-mono text-sm leading-relaxed font-medium text-balance sm:text-base md:text-lg"
               }
             >
               {moves.map((move, index) => (
@@ -86,7 +88,7 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
           )}
         </div>
 
-        <div className="flex items-center">
+        <div className="flex shrink-0 items-center">
           <BarButton
             label="Copy scramble"
             shortcut="C"

@@ -65,6 +65,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   inspectionAudioCues: false,
   showScramblePreview: true,
   timerInput: "keyboard",
+  bluetoothTimerBrand: "auto",
   activeExerciseId: null,
   panelOffsets: {},
 };
@@ -80,6 +81,7 @@ export const settingsSchema = z.object({
   inspectionAudioCues: z.boolean(),
   showScramblePreview: z.boolean(),
   timerInput: z.enum(["keyboard", "bluetooth"]),
+  bluetoothTimerBrand: z.enum(["auto", "gan", "qiyi", "stackmat", "generic"]).default("auto"),
   activeExerciseId: z.string().min(1).nullable().default(null),
   panelOffsets: z.record(panelOffsetSchema).default({}),
   updatedAt: isoDate.optional(),

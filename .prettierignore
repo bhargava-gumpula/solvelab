@@ -9,3 +9,5 @@ test-results
 playwright-report
 work
 public/vendor
+drafts
+ml/coach-mlp.json

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FeatureCard } from "@/components/layout/feature-card";
 import { algorithmSets } from "@/data/algorithms/sets";
+import { upcoming } from "@/lib/config/features";
 import type { AlgorithmSetDefinition } from "@/types/domain";
 
 const LEVELS = [
@@ -74,7 +75,7 @@ export function AlgorithmCatalog() {
               title={set.name}
               description={set.description}
               badge={set.difficulty}
-              footer={`Cases and drills coming in ${set.phase}`}
+              footer={`Cases and drills coming in ${upcoming.algorithms}`}
             />
           ))}
         </div>

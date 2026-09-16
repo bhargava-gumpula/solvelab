@@ -1,10 +1,19 @@
 import type { MilestoneDefinition, SkillId } from "@/types/domain";
+import { STAGE_BARS } from "./stage-bars";
+
 const milestone = (
   id: string,
   label: string,
   thresholdMs: number | null,
   recommendedSkills: SkillId[],
-): MilestoneDefinition => ({ id, label, thresholdMs, recommendedSkills });
+): MilestoneDefinition => ({
+  id,
+  label,
+  thresholdMs,
+  recommendedSkills,
+  ...(STAGE_BARS[id] ? { stageBars: STAGE_BARS[id] } : {}),
+});
+
 export const milestones: MilestoneDefinition[] = [
   milestone("beginner", "Beginner", null, ["turning"]),
   milestone("sub120", "Sub 2:00", 120000, ["turning", "consistency"]),
@@ -17,6 +26,7 @@ export const milestones: MilestoneDefinition[] = [
   milestone("sub12", "Sub 12", 12000, ["first_pair_prediction", "f2l_efficiency"]),
   milestone("sub10", "Sub 10", 10000, ["first_pair_prediction", "inspection", "f2l_lookahead"]),
 ];
+
 // Proposed policy only. The V2 MilestoneEngine must evaluate this against real
 // evidence before qualification; the V0 interface does not unlock milestones.
 export const milestoneQualification = {
@@ -24,3 +34,5 @@ export const milestoneQualification = {
   requiredQualifyingSessions: 3,
   minimumSolvesPerSession: 100,
 } as const;
+
+export { STAGE_BARS, stageBarsFor } from "./stage-bars";

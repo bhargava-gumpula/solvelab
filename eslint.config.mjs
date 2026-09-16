@@ -16,7 +16,15 @@ const eslintConfig = defineConfig([
     "public/vendor/**",
     "playwright-report/**",
     "test-results/**",
+    "drafts/**",
   ]),
+  {
+    files: ["components/timer/timer-device-provider.tsx"],
+    rules: {
+      // Restore the last simulator session on mount without a render cascade.
+      "react-hooks/set-state-in-effect": "off",
+    },
+  },
   {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {

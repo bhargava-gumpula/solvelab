@@ -1,6 +1,6 @@
 /**
  * Firebase web config is public by design (restricted by authorized domains).
- * Builds without these env vars still run; Coach / Train / Learn stay locked.
+ * Builds without these env vars still run; sign-in is optional.
  */
 export interface FirebaseWebConfig {
   apiKey: string;

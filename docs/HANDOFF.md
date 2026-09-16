@@ -7,8 +7,8 @@ Everything a new agent needs to continue SolveLab without the previous chat. Rea
 A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer → algorithm trainer → evidence-based diagnostics → training plans → retests. The full product and engineering spec is `docs/PRODUCT_SPECIFICATION.md` (~3,600 lines; it is the source of truth). Key sections: §1 principles, §22–33 algorithm trainer, §52–60 UI/design, §70 phased plan (V1.5 at line ~2548), §91 what not to build yet.
 
 - Next.js 16.3 App Router, **static export** (`out/`), webpack, React 19, strict TypeScript, Tailwind 4, shadcn/ui, Dexie (IndexedDB), Zod, Recharts, motion, cubing.js, Firebase Auth (Google) and Cloud Firestore when env vars are set.
-- Signed-in timer data lives in Firestore (`users/{uid}/…`). IndexedDB is a working copy so the timer stays fast. Signed-out use stays browser-only. Google sign-in also unlocks Coach, Train and Learn.
-- Branding is centralized in `lib/config/brand.ts`. Product version is **2.2**.
+- Signed-in timer data lives in Firestore (`users/{uid}/…`). IndexedDB is a working copy so the timer stays fast. Signed-out use stays browser-only. Coach works without an account. Train and Learn are disabled in 3.0.
+- Branding is centralized in `lib/config/brand.ts`. Product version is **3.0**. Feature flags in `lib/config/features.ts` hide Train/Learn.
 
 ## 2. How the owner works (follow these)
 
@@ -147,9 +147,9 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 ## 10. Waiting on the owner (ask; don't assume)
 
-1. **2.3:** richer diagnostics, more Bluetooth profiles, optional local ML on real history.
-2. Real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
-3. Algorithm case content (V1.5) remains separate from the coach slice.
+1. **3.1:** training sessions after the diagnostic, with tags that update as you practice.
+2. **3.2:** Learn lesson plans, plus algorithm drills, diagrams, and tracking.
+3. Real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
 4. Move the repo out of `~/Documents`? Disk is nearly full; iCloud + `.next` is painful.
 
 Reference only: an unfinished idea-scoring council from this chat is in `~/solvelab-council/`. The owner ended it ("we are done finding improvements"). Don't act on it unless asked.

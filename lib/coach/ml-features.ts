@@ -18,7 +18,10 @@ export function featuresFromSolves(solves: Solve[]): number[] | null {
   const cross = timesForExercise(solves, "cross_only");
   const pair = timesForExercise(solves, "cross_first_pair");
   const f2l = timesForExercise(solves, "f2l_only");
-  const pll = timesForExercise(solves, "pll_execution_drills");
+  const pll = [
+    ...timesForExercise(solves, "pll_only"),
+    ...timesForExercise(solves, "pll_execution_drills"),
+  ];
 
   const crossMean = mean(cross);
   const pairMean = mean(pair);
@@ -62,6 +65,9 @@ export function predictWeakness(
   if (diagnosticCount < 5) return null;
 
   const result = predict(model, x);
+  // Ignore low-confidence guesses — rules stay authoritative.
+  if (result.confidence < 0.55) return null;
+
   return {
     skillId: result.label as SkillId,
     confidence: result.confidence,

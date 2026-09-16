@@ -31,6 +31,20 @@ export function useTimerControls(
         store.dispatch({ type: "cancel" });
         return;
       }
+      if (event.type === "sync") {
+        if (event.solveTimeMs !== undefined) {
+          store.dispatch({ type: "sync", at: event.at, solveTimeMs: event.solveTimeMs });
+        }
+        return;
+      }
+      if (event.type === "press") {
+        store.dispatch({
+          type: "press",
+          at: event.at,
+          ...(event.solveTimeMs !== undefined ? { solveTimeMs: event.solveTimeMs } : {}),
+        });
+        return;
+      }
       store.dispatch({ type: event.type, at: event.at });
     });
   }, [store, enabled, deviceControls, deviceSession]);

@@ -16,12 +16,16 @@ import {
   type TimerDeviceEvent,
   type TimerDeviceSession,
 } from "@/lib/timer/devices";
+import type { BluetoothTimerBrand } from "@/types/domain";
 
 const STORAGE_KEY = "solvelab.timerDevice.v1";
 
 interface TimerDeviceContextValue {
   session: TimerDeviceSession;
-  connectBluetooth: (options?: { preferSimulator?: boolean }) => Promise<TimerDeviceSession>;
+  connectBluetooth: (options?: {
+    preferSimulator?: boolean;
+    brand?: BluetoothTimerBrand;
+  }) => Promise<TimerDeviceSession>;
   connectSimulator: () => Promise<TimerDeviceSession>;
   disconnect: () => Promise<void>;
 }
@@ -65,7 +69,7 @@ export function TimerDeviceProvider({ children }: { children: ReactNode }) {
   }, [session]);
 
   const connectBluetooth = useCallback(
-    async (options?: { preferSimulator?: boolean }) => {
+    async (options?: { preferSimulator?: boolean; brand?: BluetoothTimerBrand }) => {
       await session.disconnect().catch(() => {});
       const next = await getTimerDeviceAdapter("bluetooth").connect(options);
       writePreferredMode(next.mode === "simulator" ? "simulator" : null);

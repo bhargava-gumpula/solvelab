@@ -24,7 +24,7 @@ export function AccountSection() {
     <SettingsSection
       id="account"
       title="Account"
-      description="Google sign-in unlocks Coach, Train and Learn, and keeps your times on the Google account (not on the operator’s laptop). A working copy stays in this browser so the timer stays fast."
+      description="Google sign-in keeps your times on the Google account (not on the operator’s laptop). A working copy stays in this browser so the timer stays fast. Coach works without signing in."
     >
       {status === "signedIn" && user ? (
         <div className="flex flex-wrap items-center justify-between gap-3">

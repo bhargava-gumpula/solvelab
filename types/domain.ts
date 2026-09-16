@@ -52,6 +52,8 @@ export interface Session {
 export type ThemeMode = "dark" | "light" | "system";
 export type CubingMethod = "beginner" | "cfop" | "roux" | "zz" | "other" | "unknown";
 export type TimerInput = "keyboard" | "bluetooth";
+/** BLE timer family — filters discovery and chooses packet decode. */
+export type BluetoothTimerBrand = "auto" | "gan" | "qiyi" | "stackmat" | "generic";
 
 export interface UserSettings {
   id: "preferences";
@@ -69,6 +71,8 @@ export interface UserSettings {
   showScramblePreview: boolean;
   /** Preferred start/stop source. Bluetooth uses Web Bluetooth when available, else simulator. */
   timerInput: TimerInput;
+  /** Which BLE timer brand to scan for and how to decode pads. */
+  bluetoothTimerBrand: BluetoothTimerBrand;
   /** Exercise id selected on Train — tagged onto new timer solves while set. */
   activeExerciseId: string | null;
   /** Desktop drag offsets for timer panels (stats / cube / times). Synced with the account. */
@@ -101,12 +105,26 @@ export interface SkillScore {
   sampleCount: number;
   updatedAt: string;
 }
+/** Absolute CFOP stage time budgets for a goal pace (milliseconds). */
+export interface CfopStageBars {
+  crossMs: number;
+  crossFirstPairMs: number;
+  f2lMs: number;
+  ollMs: number;
+  pllMs: number;
+}
+
+/** How a stage (or training topic) compares to the working goal bar. */
+export type PaceTag = "slow" | "average" | "fast";
+
 export interface MilestoneDefinition {
   id: string;
   label: string;
   thresholdMs: number | null;
   recommendedSkills: SkillId[];
   prerequisiteSkills?: SkillId[];
+  /** Target splits for this pace; see data/milestones/stage-bars. */
+  stageBars?: CfopStageBars;
 }
 export interface ExerciseDefinition {
   id: string;
@@ -120,6 +138,8 @@ export interface ExerciseDefinition {
   recommendedSampleCount: number;
   applicableMilestones: string[];
   measurementType: "time" | "accuracy" | "recognition" | "execution" | "moves" | "mixed";
+  /** Scramble event used in the diagnostic sandbox (never the main timer session). */
+  scrambleEvent?: CubeEvent;
 }
 // Serialized facelets use URFDLB order, nine stickers per face. Validated by a
 // future cube engine, not inferred from an algorithm name or decorative image.
@@ -218,6 +238,12 @@ export interface DiagnosticRun {
   exerciseId: string;
   createdAt: string;
   completedAt?: string;
+  /** Legacy: solves that were written into the timer history (unused by sandbox). */
   solveIds: string[];
   sampleCount: number;
+  /**
+   * Sandbox times — kept on the run only so they never enter session averages,
+   * PBs, or the main times list.
+   */
+  timesMs?: number[];
 }

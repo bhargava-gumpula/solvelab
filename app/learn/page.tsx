@@ -1,18 +1,14 @@
 import type { Metadata } from "next";
-import { PageHeading } from "@/components/layout/page-heading";
-import { LearnDashboard } from "@/components/learn/learn-dashboard";
+import { ComingSoon } from "@/components/layout/coming-soon";
+import { upcoming } from "@/lib/config/features";
 
 export const metadata: Metadata = { title: "Learn" };
 
 export default function LearnPage() {
   return (
-    <>
-      <PageHeading
-        eyebrow="Understanding makes it faster"
-        title="The next thing worth learning."
-        description="Lesson plans for beginner, CFOP, and refinement — tracked on this device."
-      />
-      <LearnDashboard />
-    </>
+    <ComingSoon area="Learn" phase={upcoming.learn} title="Lessons are coming later.">
+      Lesson plans for beginner, CFOP, and refinement ship in {upcoming.learn}. 3.0 is the
+      diagnostic on Coach.
+    </ComingSoon>
   );
 }

@@ -36,6 +36,7 @@ const diagnosticRunSchema = z.object({
   completedAt: z.string().min(1).optional(),
   solveIds: z.array(z.string()),
   sampleCount: z.number().int().nonnegative(),
+  timesMs: z.array(z.number().nonnegative()).optional(),
 });
 
 export class CoachRepository {
@@ -114,10 +115,31 @@ export class CoachRepository {
     return next;
   }
 
-  async completeDiagnosticRun(runId: string): Promise<DiagnosticRun> {
+  async saveDiagnosticTimes(runId: string, timesMs: number[]): Promise<DiagnosticRun> {
     const existing = await this.db.diagnosticRuns.get(runId);
     if (!existing) throw new Error("Diagnostic run not found.");
-    const next = { ...existing, completedAt: new Date().toISOString() };
+    const next = diagnosticRunSchema.parse({
+      ...existing,
+      timesMs,
+      sampleCount: timesMs.length,
+    });
+    await this.db.diagnosticRuns.put(next);
+    return next;
+  }
+
+  async completeDiagnosticRun(runId: string, timesMs?: number[]): Promise<DiagnosticRun> {
+    const existing = await this.db.diagnosticRuns.get(runId);
+    if (!existing) throw new Error("Diagnostic run not found.");
+    const next = diagnosticRunSchema.parse({
+      ...existing,
+      completedAt: new Date().toISOString(),
+      ...(timesMs
+        ? {
+            timesMs,
+            sampleCount: timesMs.length,
+          }
+        : {}),
+    });
     await this.db.diagnosticRuns.put(next);
     return next;
   }

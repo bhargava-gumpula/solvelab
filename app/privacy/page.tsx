@@ -57,11 +57,11 @@ export default function PrivacyPage() {
 
       <h2>Google Sign-In</h2>
       <p>
-        Coach, Train, and Learn require a Google account. The timer, Stats, Algorithms, and Settings
-        stay usable without signing in. When you choose Sign in with Google, Google shares your
-        basic profile (name, email, photo) with this app. We use that to show your account, unlock
-        those three areas, and attach your timer data to that account in Firestore. We do not post
-        to Google on your behalf, read your Gmail, or attach your solves to Google Drive.
+        Coach works without an account. Sign in if you want times to follow you to another device.
+        The timer, Stats, Algorithms, and Settings stay usable either way. When you choose Sign in
+        with Google, Google shares your basic profile (name, email, photo) with this app. We use
+        that to show your account and attach your timer data to that account in Firestore. We do not
+        post to Google on your behalf, read your Gmail, or attach your solves to Google Drive.
       </p>
 
       <h2>What we do not collect</h2>

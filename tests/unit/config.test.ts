@@ -3,6 +3,9 @@ import { milestones } from "@/data/milestones";
 import { skills } from "@/data/skills";
 import { exercises } from "@/data/exercises";
 import { algorithmSets } from "@/data/algorithms/sets";
+import { brand } from "@/lib/config/brand";
+import { features, upcoming } from "@/lib/config/features";
+import { navigation } from "@/lib/config/navigation";
 describe("domain configuration integrity", () => {
   it("uses unique stable identifiers", () => {
     for (const entries of [milestones, exercises, algorithmSets])
@@ -24,5 +27,13 @@ describe("domain configuration integrity", () => {
       item.thresholdMs === null ? [] : [item.thresholdMs],
     );
     expect(thresholds).toEqual([...thresholds].sort((a, b) => b - a));
+  });
+  it("ships 3.0 as diagnostic-only", () => {
+    expect(brand.version).toBe("3.0");
+    expect(features.train).toBe(false);
+    expect(features.learn).toBe(false);
+    expect(features.algorithms).toBe(true);
+    expect(upcoming.algorithms).toBe("3.1–3.2");
+    expect(navigation.map((item) => item.label)).toEqual(["Timer", "Coach", "Algorithms", "Stats"]);
   });
 });

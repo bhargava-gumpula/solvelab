@@ -1,5 +1,5 @@
 /**
- * Minimal Stackmat-style packet helpers.
+ * Minimal Stackmat-style packet helpers + multi-vendor decode.
  * Real Gen4 Bluetooth devices stream status bytes; we normalize to press/release.
  */
 
@@ -13,13 +13,25 @@ export function interpretStackmatStatus(byte: number): StackmatSignal {
   // red / hands-on → press
   // reset / idle packages → reset
   if (code === 0x0a || code === 0x3a) return "reset";
-  if (code === 0x09 || code === 0x39 || code === 0x1) return "press";
-  if (code === 0x0c || code === 0x3c || code === 0x2) return "release";
+  if (code === 0x09 || code === 0x39) return "press";
+  if (code === 0x0c || code === 0x3c) return "release";
   return "ignore";
 }
 
 export function decodeStackmatPacket(bytes: ArrayLike<number>): StackmatSignal {
   if (bytes.length === 0) return "ignore";
-  // Prefer the last status byte in the packet.
   return interpretStackmatStatus(bytes[bytes.length - 1]!);
+}
+
+/**
+ * Decode a notification from either Stackmat-compatible or GAN-style timers.
+ * Returns the first non-ignore signal found.
+ */
+export function decodeTimerNotification(
+  bytes: ArrayLike<number>,
+  ganDecode: (b: ArrayLike<number>) => StackmatSignal,
+): StackmatSignal {
+  const stackmat = decodeStackmatPacket(bytes);
+  if (stackmat !== "ignore") return stackmat;
+  return ganDecode(bytes);
 }

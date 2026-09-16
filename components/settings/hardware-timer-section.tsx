@@ -4,34 +4,57 @@ import { Bluetooth, Keyboard } from "lucide-react";
 import { toast } from "sonner";
 import { useTimerDevice } from "@/components/timer/timer-device-provider";
 import { Button } from "@/components/ui/button";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import type { TimerInput } from "@/types/domain";
+import {
+  BLUETOOTH_TIMER_BRANDS,
+  BLUETOOTH_TIMER_BRAND_IDS,
+  getBluetoothTimerBrandProfile,
+} from "@/lib/timer/devices";
+import type { BluetoothTimerBrand, TimerInput } from "@/types/domain";
 
 export function HardwareTimerControls({
-  value,
-  onChange,
+  timerInput,
+  bluetoothTimerBrand,
+  onChangeTimerInput,
+  onChangeBrand,
 }: {
-  value: TimerInput;
-  onChange: (value: TimerInput) => void;
+  timerInput: TimerInput;
+  bluetoothTimerBrand: BluetoothTimerBrand;
+  onChangeTimerInput: (value: TimerInput) => void;
+  onChangeBrand: (value: BluetoothTimerBrand) => void;
 }) {
   const { session, connectBluetooth, connectSimulator, disconnect } = useTimerDevice();
   const connected = session.connected && session.mode !== "idle";
+  const profile = getBluetoothTimerBrandProfile(bluetoothTimerBrand);
 
   const connect = async (preferSimulator: boolean) => {
     try {
       const next = preferSimulator
         ? await connectSimulator()
-        : await connectBluetooth({ preferSimulator: false });
+        : await connectBluetooth({ preferSimulator: false, brand: bluetoothTimerBrand });
       if (next.mode === "simulator") {
         toast.success("Stackmat simulator connected", {
-          description: "Use the simulator buttons on the timer, or pair a real device in Chrome.",
+          description: "Use the simulator pads on the timer page.",
         });
       } else {
-        toast.success(`Connected to ${next.label}`);
+        toast.success(`Connected to ${next.label}`, {
+          description: `Using ${profile.label} detection and decode.`,
+        });
       }
-      onChange("bluetooth");
+      onChangeTimerInput("bluetooth");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Couldn’t connect a Bluetooth timer.");
+    }
+  };
+
+  const changeBrand = async (next: BluetoothTimerBrand) => {
+    onChangeBrand(next);
+    if (connected && session.mode === "native") {
+      await disconnect();
+      toast.message("Timer brand updated", {
+        description: "Reconnect so the new filters and decode apply.",
+      });
     }
   };
 
@@ -43,8 +66,8 @@ export function HardwareTimerControls({
             Start and stop
           </p>
           <p className="text-sm text-muted-foreground">
-            Keyboard (Space) is the default. Bluetooth mode uses a paired Stackmat-compatible timer
-            when the browser allows it, or the on-device simulator.
+            Keyboard (Space) is the default. Bluetooth mode pairs a hardware timer — pick your brand
+            below so the browser only lists matching devices and reads pads correctly.
           </p>
         </div>
         <ToggleGroup
@@ -52,9 +75,9 @@ export function HardwareTimerControls({
           variant="outline"
           size="sm"
           aria-labelledby="timer-input-label"
-          value={value}
+          value={timerInput}
           onValueChange={(next) => {
-            if (next === "keyboard" || next === "bluetooth") onChange(next);
+            if (next === "keyboard" || next === "bluetooth") onChangeTimerInput(next);
           }}
         >
           <ToggleGroupItem value="keyboard" className="gap-1.5 px-3">
@@ -67,42 +90,70 @@ export function HardwareTimerControls({
           </ToggleGroupItem>
         </ToggleGroup>
       </div>
-      <div className="flex flex-col gap-3 rounded-xl border border-border px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="text-sm font-medium">Bluetooth timer</p>
-          <p className="text-xs text-muted-foreground" role="status">
-            {connected
-              ? `${session.label} · ${session.mode === "simulator" ? "Simulator" : "Device"}`
-              : "Not connected"}
-          </p>
+
+      <div className="grid gap-3 rounded-xl border border-border px-3 py-3">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium" id="timer-brand-label">
+              Timer brand
+            </p>
+            <p className="text-xs text-muted-foreground">{profile.description}</p>
+          </div>
+          <NativeSelect
+            aria-labelledby="timer-brand-label"
+            className="min-w-[12rem]"
+            value={bluetoothTimerBrand}
+            disabled={timerInput !== "bluetooth"}
+            onChange={(event) => {
+              const next = event.target.value as BluetoothTimerBrand;
+              if (BLUETOOTH_TIMER_BRAND_IDS.includes(next)) void changeBrand(next);
+            }}
+          >
+            {BLUETOOTH_TIMER_BRAND_IDS.map((id) => (
+              <NativeSelectOption key={id} value={id}>
+                {BLUETOOTH_TIMER_BRANDS[id].label}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
         </div>
-        <div className="flex flex-wrap gap-2">
-          {connected ? (
-            <Button type="button" variant="outline" size="sm" onClick={() => void disconnect()}>
-              Disconnect
-            </Button>
-          ) : (
-            <>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                disabled={value !== "bluetooth"}
-                onClick={() => void connect(false)}
-              >
-                Connect device
+
+        <div className="flex flex-col gap-3 border-t pt-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-medium">Connection</p>
+            <p className="text-xs text-muted-foreground" role="status">
+              {connected
+                ? `${session.label} · ${session.mode === "simulator" ? "Simulator" : profile.shortLabel}`
+                : "Not connected"}
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {connected ? (
+              <Button type="button" variant="outline" size="sm" onClick={() => void disconnect()}>
+                Disconnect
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                disabled={value !== "bluetooth"}
-                onClick={() => void connect(true)}
-              >
-                Use simulator
-              </Button>
-            </>
-          )}
+            ) : (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={timerInput !== "bluetooth"}
+                  onClick={() => void connect(false)}
+                >
+                  Connect device
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={timerInput !== "bluetooth"}
+                  onClick={() => void connect(true)}
+                >
+                  Use simulator
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

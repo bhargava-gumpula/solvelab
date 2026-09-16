@@ -2,11 +2,13 @@
 
 export type TimerDeviceKind = "keyboard" | "bluetooth";
 
-export type TimerDeviceEventType = "press" | "release" | "reset";
+export type TimerDeviceEventType = "press" | "release" | "reset" | "sync";
 
 export interface TimerDeviceEvent {
   type: TimerDeviceEventType;
   at: number;
+  /** Official solve duration from the device (ms), when reported. */
+  solveTimeMs?: number;
 }
 
 export type TimerDeviceMode = "native" | "simulator" | "idle";
@@ -21,11 +23,14 @@ export interface TimerDeviceSession {
   disconnect(): Promise<void>;
 }
 
-export interface TimerDeviceAdapter {
+export type TimerDeviceAdapter = {
   readonly kind: TimerDeviceKind;
   readonly label: string;
-  connect(options?: { preferSimulator?: boolean }): Promise<TimerDeviceSession>;
-}
+  connect(options?: {
+    preferSimulator?: boolean;
+    brand?: import("./brands").BluetoothTimerBrand;
+  }): Promise<TimerDeviceSession>;
+};
 
 export class TimerDeviceUnavailableError extends Error {
   constructor(message: string) {

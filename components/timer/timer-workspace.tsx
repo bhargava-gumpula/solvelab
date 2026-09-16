@@ -85,12 +85,14 @@ export function TimerWorkspace() {
   const canvasRef = useRef<HTMLDivElement>(null);
   const surfaceRef = useRef<HTMLDivElement>(null);
 
+  const inputSource = settings?.timerInput === "bluetooth" ? "bluetooth" : "keyboard";
   const config = useMemo<TimerConfig>(
     () => ({
       inspectionMs: (settings?.inspectionSeconds ?? 0) * 1000,
-      holdToStartMs: settings?.holdToStartMs ?? 300,
+      // Match physical timer arming: no software hold delay over BLE.
+      holdToStartMs: inputSource === "bluetooth" ? 0 : (settings?.holdToStartMs ?? 300),
     }),
-    [settings?.inspectionSeconds, settings?.holdToStartMs],
+    [settings?.inspectionSeconds, settings?.holdToStartMs, inputSource],
   );
   const [store] = useState(() => createTimerStore(config));
   useEffect(() => store.setConfig(config), [store, config]);
@@ -105,7 +107,6 @@ export function TimerWorkspace() {
   );
   const canTime = storage.status === "ready" && !!settings && !!session && !!scramble;
   const idle = phase === "idle" || phase === "stopped";
-  const inputSource = settings?.timerInput === "bluetooth" ? "bluetooth" : "keyboard";
 
   useTimerControls(store, {
     enabled: canTime,
@@ -398,7 +399,7 @@ export function TimerWorkspace() {
       }
       draggable={isDesktop}
       constraints={canvasRef}
-      className={cn(isDesktop ? "max-h-full min-h-0" : "max-h-[60svh]")}
+      className={cn(isDesktop ? "flex h-full max-h-full min-h-0 flex-col" : "max-h-[60svh]")}
     >
       <TimesPanelBody
         solves={solves ?? []}
@@ -492,10 +493,7 @@ export function TimerWorkspace() {
           <aside
             data-focus-hide
             aria-label="Session times"
-            className={cn(
-              "col-start-1 row-start-2 max-h-full min-h-0 self-start overflow-hidden",
-              cubePanel ? "row-end-[-1]" : "row-end-3",
-            )}
+            className={cn("col-start-1 row-[1/-1] h-full min-h-0 overflow-hidden")}
           >
             {timesPanel}
           </aside>

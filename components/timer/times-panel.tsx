@@ -93,7 +93,7 @@ export function TimesPanelBody({
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" data-testid="times-scroll">
         <table className="w-full text-sm">
           <caption className="sr-only">Solves in this session</caption>
           <thead className="sticky top-0 z-10 bg-popover/90 text-[11px] text-muted-foreground backdrop-blur">
