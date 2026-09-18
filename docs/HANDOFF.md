@@ -1,6 +1,8 @@
-# Handoff: Claude Code → Cursor (2026-09-13)
+# Handoff (updated 2026-09-18, Claude Code)
 
 Everything a new agent needs to continue SolveLab without the previous chat. Read this first, then `AGENTS.md`, then the docs linked below.
+
+**Work in progress: the 3.1 plan** (five phases, review stop after each; see §10 and `docs/DEVELOPMENT_LOG.md` entries 103+). Phase 1 (save and sync everything) is done and awaiting the owner's review.
 
 ## 1. What SolveLab is
 
@@ -13,7 +15,7 @@ A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer 
 ## 2. How the owner works (follow these)
 
 1. **Phases with checkpoints.** Build one phase, run the full validation and end-to-end suite, show screenshots, summarize in plain language, then **stop and wait for explicit approval** before starting the next phase.
-2. **Ask before pushing, merging or moving files.** `ui-overhaul` is intentionally not pushed. Don't move the repo folder without asking.
+2. **Ask before pushing, merging or moving files.** Commits stay local until the owner approves a push. Don't move the repo folder without asking.
 3. **Log every meaningful step** (decisions, failures, fixes, check results) in `docs/DEVELOPMENT_LOG.md`.
 4. **The timer never reacts to mouse clicks.** Space bar only on computers; touch-and-hold on touch screens. An e2e test enforces this.
 5. **UI quality matters.** The owner found the first V1 UI "very bland" and asked for a drastically more polished, interactive UI, inspired by [csTimer](https://cstimer.net) and [TAGDA Timer](https://tagdatimer.vercel.app), using [21st.dev](https://21st.dev) components.
@@ -21,19 +23,19 @@ A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer 
 
 ## 3. Repository and branches
 
-The checkout is `~/Documents/Codex/2026-09-12/b` (started by ChatGPT/Codex, continued by Claude Code). Remote: `github.com/bhargava-gumpula/solvelab` (private).
+The checkout is `~/Projects/solvelab` on the owner's current Mac, outside iCloud (the earlier `~/Documents` checkout is not on this machine). Remote: `github.com/bhargava-gumpula/solvelab` (private).
 
-| Branch           | Contents                                        | On GitHub?                              |
-| ---------------- | ----------------------------------------------- | --------------------------------------- |
-| `main`           | V0 shell (`81c9fd5`) + V0 snapshot (`616134f`)  | Only `81c9fd5`; local is 1 commit ahead |
-| `v1-daily-timer` | V1 daily timer (`110e2c1`)                      | Yes                                     |
-| `ui-overhaul`    | 2.0 (timer, UI, Google account, Firestore sync) | Push as part of 2.0                     |
+| Branch           | Contents                                               | On GitHub?                                            |
+| ---------------- | ------------------------------------------------------ | ----------------------------------------------------- |
+| `main`           | 3.0 release (`174279e`); tag `v3.0.0` is one before it | Yes                                                   |
+| `ui-overhaul`    | Working branch: `main` + 3.1 work (type-fix, phase 1)  | 3.1 commits are local until the owner approves a push |
+| `v1-daily-timer` | V1 daily timer; fully merged into `main`               | Yes                                                   |
 
-`ui-overhaul` is checked out and contains everything. Nothing has been merged into `main`.
+Work is committed on `ui-overhaul`; releases fast-forward `main` after the owner approves.
 
 ## 4. Run, test, validate
 
-Node 22.13+ (the machine has Node 26). Dependencies are installed.
+Node 22.13+ (this Mac: Node 26.9.0 from nodejs.org in `~/.local/node`, on PATH via `~/.zshrc`). Dependencies are installed.
 
 ```sh
 npm run dev                          # http://127.0.0.1:5173/timer/
@@ -48,7 +50,7 @@ npx playwright test --workers=1      # e2e against the static export (build firs
 - Visual review: build, serve `out/` on 4173 (`PORT=4173 npm start`), then `SHOTS=<dir> node scripts/review-screenshots.mjs`. It imports 320 realistic sample solves and captures every theme and key screen.
 - Sub-path check: `SOLVELAB_BASE_PATH=/solvelab npm run build`, serve so `out/` appears at `/solvelab/`, run `scripts/check-base-path.mjs`.
 
-Last verified at `6c8eecb`: `npm run validate` passed, **66 unit tests** (9 files), **33 e2e tests** (1 worker, ~1.1 min).
+Last verified at 3.1 phase 1: `npm run validate` passed (the production build type-checks again), **153 unit tests** (18 files), **49 e2e tests** (1 worker, ~1.1 min).
 
 ## 5. What exists today
 
@@ -90,35 +92,36 @@ Last verified at `6c8eecb`: `npm run validate` passed, **66 unit tests** (9 file
 | ?                      | Shortcuts                 |
 | ⌘K / Ctrl+K            | Command palette           |
 
-**Still placeholders:** Coach, Train, Algorithms and Learn show planned content only. Coach / Train / Learn require Google sign-in.
+**3.0 coach and placeholders:** Coach runs the five-stage goal diagnostic (slow/average/fast per stage). Train and Learn show coming-soon pages; Algorithms is a browsable list of sets. Nothing requires Google sign-in; signing in only syncs data.
 
 ## 6. Code map
 
 Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays out of React components.
 
-| Area                  | Files                                                                                                                                                                                                       |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Timer logic           | `lib/timer/engine.ts` (state machine), `store.ts`, `display.ts`, `input.ts` (keyboard guard), `format.ts`, `focus-mode.ts`                                                                                  |
-| Timer input hooks     | `hooks/use-timer-controls.ts` (Space + touch; ignores mouse), `use-timer-clock.ts`, `use-scramble.ts`, `use-inspection-cues.ts`                                                                             |
-| Timer UI              | `components/timer/timer-workspace.tsx` (orchestrator), `timer-stage.tsx`, `scramble-bar.tsx`, `floating-panel.tsx`, `times-panel.tsx`, `stats-panel.tsx`, `cube-preview.tsx`, `last-solve-bar.tsx`, dialogs |
-| Stats                 | `lib/stats/*` (averages, session statistics, series, activity), `components/stats/*`                                                                                                                        |
-| Cube + scrambles      | `lib/cube/*` (notation parser, 54-sticker engine), `lib/scramble/*`, `scripts/bundle-cubing.mjs`, `components/cube/*`                                                                                       |
-| Storage + backup      | `lib/storage/*` (Dexie schema v2, migrations, repositories, Zod schemas), `lib/export/backup.ts`, `hooks/use-local-data.ts`                                                                                 |
-| Appearance            | `lib/appearance/*` (themes, preferences + boot script, store, GPU detection, confetti), `components/appearance/*`, `app/globals.css` (tokens per theme)                                                     |
-| Commands + shortcuts  | `lib/commands/registry.ts`, `hooks/use-commands.ts`, `hooks/use-hotkeys.ts`, `components/layout/command-palette.tsx`, `shortcuts-dialog.tsx`                                                                |
-| Shell                 | `app/layout.tsx`, `components/layout/app-shell.tsx`, `nav-pill.tsx`                                                                                                                                         |
-| Auth + account sync   | `lib/auth/*`, `lib/sync/*`, `components/auth/*`, `components/layout/account-sync-provider.tsx`, `app/{coach,train,learn}/layout.tsx`, `firestore.rules`                                                     |
-| Timer devices         | `lib/timer/devices/*`, `components/settings/hardware-timer-section.tsx`                                                                                                                                     |
-| Adapted UI components | `components/ui/glowing-effect.tsx`, `border-beam.tsx`, `spotlight-card.tsx`, `animated-time.tsx` (plus stock shadcn/ui)                                                                                     |
-| Tests                 | `tests/unit/*` (Vitest; jsdom where needed), `tests/e2e/*` (Playwright), `tests/e2e/helpers.ts`                                                                                                             |
+| Area                  | Files                                                                                                                                                                                                              |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Timer logic           | `lib/timer/engine.ts` (state machine), `store.ts`, `display.ts`, `input.ts` (keyboard guard), `format.ts`, `focus-mode.ts`                                                                                         |
+| Timer input hooks     | `hooks/use-timer-controls.ts` (Space + touch; ignores mouse), `use-timer-clock.ts`, `use-scramble.ts`, `use-inspection-cues.ts`                                                                                    |
+| Timer UI              | `components/timer/timer-workspace.tsx` (orchestrator), `timer-stage.tsx`, `scramble-bar.tsx`, `floating-panel.tsx`, `times-panel.tsx`, `stats-panel.tsx`, `cube-preview.tsx`, `last-solve-bar.tsx`, dialogs        |
+| Stats                 | `lib/stats/*` (averages, session statistics, series, activity), `components/stats/*`                                                                                                                               |
+| Cube + scrambles      | `lib/cube/*` (notation parser, 54-sticker engine), `lib/scramble/*`, `scripts/bundle-cubing.mjs`, `components/cube/*`                                                                                              |
+| Storage + backup      | `lib/storage/*` (Dexie schema v3, migrations, repositories, Zod schemas, `legacy.ts` one-time localStorage imports), `lib/export/backup.ts` (format v2), `hooks/use-local-data.ts`, `hooks/use-view-preference.ts` |
+| Appearance            | `lib/appearance/*` (themes, preferences + boot script, store, GPU detection, confetti), `components/appearance/*`, `app/globals.css` (tokens per theme)                                                            |
+| Commands + shortcuts  | `lib/commands/registry.ts`, `hooks/use-commands.ts`, `hooks/use-hotkeys.ts`, `components/layout/command-palette.tsx`, `shortcuts-dialog.tsx`                                                                       |
+| Shell                 | `app/layout.tsx`, `components/layout/app-shell.tsx`, `nav-pill.tsx`                                                                                                                                                |
+| Auth + account sync   | `lib/auth/*`, `lib/sync/*` (`collections.ts` lists every synced table), `components/auth/*`, `components/layout/account-sync-provider.tsx`, `components/appearance/appearance-sync.tsx`, `firestore.rules`         |
+| Timer devices         | `lib/timer/devices/*`, `components/settings/hardware-timer-section.tsx`                                                                                                                                            |
+| Adapted UI components | `components/ui/glowing-effect.tsx`, `border-beam.tsx`, `spotlight-card.tsx`, `animated-time.tsx` (plus stock shadcn/ui)                                                                                            |
+| Tests                 | `tests/unit/*` (Vitest; jsdom where needed), `tests/e2e/*` (Playwright), `tests/e2e/helpers.ts`                                                                                                                    |
 
-**Saved data keys:** IndexedDB `speedcubing-local` (schema v2; never rename, add migrations with tests); localStorage `solvelab.appearance.v1`, `solvelab.panels.v4` (cache for panel drag offsets), and `solvelab.sync.tombstones.v1`; backup format id `speedcubing-local-backup` v1. Signed-in solves/sessions/settings (including inspection and `panelOffsets`) also live in Cloud Firestore `users/{uid}/{sessions,solves,settings,tombstones}`.
+**Saved data keys:** IndexedDB `speedcubing-local` (schema v3; never rename, add migrations with tests). The settings record holds timer options, `panelOffsets`, `appearance` and `view` (Stats range/session, times sort). localStorage holds caches only: `solvelab.appearance.v1` (for the no-flash boot script), `solvelab.panels.v4`, `solvelab.sync.tombstones.v1`, and the device-only `solvelab.timerDevice.v1`; `solvelab.lessonProgress.v1` is imported into IndexedDB once and removed. Backup format id `speedcubing-local-backup`, version 2 (v1 still imports). **Every user choice must be saved in a synced table or the settings record** (owner rule); signed-in data lives in Firestore at `users/{uid}/{table}/{key}` for each table in `lib/sync/collections.ts`, plus `settings/preferences` and `tombstones`.
 
 **Firebase (optional at build time):** `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, optional `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in `.env.local` (gitignored). Authorized domains: `localhost`, `127.0.0.1`, `solvelab.bhargava-gumpula.com`. Google sign-in uses a same-origin OIDC redirect to `/signed-in/`. After sign-in the client router goes to `/timer/` without a full reload, then merges local IndexedDB with Firestore.
 
 ## 7. Gotchas and lessons learned
 
-- **iCloud folder.** `~/Documents` is iCloud-synced. Builds and test artifacts there pushed system load to ~60, and e2e timed out with 2 workers while the dev server ran. Use `--workers=1` with the dev server stopped. Moving the repo (e.g. to `~/projects/solvelab`) is recommended but needs the owner's OK.
+- **iCloud folder (resolved).** The old `~/Documents` checkout made builds and `tsc` crawl or hang. The repo now lives in `~/Projects/solvelab`; `tsc` takes ~2 s and the build type-checks again. Still run e2e with `--workers=1` and the dev server stopped.
+- **Prettier is occasionally not idempotent** on long member chains; if `format:check` still complains after `--write`, run it once more.
 - **Next.js 16.3 is newer than most training data.** Read `node_modules/next/dist/docs/` before unfamiliar APIs. Keep `--webpack`; Turbopack returned 404s on routes in this version.
 - **cubing.js can't go through webpack.** Its worker loses its dependencies, so it is pre-bundled with esbuild and loaded with a native `import()` (`webpackIgnore`) that respects the base path.
 - **NumberFlow renders in a shadow root.** Its `textContent` includes a style tag, so tests read visually hidden plain-text copies via `data-testid` (`components/ui/animated-time.tsx`).
@@ -147,9 +150,15 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 ## 10. Waiting on the owner (ask; don't assume)
 
-1. **3.1:** training sessions after the diagnostic, with tags that update as you practice.
-2. **3.2:** Learn lesson plans, plus algorithm drills, diagrams, and tracking.
-3. Real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
-4. Move the repo out of `~/Documents`? Disk is nearly full; iCloud + `.next` is painful.
+The approved 3.1 plan (details in dev log entry 103; review stop after each phase):
 
-Reference only: an unfinished idea-scoring council from this chat is in `~/solvelab-council/`. The owner ended it ("we are done finding improvements"). Don't act on it unless asked.
+1. ✅ **Save and sync everything** (phase 1, awaiting review).
+2. **Tests, sandbox and Solve profile** (15 aspects with tag, goal, current average; many tests incl. transitions, lookahead, TPS; delete accidental attempts) plus **data contribution** for AI training (on by default, opt-out, signed-out users via Firebase anonymous auth; privacy policy and terms updated).
+3. **AI test planner + guided coach** (simulator of slow→fast cubers, diagnoser + planner heads, benchmark against rules, conversational Coach page) plus the real-data retraining pipeline.
+4. **Algorithm bank:** 2-look OLL/PLL, OLL, PLL, F2L, COLL, WV, several verified options per case with source attribution.
+5. **Training packs** with researched lessons, drills and retests (Train tab on).
+6. Later: BETA AI chat using the owner's own AI provider (official APIs only).
+
+Owner actions needed before data contribution goes live: enable Firebase **Anonymous** sign-in, deploy the updated `firestore.rules`, and run each training-data export with their own admin credentials. Also still open: real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
+
+Reference only: an unfinished idea-scoring council from an earlier chat is in the public GitHub repo `bhargava-gumpula/solvelab-council` (not checked out on this Mac). The owner ended it ("we are done finding improvements"). Don't act on it unless asked.

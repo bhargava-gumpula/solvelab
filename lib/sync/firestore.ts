@@ -1,19 +1,25 @@
 import { getApp, getApps, initializeApp } from "firebase/app";
 import {
   collection,
-  deleteDoc,
   doc,
   getDocs,
   getFirestore,
-  setDoc,
   type Firestore,
   writeBatch,
   type DocumentData,
 } from "firebase/firestore";
-import type { Session, Solve, UserSettings } from "@/types/domain";
+import type { UserSettings } from "@/types/domain";
 import { getFirebaseConfig } from "@/lib/auth/config";
 import { getFirebaseAuth } from "@/lib/auth/firebase";
-import type { AccountSnapshot, Tombstone, TombstoneKind } from "./merge";
+import {
+  COLLECTION_NAMES,
+  emptyRecords,
+  recordKey,
+  recordsOf,
+  setRecords,
+  type AnyRecord,
+} from "./collections";
+import { tombstoneKey, type AccountSnapshot, type Tombstone } from "./merge";
 import { accountDiffIsEmpty, diffAccountSnapshots, type AccountDiff } from "./diff";
 
 const WRITE_CHUNK = 400;
@@ -33,7 +39,9 @@ export function getAccountFirestore(): Firestore | null {
 }
 
 function signedInUid(): string | null {
-  return getFirebaseAuth()?.currentUser?.uid ?? null;
+  const user = getFirebaseAuth()?.currentUser;
+  // Anonymous ids never own an account copy.
+  return user && !user.isAnonymous ? user.uid : null;
 }
 
 function userDoc(db: Firestore, uid: string, ...segments: string[]) {
@@ -49,17 +57,23 @@ export async function readAccountFromCloud(): Promise<AccountSnapshot | null> {
   const uid = signedInUid();
   if (!db || !uid) return null;
 
-  const [sessionsSnap, solvesSnap, settingsSnap, tombstonesSnap] = await Promise.all([
-    getDocs(collection(db, "users", uid, "sessions")),
-    getDocs(collection(db, "users", uid, "solves")),
+  const [settingsSnap, tombstonesSnap, ...collectionSnaps] = await Promise.all([
     getDocs(collection(db, "users", uid, "settings")),
     getDocs(collection(db, "users", uid, "tombstones")),
+    ...COLLECTION_NAMES.map((name) => getDocs(collection(db, "users", uid, name))),
   ]);
 
+  const records = emptyRecords();
+  COLLECTION_NAMES.forEach((name, index) => {
+    setRecords(
+      records,
+      name,
+      collectionSnaps[index]!.docs.map((item) => item.data() as AnyRecord),
+    );
+  });
   const settingsDoc = settingsSnap.docs.find((item) => item.id === "preferences");
   return {
-    sessions: sessionsSnap.docs.map((item) => item.data() as Session),
-    solves: solvesSnap.docs.map((item) => item.data() as Solve),
+    records,
     settings: settingsDoc ? (settingsDoc.data() as UserSettings) : null,
     tombstones: tombstonesSnap.docs.map((item) => item.data() as Tombstone),
   };
@@ -73,32 +87,26 @@ async function commitAccountDiff(diff: AccountDiff): Promise<void> {
 
   const ops: Array<(batch: ReturnType<typeof writeBatch>) => void> = [];
 
-  for (const session of diff.sessions) {
-    ops.push((batch) =>
-      batch.set(userDoc(db, uid, "sessions", session.id), stripUndefined(session)),
-    );
-  }
-  for (const solve of diff.solves) {
-    ops.push((batch) => batch.set(userDoc(db, uid, "solves", solve.id), stripUndefined(solve)));
+  for (const name of COLLECTION_NAMES) {
+    for (const record of recordsOf(diff.upserts, name)) {
+      ops.push((batch) =>
+        batch.set(userDoc(db, uid, name, recordKey(name, record)), stripUndefined(record)),
+      );
+    }
+    for (const key of diff.deletes[name]) {
+      ops.push((batch) => batch.delete(userDoc(db, uid, name, key)));
+    }
   }
   if (diff.settings) {
+    const settings = diff.settings;
     ops.push((batch) =>
-      batch.set(userDoc(db, uid, "settings", "preferences"), stripUndefined(diff.settings)),
+      batch.set(userDoc(db, uid, "settings", "preferences"), stripUndefined(settings)),
     );
   }
   for (const tombstone of diff.tombstones) {
     ops.push((batch) =>
-      batch.set(
-        userDoc(db, uid, "tombstones", `${tombstone.kind}_${tombstone.id}`),
-        stripUndefined(tombstone),
-      ),
+      batch.set(userDoc(db, uid, "tombstones", tombstoneKey(tombstone)), stripUndefined(tombstone)),
     );
-  }
-  for (const id of diff.deleteSessionIds) {
-    ops.push((batch) => batch.delete(userDoc(db, uid, "sessions", id)));
-  }
-  for (const id of diff.deleteSolveIds) {
-    ops.push((batch) => batch.delete(userDoc(db, uid, "solves", id)));
   }
 
   for (let index = 0; index < ops.length; index += WRITE_CHUNK) {
@@ -116,18 +124,4 @@ export async function writeAccountToCloud(
   const uid = signedInUid();
   if (!db || !uid) return;
   await commitAccountDiff(diffAccountSnapshots(snapshot, previous));
-}
-
-export async function deleteAccountRecord(kind: TombstoneKind, id: string): Promise<void> {
-  const db = getAccountFirestore();
-  const uid = signedInUid();
-  if (!db || !uid) return;
-  const collectionName = kind === "solve" ? "solves" : "sessions";
-  await deleteDoc(userDoc(db, uid, collectionName, id));
-  const tombstone: Tombstone = {
-    id,
-    kind,
-    deletedAt: new Date().toISOString(),
-  };
-  await setDoc(userDoc(db, uid, "tombstones", `${kind}_${id}`), tombstone);
 }

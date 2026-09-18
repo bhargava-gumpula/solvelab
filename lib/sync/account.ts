@@ -2,7 +2,21 @@ import type { LocalDatabase } from "@/lib/storage/database";
 import { getRepositories } from "@/lib/storage";
 import { getAuthSnapshot } from "@/lib/auth/session";
 import { getFirebaseConfig } from "@/lib/auth/config";
-import { mergeAccountSnapshots, type AccountSnapshot, type Tombstone } from "./merge";
+import {
+  COLLECTION_NAMES,
+  COLLECTIONS,
+  emptyRecords,
+  recordKey,
+  recordsOf,
+  setRecords,
+  type AnyRecord,
+} from "./collections";
+import {
+  emptySnapshot,
+  mergeAccountSnapshots,
+  type AccountSnapshot,
+  type Tombstone,
+} from "./merge";
 import { snapshotsEqual } from "./diff";
 import { readAccountFromCloud, writeAccountToCloud } from "./firestore";
 
@@ -19,22 +33,24 @@ function cloneSnapshot(snapshot: AccountSnapshot): AccountSnapshot {
   return structuredClone(snapshot);
 }
 
+function isTombstone(item: unknown): item is Tombstone {
+  if (typeof item !== "object" || item === null) return false;
+  const { kind, id, deletedAt } = item as Partial<Tombstone>;
+  return (
+    typeof kind === "string" &&
+    kind.length > 0 &&
+    typeof id === "string" &&
+    typeof deletedAt === "string"
+  );
+}
+
 function readLocalTombstones(): Tombstone[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(TOMBSTONE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item): item is Tombstone => {
-      return (
-        typeof item === "object" &&
-        item !== null &&
-        ((item as Tombstone).kind === "solve" || (item as Tombstone).kind === "session") &&
-        typeof (item as Tombstone).id === "string" &&
-        typeof (item as Tombstone).deletedAt === "string"
-      );
-    });
+    return Array.isArray(parsed) ? parsed.filter(isTombstone) : [];
   } catch {
     return [];
   }
@@ -45,13 +61,13 @@ function writeLocalTombstones(tombstones: Tombstone[]): void {
   localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(tombstones));
 }
 
-function forgetTombstone(kind: Tombstone["kind"], id: string): void {
+function forgetTombstone(kind: string, id: string): void {
   writeLocalTombstones(
     readLocalTombstones().filter((item) => !(item.kind === kind && item.id === id)),
   );
 }
 
-function rememberTombstone(kind: Tombstone["kind"], id: string): void {
+function rememberTombstone(kind: string, id: string): void {
   const next = [
     ...readLocalTombstones().filter((item) => !(item.kind === kind && item.id === id)),
     { kind, id, deletedAt: new Date().toISOString() },
@@ -60,31 +76,28 @@ function rememberTombstone(kind: Tombstone["kind"], id: string): void {
 }
 
 async function localSnapshot(db: LocalDatabase): Promise<AccountSnapshot> {
-  const [sessions, solves, settings] = await Promise.all([
-    db.sessions.toArray(),
-    db.solves.toArray(),
+  const [settings, ...lists] = await Promise.all([
     db.settings.get("preferences"),
+    ...COLLECTION_NAMES.map((name) => db.table<AnyRecord, string>(name).toArray()),
   ]);
-  return {
-    sessions,
-    solves,
-    settings: settings ?? null,
-    tombstones: readLocalTombstones(),
-  };
+  const records = emptyRecords();
+  COLLECTION_NAMES.forEach((name, index) => setRecords(records, name, lists[index]!));
+  return { records, settings: settings ?? null, tombstones: readLocalTombstones() };
 }
 
 async function applySnapshot(db: LocalDatabase, snapshot: AccountSnapshot): Promise<void> {
   applyingRemote = true;
   try {
-    await db.transaction("rw", db.sessions, db.solves, db.settings, async () => {
-      const keepSessions = new Set(snapshot.sessions.map((session) => session.id));
-      const keepSolves = new Set(snapshot.solves.map((solve) => solve.id));
-      const existingSessions = (await db.sessions.toCollection().primaryKeys()) as string[];
-      const existingSolves = (await db.solves.toCollection().primaryKeys()) as string[];
-      await db.sessions.bulkDelete(existingSessions.filter((id) => !keepSessions.has(id)));
-      await db.solves.bulkDelete(existingSolves.filter((id) => !keepSolves.has(id)));
-      if (snapshot.sessions.length > 0) await db.sessions.bulkPut(snapshot.sessions);
-      if (snapshot.solves.length > 0) await db.solves.bulkPut(snapshot.solves);
+    const tables = [...COLLECTION_NAMES.map((name) => db.table(name)), db.settings];
+    await db.transaction("rw", tables, async () => {
+      for (const name of COLLECTION_NAMES) {
+        const table = db.table<AnyRecord, string>(name);
+        const incoming = recordsOf(snapshot.records, name);
+        const keep = new Set(incoming.map((record) => recordKey(name, record)));
+        const existing = (await table.toCollection().primaryKeys()) as string[];
+        await table.bulkDelete(existing.filter((key) => !keep.has(key)));
+        if (incoming.length > 0) await table.bulkPut(incoming);
+      }
       if (snapshot.settings) await db.settings.put(snapshot.settings);
     });
     writeLocalTombstones(snapshot.tombstones);
@@ -124,12 +137,7 @@ export async function syncAccountNow(): Promise<void> {
   return trackInFlight(
     (async () => {
       const { db } = getRepositories();
-      const cloud = (await readAccountFromCloud()) ?? {
-        sessions: [],
-        solves: [],
-        settings: null,
-        tombstones: [],
-      };
+      const cloud = (await readAccountFromCloud()) ?? emptySnapshot();
       const local = await localSnapshot(db);
       const merged = mergeAccountSnapshots(local, cloud);
       if (!snapshotsEqual(local, merged)) await applySnapshot(db, merged);
@@ -167,6 +175,7 @@ export function scheduleAccountPush(): void {
   }, 800);
 }
 
+/** Watches every synced table so local edits are pushed and deletes leave tombstones. */
 export function attachAccountSyncHooks(db: LocalDatabase): void {
   if (hooksAttached) return;
   hooksAttached = true;
@@ -174,51 +183,34 @@ export function attachAccountSyncHooks(db: LocalDatabase): void {
   const afterWrite = () => {
     if (!applyingRemote) scheduleAccountPush();
   };
-  const afterSolveDelete = (id: string) => {
-    rememberTombstone("solve", id);
-    afterWrite();
-  };
-  const afterSessionDelete = (id: string) => {
-    rememberTombstone("session", id);
-    afterWrite();
-  };
 
-  db.solves.hook("creating", function attachSolveCreate(primKey) {
-    this.onsuccess = () => {
-      forgetTombstone("solve", String(primKey));
-      afterWrite();
-    };
-  });
-  db.solves.hook("updating", function attachSolveUpdate(_mods, primKey) {
-    this.onsuccess = () => {
-      forgetTombstone("solve", String(primKey));
-      afterWrite();
-    };
-  });
-  db.solves.hook("deleting", function attachSolveDelete(primKey) {
-    const id = String(primKey);
-    this.onsuccess = () => afterSolveDelete(id);
-  });
-  db.sessions.hook("creating", function attachSessionCreate(primKey) {
-    this.onsuccess = () => {
-      forgetTombstone("session", String(primKey));
-      afterWrite();
-    };
-  });
-  db.sessions.hook("updating", function attachSessionUpdate(_mods, primKey) {
-    this.onsuccess = () => {
-      forgetTombstone("session", String(primKey));
-      afterWrite();
-    };
-  });
-  db.sessions.hook("deleting", function attachSessionDelete(primKey) {
-    const id = String(primKey);
-    this.onsuccess = () => afterSessionDelete(id);
-  });
-  db.settings.hook("creating", function attachSettingsCreate() {
+  for (const name of COLLECTION_NAMES) {
+    const kind = COLLECTIONS[name].tombstoneKind;
+    const table = db.table(name);
+    table.hook("creating", function onCreate(primKey) {
+      this.onsuccess = () => {
+        forgetTombstone(kind, String(primKey));
+        afterWrite();
+      };
+    });
+    table.hook("updating", function onUpdate(_mods, primKey) {
+      this.onsuccess = () => {
+        forgetTombstone(kind, String(primKey));
+        afterWrite();
+      };
+    });
+    table.hook("deleting", function onDelete(primKey) {
+      const id = String(primKey);
+      this.onsuccess = () => {
+        rememberTombstone(kind, id);
+        afterWrite();
+      };
+    });
+  }
+  db.settings.hook("creating", function onSettingsCreate() {
     this.onsuccess = afterWrite;
   });
-  db.settings.hook("updating", function attachSettingsUpdate() {
+  db.settings.hook("updating", function onSettingsUpdate() {
     this.onsuccess = afterWrite;
   });
 }

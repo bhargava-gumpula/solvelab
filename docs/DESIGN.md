@@ -4,7 +4,7 @@ The timer is the home screen: no marketing page. Coach, Train and Learn require 
 
 ## Themes
 
-Six presets, chosen in the Appearance sheet (press `T`) or Settings, plus "Match system" (Sencha when the device is dark, Linen when light). Internal ids are unchanged (`nebula`, `ember`, …) so saved appearance still works. Appearance is a per-device preference stored in localStorage; a tiny boot script in `<head>` applies it before first paint so there is no flash.
+Six presets, chosen in the Appearance sheet (press `T`) or Settings, plus "Match system" (Sencha when the device is dark, Linen when light). Internal ids are unchanged (`nebula`, `ember`, …) so saved appearance still works. Appearance is saved in the settings record, so it is backed up and follows the Google account like every other setting (since 3.1). localStorage keeps a copy that a tiny boot script in `<head>` applies before first paint, so there is no flash.
 
 | Label    | Id      | Mood                 | Background                  |
 | -------- | ------- | -------------------- | --------------------------- |

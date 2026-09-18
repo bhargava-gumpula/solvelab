@@ -3,6 +3,7 @@ import type {
   AlgorithmAttempt,
   AlgorithmProgress,
   DiagnosticRun,
+  LessonProgress,
   Session,
   SkillScore,
   Solve,
@@ -36,7 +37,13 @@ export const SCHEMA_V2 = {
   sessions: "id, createdAt, archivedAt, sortOrder",
 } as const;
 
-export const DATABASE_VERSION = 2;
+/** V3 (3.1): finished lessons move from localStorage into the synced database. */
+export const SCHEMA_V3 = {
+  ...SCHEMA_V2,
+  lessonProgress: "lessonId, updatedAt",
+} as const;
+
+export const DATABASE_VERSION = 3;
 
 export async function upgradeToV2(transaction: Transaction): Promise<void> {
   let order = 0;
@@ -66,11 +73,13 @@ export class LocalDatabase extends Dexie {
   algorithmAttempts!: Table<AlgorithmAttempt, string>;
   trainingPlans!: Table<TrainingPlan, string>;
   diagnosticRuns!: Table<DiagnosticRun, string>;
+  lessonProgress!: Table<LessonProgress, string>;
 
   constructor(name = DATABASE_NAME) {
     super(name);
     this.version(1).stores(SCHEMA_V1);
     this.version(2).stores(SCHEMA_V2).upgrade(upgradeToV2);
+    this.version(3).stores(SCHEMA_V3);
   }
 }
 

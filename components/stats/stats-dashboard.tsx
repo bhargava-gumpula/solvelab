@@ -45,6 +45,7 @@ import {
   buildProgressSeries,
 } from "@/lib/stats/series";
 import { useTimeFormat } from "@/hooks/use-time-format";
+import { useViewPreference } from "@/hooks/use-view-preference";
 import { ChartCard, DataTable } from "./chart-card";
 import { StatTile } from "./stat-tile";
 
@@ -79,10 +80,15 @@ export function StatsDashboard() {
   const { formatAverage, formatSolve, formatTime } = useTimeFormat();
   const sessions = useSessions();
   const { session: activeSession } = useActiveSession();
-  const [selected, setSelected] = useState<string | null>(null);
-  const [range, setRange] = useState<(typeof RANGES)[number]["value"]>("1000");
+  const [selected, setSelected] = useViewPreference("statsSessionId");
+  const [range, setRange] = useViewPreference("statsRange");
 
-  const scope = selected ?? activeSession?.id;
+  // A saved session that was since deleted or archived falls back to the active one.
+  const selectionValid =
+    selected === ALL_SESSIONS ||
+    sessions === undefined ||
+    sessions.some((session) => session.id === selected);
+  const scope = (selectionValid ? selected : null) ?? activeSession?.id;
   const isAll = scope === ALL_SESSIONS;
   const sessionSolves = useSessionSolves(isAll ? undefined : scope);
   const allSolves = useAllSolves(isAll);

@@ -3,40 +3,35 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { BookOpen, Check } from "lucide-react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { FeatureCard } from "@/components/layout/feature-card";
+import { useStorageStatus } from "@/components/layout/storage-provider";
 import { learningPaths } from "@/data/learning/paths";
 import { getLesson, lessonsForPath, type Lesson } from "@/data/learning/lessons";
+import { getRepositories } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 
-const PROGRESS_KEY = "solvelab.lessonProgress.v1";
-
-function readProgress(): Record<string, boolean> {
-  if (typeof window === "undefined") return {};
-  try {
-    const raw = localStorage.getItem(PROGRESS_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as Record<string, boolean>;
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch {
-    return {};
-  }
-}
-
-function writeProgress(next: Record<string, boolean>) {
-  localStorage.setItem(PROGRESS_KEY, JSON.stringify(next));
-}
-
 export function LearnDashboard() {
-  const [progress, setProgress] = useState<Record<string, boolean>>(() => readProgress());
+  const ready = useStorageStatus().status === "ready";
+  // Finished lessons are saved in the database, so they are backed up and synced.
+  const finished = useLiveQuery(
+    async () => (ready ? await getRepositories().lessons.list() : []),
+    [ready],
+  );
+  const progress = useMemo<Record<string, boolean>>(
+    () => Object.fromEntries((finished ?? []).map((entry) => [entry.lessonId, true])),
+    [finished],
+  );
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const active = activeId ? getLesson(activeId) : null;
 
   const markComplete = (id: string) => {
-    const next = { ...progress, [id]: true };
-    setProgress(next);
-    writeProgress(next);
+    void getRepositories()
+      .lessons.complete(id)
+      .catch(() => toast.error("Couldn’t save your progress."));
   };
 
   return (

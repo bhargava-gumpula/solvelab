@@ -2,8 +2,9 @@ import { z } from "zod";
 import { DEFAULT_THEME, SYSTEM_LIGHT_THEME, type ThemeId } from "./themes";
 
 /**
- * Appearance is a per-device preference (like a wallpaper), so it lives in
- * localStorage rather than the solve database and is not part of backups.
+ * Appearance is saved in the settings record (IndexedDB, synced with the
+ * account and included in backups). localStorage keeps a copy so the boot
+ * script can apply the theme before first paint.
  */
 export const APPEARANCE_STORAGE_KEY = "solvelab.appearance.v1";
 
@@ -53,11 +54,23 @@ export const DEFAULT_APPEARANCE: AppearancePreferences = {
 export function parseAppearance(raw: string | null): AppearancePreferences {
   if (!raw) return DEFAULT_APPEARANCE;
   try {
-    const parsed = appearanceSchema.safeParse({ ...DEFAULT_APPEARANCE, ...JSON.parse(raw) });
-    return parsed.success ? parsed.data : DEFAULT_APPEARANCE;
+    return sanitizeAppearance(JSON.parse(raw)) ?? DEFAULT_APPEARANCE;
   } catch {
     return DEFAULT_APPEARANCE;
   }
+}
+
+/** Fills missing fields from the defaults; undefined when the value can't be used. */
+export function sanitizeAppearance(value: unknown): AppearancePreferences | undefined {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return undefined;
+  const parsed = appearanceSchema.safeParse({ ...DEFAULT_APPEARANCE, ...value });
+  return parsed.success ? parsed.data : undefined;
+}
+
+export function sameAppearance(a: AppearancePreferences, b: AppearancePreferences): boolean {
+  return (Object.keys(DEFAULT_APPEARANCE) as (keyof AppearancePreferences)[]).every(
+    (key) => a[key] === b[key],
+  );
 }
 
 export function resolveTheme(theme: AppearancePreferences["theme"], prefersDark: boolean): ThemeId {

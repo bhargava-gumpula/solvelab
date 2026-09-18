@@ -2,7 +2,8 @@ import Dexie from "dexie";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { initializeStorage, LocalDatabase } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
-import { createBackup, parseBackup, restoreBackup } from "@/lib/export/backup";
+import { BACKUP_VERSION, createBackup, parseBackup, restoreBackup } from "@/lib/export/backup";
+import { DEFAULT_APPEARANCE } from "@/lib/appearance/preferences";
 
 const databases: LocalDatabase[] = [];
 
@@ -39,6 +40,13 @@ beforeEach(async () => {
       notes: index === 0 ? "First" : undefined,
     });
   }
+  const run = await source.repos.coach.startDiagnosticRun("cross_only");
+  await source.repos.coach.completeDiagnosticRun(run.id, [2100, 1900, 2400]);
+  await source.repos.lessons.complete("cfop-cross");
+  await source.repos.settings.update({
+    appearance: { ...DEFAULT_APPEARANCE, theme: "ember", digitFont: "lcd" },
+    view: { statsRange: "all", statsSessionId: null, timesSort: "ao5" },
+  });
 });
 
 afterEach(async () => {
@@ -58,7 +66,7 @@ describe("JSON backup", () => {
 
     const target = await freshDatabase();
     const summary = await restoreBackup(target.db, parsed.document, "replace");
-    expect(summary).toEqual({ sessionsAdded: 2, solvesAdded: 20, solvesSkipped: 0 });
+    expect(summary).toEqual({ sessionsAdded: 2, solvesAdded: 20, solvesSkipped: 0, otherAdded: 2 });
     expect(withoutUpdatedAt(await target.db.solves.orderBy("createdAt").toArray())).toEqual(
       withoutUpdatedAt(await source.db.solves.orderBy("createdAt").toArray()),
     );
@@ -74,7 +82,7 @@ describe("JSON backup", () => {
     const parsed = parseBackup(JSON.stringify(await createBackup(source.db)));
     if (!parsed.ok) throw new Error(parsed.error);
     const summary = await restoreBackup(source.db, parsed.document, "merge");
-    expect(summary).toEqual({ sessionsAdded: 0, solvesAdded: 0, solvesSkipped: 20 });
+    expect(summary).toEqual({ sessionsAdded: 0, solvesAdded: 0, solvesSkipped: 20, otherAdded: 0 });
     expect(await source.db.solves.count()).toBe(20);
 
     const target = await freshDatabase();
@@ -125,5 +133,50 @@ describe("JSON backup", () => {
     await expect(restoreBackup(source.db, broken, "replace")).rejects.toThrow();
     expect(await source.db.solves.count()).toBe(20);
     expect(await source.db.sessions.count()).toBe(2);
+  });
+
+  it("carries coach runs, lessons, appearance and view choices", async () => {
+    const backup = await createBackup(source.db);
+    expect(backup.version).toBe(BACKUP_VERSION);
+    expect(backup.data.diagnosticRuns[0]?.timesMs).toEqual([2100, 1900, 2400]);
+    expect(backup.data.lessonProgress.map((entry) => entry.lessonId)).toEqual(["cfop-cross"]);
+    expect(backup.data.settings.appearance).toMatchObject({ theme: "ember", digitFont: "lcd" });
+
+    const parsed = parseBackup(JSON.stringify(backup));
+    if (!parsed.ok) throw new Error(parsed.error);
+    const target = await freshDatabase();
+    await restoreBackup(target.db, parsed.document, "replace");
+    expect((await target.db.diagnosticRuns.toArray())[0]?.timesMs).toEqual([2100, 1900, 2400]);
+    expect(await target.db.lessonProgress.count()).toBe(1);
+    const settings = await target.repos.settings.get();
+    expect(settings.appearance?.theme).toBe("ember");
+    expect(settings.view).toMatchObject({ statsRange: "all", timesSort: "ao5" });
+  });
+
+  it("still imports a version 1 backup", async () => {
+    const backup = await createBackup(source.db);
+    const v1 = {
+      ...backup,
+      version: 1,
+      data: {
+        sessions: backup.data.sessions,
+        solves: backup.data.solves,
+        settings: backup.data.settings,
+      },
+    };
+    const parsed = parseBackup(JSON.stringify(v1));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.document.data.diagnosticRuns).toEqual([]);
+    const target = await freshDatabase();
+    const summary = await restoreBackup(target.db, parsed.document, "merge");
+    expect(summary).toMatchObject({ sessionsAdded: 1, solvesAdded: 20, otherAdded: 0 });
+  });
+
+  it("rejects duplicate coach records", async () => {
+    const backup = await createBackup(source.db);
+    backup.data.diagnosticRuns.push({ ...backup.data.diagnosticRuns[0]! });
+    const result = parseBackup(JSON.stringify(backup));
+    expect(!result.ok && result.error).toContain("Duplicate diagnosticRuns entry");
   });
 });

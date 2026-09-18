@@ -1,43 +1,90 @@
 /**
  * Versioned JSON backup and restore. Users own their data: a backup contains
- * every session, solve and timer preference, and can be restored on another
- * browser or website origin.
+ * every session, solve, setting (including appearance), coach record, lesson
+ * and algorithm choice, and can be restored in another browser or origin.
+ *
+ * Version 2 (3.1) adds the coach, lesson and algorithm tables. Version 1
+ * files (sessions, solves, settings) still import.
  */
 import { z } from "zod";
-import type { Session, Solve, UserSettings } from "@/types/domain";
+import type {
+  AlgorithmAttempt,
+  AlgorithmProgress,
+  DiagnosticRun,
+  LessonProgress,
+  Session,
+  SkillScore,
+  Solve,
+  TrainingPlan,
+  UserSettings,
+} from "@/types/domain";
 import { brand } from "@/lib/config/brand";
 import type { LocalDatabase } from "@/lib/storage/database";
 import { DATABASE_VERSION } from "@/lib/storage/database";
 import {
+  algorithmAttemptSchema,
+  algorithmProgressSchema,
+  diagnosticRunSchema,
+  lessonProgressSchema,
   normalizeSettings,
   sessionSchema,
   settingsSchema,
+  skillScoreSchema,
   solveSchema,
   stampSettings,
+  trainingPlanSchema,
 } from "@/lib/storage/schemas";
 import { withFinalTime } from "@/lib/storage/solve-repository";
 
 /** Stable identifier, independent of product branding. */
 export const BACKUP_FORMAT = "speedcubing-local-backup";
-export const BACKUP_VERSION = 1;
+export const BACKUP_VERSION = 2;
 export const MAX_BACKUP_BYTES = 50 * 1024 * 1024;
+
+/** Tables beyond sessions and solves, keyed by their primary key field. */
+const EXTRA_TABLES = {
+  diagnosticRuns: "id",
+  trainingPlans: "id",
+  skillProfiles: "skillId",
+  algorithmProgress: "caseId",
+  algorithmAttempts: "id",
+  lessonProgress: "lessonId",
+} as const;
+
+type ExtraTable = keyof typeof EXTRA_TABLES;
+const EXTRA_TABLE_NAMES = Object.keys(EXTRA_TABLES) as ExtraTable[];
+
+/** One table's rows as plain objects, for reading the key field generically. */
+function extraRows(data: Record<ExtraTable, unknown[]>, table: ExtraTable) {
+  return data[table] as Record<string, unknown>[];
+}
+
+export interface BackupData {
+  sessions: Session[];
+  solves: Solve[];
+  settings: UserSettings;
+  diagnosticRuns: DiagnosticRun[];
+  trainingPlans: TrainingPlan[];
+  skillProfiles: SkillScore[];
+  algorithmProgress: AlgorithmProgress[];
+  algorithmAttempts: AlgorithmAttempt[];
+  lessonProgress: LessonProgress[];
+}
 
 export interface BackupDocument {
   format: typeof BACKUP_FORMAT;
-  version: typeof BACKUP_VERSION;
+  version: 1 | 2;
   exportedAt: string;
   app: { name: string; schemaVersion: number };
-  data: {
-    sessions: Session[];
-    solves: Solve[];
-    settings: UserSettings;
-  };
+  data: BackupData;
 }
+
+const extraArray = <T>(schema: z.ZodType<T>) => z.array(schema).optional().default([]);
 
 const backupSchema = z
   .object({
     format: z.literal(BACKUP_FORMAT),
-    version: z.literal(BACKUP_VERSION),
+    version: z.union([z.literal(1), z.literal(2)]),
     exportedAt: z.string().datetime({ offset: true }),
     app: z.object({ name: z.string(), schemaVersion: z.number().int() }),
     data: z.object({
@@ -46,6 +93,12 @@ const backupSchema = z
       // recomputed on import rather than trusted.
       solves: z.array(solveSchema),
       settings: settingsSchema.partial().optional(),
+      diagnosticRuns: extraArray(diagnosticRunSchema),
+      trainingPlans: extraArray(trainingPlanSchema),
+      skillProfiles: extraArray(skillScoreSchema),
+      algorithmProgress: extraArray(algorithmProgressSchema),
+      algorithmAttempts: extraArray(algorithmAttemptSchema),
+      lessonProgress: extraArray(lessonProgressSchema),
     }),
   })
   .superRefine((document, context) => {
@@ -69,10 +122,22 @@ const backupSchema = z
         });
       }
     }
+    for (const table of EXTRA_TABLE_NAMES) {
+      const keyField = EXTRA_TABLES[table];
+      const seen = new Set<string>();
+      for (const record of extraRows(document.data, table)) {
+        const key = String(record[keyField]);
+        if (seen.has(key)) {
+          context.addIssue({ code: "custom", message: `Duplicate ${table} entry ${key}.` });
+        }
+        seen.add(key);
+      }
+    }
   });
 
 export async function createBackup(db: LocalDatabase, now = new Date()): Promise<BackupDocument> {
-  return db.transaction("r", db.sessions, db.solves, db.settings, async () => ({
+  const tables = [db.sessions, db.solves, db.settings, ...EXTRA_TABLE_NAMES.map((t) => db[t])];
+  return db.transaction("r", tables, async () => ({
     format: BACKUP_FORMAT,
     version: BACKUP_VERSION,
     exportedAt: now.toISOString(),
@@ -81,6 +146,12 @@ export async function createBackup(db: LocalDatabase, now = new Date()): Promise
       sessions: await db.sessions.orderBy("sortOrder").toArray(),
       solves: await db.solves.orderBy("createdAt").toArray(),
       settings: normalizeSettings(await db.settings.get("preferences")),
+      diagnosticRuns: await db.diagnosticRuns.orderBy("createdAt").toArray(),
+      trainingPlans: await db.trainingPlans.orderBy("createdAt").toArray(),
+      skillProfiles: await db.skillProfiles.toArray(),
+      algorithmProgress: await db.algorithmProgress.toArray(),
+      algorithmAttempts: await db.algorithmAttempts.orderBy("createdAt").toArray(),
+      lessonProgress: await db.lessonProgress.toArray(),
     },
   }));
 }
@@ -122,7 +193,7 @@ export function parseBackup(text: string): ParsedBackup {
     document: {
       ...result.data,
       data: {
-        sessions: data.sessions,
+        ...data,
         solves: data.solves.map(withFinalTime),
         settings: normalizeSettings(data.settings),
       },
@@ -136,12 +207,14 @@ export interface ImportSummary {
   sessionsAdded: number;
   solvesAdded: number;
   solvesSkipped: number;
+  /** Coach runs, plans, lessons and algorithm records added. */
+  otherAdded: number;
 }
 
 /**
  * Applies a validated backup atomically: either every change is written or
  * none are. Merge keeps existing records and adds anything new (matched by
- * id). Replace removes existing sessions and solves first.
+ * key). Replace removes existing records first.
  */
 export async function restoreBackup(
   db: LocalDatabase,
@@ -149,10 +222,12 @@ export async function restoreBackup(
   mode: ImportMode,
 ): Promise<ImportSummary> {
   const { sessions, solves, settings } = document.data;
-  return db.transaction("rw", db.sessions, db.solves, db.settings, async () => {
+  const tables = [db.sessions, db.solves, db.settings, ...EXTRA_TABLE_NAMES.map((t) => db[t])];
+  return db.transaction("rw", tables, async () => {
     if (mode === "replace") {
       await db.solves.clear();
       await db.sessions.clear();
+      for (const table of EXTRA_TABLE_NAMES) await db[table].clear();
     }
 
     const existingSessions = new Set((await db.sessions.toCollection().primaryKeys()) as string[]);
@@ -173,6 +248,20 @@ export async function restoreBackup(
       .map((solve) => ({ ...solve, updatedAt: now }));
     await db.solves.bulkAdd(newSolves);
 
+    let otherAdded = 0;
+    for (const table of EXTRA_TABLE_NAMES) {
+      const existing = new Set((await db[table].toCollection().primaryKeys()) as string[]);
+      const keyField = EXTRA_TABLES[table];
+      const incoming = extraRows(document.data, table).filter(
+        (record) => !existing.has(String(record[keyField])),
+      );
+      // Each table's records match its schema; the union type needs one cast.
+      await (db[table] as unknown as { bulkAdd: (rows: unknown[]) => Promise<unknown> }).bulkAdd(
+        incoming,
+      );
+      otherAdded += incoming.length;
+    }
+
     const current = normalizeSettings(await db.settings.get("preferences"));
     const base = mode === "replace" ? settings : current;
     const activeExists = await db.sessions.get(base.activeSessionId);
@@ -190,6 +279,7 @@ export async function restoreBackup(
       sessionsAdded: newSessions.length,
       solvesAdded: newSolves.length,
       solvesSkipped: solves.length - newSolves.length,
+      otherAdded,
     };
   });
 }

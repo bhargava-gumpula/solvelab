@@ -1,31 +1,49 @@
-import type { Session, Solve, UserSettings } from "@/types/domain";
-import type { AccountSnapshot, Tombstone } from "./merge";
+import type { UserSettings } from "@/types/domain";
+import {
+  COLLECTION_NAMES,
+  emptyRecords,
+  recordKey,
+  recordsOf,
+  setRecords,
+  type AccountRecords,
+  type AnyRecord,
+  type CollectionName,
+} from "./collections";
+import { tombstoneKey, type AccountSnapshot, type Tombstone } from "./merge";
 
 export interface AccountDiff {
-  sessions: Session[];
-  solves: Solve[];
+  /** Records to write, per table. */
+  upserts: AccountRecords;
+  /** Keys to delete, per table. */
+  deletes: Record<CollectionName, string[]>;
   settings: UserSettings | null;
   tombstones: Tombstone[];
-  deleteSessionIds: string[];
-  deleteSolveIds: string[];
 }
 
 function fingerprint(value: unknown): string {
   return JSON.stringify(value);
 }
 
-function byId<T extends { id: string }>(items: T[]): Map<string, T> {
-  return new Map(items.map((item) => [item.id, item]));
-}
-
-function tombstoneKey(item: Tombstone): string {
-  return `${item.kind}_${item.id}`;
+function emptyDeletes(): Record<CollectionName, string[]> {
+  return Object.fromEntries(COLLECTION_NAMES.map((name) => [name, []])) as unknown as Record<
+    CollectionName,
+    string[]
+  >;
 }
 
 export function sortSnapshot(snapshot: AccountSnapshot): AccountSnapshot {
+  const records = emptyRecords();
+  for (const name of COLLECTION_NAMES) {
+    setRecords(
+      records,
+      name,
+      [...recordsOf(snapshot.records, name)].sort((left, right) =>
+        recordKey(name, left).localeCompare(recordKey(name, right)),
+      ),
+    );
+  }
   return {
-    sessions: [...snapshot.sessions].sort((left, right) => left.id.localeCompare(right.id)),
-    solves: [...snapshot.solves].sort((left, right) => left.id.localeCompare(right.id)),
+    records,
     settings: snapshot.settings,
     tombstones: [...snapshot.tombstones].sort((left, right) =>
       tombstoneKey(left).localeCompare(tombstoneKey(right)),
@@ -44,55 +62,51 @@ export function diffAccountSnapshots(
 ): AccountDiff {
   if (!previous) {
     return {
-      sessions: next.sessions,
-      solves: next.solves,
+      upserts: next.records,
+      deletes: emptyDeletes(),
       settings: next.settings,
       tombstones: next.tombstones,
-      deleteSessionIds: [],
-      deleteSolveIds: [],
     };
   }
 
-  const prevSessions = byId(previous.sessions);
-  const prevSolves = byId(previous.solves);
-  const nextSessions = byId(next.sessions);
-  const nextSolves = byId(next.solves);
-  const prevTombstones = new Map(previous.tombstones.map((item) => [tombstoneKey(item), item]));
+  const upserts = emptyRecords();
+  const deletes = emptyDeletes();
+  for (const name of COLLECTION_NAMES) {
+    const before = new Map(
+      recordsOf(previous.records, name).map((record) => [
+        recordKey(name, record),
+        fingerprint(record),
+      ]),
+    );
+    const after = new Set<string>();
+    const changed: AnyRecord[] = [];
+    for (const record of recordsOf(next.records, name)) {
+      const key = recordKey(name, record);
+      after.add(key);
+      if (before.get(key) !== fingerprint(record)) changed.push(record);
+    }
+    setRecords(upserts, name, changed);
+    deletes[name] = [...before.keys()].filter((key) => !after.has(key));
+  }
 
-  const sessions = next.sessions.filter((session) => {
-    const existing = prevSessions.get(session.id);
-    return !existing || fingerprint(existing) !== fingerprint(session);
-  });
-  const solves = next.solves.filter((solve) => {
-    const existing = prevSolves.get(solve.id);
-    return !existing || fingerprint(existing) !== fingerprint(solve);
-  });
-  const tombstones = next.tombstones.filter((item) => {
-    const existing = prevTombstones.get(tombstoneKey(item));
-    return !existing || fingerprint(existing) !== fingerprint(item);
-  });
-  const settingsChanged =
+  const previousTombstones = new Map(
+    previous.tombstones.map((item) => [tombstoneKey(item), fingerprint(item)]),
+  );
+  const tombstones = next.tombstones.filter(
+    (item) => previousTombstones.get(tombstoneKey(item)) !== fingerprint(item),
+  );
+  const settings =
     fingerprint(next.settings) !== fingerprint(previous.settings) ? next.settings : null;
 
-  return {
-    sessions,
-    solves,
-    settings: settingsChanged,
-    tombstones,
-    deleteSessionIds: previous.sessions
-      .map((session) => session.id)
-      .filter((id) => !nextSessions.has(id)),
-    deleteSolveIds: previous.solves.map((solve) => solve.id).filter((id) => !nextSolves.has(id)),
-  };
+  return { upserts, deletes, settings, tombstones };
 }
 
 export function accountDiffIsEmpty(diff: AccountDiff): boolean {
   return (
-    diff.sessions.length === 0 &&
-    diff.solves.length === 0 &&
     diff.settings === null &&
     diff.tombstones.length === 0 &&
-    diff.deleteSessionIds.length === 0 &&
-    diff.deleteSolveIds.length === 0
+    COLLECTION_NAMES.every(
+      (name) => recordsOf(diff.upserts, name).length === 0 && diff.deletes[name].length === 0,
+    )
   );
 }

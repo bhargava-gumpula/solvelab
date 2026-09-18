@@ -1,6 +1,7 @@
 "use client";
 
 import { AppearanceProvider } from "@/components/appearance/appearance-provider";
+import { AppearanceSync } from "@/components/appearance/appearance-sync";
 import { AuthProvider } from "@/components/auth/auth-provider";
 import { SignInReturn } from "@/components/auth/sign-in-return";
 import { Toaster } from "@/components/ui/sonner";
@@ -16,6 +17,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <AuthProvider>
           <SignInReturn />
           <StorageProvider>
+            <AppearanceSync />
             <TimerDeviceProvider>
               <AccountSyncProvider>{children}</AccountSyncProvider>
             </TimerDeviceProvider>

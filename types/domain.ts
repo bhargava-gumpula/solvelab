@@ -1,3 +1,5 @@
+import type { AppearancePreferences } from "@/lib/appearance/preferences";
+
 export type CubeEvent =
   | "222"
   | "333"
@@ -49,6 +51,16 @@ export interface Session {
   updatedAt?: string;
 }
 
+/** View choices that persist across reloads and devices. */
+export interface ViewPreferences {
+  /** Solve range for the Stats charts. */
+  statsRange: "100" | "1000" | "all";
+  /** Session analyzed on Stats: null follows the active session, "__all__" is every session. */
+  statsSessionId: string | null;
+  /** Sort order of the Times panel on the timer. */
+  timesSort: "order" | "time" | "ao5" | "ao12";
+}
+
 export type ThemeMode = "dark" | "light" | "system";
 export type CubingMethod = "beginner" | "cfop" | "roux" | "zz" | "other" | "unknown";
 export type TimerInput = "keyboard" | "bluetooth";
@@ -77,6 +89,12 @@ export interface UserSettings {
   activeExerciseId: string | null;
   /** Desktop drag offsets for timer panels (stats / cube / times). Synced with the account. */
   panelOffsets: Record<string, { x: number; y: number }>;
+  /**
+   * Theme and display options. Absent until this device (or the account) has
+   * saved a choice, so a fresh device never overrides the account's look.
+   */
+  appearance?: AppearancePreferences;
+  view: ViewPreferences;
   updatedAt?: string;
 }
 
@@ -207,6 +225,7 @@ export interface AlgorithmProgress {
   customVariants: AlgorithmVariant[];
   notes?: string;
   performance: AlgorithmPerformance;
+  updatedAt?: string;
 }
 export interface AlgorithmAttempt {
   id: string;
@@ -232,6 +251,7 @@ export interface TrainingPlan {
   secondarySkills: SkillId[];
   exercises: TrainingPlanExercise[];
   completedAt?: string;
+  updatedAt?: string;
 }
 export interface DiagnosticRun {
   id: string;
@@ -246,4 +266,12 @@ export interface DiagnosticRun {
    * PBs, or the main times list.
    */
   timesMs?: number[];
+  updatedAt?: string;
+}
+
+/** A finished lesson. */
+export interface LessonProgress {
+  lessonId: string;
+  completedAt: string;
+  updatedAt?: string;
 }

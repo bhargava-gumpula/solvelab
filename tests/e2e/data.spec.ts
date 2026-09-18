@@ -14,6 +14,8 @@ test("exports a backup and restores it into a fresh browser profile", async ({ b
     .getByRole("group", { name: "Last solve actions" })
     .getByRole("radio", { name: "Plus two seconds" })
     .click();
+  // The +2 is shown once it is saved; leaving earlier would abort the write.
+  await expect(display(page)).toHaveText(/\+$/);
 
   await page.goto("/settings/");
   const [download] = await Promise.all([

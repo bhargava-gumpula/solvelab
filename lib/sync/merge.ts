@@ -1,37 +1,53 @@
-import type { Session, Solve, UserSettings } from "@/types/domain";
-
-export type TombstoneKind = "solve" | "session";
+import type { Session, UserSettings } from "@/types/domain";
+import {
+  COLLECTION_NAMES,
+  COLLECTIONS,
+  collectionForTombstoneKind,
+  emptyRecords,
+  recordKey,
+  recordsOf,
+  recordStamp,
+  setRecords,
+  type AccountRecords,
+  type AnyRecord,
+  type CollectionName,
+} from "./collections";
 
 export interface Tombstone {
   id: string;
-  kind: TombstoneKind;
+  /** Which table the deleted record belonged to (see COLLECTIONS). */
+  kind: string;
   deletedAt: string;
 }
 
 export interface AccountSnapshot {
-  sessions: Session[];
-  solves: Solve[];
+  records: AccountRecords;
   settings: UserSettings | null;
   tombstones: Tombstone[];
 }
 
-function stamp(record: { updatedAt?: string; createdAt?: string }): string {
-  return record.updatedAt ?? record.createdAt ?? "";
+export function emptySnapshot(): AccountSnapshot {
+  return { records: emptyRecords(), settings: null, tombstones: [] };
 }
 
-function mergeById<T extends { id: string }>(
-  left: T[],
-  right: T[],
-  time: (item: T) => string,
-): T[] {
-  const map = new Map<string, T>();
+export function tombstoneKey(item: Pick<Tombstone, "kind" | "id">): string {
+  return `${item.kind}_${item.id}`;
+}
+
+function mergeByKey(name: CollectionName, left: AnyRecord[], right: AnyRecord[]): AnyRecord[] {
+  const map = new Map<string, AnyRecord>();
   for (const item of [...left, ...right]) {
-    const existing = map.get(item.id);
-    if (!existing || time(item) >= time(existing)) map.set(item.id, item);
+    const key = recordKey(name, item);
+    const existing = map.get(key);
+    if (!existing || recordStamp(item) >= recordStamp(existing)) map.set(key, item);
   }
   return [...map.values()];
 }
 
+/**
+ * Sessions prefer an edited copy; between two unedited copies the older one
+ * wins, so a fresh empty Main session never replaces the account's Main.
+ */
 function mergeSessions(left: Session[], right: Session[]): Session[] {
   const map = new Map<string, Session>();
   for (const item of [...left, ...right]) {
@@ -56,7 +72,13 @@ function mergeSessions(left: Session[], right: Session[]): Session[] {
 }
 
 function mergeTombstones(left: Tombstone[], right: Tombstone[]): Tombstone[] {
-  return mergeById(left, right, (item) => item.deletedAt);
+  const map = new Map<string, Tombstone>();
+  for (const item of [...left, ...right]) {
+    const key = tombstoneKey(item);
+    const existing = map.get(key);
+    if (!existing || item.deletedAt >= existing.deletedAt) map.set(key, item);
+  }
+  return [...map.values()];
 }
 
 function mergeSettings(
@@ -78,35 +100,55 @@ export function mergeAccountSnapshots(
   cloud: AccountSnapshot,
 ): AccountSnapshot {
   const tombstones = mergeTombstones(local.tombstones, cloud.tombstones);
+  const tombstoneIndex = new Map(tombstones.map((item) => [tombstoneKey(item), item]));
+  const survives = (name: CollectionName, record: AnyRecord) => {
+    const tomb = tombstoneIndex.get(
+      tombstoneKey({ kind: COLLECTIONS[name].tombstoneKind, id: recordKey(name, record) }),
+    );
+    return !tomb || recordStamp(record) > tomb.deletedAt;
+  };
 
-  const sessions = mergeSessions(local.sessions, cloud.sessions).filter((session) => {
-    const tomb = tombstones.find((item) => item.kind === "session" && item.id === session.id);
-    return !tomb || stamp(session) > tomb.deletedAt;
-  });
-  const sessionIds = new Set(sessions.map((session) => session.id));
-  const solves = mergeById(local.solves, cloud.solves, stamp).filter((solve) => {
-    if (!sessionIds.has(solve.sessionId)) return false;
-    const tomb = tombstones.find((item) => item.kind === "solve" && item.id === solve.id);
-    return !tomb || stamp(solve) > tomb.deletedAt;
-  });
+  const records = emptyRecords();
+  for (const name of COLLECTION_NAMES) {
+    const merged =
+      name === "sessions"
+        ? mergeSessions(local.records.sessions, cloud.records.sessions)
+        : mergeByKey(name, recordsOf(local.records, name), recordsOf(cloud.records, name));
+    setRecords(
+      records,
+      name,
+      merged.filter((record) => survives(name, record)),
+    );
+  }
+  // A solve cannot outlive its session.
+  const sessionIds = new Set(records.sessions.map((session) => session.id));
+  records.solves = records.solves.filter((solve) => sessionIds.has(solve.sessionId));
 
-  const liveTombstones = tombstones.filter((item) => {
-    if (item.kind === "session") {
-      const session = sessions.find((record) => record.id === item.id);
-      return !session || stamp(session) <= item.deletedAt;
+  const byKey = new Map<CollectionName, Map<string, AnyRecord>>();
+  const findRecord = (name: CollectionName, key: string) => {
+    let index = byKey.get(name);
+    if (!index) {
+      index = new Map(recordsOf(records, name).map((entry) => [recordKey(name, entry), entry]));
+      byKey.set(name, index);
     }
-    const solve = solves.find((record) => record.id === item.id);
-    return !solve || stamp(solve) <= item.deletedAt;
+    return index.get(key);
+  };
+  const liveTombstones = tombstones.filter((item) => {
+    const name = collectionForTombstoneKind(item.kind);
+    // Kinds from a newer app version are kept so that version can use them.
+    if (!name) return true;
+    const record = findRecord(name, item.id);
+    return !record || recordStamp(record) <= item.deletedAt;
   });
 
   const settings = mergeSettings(local.settings, cloud.settings);
   const activeExists = settings
-    ? sessions.some((session) => session.id === settings.activeSessionId)
+    ? records.sessions.some((session) => session.id === settings.activeSessionId)
     : false;
   const nextSettings =
-    settings && !activeExists && sessions[0]
-      ? { ...settings, activeSessionId: sessions[0].id }
+    settings && !activeExists && records.sessions[0]
+      ? { ...settings, activeSessionId: records.sessions[0].id }
       : settings;
 
-  return { sessions, solves, settings: nextSettings, tombstones: liveTombstones };
+  return { records, settings: nextSettings, tombstones: liveTombstones };
 }

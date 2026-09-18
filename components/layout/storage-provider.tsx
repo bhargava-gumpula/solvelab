@@ -1,7 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { getRepositories } from "@/lib/storage";
 import { getDatabase, initializeStorage } from "@/lib/storage/database";
+import { migrateLegacyLocalData } from "@/lib/storage/legacy";
 
 export type StorageStatus = "loading" | "ready" | "error";
 
@@ -24,6 +26,12 @@ export function StorageProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let active = true;
     initializeStorage(getDatabase())
+      .then(() =>
+        migrateLegacyLocalData(getRepositories()).catch((error: unknown) => {
+          // Old browser-only data is a convenience; never block the app on it.
+          console.error("Couldn’t move older local data into the database.", error);
+        }),
+      )
       .then(() => active && setStatus("ready"))
       .catch((error: unknown) => {
         console.error("Local storage failed to open.", error);

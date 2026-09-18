@@ -16,12 +16,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useTimeFormat } from "@/hooks/use-time-format";
+import { useViewPreference } from "@/hooks/use-view-preference";
 import { getRepositories } from "@/lib/storage";
 import { getAverage, type SessionStatistics } from "@/lib/stats";
 import { cn } from "@/lib/utils";
-import type { Solve } from "@/types/domain";
+import type { Solve, ViewPreferences } from "@/types/domain";
 
-type SortKey = "order" | "time" | "ao5" | "ao12";
+type SortKey = ViewPreferences["timesSort"];
 const PAGE = 100;
 
 interface TimesPanelBodyProps {
@@ -42,7 +43,7 @@ export function TimesPanelBody({
   onCleared,
 }: TimesPanelBodyProps) {
   const { formatAverage, formatSolve } = useTimeFormat();
-  const [sort, setSort] = useState<SortKey>("order");
+  const [sort, setSort] = useViewPreference("timesSort");
   const [visible, setVisible] = useState(PAGE);
   const [confirmClear, setConfirmClear] = useState(false);
   const ao5 = useMemo(() => getAverage(stats, 5)?.rolling ?? [], [stats]);
@@ -61,7 +62,7 @@ export function TimesPanelBody({
     return indices.sort((a, b) => valueFor(a) - valueFor(b));
   }, [solves, sort, stats.values, ao5, ao12]);
 
-  const toggle = (key: SortKey) => setSort((current) => (current === key ? "order" : key));
+  const toggle = (key: SortKey) => setSort(sort === key ? "order" : key);
 
   const clearSession = async () => {
     const sessionId = solves[0]?.sessionId;

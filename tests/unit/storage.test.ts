@@ -6,9 +6,12 @@ import {
   LocalDatabase,
   SCHEMA_V1,
   SCHEMA_V2,
+  SCHEMA_V3,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
+import { LEGACY_LESSON_PROGRESS_KEY, migrateLegacyLocalData } from "@/lib/storage/legacy";
+import { DEFAULT_APPEARANCE } from "@/lib/appearance/preferences";
 
 let db: LocalDatabase;
 let repos: Repositories;
@@ -38,7 +41,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V2).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V3).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -81,7 +84,7 @@ describe("schema migrations", () => {
     const upgraded = new LocalDatabase(name);
     const upgradedRepos = createRepositories(upgraded);
     await initializeStorage(upgraded);
-    expect(upgraded.verno).toBe(2);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
     expect((await upgradedRepos.sessions.list()).map((s) => [s.id, s.sortOrder])).toEqual([
       ["main", 0],
       ["oh", 1],
@@ -223,5 +226,138 @@ describe("session repository", () => {
     const back = await repos.sessions.selectEvent(twoByTwo.id, "222");
     expect(back.id).toBe("main");
     expect((await repos.settings.get()).activeSessionId).toBe("main");
+  });
+});
+
+describe("schema v3", () => {
+  it("adds lesson progress without touching version 2 data", async () => {
+    const name = `migration-v2-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(1).stores(SCHEMA_V1);
+    legacy.version(2).stores(SCHEMA_V2);
+    await legacy.open();
+    await legacy.table("sessions").add({
+      id: "main",
+      name: "Main",
+      event: "333",
+      createdAt: "2026-09-01T00:00:00.000Z",
+      sortOrder: 0,
+    });
+    await legacy.table("solves").add({ ...baseSolve, finalTimeMs: 12345 });
+    await legacy.table("diagnosticRuns").add({
+      id: "run-1",
+      exerciseId: "cross_only",
+      createdAt: "2026-09-02T00:00:00.000Z",
+      solveIds: [],
+      sampleCount: 1,
+      timesMs: [2100],
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(3);
+    expect(await upgraded.solves.count()).toBe(1);
+    expect((await upgraded.diagnosticRuns.get("run-1"))?.timesMs).toEqual([2100]);
+    expect(await upgraded.lessonProgress.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+});
+
+describe("settings", () => {
+  it("fills view choices for older records and keeps them per field", async () => {
+    expect((await repos.settings.get()).view).toEqual({
+      statsRange: "1000",
+      statsSessionId: null,
+      timesSort: "order",
+    });
+    await Promise.all([
+      repos.settings.updateView({ statsRange: "all" }),
+      repos.settings.updateView({ timesSort: "ao12" }),
+    ]);
+    expect((await repos.settings.get()).view).toMatchObject({
+      statsRange: "all",
+      timesSort: "ao12",
+    });
+
+    await db.settings.update("preferences", {
+      view: { statsRange: "7", timesSort: "time" } as never,
+    });
+    expect((await repos.settings.get()).view).toEqual({
+      statsRange: "1000",
+      statsSessionId: null,
+      timesSort: "time",
+    });
+  });
+
+  it("saves appearance, and drops an unusable one without resetting other settings", async () => {
+    await repos.settings.update({ inspectionSeconds: 15 });
+    await repos.settings.update({
+      appearance: { ...DEFAULT_APPEARANCE, theme: "ember", timeDecimals: 3 },
+    });
+    expect((await repos.settings.get()).appearance).toMatchObject({
+      theme: "ember",
+      timeDecimals: 3,
+    });
+
+    await db.settings.update("preferences", { appearance: { theme: "neon" } as never });
+    const settings = await repos.settings.get();
+    expect(settings.appearance).toBeUndefined();
+    expect(settings.inspectionSeconds).toBe(15);
+  });
+
+  it("adopts this device's appearance once, without making the settings look newer", async () => {
+    const before = await db.settings.get("preferences");
+    await repos.settings.adoptAppearance({ ...DEFAULT_APPEARANCE, theme: "glacier" });
+    const adopted = await db.settings.get("preferences");
+    expect(adopted?.appearance?.theme).toBe("glacier");
+    expect(adopted?.updatedAt).toBe(before?.updatedAt);
+
+    await repos.settings.adoptAppearance({ ...DEFAULT_APPEARANCE, theme: "paper" });
+    expect((await repos.settings.get()).appearance?.theme).toBe("glacier");
+  });
+});
+
+describe("coach and lesson records", () => {
+  it("stamps every coach write so sync can tell which copy is newer", async () => {
+    const started = await repos.coach.startDiagnosticRun("cross_only");
+    expect(started.updatedAt).toBeDefined();
+    const saved = await repos.coach.saveDiagnosticTimes(started.id, [2000, 2100]);
+    const completed = await repos.coach.completeDiagnosticRun(started.id);
+    expect(saved.updatedAt! >= started.updatedAt!).toBe(true);
+    expect(completed.updatedAt).toBe(completed.completedAt);
+  });
+
+  it("records finished lessons once", async () => {
+    await repos.lessons.complete("cfop-cross", "2026-09-10T00:00:00.000Z");
+    await repos.lessons.complete("cfop-cross", "2026-09-11T00:00:00.000Z");
+    expect(await repos.lessons.list()).toEqual([
+      {
+        lessonId: "cfop-cross",
+        completedAt: "2026-09-10T00:00:00.000Z",
+        updatedAt: "2026-09-10T00:00:00.000Z",
+      },
+    ]);
+  });
+
+  it("moves lesson progress out of localStorage and removes the old copy", async () => {
+    const store = new Map<string, string>([
+      [LEGACY_LESSON_PROGRESS_KEY, JSON.stringify({ "cfop-f2l": true, "cfop-cross": false })],
+    ]);
+    const original = globalThis.localStorage;
+    globalThis.localStorage = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => void store.set(key, value),
+      removeItem: (key: string) => void store.delete(key),
+    } as Storage;
+    try {
+      await migrateLegacyLocalData(repos);
+      await migrateLegacyLocalData(repos);
+    } finally {
+      globalThis.localStorage = original;
+    }
+    expect((await repos.lessons.list()).map((entry) => entry.lessonId)).toEqual(["cfop-f2l"]);
+    expect(store.has(LEGACY_LESSON_PROGRESS_KEY)).toBe(false);
   });
 });

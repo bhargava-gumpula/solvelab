@@ -1,5 +1,20 @@
 # Validation report
 
+## 3.1 phase 1 — save and sync everything
+
+Run on 2026-09-18 against the static export, Chromium headless, one Playwright worker, fresh checkout outside iCloud (Node 26.9.0).
+
+| Check           | Command                           | Result                                 |
+| --------------- | --------------------------------- | -------------------------------------- |
+| Full validation | `npm run validate`                | Pass (build type-checks again)         |
+| Unit tests      | `npm test`                        | 153 passed (18 files)                  |
+| End-to-end      | `npx playwright test --workers=1` | 49 passed (1.1 min)                    |
+| Former flake    | backup e2e, `--repeat-each=10`    | 10/10 (was 0–1/10 before the wait fix) |
+
+New unit coverage: sync registry merge/diff for coach, lesson and algorithm tables; tombstones per table (2.x kinds kept, unknown kinds preserved); appearance and view choices in settings (per-field fallback, unusable appearance dropped without resetting other settings, one-time adoption that keeps the settings edit time); schema v3 upgrade from v2 data; coach writes stamp `updatedAt`; lesson progress import from localStorage; backup v2 round trip and v1 import. New end-to-end coverage: appearance returns from saved settings after the local copy is removed; Stats range, analyzed session and times sort survive a reload; the exported backup carries appearance and view choices.
+
+Not covered automatically: sync against real Firestore (needs a signed-in owner check).
+
 ## UI overhaul (branch `ui-overhaul`)
 
 Run on 2026-09-13 against the static export, Chromium headless, one Playwright worker.

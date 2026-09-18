@@ -23,20 +23,21 @@ export default function PrivacyPage() {
       <h2>Where your data is stored</h2>
       <ul>
         <li>
-          <strong className="text-foreground">When you are signed in</strong>, solves, sessions, and
-          timer settings are stored in Google Cloud Firestore under your Firebase user id (
+          <strong className="text-foreground">When you are signed in</strong>, your solves,
+          sessions, settings (timer options, appearance such as theme and digit style, and view
+          choices such as chart ranges), coach diagnostics and training plans, finished lessons, and
+          algorithm choices are stored in Google Cloud Firestore under your Firebase user id (
           <code className="text-foreground">users/&lt;uid&gt;/…</code>). That copy is what restores
-          times on a new device or after you clear this browser. It is not stored as a file on{" "}
+          them on a new device or after you clear this browser. It is not stored as a file on{" "}
           {legal.operator}’s laptop, Raspberry Pi, or git repository.
         </li>
         <li>
           <strong className="text-foreground">A working copy</strong> of the same records also stays
           in this browser, in IndexedDB under the name{" "}
           <code className="text-foreground">speedcubing-local</code>, so the timer stays instant
-          while you solve. Appearance (theme, digit style) stays in this browser’s localStorage (
-          <code className="text-foreground">solvelab.appearance.v1</code>) and is not synced. Timer
-          settings such as inspection and panel positions are part of the IndexedDB settings record
-          and sync with your Google account when you are signed in.
+          while you solve. This browser also keeps a copy of your appearance in localStorage (
+          <code className="text-foreground">solvelab.appearance.v1</code>) so the right theme
+          appears before the page finishes loading.
         </li>
         <li>
           <strong className="text-foreground">When you are signed out</strong>, solves stay only in
@@ -75,9 +76,10 @@ export default function PrivacyPage() {
       <ul>
         <li>Sign out from the header or Settings. That ends the Google session on this device.</li>
         <li>
-          Export or delete timer data from Settings → Data. Deleting solves while signed in also
-          removes them from the Google account copy. Clearing this site’s data in your browser
-          removes the local copy only; sign in again to restore from the account.
+          Export or delete your data from Settings → Data. A backup file holds everything listed
+          above. Deleting solves while signed in also removes them from the Google account copy.
+          Clearing this site’s data in your browser removes the local copy only; sign in again to
+          restore from the account.
         </li>
         <li>
           You can remove {brand.name}’s access in your{" "}
