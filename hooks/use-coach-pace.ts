@@ -15,7 +15,7 @@ export function useCoachPace(live?: { exerciseId?: string; timesMs?: number[] })
   const settings = useSettings();
   const goalId = settings?.targetMilestone ?? null;
   const solves = useAllSolves();
-  const diagnosticRuns = useLiveQuery(() => {
+  const diagnosticRuns = useLiveQuery(async () => {
     if (!storageReady) return undefined;
     return getRepositories().db.diagnosticRuns.orderBy("createdAt").reverse().toArray();
   }, [storageReady]);
