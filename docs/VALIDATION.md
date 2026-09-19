@@ -1,5 +1,23 @@
 # Validation report
 
+## 3.1 phase 2 — skill tests, solve profile, coach training data
+
+Run on 2026-09-18 against the static export, Chromium headless, one Playwright worker, with Firebase traffic blocked by `tests/e2e/fixtures.ts`.
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass                  |
+| Unit tests      | `npm test`                        | 180 passed (20 files) |
+| End-to-end      | `npx playwright test --workers=1` | 54 passed (1.4 min)   |
+
+New unit coverage: goals per level and their internal consistency, trimmed estimates and ranges, transitions from combined minus separate tests (including the owner's examples), algorithm knowledge from slow-case shares, lookahead with slow-turning evidence, turning speed, timer baseline and consistency, next-test choice, trends from snapshots, `333ls` scrambles, schema v4 upgrade from v3, sharing marks that skip runs edited mid-upload, the shared payload (exact fields, no notes, tags, scrambles, ids or time of day), test status labels and goal suggestions.
+
+New end-to-end coverage: goal → cross test with inspection → delete, Undo, delete → results → Solve profile row and saved goal; save and exit then continue; turning speed in turns/s; tests never change timer solve counts; old diagnostic links redirect; the sharing notice shows once and a finished test tries to share; turning sharing off is saved and sends nothing; "Don't share" turns it off.
+
+Checked by hand in the browser at 1280 px and 375 px: the whole flow from goal to profile, resume after reload, and sharing against the real Firebase project (rejected with `auth/admin-restricted-operation` until Anonymous sign-in is enabled; the run stays queued).
+
+Not covered automatically: uploads against real Firestore (needs Anonymous sign-in enabled and the rules deployed), and linking an anonymous id to Google sign-in.
+
 ## 3.1 phase 1 — save and sync everything
 
 Run on 2026-09-18 against the static export, Chromium headless, one Playwright worker, fresh checkout outside iCloud (Node 26.9.0).

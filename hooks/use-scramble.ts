@@ -18,8 +18,9 @@ const EMPTY_HISTORY: ScrambleHistory = { entries: [], index: -1 };
 /**
  * Scramble history for the timer, kept per puzzle type. Step back, forward, or
  * type in your own. After a solve, `fresh()` always generates a new scramble.
+ * With `enabled` false (a test with no scramble) nothing is generated.
  */
-export function useScramble(event: CubeEvent) {
+export function useScramble(event: CubeEvent, enabled = true) {
   const [histories, setHistories] = useState<Partial<Record<CubeEvent, ScrambleHistory>>>({});
   const request = useRef(0);
   const snapshot = histories[event] ?? EMPTY_HISTORY;
@@ -34,11 +35,12 @@ export function useScramble(event: CubeEvent) {
   }, []);
 
   const fresh = useCallback(async () => {
+    if (!enabled) return null;
     const id = ++request.current;
     const generated = await getScrambleService().next(event);
     if (id === request.current) append(generated);
     return generated;
-  }, [event, append]);
+  }, [event, append, enabled]);
 
   const next = useCallback(() => {
     if (snapshot.index < snapshot.entries.length - 1) {
@@ -72,14 +74,14 @@ export function useScramble(event: CubeEvent) {
   );
 
   useEffect(() => {
-    if (hasEntries) return;
+    if (!enabled || hasEntries) return;
     const id = ++request.current;
     void getScrambleService()
       .next(event)
       .then((generated) => {
         if (id === request.current) append(generated);
       });
-  }, [event, append, hasEntries]);
+  }, [event, append, hasEntries, enabled]);
 
   const { entries, index } = snapshot;
   return {

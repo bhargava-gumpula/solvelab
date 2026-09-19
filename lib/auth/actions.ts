@@ -32,13 +32,28 @@ export function googleSignInErrorMessage(error: unknown): string {
 }
 
 async function signInWithGoogleTokens(idToken?: string, accessToken?: string): Promise<void> {
-  const [{ getFirebaseAuth }, { GoogleAuthProvider, signInWithCredential }] = await Promise.all([
-    import("./firebase"),
-    import("firebase/auth"),
-  ]);
+  const [{ getFirebaseAuth }, { GoogleAuthProvider, linkWithCredential, signInWithCredential }] =
+    await Promise.all([import("./firebase"), import("firebase/auth")]);
   const auth = getFirebaseAuth();
   if (!auth) throw new Error(AUTH_NOT_CONFIGURED);
   const credential = GoogleAuthProvider.credential(idToken ?? null, accessToken ?? null);
+  await auth.authStateReady();
+  const current = auth.currentUser;
+  if (current?.isAnonymous) {
+    // Keep the anonymous id's shared test results by turning it into this account.
+    try {
+      await linkWithCredential(current, credential);
+      return;
+    } catch (error) {
+      if (firebaseErrorCode(error) !== "auth/credential-already-in-use") throw error;
+      // The Google account already exists: move the shared results over to it.
+      const { withdrawBeforeAccountSwitch } = await import("@/lib/training-data/uploader");
+      await withdrawBeforeAccountSwitch();
+      const retry = GoogleAuthProvider.credentialFromError(error as never);
+      await signInWithCredential(auth, retry ?? credential);
+      return;
+    }
+  }
   await signInWithCredential(auth, credential);
 }
 

@@ -3,7 +3,7 @@
  * every session, solve, setting (including appearance), coach record, lesson
  * and algorithm choice, and can be restored in another browser or origin.
  *
- * Version 2 (3.1) adds the coach, lesson and algorithm tables. Version 1
+ * Version 2 (3.1) adds the coach, profile, lesson and algorithm tables. Version 1
  * files (sessions, solves, settings) still import.
  */
 import { z } from "zod";
@@ -12,6 +12,7 @@ import type {
   AlgorithmProgress,
   DiagnosticRun,
   LessonProgress,
+  ProfileSnapshot,
   Session,
   SkillScore,
   Solve,
@@ -27,6 +28,7 @@ import {
   diagnosticRunSchema,
   lessonProgressSchema,
   normalizeSettings,
+  profileSnapshotSchema,
   sessionSchema,
   settingsSchema,
   skillScoreSchema,
@@ -49,6 +51,7 @@ const EXTRA_TABLES = {
   algorithmProgress: "caseId",
   algorithmAttempts: "id",
   lessonProgress: "lessonId",
+  profileSnapshots: "id",
 } as const;
 
 type ExtraTable = keyof typeof EXTRA_TABLES;
@@ -69,6 +72,7 @@ export interface BackupData {
   algorithmProgress: AlgorithmProgress[];
   algorithmAttempts: AlgorithmAttempt[];
   lessonProgress: LessonProgress[];
+  profileSnapshots: ProfileSnapshot[];
 }
 
 export interface BackupDocument {
@@ -99,6 +103,7 @@ const backupSchema = z
       algorithmProgress: extraArray(algorithmProgressSchema),
       algorithmAttempts: extraArray(algorithmAttemptSchema),
       lessonProgress: extraArray(lessonProgressSchema),
+      profileSnapshots: extraArray(profileSnapshotSchema),
     }),
   })
   .superRefine((document, context) => {
@@ -152,6 +157,7 @@ export async function createBackup(db: LocalDatabase, now = new Date()): Promise
       algorithmProgress: await db.algorithmProgress.toArray(),
       algorithmAttempts: await db.algorithmAttempts.orderBy("createdAt").toArray(),
       lessonProgress: await db.lessonProgress.toArray(),
+      profileSnapshots: await db.profileSnapshots.orderBy("createdAt").toArray(),
     },
   }));
 }

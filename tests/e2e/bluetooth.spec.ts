@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { display, openTimer } from "./helpers";
 
 test("Bluetooth simulator can drive the timer without Space", async ({ page }) => {

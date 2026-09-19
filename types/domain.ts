@@ -10,6 +10,7 @@ export type CubeEvent =
   | "333bf"
   | "333oh"
   | "333f2l"
+  | "333ls"
   | "333oll"
   | "333pll"
   | "clock"
@@ -95,6 +96,10 @@ export interface UserSettings {
    */
   appearance?: AppearancePreferences;
   view: ViewPreferences;
+  /** Share practice test times (no identity) to train the coach. On unless turned off. */
+  contributeTrainingData: boolean;
+  /** The one-time notice about sharing practice data has been dismissed. */
+  trainingNoticeSeen: boolean;
   updatedAt?: string;
 }
 
@@ -148,7 +153,7 @@ export interface ExerciseDefinition {
   id: string;
   name: string;
   type: "diagnostic" | "training" | "algorithm";
-  category: "cross" | "f2l" | "oll" | "pll" | "inspection" | "full_solve";
+  category: "cross" | "f2l" | "oll" | "pll" | "inspection" | "full_solve" | "technique";
   description: string;
   instructions: string[];
   skillsMeasured: SkillId[];
@@ -158,6 +163,14 @@ export interface ExerciseDefinition {
   measurementType: "time" | "accuracy" | "recognition" | "execution" | "moves" | "mixed";
   /** Scramble event used in the diagnostic sandbox (never the main timer session). */
   scrambleEvent?: CubeEvent;
+  /** Test copy: the phrase used in buttons, e.g. "cross + F2L" → "Start cross + F2L test". */
+  testName?: string;
+  /** One sentence telling the person what this test shows about them. */
+  whatItShows?: string;
+  /** 15-second WCA inspection before each attempt, or none. */
+  inspection?: "wca" | "none";
+  /** A fixed algorithm to execute instead of solving a scramble (turning-speed test). */
+  algorithm?: { moves: string; repetitions: number };
 }
 // Serialized facelets use URFDLB order, nine stickers per face. Validated by a
 // future cube engine, not inferred from an algorithm name or decorative image.
@@ -266,6 +279,20 @@ export interface DiagnosticRun {
    * PBs, or the main times list.
    */
   timesMs?: number[];
+  updatedAt?: string;
+  /** When these times were last shared for coach training (see lib/training-data). */
+  contributedAt?: string;
+}
+
+/** Every aspect of a solve at one moment, saved after each finished test. */
+export interface ProfileSnapshot {
+  id: string;
+  createdAt: string;
+  /** Test whose completion produced this snapshot. */
+  testId: string;
+  goalMilestoneId: string | null;
+  /** Aspect id → measured value (ms, turns/s, or a 0–1 share), null when untested. */
+  values: Record<string, number | null>;
   updatedAt?: string;
 }
 

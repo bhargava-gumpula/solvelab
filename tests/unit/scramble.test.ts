@@ -6,6 +6,7 @@ import {
   hasOllSolved,
   isSolved,
   parseAlgorithm,
+  solvedF2lSlots,
 } from "@/lib/cube";
 import { isValidScramble } from "@/lib/cube/events";
 import {
@@ -16,7 +17,7 @@ import {
   type ScrambleProvider,
 } from "@/lib/scramble";
 import { RANDOM_MOVE_LENGTH } from "@/lib/scramble/providers";
-import { randomSubset333Pattern, SUBSET_333_EVENTS } from "@/lib/scramble/subset-333";
+import { F2L_SLOTS, randomSubset333Pattern, SUBSET_333_EVENTS } from "@/lib/scramble/subset-333";
 
 async function loadNodeCubing(): Promise<CubingScrambleModule> {
   const [scramble, search, puzzles, kpuzzle] = await Promise.all([
@@ -86,7 +87,13 @@ describe("scramble providers", () => {
     const pllFacelets = applyAlgorithm(pll);
     expect(hasOllSolved(pllFacelets)).toBe(true);
     expect(isSolved(pllFacelets)).toBe(false);
-  }, 40000);
+
+    for (let run = 0; run < 3; run++) {
+      const lastSlot = applyAlgorithm(await cubingJsProvider.generate("333ls"));
+      expect(hasCrossSolved(lastSlot)).toBe(true);
+      expect(solvedF2lSlots(lastSlot)).toBe(3);
+    }
+  }, 60000);
 
   it("fallback random-move scrambles avoid redundant turns", async () => {
     for (let run = 0; run < 50; run++) {
@@ -113,15 +120,18 @@ describe("subset 3×3 patterns", () => {
           expect(EDGES.pieces[slot]).toBe(slot);
           expect(EDGES.orientation[slot]).toBe(0);
         }
-        if (event !== "333f2l") {
-          for (const slot of [8, 9, 10, 11]) {
-            expect(EDGES.pieces[slot]).toBe(slot);
-            expect(EDGES.orientation[slot]).toBe(0);
-          }
-          for (const slot of [4, 5, 6, 7]) {
-            expect(CORNERS.pieces[slot]).toBe(slot);
-            expect(CORNERS.orientation[slot]).toBe(0);
-          }
+        const solvedSlots = F2L_SLOTS.filter(
+          ([edge, corner]) =>
+            EDGES.pieces[edge] === edge &&
+            EDGES.orientation[edge] === 0 &&
+            CORNERS.pieces[corner] === corner &&
+            CORNERS.orientation[corner] === 0,
+        ).length;
+        if (event === "333ls") {
+          // Exactly one pair is left to solve; the other three stay put.
+          expect(solvedSlots).toBe(3);
+        } else if (event !== "333f2l") {
+          expect(solvedSlots).toBe(4);
         }
         if (event === "333pll") {
           expect(EDGES.orientation.every((value) => value === 0)).toBe(true);

@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { FullDiagnosticSandbox } from "@/components/coach/full-diagnostic-sandbox";
+import { TestRedirect } from "@/components/tests/test-redirect";
 
-export const metadata: Metadata = {
-  title: "Diagnostic",
-};
+export const metadata: Metadata = { title: "Test" };
 
-export default function FullDiagnosticPage() {
-  return <FullDiagnosticSandbox />;
+/** Kept so links from earlier versions open the next test to take. */
+export default function OldFullDiagnosticPage() {
+  return <TestRedirect />;
 }

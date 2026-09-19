@@ -7,6 +7,7 @@ import {
   SCHEMA_V1,
   SCHEMA_V2,
   SCHEMA_V3,
+  SCHEMA_V4,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
@@ -41,7 +42,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V3).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V4).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -256,10 +257,40 @@ describe("schema v3", () => {
 
     const upgraded = new LocalDatabase(name);
     await initializeStorage(upgraded);
-    expect(upgraded.verno).toBe(3);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
     expect(await upgraded.solves.count()).toBe(1);
     expect((await upgraded.diagnosticRuns.get("run-1"))?.timesMs).toEqual([2100]);
     expect(await upgraded.lessonProgress.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+
+  it("adds profile snapshots without touching version 3 data", async () => {
+    const name = `test-v3-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(3).stores(SCHEMA_V3);
+    await legacy.open();
+    await legacy.table("diagnosticRuns").add({
+      id: "run-1",
+      exerciseId: "oll_only",
+      createdAt: "2026-09-02T00:00:00.000Z",
+      completedAt: "2026-09-02T00:05:00.000Z",
+      solveIds: [],
+      sampleCount: 3,
+      timesMs: [2100, 2300, 2500],
+    });
+    await legacy.table("lessonProgress").add({
+      lessonId: "cfop-cross",
+      completedAt: "2026-09-03T00:00:00.000Z",
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
+    expect((await upgraded.diagnosticRuns.get("run-1"))?.timesMs).toEqual([2100, 2300, 2500]);
+    expect(await upgraded.lessonProgress.count()).toBe(1);
+    expect(await upgraded.profileSnapshots.count()).toBe(0);
     upgraded.close();
     await Dexie.delete(name);
   });
@@ -327,6 +358,40 @@ describe("coach and lesson records", () => {
     const completed = await repos.coach.completeDiagnosticRun(started.id);
     expect(saved.updatedAt! >= started.updatedAt!).toBe(true);
     expect(completed.updatedAt).toBe(completed.completedAt);
+  });
+
+  it("marks a run as shared only if it hasn't changed since the shared copy", async () => {
+    const run = await repos.coach.startDiagnosticRun("cross_only");
+    const done = await repos.coach.completeDiagnosticRun(run.id, [2000, 2100, 2200]);
+    // An attempt deleted while the shared copy was uploading.
+    const editedAt = "2099-01-01T00:00:00.000Z";
+    await db.diagnosticRuns.put({ ...done, timesMs: [2000, 2100], updatedAt: editedAt });
+    expect(await repos.coach.markContributed(run.id, done.updatedAt)).toBe(false);
+    expect((await db.diagnosticRuns.get(run.id))?.contributedAt).toBeUndefined();
+    expect(await repos.coach.markContributed(run.id, editedAt)).toBe(true);
+    const marked = await db.diagnosticRuns.get(run.id);
+    expect(marked?.contributedAt).toBe(marked?.updatedAt);
+
+    await repos.coach.clearContributionMarks();
+    const cleared = await db.diagnosticRuns.get(run.id);
+    expect(cleared?.contributedAt).toBeUndefined();
+    expect(cleared!.updatedAt! >= marked!.updatedAt!).toBe(true);
+  });
+
+  it("saves profile snapshots in order", async () => {
+    await repos.coach.saveProfileSnapshot({
+      testId: "cross_only",
+      goalMilestoneId: "sub20",
+      values: { cross: 2400 },
+    });
+    await repos.coach.saveProfileSnapshot({
+      testId: "f2l_only",
+      goalMilestoneId: "sub20",
+      values: { cross: 2400, f2l: 9500 },
+    });
+    const snapshots = await repos.coach.listProfileSnapshots();
+    expect(snapshots.map((snapshot) => snapshot.testId)).toEqual(["cross_only", "f2l_only"]);
+    expect(snapshots[1]!.values.f2l).toBe(9500);
   });
 
   it("records finished lessons once", async () => {

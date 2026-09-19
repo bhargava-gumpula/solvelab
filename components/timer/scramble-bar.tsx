@@ -13,7 +13,8 @@ interface ScrambleBarProps {
   canGoBack: boolean;
   onPrevious: () => void;
   onNext: () => void;
-  onEdit: () => void;
+  /** Omit where scrambles must come from the app (tests). */
+  onEdit?: () => void;
 }
 
 export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }: ScrambleBarProps) {
@@ -98,14 +99,16 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
           >
             <Copy />
           </BarButton>
-          <BarButton
-            label="Enter your own scramble"
-            shortcut="X"
-            onClick={onEdit}
-            className="hidden sm:inline-flex"
-          >
-            <PencilLine />
-          </BarButton>
+          {onEdit ? (
+            <BarButton
+              label="Enter your own scramble"
+              shortcut="X"
+              onClick={onEdit}
+              className="hidden sm:inline-flex"
+            >
+              <PencilLine />
+            </BarButton>
+          ) : null}
           <BarButton label="New scramble" shortcut="N" onClick={onNext}>
             <ChevronRight />
           </BarButton>

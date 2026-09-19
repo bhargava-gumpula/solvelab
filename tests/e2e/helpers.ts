@@ -75,3 +75,11 @@ export function makeBackup(solves: BackupSolveInput[], sessionName = "Imported")
     },
   };
 }
+
+/** Starts 15-second inspection with a tap of Space, then solves like keyboardSolve. */
+export async function inspectionSolve(page: Page, solveMs = 600) {
+  await page.keyboard.down("Space");
+  await page.keyboard.up("Space");
+  await expect(display(page)).toHaveAttribute("data-tone", "inspection");
+  await keyboardSolve(page, solveMs);
+}

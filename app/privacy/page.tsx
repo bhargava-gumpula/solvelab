@@ -56,6 +56,45 @@ export default function PrivacyPage() {
         Each website address is a separate browser origin; the Google account is what joins them.
       </p>
 
+      <h2 id="coach-training" className="scroll-mt-24">
+        How your solve data is used
+      </h2>
+      <p>
+        Your solve data is used for two things only: saving and syncing your own times (above), and
+        training {brand.name}’s coach AI so it gets better at spotting what slows cubers down. It is
+        never sold, never used for ads, and never shared with anyone else.
+      </p>
+      <ul>
+        <li>
+          <strong className="text-foreground">What is shared for training.</strong> When you finish
+          a skill test (for example the cross or OLL test), the app shares that test’s attempt
+          times, which test it was, whether it used inspection, the goal you picked, the calendar
+          day (not the time of day), the app version, and a summary of your normal timer solves (how
+          many, their average, and how much they vary).
+        </li>
+        <li>
+          <strong className="text-foreground">What is never shared for training.</strong> Your name,
+          email, photo, notes, tags, scrambles, individual timer solves, and device details.
+        </li>
+        <li>
+          <strong className="text-foreground">Where it goes.</strong> Google Cloud Firestore, under
+          a random Firebase id (
+          <code className="text-foreground">trainingContributions/&lt;id&gt;/…</code>). If you are
+          signed in, that is your account id. If you are signed out, the app creates an anonymous id
+          that holds nothing but these test results. Only that id can read or delete them.{" "}
+          {legal.operator} downloads the results to retrain the coach, with the ids replaced by new
+          random ones, and ships improved coaches in normal updates.
+        </li>
+        <li>
+          <strong className="text-foreground">On by default, off anytime.</strong> Sharing starts
+          when you finish your first test. Turn off <em>Help improve the coach</em> in Settings →
+          Your data to stop it; turning it off also deletes from our database everything this
+          browser or your account shared. A coach already trained on your results keeps what it
+          learned, but not the results themselves. Results are otherwise kept until you turn sharing
+          off or email us to delete them.
+        </li>
+      </ul>
+
       <h2>Google Sign-In</h2>
       <p>
         Coach works without an account. Sign in if you want times to follow you to another device.
@@ -69,7 +108,8 @@ export default function PrivacyPage() {
       <p>
         {brand.name} does not run ads, does not sell personal information, and does not use
         third-party analytics pixels. Firestore security rules allow only the signed-in user to read
-        or write their own <code className="text-foreground">users/&lt;uid&gt;</code> tree.
+        or write their own <code className="text-foreground">users/&lt;uid&gt;</code> tree, and only
+        the id that shared a test result to read or delete it.
       </p>
 
       <h2>Your choices</h2>
@@ -95,8 +135,10 @@ export default function PrivacyPage() {
 
       <h2>Children</h2>
       <p>
-        {brand.name} is a training tool, not a service directed at children under 13. Do not create
-        a Google sign-in for {brand.name} if you are under 13.
+        {brand.name} is a training tool, not a service directed at children under 13, and we do not
+        knowingly collect personal information from them. Do not create a Google sign-in for{" "}
+        {brand.name} if you are under 13. A parent or guardian can turn off{" "}
+        <em>Help improve the coach</em> in Settings, or email us to delete anything a child shared.
       </p>
 
       <h2>Changes</h2>

@@ -29,6 +29,29 @@ const solves = Array.from({ length: 320 }, (_, i) => {
     ...(i === 318 ? { notes: "Lockup on the last pair" } : {}),
   };
 });
+// Skill tests for a ~13 s solver: slow joins between cross and F2L, a few slow OLLs.
+const around = (ms, spread, count, slow = []) =>
+  Array.from({ length: count }, (_, i) => Math.round(slow[i] ?? ms + gauss() * spread));
+const testRuns = [
+  ["cross_only", around(1900, 250, 10)],
+  ["f2l_only", around(6700, 600, 10)],
+  ["oll_only", around(1500, 150, 12, [, 3100, , , , 2900, , , , , 3300])],
+  ["pll_only", around(1800, 180, 12)],
+  ["cross_f2l", around(9700, 700, 10)],
+  ["last_slot", around(1450, 200, 12)],
+].map(([exerciseId, timesMs], i) => {
+  const at = new Date(now - (6 - i) * 20 * 60 * 1000).toISOString();
+  return {
+    id: `run-${exerciseId}`,
+    exerciseId,
+    createdAt: at,
+    completedAt: at,
+    updatedAt: at,
+    solveIds: [],
+    sampleCount: timesMs.length,
+    timesMs,
+  };
+});
 const backup = {
   format: "speedcubing-local-backup",
   version: 1,
@@ -52,12 +75,14 @@ const backup = {
       },
     ],
     solves,
+    diagnosticRuns: testRuns,
     settings: {
       id: "preferences",
       inspectionSeconds: 0,
       activeSessionId: "main",
       method: "cfop",
-      targetMilestone: null,
+      targetMilestone: "sub12",
+      trainingNoticeSeen: true,
       holdToStartMs: 300,
       hideTimeWhileRunning: false,
       inspectionAudioCues: false,
@@ -156,6 +181,55 @@ await shoot("coach", {
   height: 900,
   run: async (page) => {
     await page.goto(`${base}/coach/`);
+    await page.getByTestId("coach-message").waitFor();
+    await page.waitForTimeout(600);
+  },
+});
+await shoot("solve-profile", {
+  width: 1440,
+  height: 2200,
+  run: async (page) => {
+    await page.goto(`${base}/stats/profile/`);
+    await page.getByTestId("profile-summary").waitFor();
+    await page.getByTestId("aspect-row-oll_algorithms").getByRole("button").first().click();
+    await page.waitForTimeout(600);
+  },
+});
+await shoot("solve-profile-mobile", {
+  width: 390,
+  height: 1600,
+  run: async (page) => {
+    await page.goto(`${base}/stats/profile/`);
+    await page.getByTestId("profile-summary").waitFor();
+    await page.waitForTimeout(600);
+  },
+});
+await shoot("skill-test", {
+  width: 1440,
+  height: 1000,
+  run: async (page) => {
+    await page.goto(`${base}/coach/tests/ls_oll/`);
+    await page.getByTestId("scramble").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(800);
+  },
+});
+await shoot("skill-test-results", {
+  width: 1440,
+  height: 1100,
+  run: async (page) => {
+    await page.goto(`${base}/coach/tests/tps_test/`);
+    await page.getByTestId("test-timer-surface").focus();
+    for (const ms of [2900, 3100, 2700]) {
+      await page.keyboard.down("Space");
+      await page.waitForTimeout(450);
+      await page.keyboard.up("Space");
+      await page.waitForTimeout(ms);
+      await page.keyboard.down("Space");
+      await page.keyboard.up("Space");
+      await page.waitForTimeout(300);
+    }
+    await page.getByRole("button", { name: "Finish now" }).click();
+    await page.getByTestId("test-results").waitFor();
     await page.waitForTimeout(600);
   },
 });

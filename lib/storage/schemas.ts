@@ -6,6 +6,7 @@ import type {
   AlgorithmProgress,
   DiagnosticRun,
   LessonProgress,
+  ProfileSnapshot,
   SkillId,
   SkillScore,
   TrainingPlan,
@@ -95,6 +96,8 @@ export const DEFAULT_SETTINGS: UserSettings = {
   activeExerciseId: null,
   panelOffsets: {},
   view: DEFAULT_VIEW,
+  contributeTrainingData: true,
+  trainingNoticeSeen: false,
 };
 
 export const settingsSchema = z.object({
@@ -114,6 +117,8 @@ export const settingsSchema = z.object({
   // Unusable appearance is dropped rather than failing the whole record.
   appearance: z.unknown().transform(sanitizeAppearance),
   view: viewSchema.default(DEFAULT_VIEW),
+  contributeTrainingData: z.boolean().catch(true).default(true),
+  trainingNoticeSeen: z.boolean().catch(false).default(false),
   updatedAt: isoDate.optional(),
 });
 
@@ -166,6 +171,16 @@ export const diagnosticRunSchema: z.ZodType<DiagnosticRun> = z.object({
   solveIds: z.array(z.string()),
   sampleCount: z.number().int().nonnegative(),
   timesMs: z.array(z.number().nonnegative()).optional(),
+  updatedAt: optionalIso,
+  contributedAt: optionalIso,
+});
+
+export const profileSnapshotSchema: z.ZodType<ProfileSnapshot> = z.object({
+  id: z.string().min(1),
+  createdAt: z.string().min(1),
+  testId: z.string().min(1),
+  goalMilestoneId: z.string().min(1).nullable(),
+  values: z.record(z.number().finite().nullable()),
   updatedAt: optionalIso,
 });
 

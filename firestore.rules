@@ -4,5 +4,35 @@ service cloud.firestore {
     match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
+
+    // Test results shared to train the coach (lib/training-data/payload.ts).
+    // Owners (including anonymous ids) can add, update and delete their own;
+    // training exports use the Admin SDK, which skips these rules.
+    match /trainingContributions/{userId}/runs/{runId} {
+      allow read, delete: if isOwner(userId);
+      allow create, update: if isOwner(userId) && runId.size() <= 64 && isContribution(request.resource.data);
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function isContribution(data) {
+      return data.keys().hasOnly(['schema', 'appVersion', 'testId', 'day', 'goal', 'inspection', 'attemptsMs', 'completed', 'baseline'])
+        && data.keys().hasAll(['schema', 'appVersion', 'testId', 'day', 'goal', 'inspection', 'attemptsMs', 'completed', 'baseline'])
+        && data.schema == 1
+        && data.appVersion is string && data.appVersion.size() <= 20
+        && data.testId is string && data.testId.size() <= 40
+        && data.day is string && data.day.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && (data.goal == null || (data.goal is string && data.goal.size() <= 20))
+        && data.inspection in ['wca', 'none']
+        && data.attemptsMs is list && data.attemptsMs.size() >= 1 && data.attemptsMs.size() <= 50
+        && data.completed is bool
+        && data.baseline is map
+        && data.baseline.keys().hasOnly(['count', 'averageMs', 'cv'])
+        && data.baseline.count is int && data.baseline.count >= 0 && data.baseline.count <= 100
+        && (data.baseline.averageMs == null || data.baseline.averageMs is number)
+        && (data.baseline.cv == null || data.baseline.cv is number);
+    }
   }
 }

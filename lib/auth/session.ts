@@ -28,20 +28,37 @@ function applyUser(
     displayName: string | null;
     email: string | null;
     photoURL: string | null;
+    isAnonymous?: boolean;
   } | null,
 ): void {
-  snapshot = user
-    ? {
-        status: "signedIn",
-        user: {
-          uid: user.uid,
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-        },
-      }
-    : { status: "signedOut", user: null };
+  // Anonymous ids only hold shared test results; to the app they are signed out.
+  const next: AuthSnapshot =
+    user && !user.isAnonymous
+      ? {
+          status: "signedIn",
+          user: {
+            uid: user.uid,
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+          },
+        }
+      : { status: "signedOut", user: null };
+  // Token refreshes repeat the same user; skip those so nothing re-renders.
+  if (sameSnapshot(snapshot, next)) return;
+  snapshot = next;
   emit();
+}
+
+function sameSnapshot(a: AuthSnapshot, b: AuthSnapshot): boolean {
+  if (a.status !== b.status) return false;
+  if (!a.user || !b.user) return a.user === b.user;
+  return (
+    a.user.uid === b.user.uid &&
+    a.user.displayName === b.user.displayName &&
+    a.user.email === b.user.email &&
+    a.user.photoURL === b.user.photoURL
+  );
 }
 
 export function getAuthSnapshot(): AuthSnapshot {
@@ -93,7 +110,8 @@ export function startAuthListener(): void {
       }
       await auth.authStateReady();
       applyUser(auth.currentUser);
-      auth.onAuthStateChanged((user) => applyUser(user));
+      // Token changes also fire when an anonymous id is linked to Google (same uid).
+      auth.onIdTokenChanged((user) => applyUser(user));
     })
     .catch(() => {
       snapshot = { status: "unconfigured", user: null };

@@ -9,6 +9,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AccountSyncProvider } from "./account-sync-provider";
 import { StorageProvider } from "./storage-provider";
 import { TimerDeviceProvider } from "@/components/timer/timer-device-provider";
+import { TrainingDataSync } from "@/components/training-data/training-data-sync";
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
@@ -18,6 +19,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           <SignInReturn />
           <StorageProvider>
             <AppearanceSync />
+            <TrainingDataSync />
             <TimerDeviceProvider>
               <AccountSyncProvider>{children}</AccountSyncProvider>
             </TimerDeviceProvider>

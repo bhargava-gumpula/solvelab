@@ -63,3 +63,19 @@ export function hasF2lSolved(facelets: string): boolean {
 export function hasOllSolved(facelets: string): boolean {
   return hasF2lSolved(facelets) && faceUniform(facelets, U);
 }
+
+/** Each F2L slot's stickers as [edge a, edge b, corner a, corner b, corner D]. */
+const F2L_SLOT_STICKERS: readonly (readonly number[])[] = [
+  [F + 5, R + 3, F + 8, R + 6, D + 2], // front-right
+  [F + 3, L + 5, F + 6, L + 8, D + 0], // front-left
+  [L + 3, B + 5, L + 6, B + 8, D + 6], // back-left
+  [B + 3, R + 5, B + 6, R + 8, D + 8], // back-right
+];
+
+/** Number of solved F2L slots (0–4), assuming the cross is on D. */
+export function solvedF2lSlots(facelets: string): number {
+  const centerOf = (index: number) => facelets[Math.floor(index / 9) * 9 + 4];
+  return F2L_SLOT_STICKERS.filter((stickers) =>
+    stickers.every((index) => facelets[index] === centerOf(index)),
+  ).length;
+}

@@ -1,7 +1,12 @@
-import type { DiagnosticRun, SkillScore, TrainingPlan } from "@/types/domain";
+import type { DiagnosticRun, ProfileSnapshot, SkillScore, TrainingPlan } from "@/types/domain";
 import type { LocalDatabase } from "./database";
 import { createId } from "./ids";
-import { diagnosticRunSchema, skillScoreSchema, trainingPlanSchema } from "./schemas";
+import {
+  diagnosticRunSchema,
+  profileSnapshotSchema,
+  skillScoreSchema,
+  trainingPlanSchema,
+} from "./schemas";
 
 const now = () => new Date().toISOString();
 
@@ -118,5 +123,48 @@ export class CoachRepository {
     });
     await this.db.diagnosticRuns.put(next);
     return next;
+  }
+
+  /**
+   * Records that a run's times were shared for coach training. Skipped when
+   * the run changed after the shared copy was made, so that edit is shared too.
+   */
+  async markContributed(runId: string, sharedVersion?: string): Promise<boolean> {
+    return this.db.transaction("rw", this.db.diagnosticRuns, async () => {
+      const existing = await this.db.diagnosticRuns.get(runId);
+      if (!existing) return false;
+      if (sharedVersion !== undefined && existing.updatedAt !== sharedVersion) return false;
+      const stamp = now();
+      await this.db.diagnosticRuns.put({ ...existing, contributedAt: stamp, updatedAt: stamp });
+      return true;
+    });
+  }
+
+  /** Forgets sharing marks so every finished run is shared again if sharing is turned back on. */
+  async clearContributionMarks(): Promise<void> {
+    const stamp = now();
+    await this.db.diagnosticRuns
+      .filter((run) => Boolean(run.contributedAt))
+      .modify((run: DiagnosticRun) => {
+        delete run.contributedAt;
+        // A newer edit time lets this change win over synced copies that still carry the mark.
+        run.updatedAt = stamp;
+      });
+  }
+
+  async saveProfileSnapshot(snapshot: Omit<ProfileSnapshot, "id" | "createdAt" | "updatedAt">) {
+    const createdAt = now();
+    const parsed = profileSnapshotSchema.parse({
+      ...snapshot,
+      id: createId(),
+      createdAt,
+      updatedAt: createdAt,
+    });
+    await this.db.profileSnapshots.add(parsed);
+    return parsed;
+  }
+
+  async listProfileSnapshots(): Promise<ProfileSnapshot[]> {
+    return this.db.profileSnapshots.orderBy("createdAt").toArray();
   }
 }

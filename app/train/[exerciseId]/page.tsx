@@ -12,7 +12,8 @@ export const metadata: Metadata = { title: "Training" };
 export default function TrainingSessionPage() {
   return (
     <ComingSoon area="Train" phase={upcoming.train} title="Practice is coming later.">
-      Stage training sessions ship in {upcoming.train}. Use Coach for the diagnostic in 3.0.
+      Training packs ship in {upcoming.train}. For now, Coach’s skill tests show which parts of your
+      solve to work on.
     </ComingSoon>
   );
 }

@@ -7,10 +7,11 @@ import type { CubeEvent } from "@/types/domain";
  *   edges   UF UR UB UL DF DR DB DL FR FL BR BL
  *   corners UFR URB UBL ULF DRF DFL DLB DBR
  *
- * F2L: D-cross solved. OLL: F2L solved. PLL: F2L + last layer oriented.
+ * F2L: D-cross solved. LS: cross and three F2L pairs solved (one random slot
+ * open). OLL: F2L solved. PLL: F2L + last layer oriented.
  */
 
-export const SUBSET_333_EVENTS = ["333f2l", "333oll", "333pll"] as const;
+export const SUBSET_333_EVENTS = ["333f2l", "333ls", "333oll", "333pll"] as const;
 export type Subset333Event = (typeof SUBSET_333_EVENTS)[number];
 
 export function is333SubsetEvent(event: CubeEvent): event is Subset333Event {
@@ -31,6 +32,13 @@ export interface CubiePatternData {
 const CROSS_EDGES = [4, 5, 6, 7];
 const F2L_EDGES = [4, 5, 6, 7, 8, 9, 10, 11];
 const F2L_CORNERS = [4, 5, 6, 7];
+/** F2L slots as [edge, corner]: FR/DRF, FL/DFL, BL/DLB, BR/DBR. */
+export const F2L_SLOTS: readonly (readonly [edge: number, corner: number])[] = [
+  [8, 4],
+  [9, 5],
+  [11, 6],
+  [10, 7],
+];
 
 function randomInt(maxExclusive: number): number {
   const buffer = new Uint32Array(1);
@@ -77,14 +85,30 @@ function permuteSlots(perm: number[], slots: readonly number[]): void {
   });
 }
 
+function frozenPieces(event: Subset333Event): {
+  edges: number[];
+  corners: number[];
+  openSlot: readonly [number, number] | null;
+} {
+  if (event === "333f2l") return { edges: CROSS_EDGES, corners: [], openSlot: null };
+  if (event === "333ls") {
+    const openSlot = F2L_SLOTS[randomInt(F2L_SLOTS.length)];
+    return {
+      edges: F2L_EDGES.filter((edge) => edge !== openSlot[0]),
+      corners: F2L_CORNERS.filter((corner) => corner !== openSlot[1]),
+      openSlot,
+    };
+  }
+  return { edges: F2L_EDGES, corners: F2L_CORNERS, openSlot: null };
+}
+
 function randomSubsetCubies(event: Subset333Event): {
   ep: number[];
   eo: number[];
   cp: number[];
   co: number[];
 } {
-  const freezeEdges = event === "333f2l" ? CROSS_EDGES : F2L_EDGES;
-  const freezeCorners = event === "333f2l" ? [] : F2L_CORNERS;
+  const { edges: freezeEdges, corners: freezeCorners, openSlot } = frozenPieces(event);
   const ep = identity(12);
   const cp = identity(8);
   const eo = zeros(12);
@@ -109,6 +133,14 @@ function randomSubsetCubies(event: Subset333Event): {
 
   if (permutationParity(ep) !== permutationParity(cp)) {
     [ep[edgeSlots[0]], ep[edgeSlots[1]]] = [ep[edgeSlots[1]], ep[edgeSlots[0]]];
+  }
+
+  // A last-slot scramble must leave its pair to solve (about 1 draw in 150 doesn't).
+  if (openSlot) {
+    const [edge, corner] = openSlot;
+    const pairSolved =
+      ep[edge] === edge && eo[edge] === 0 && cp[corner] === corner && co[corner] === 0;
+    if (pairSolved) return randomSubsetCubies(event);
   }
 
   return { ep, eo, cp, co };

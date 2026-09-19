@@ -7,8 +7,9 @@ export const metadata: Metadata = { title: "Train" };
 export default function TrainPage() {
   return (
     <ComingSoon area="Train" phase={upcoming.train} title="Practice is coming later.">
-      3.0 is the diagnostic: time each stage and see slow / average / fast versus your goal. Stage
-      practice that updates those tags lands in {upcoming.train}.
+      For now, take the skill tests on Coach to see which parts of your solve are slow, average or
+      fast for your goal. Training packs with lessons and drills for each part land in{" "}
+      {upcoming.train}.
     </ComingSoon>
   );
 }

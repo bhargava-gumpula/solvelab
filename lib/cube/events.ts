@@ -20,6 +20,7 @@ export const CUBE_EVENTS: readonly CubeEventInfo[] = [
   { id: "333oh", label: "3×3 One-Handed", shortLabel: "OH", group: "3×3" },
   { id: "333bf", label: "3×3 Blindfolded", shortLabel: "BLD", group: "3×3" },
   { id: "333f2l", label: "F2L — cross solved", shortLabel: "F2L", group: "CFOP" },
+  { id: "333ls", label: "Last slot — three pairs solved", shortLabel: "LS", group: "CFOP" },
   { id: "333oll", label: "OLL — F2L solved", shortLabel: "OLL", group: "CFOP" },
   { id: "333pll", label: "PLL — OLL solved", shortLabel: "PLL", group: "CFOP" },
   { id: "pyram", label: "Pyraminx", shortLabel: "Pyra", group: "Other" },
@@ -49,6 +50,7 @@ export function is3x3Event(id: CubeEvent): boolean {
     id === "333oh" ||
     id === "333bf" ||
     id === "333f2l" ||
+    id === "333ls" ||
     id === "333oll" ||
     id === "333pll"
   );

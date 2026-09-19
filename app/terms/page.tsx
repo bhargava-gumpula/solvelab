@@ -27,6 +27,12 @@ export default function TermsPage() {
         are not kept as a database on the operator’s laptop. See the Privacy Policy. You can still
         export a JSON backup from Settings → Data.
       </p>
+      <p>
+        Finished skill test results are also used to train {brand.name}’s coach, and for nothing
+        else. This is on by default and does not include your name, email, notes or scrambles. You
+        can turn it off at any time in Settings → Your data, which deletes what you shared. The
+        Privacy Policy lists exactly what is shared.
+      </p>
 
       <h2>Acceptable use</h2>
       <p>

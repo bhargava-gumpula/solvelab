@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { Database, Download, Upload } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -16,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
 import { useStorageStatus } from "@/components/layout/storage-provider";
 import {
   backupFileName,
@@ -28,6 +30,9 @@ import {
 import { getRepositories } from "@/lib/storage";
 import { DATABASE_VERSION } from "@/lib/storage/database";
 import { useAuth } from "@/components/auth/auth-provider";
+import { useSettings } from "@/hooks/use-local-data";
+import { isAuthConfigured } from "@/lib/auth/config";
+import { setTrainingDataSharing, sharingChangeMessage } from "@/lib/training-data/controls";
 import { SettingsSection } from "./settings-section";
 
 export function DataSection() {
@@ -145,6 +150,8 @@ export function DataSection() {
         another browser or device.
       </p>
 
+      {isAuthConfigured() ? <CoachTrainingToggle /> : null}
+
       <AlertDialog
         open={pending !== null}
         onOpenChange={(open) => !open && !busy && setPending(null)}
@@ -208,5 +215,44 @@ export function DataSection() {
         </AlertDialogContent>
       </AlertDialog>
     </SettingsSection>
+  );
+}
+
+function CoachTrainingToggle() {
+  const settings = useSettings();
+  const [busy, setBusy] = useState(false);
+  if (!settings) return null;
+
+  const change = async (on: boolean) => {
+    setBusy(true);
+    const result = await setTrainingDataSharing(on);
+    toast(sharingChangeMessage(on, result));
+    setBusy(false);
+  };
+
+  return (
+    <div className="mt-6 flex items-start justify-between gap-6 border-t pt-5">
+      <div>
+        <Label htmlFor="coach-training" className="text-sm font-medium">
+          Help improve the coach
+        </Label>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          Share your finished test results to train SolveLab’s coach: attempt times, which test,
+          your goal and the day. Never your name, email, notes, scrambles or timer solves. Turning
+          this off deletes what you’ve shared.{" "}
+          <Link href="/privacy/#coach-training" className="underline underline-offset-4">
+            Details
+          </Link>
+        </p>
+      </div>
+      <div className="pt-0.5">
+        <Switch
+          id="coach-training"
+          checked={settings.contributeTrainingData}
+          disabled={busy}
+          onCheckedChange={(on) => void change(on)}
+        />
+      </div>
+    </div>
   );
 }

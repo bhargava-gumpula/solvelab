@@ -1,205 +1,216 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Check, Circle, Target } from "lucide-react";
-import { toast } from "sonner";
+import { ArrowRight, ChartColumnBig, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { fullDiagnosticResume } from "@/lib/coach";
-import { STAGE_TIPS } from "@/lib/coach/tips";
-import { skills } from "@/data/skills";
+import { Skeleton } from "@/components/ui/skeleton";
+import { AspectCard } from "@/components/tests/aspect-card";
+import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
+import { TrainingDataNotice } from "@/components/tests/training-data-notice";
+import { getExercise, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
-import { stageBarsFor } from "@/data/milestones/stage-bars";
-import { useCoachPace } from "@/hooks/use-coach-pace";
-import { getRepositories } from "@/lib/storage";
-import { formatTime } from "@/lib/timer/format";
-import { cn } from "@/lib/utils";
-import { StagePaceList } from "@/components/coach/stage-pace-list";
+import { useSolveProfile } from "@/hooks/use-solve-profile";
+import { useTimeFormat } from "@/hooks/use-time-format";
+import { ASPECTS, type AspectId } from "@/lib/coach/aspects";
+import type { AspectResult, SolveProfile } from "@/lib/coach/profile";
+import { suggestedGoal } from "@/lib/coach/goals";
+import { testActionLabel, testStatus } from "@/lib/coach/test-status";
+import { STAGE_TIPS } from "@/lib/coach/tips";
+import type { CfopStageKey } from "@/lib/coach/pace";
 
-/** Goal paces that have CFOP stage bars (skip beginner). */
-const GOAL_OPTIONS = milestones.filter((m) => m.thresholdMs !== null && stageBarsFor(m.id));
+const PROFILE_HREF = "/stats/profile/";
 
+/** Stage tips that fit an aspect, until every aspect has its own (3.1 phase 3). */
+const ASPECT_TIPS: Partial<Record<AspectId, CfopStageKey>> = {
+  cross: "cross",
+  cross_planning: "cross",
+  cross_to_f2l: "cross_first_pair",
+  f2l: "f2l",
+  pair_speed: "f2l",
+  lookahead: "f2l",
+  oll: "oll",
+  oll_algorithms: "oll",
+  pll: "pll",
+  pll_algorithms: "pll",
+};
+
+/** Guided coach: pick a goal, take the suggested tests, see what to work on. */
 export function CoachDashboard() {
-  const { loaded, settings, analysis, diagnosticRuns } = useCoachPace();
-  const [busy, setBusy] = useState(false);
+  const { loaded, profile, settings, runs } = useSolveProfile();
+  const { formatAverage } = useTimeFormat();
 
-  const setGoal = async (milestoneId: string) => {
-    setBusy(true);
-    try {
-      await getRepositories().settings.update({ targetMilestone: milestoneId });
-      toast.success("Goal saved");
-    } catch {
-      toast.error("Couldn’t save goal.");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (!loaded || !analysis || !settings) {
-    return <p className="text-sm text-muted-foreground">Loading…</p>;
+  if (!loaded || !profile || !settings) {
+    return (
+      <div className="grid gap-4">
+        <Skeleton className="h-56" />
+        <Skeleton className="h-40" />
+      </div>
+    );
   }
 
-  const { diagnosis, narrative } = analysis;
-  const milestoneLabel =
-    milestones.find((m) => m.id === diagnosis.targetMilestone)?.label ?? diagnosis.targetMilestone;
-  const stages = diagnosis.stageAnalysis?.stages ?? [];
-  const goalSet = !!settings?.targetMilestone;
-  const step1Done = goalSet;
-  const step2Done = diagnosis.ready;
-  const taggedCount = stages.filter((s) => s.tag !== "untested").length;
-  const step3Done = taggedCount > 0;
-  const continueDiagnostic = fullDiagnosticResume(diagnosticRuns ?? []).canContinue;
+  const goal = milestones.find((m) => m.id === settings.targetMilestone) ?? null;
+  const average = profile.aspects.find((aspect) => aspect.id === "full_solve")?.value ?? null;
+  const averageText = average === null ? null : formatAverage(average);
+
+  if (!goal) {
+    return (
+      <div className="grid gap-5">
+        <CoachMessage>
+          <h2 className="text-xl font-semibold tracking-tight">What time are you aiming for?</h2>
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            {averageText
+              ? `Your timer average is ${averageText}. `
+              : "No timer average yet, so pick the goal that feels right. "}
+            I’ll compare every part of your solve with what a typical solver at that goal does.
+          </p>
+          <div className="mt-4">
+            <GoalChips value={null} suggested={suggestedGoal(average)} />
+          </div>
+        </CoachMessage>
+      </div>
+    );
+  }
+
+  const next = profile.nextTest;
+  const status = next ? testStatus(runs, next) : null;
+  const started = profile.testsTaken.length > 0;
+  const slow = profile.aspects
+    .filter((aspect) => aspect.tag === "slow")
+    .sort((a, b) => order(a) - order(b))
+    .slice(0, 3);
 
   return (
-    <div className="grid gap-6">
-      <section className="relative overflow-hidden rounded-3xl p-6 glass md:p-10">
-        <p className="eyebrow">Coach</p>
-        <h2 className="mt-3 max-w-2xl text-2xl font-semibold tracking-tight">
-          {narrative.headline}
+    <div className="grid gap-5">
+      <TrainingDataNotice />
+      <CoachMessage>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-muted-foreground">
+            {averageText ? (
+              <>
+                Your average:{" "}
+                <span className="font-mono tabular text-foreground">{averageText}</span>
+              </>
+            ) : (
+              "No timer average yet"
+            )}
+          </p>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Goal</span>
+            <GoalSelect value={goal.id} />
+          </div>
+        </div>
+        <h2 className="mt-3 text-xl font-semibold tracking-tight" data-testid="coach-headline">
+          {headline(profile, goal.label, next)}
         </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          {narrative.body}
-        </p>
-        <p className="mt-3 max-w-2xl text-sm font-medium">{narrative.nextStep}</p>
-
-        <ol className="mt-6 grid gap-2 sm:grid-cols-3">
-          <ChecklistItem
-            done={step1Done}
-            title="Goal"
-            detail={step1Done ? milestoneLabel : "Pick a pace"}
-          />
-          <ChecklistItem
-            done={step2Done}
-            title="Diagnostic"
-            detail={
-              step2Done
-                ? skills[diagnosis.primarySkill].label
-                : goalSet
-                  ? continueDiagnostic
-                    ? "In progress"
-                    : "Time each stage"
-                  : "After goal"
-            }
-          />
-          <ChecklistItem
-            done={step3Done}
-            title="Stages"
-            detail={
-              step3Done
-                ? `${taggedCount} tagged`
-                : goalSet
-                  ? "After you time a stage"
-                  : "After diagnostic"
-            }
-          />
-        </ol>
-
-        <div className="mt-6 flex flex-wrap gap-2">
-          {goalSet ? (
+        {next ? (
+          <NextReason testId={next} started={started} />
+        ) : (
+          <p className="mt-1 text-sm text-muted-foreground">
+            Retake any test to see how you’ve improved.
+          </p>
+        )}
+        <div className="mt-5 flex flex-wrap gap-2">
+          {next && status ? (
             <Button asChild size="lg">
-              <Link href="/coach/diagnostic/" data-testid="start-full-diagnostic">
-                {continueDiagnostic ? "Continue diagnostic" : "Start diagnostic"} <ArrowUpRight />
+              <Link href={testHref(next)} data-testid="coach-next-test">
+                {testActionLabel(next, status.state)} <ArrowRight />
+              </Link>
+            </Button>
+          ) : null}
+          {started ? (
+            <Button asChild size="lg" variant="outline">
+              <Link href={PROFILE_HREF}>
+                <ChartColumnBig /> See your solve profile
               </Link>
             </Button>
           ) : null}
         </div>
-      </section>
-
-      <section className="rounded-2xl p-5 glass">
-        <p className="flex items-center gap-2 eyebrow">
-          <Target className="size-3.5" aria-hidden />
-          Choose your goal
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">We’ll compare each stage to this goal.</p>
-        <ul className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {GOAL_OPTIONS.map((m) => {
-            const bars = stageBarsFor(m.id)!;
-            const selected = settings?.targetMilestone === m.id;
-            return (
-              <li key={m.id}>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => void setGoal(m.id)}
-                  className={cn(
-                    "flex w-full flex-col gap-1 rounded-2xl border px-4 py-3 text-left transition-colors",
-                    selected
-                      ? "border-primary bg-primary/5"
-                      : "border-border/80 hover:border-primary/40",
-                  )}
-                >
-                  <span className="text-sm font-semibold">{m.label}</span>
-                  <span className="font-mono tabular text-[11px] text-muted-foreground">
-                    C {formatTime(bars.crossMs, "truncate", 2)} · F2L{" "}
-                    {formatTime(bars.f2lMs, "truncate", 2)} · OLL{" "}
-                    {formatTime(bars.ollMs, "truncate", 2)} · PLL{" "}
-                    {formatTime(bars.pllMs, "truncate", 2)}
-                  </span>
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-
-      {stages.some((s) => s.sampleCount > 0) ? (
-        <section className="rounded-2xl p-5 glass">
-          <h2 className="text-base font-semibold">Your stages</h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {milestones.find((m) => m.id === diagnosis.stageAnalysis?.workingMilestoneId)?.label ??
-              "—"}
-            {diagnosis.stageAnalysis?.goalMilestoneId !==
-            diagnosis.stageAnalysis?.workingMilestoneId
-              ? ` on the way to ${milestoneLabel}`
-              : ` goal`}
+        {started ? (
+          <p className="mt-4 text-xs text-muted-foreground">
+            {profile.measuredCount} of {ASPECTS.length} parts of your solve measured ·{" "}
+            {profile.counts.slow} slow, {profile.counts.average} average, {profile.counts.fast} fast
           </p>
-          <StagePaceList stages={stages} />
-        </section>
-      ) : null}
+        ) : (
+          <p className="mt-4 text-xs text-muted-foreground">
+            Tests use their own timer. Your attempts never count toward your timer stats, and you
+            can delete any that go wrong.
+          </p>
+        )}
+      </CoachMessage>
 
-      {diagnosis.ready ? (
-        <section className="rounded-2xl p-5 glass">
-          <h2 className="text-base font-semibold">Where you stand</h2>
-          <p className="mt-2 text-sm text-muted-foreground">{diagnosis.explanation}</p>
-          {diagnosis.stageAnalysis?.weakStages.length ? (
-            <ul className="mt-4 grid gap-3">
-              {diagnosis.stageAnalysis.weakStages.map((stage) => (
-                <li key={stage} className="rounded-xl border px-3 py-2">
-                  <p className="text-sm font-medium">
-                    {diagnosis.stageAnalysis?.stages.find((s) => s.stage === stage)?.label}
-                  </p>
-                  <ul className="mt-1 list-disc space-y-1 pl-4 text-xs text-muted-foreground">
-                    {(STAGE_TIPS[stage] ?? []).map((tip) => (
-                      <li key={tip}>{tip}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+      {slow.length > 0 ? (
+        <section aria-labelledby="work-on-heading" className="rounded-3xl p-5 glass md:p-6">
+          <h2 id="work-on-heading" className="text-base font-semibold">
+            What to work on first
+          </h2>
+          <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {slow.map((aspect) => (
+              <div key={aspect.id} className="grid content-start gap-2">
+                <AspectCard aspect={aspect} goalLabel={goal.label} />
+                <Tips aspect={aspect} />
+              </div>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Training packs with lessons and drills for each of these are coming next.
+          </p>
         </section>
       ) : null}
     </div>
   );
 }
 
-function ChecklistItem({ done, title, detail }: { done: boolean; title: string; detail: string }) {
+function CoachMessage({ children }: { children: React.ReactNode }) {
   return (
-    <li
-      className={cn(
-        "flex items-start gap-3 rounded-2xl border px-3 py-3",
-        done ? "border-primary/40 bg-primary/5" : "border-border/80",
-      )}
-    >
-      {done ? (
-        <Check className="mt-0.5 size-4 text-primary" aria-hidden />
-      ) : (
-        <Circle className="mt-0.5 size-4 text-muted-foreground" aria-hidden />
-      )}
-      <div>
-        <p className="text-sm font-medium">{title}</p>
-        <p className="text-xs text-muted-foreground">{detail}</p>
-      </div>
-    </li>
+    <section className="flex gap-4 rounded-3xl p-6 glass md:p-8" data-testid="coach-message">
+      <span
+        className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"
+        aria-hidden
+      >
+        <Sparkles className="size-4" />
+      </span>
+      <div className="min-w-0 flex-1">{children}</div>
+    </section>
   );
+}
+
+function Tips({ aspect }: { aspect: AspectResult }) {
+  const stage = ASPECT_TIPS[aspect.id];
+  const tips = stage ? STAGE_TIPS[stage] : [];
+  if (tips.length === 0) return null;
+  return (
+    <ul className="list-disc space-y-1 rounded-2xl border border-dashed px-4 py-3 pl-8 text-xs text-muted-foreground">
+      {tips.map((tip) => (
+        <li key={tip}>{tip}</li>
+      ))}
+    </ul>
+  );
+}
+
+function headline(profile: SolveProfile, goalLabel: string, next: string | null): string {
+  if (profile.testsTaken.length === 0) return `Let’s see where you are on the way to ${goalLabel}.`;
+  if (!next) return "Your solve profile is complete.";
+  if (profile.counts.slow > 0) {
+    return `${profile.counts.slow} ${profile.counts.slow === 1 ? "part is" : "parts are"} slower than ${goalLabel} pace so far.`;
+  }
+  return `Everything measured so far is on pace for ${goalLabel}.`;
+}
+
+function NextReason({ testId, started }: { testId: string; started: boolean }) {
+  const test = getExercise(testId);
+  const name = test?.testName ?? testTitle(testId);
+  return (
+    <>
+      <p className="mt-1 text-sm">
+        {started ? "Next up" : "Up first"}: the {name} test, {test?.recommendedSampleCount ?? 10}{" "}
+        attempts.
+      </p>
+      <p className="mt-0.5 max-w-2xl text-sm text-muted-foreground">{test?.whatItShows}</p>
+    </>
+  );
+}
+
+/** Profile order, so the list reads like a solve. */
+function order(aspect: AspectResult): number {
+  return ASPECTS.findIndex((definition) => definition.id === aspect.id);
 }

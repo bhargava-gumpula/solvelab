@@ -4,6 +4,7 @@ import type {
   AlgorithmProgress,
   DiagnosticRun,
   LessonProgress,
+  ProfileSnapshot,
   Session,
   SkillScore,
   Solve,
@@ -43,7 +44,13 @@ export const SCHEMA_V3 = {
   lessonProgress: "lessonId, updatedAt",
 } as const;
 
-export const DATABASE_VERSION = 3;
+/** V4 (3.1): a snapshot of the solve profile after each finished test. */
+export const SCHEMA_V4 = {
+  ...SCHEMA_V3,
+  profileSnapshots: "id, createdAt",
+} as const;
+
+export const DATABASE_VERSION = 4;
 
 export async function upgradeToV2(transaction: Transaction): Promise<void> {
   let order = 0;
@@ -74,12 +81,14 @@ export class LocalDatabase extends Dexie {
   trainingPlans!: Table<TrainingPlan, string>;
   diagnosticRuns!: Table<DiagnosticRun, string>;
   lessonProgress!: Table<LessonProgress, string>;
+  profileSnapshots!: Table<ProfileSnapshot, string>;
 
   constructor(name = DATABASE_NAME) {
     super(name);
     this.version(1).stores(SCHEMA_V1);
     this.version(2).stores(SCHEMA_V2).upgrade(upgradeToV2);
     this.version(3).stores(SCHEMA_V3);
+    this.version(4).stores(SCHEMA_V4);
   }
 }
 

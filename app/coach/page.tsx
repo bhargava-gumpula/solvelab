@@ -8,9 +8,9 @@ export default function CoachPage() {
   return (
     <>
       <PageHeading
-        eyebrow="See what’s slow"
-        title="Set a goal. Time your stages."
-        description="A diagnostic shows how Cross, F2L, OLL, and PLL compare to the pace you want."
+        eyebrow="Your coach"
+        title="Find what’s slowing you down."
+        description="Pick a goal, take a few short tests, and see which parts of your solve to work on."
       />
       <CoachDashboard />
     </>

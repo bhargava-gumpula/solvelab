@@ -3,6 +3,7 @@ import type {
   AlgorithmProgress,
   DiagnosticRun,
   LessonProgress,
+  ProfileSnapshot,
   Session,
   SkillScore,
   Solve,
@@ -24,6 +25,7 @@ export interface SyncedRecords {
   algorithmProgress: AlgorithmProgress;
   algorithmAttempts: AlgorithmAttempt;
   lessonProgress: LessonProgress;
+  profileSnapshots: ProfileSnapshot;
 }
 
 export type CollectionName = keyof SyncedRecords;
@@ -45,6 +47,7 @@ export const COLLECTIONS: { readonly [K in CollectionName]: CollectionSpec<K> } 
   algorithmProgress: { tombstoneKind: "algorithmProgress", keyOf: (record) => record.caseId },
   algorithmAttempts: { tombstoneKind: "algorithmAttempt", keyOf: (record) => record.id },
   lessonProgress: { tombstoneKind: "lessonProgress", keyOf: (record) => record.lessonId },
+  profileSnapshots: { tombstoneKind: "profileSnapshot", keyOf: (record) => record.id },
 };
 
 export const COLLECTION_NAMES = Object.keys(COLLECTIONS) as CollectionName[];

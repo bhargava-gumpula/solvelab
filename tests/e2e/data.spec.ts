@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 import { display, keyboardSolve, makeBackup, openTimer } from "./helpers";
 
 test("exports a backup and restores it into a fresh browser profile", async ({ browser }) => {

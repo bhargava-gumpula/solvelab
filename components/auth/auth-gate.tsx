@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { AUTH_NOT_CONFIGURED } from "@/lib/auth/config";
@@ -19,10 +20,12 @@ export function AuthGate({
   children: React.ReactNode;
 }) {
   const { status } = useAuth();
+  // Only on the area's main page: tests and drills keep the screen for the timer.
+  const nested = (usePathname() ?? "").replace(/\/$/, "").split("/").filter(Boolean).length > 1;
 
   return (
     <>
-      {status === "signedOut" || status === "unconfigured" ? (
+      {!nested && (status === "signedOut" || status === "unconfigured") ? (
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-sm glass">
           <p className="text-muted-foreground">
             {area} works without an account.
