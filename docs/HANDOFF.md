@@ -161,6 +161,6 @@ The approved 3.1 plan (details in dev log entry 103; review stop after each phas
 5. **Training packs** with researched lessons, drills and retests (Train tab on).
 6. Later: BETA AI chat using the owner's own AI provider (official APIs only).
 
-Owner actions needed before data contribution goes live: enable Firebase **Anonymous** sign-in (until then uploads fail with `auth/admin-restricted-operation` and stay queued), deploy the updated `firestore.rules` (`firebase deploy --only firestore:rules`), and run each training-data export with their own admin credentials. A quick legal review of on-by-default collection is worth doing before launch. Also still open: real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
+Firebase for coach training data is live on project SolveLab (`solvelab-1bb6e`): **Anonymous** sign-in enabled and the current `firestore.rules` published on 2026-09-18 (done through Aside with the owner's approval; dev log 109). If `firestore.rules` changes again, it must be republished before the matching app ships. Still owner-only: running each training-data export with their own admin credentials, and a quick legal review of on-by-default collection before launch. Also still open: real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
 
 Reference only: an unfinished idea-scoring council from an earlier chat is in the public GitHub repo `bhargava-gumpula/solvelab-council` (not checked out on this Mac). The owner ended it ("we are done finding improvements"). Don't act on it unless asked.
