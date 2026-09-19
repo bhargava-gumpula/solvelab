@@ -355,6 +355,19 @@
   transition: opacity 200ms ease;
 }
 
+/*
+ * A card around a timer (skill tests, daily check) drops its frame while a
+ * solve is timed. Its backdrop blur would otherwise keep the full-screen
+ * timer inside the card and leave an empty box where the scramble was.
+ */
+[data-timer-focus="true"] [data-focus-shell] {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
 /* The timer takes over the viewport so the digits sit dead center. */
 [data-timer-focus="true"] [data-timer-surface] {
   position: fixed;

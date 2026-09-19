@@ -1,5 +1,17 @@
 # Validation report
 
+## 3.1 release — Solve profile
+
+Run on 2026-09-19 against the static export, Chromium headless, one Playwright worker, Firebase blocked.
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass                  |
+| Unit tests      | `npm test`                        | 190 passed (21 files) |
+| End-to-end      | `npx playwright test --workers=1` | 56 passed (1.6 min)   |
+
+Covers the phase 2 follow-ups plus the release changes: version 3.1, the roadmap copy (Train/Learn 3.4, Algorithms 3.3), and a timer card that drops its frame during a solve (checked in the browser: the timer covers the whole viewport).
+
 ## 3.1 phase 2 follow-up — clearer joins, completion, daily check
 
 Run on 2026-09-18 against the static export, Chromium headless, one Playwright worker, Firebase blocked.

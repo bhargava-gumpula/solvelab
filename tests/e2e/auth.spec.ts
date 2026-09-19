@@ -28,7 +28,8 @@ test("privacy, terms and overview are public", async ({ page }) => {
   await expect(page).toHaveURL(/\/terms\/?$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
   await page.goto("/overview/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("SolveLab 3.0");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("SolveLab 3.1");
+  await expect(page.getByRole("heading", { name: "3.1 — Solve profile" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "3.0 — Diagnostic coach" })).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "2.2 — Hardware timer and first coach" }),
@@ -36,6 +37,7 @@ test("privacy, terms and overview are public", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "2.1 — Interface" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "2.0 — Accounts and cloud times" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planned" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "3.1 — Training" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "3.2 — Learn and algorithms" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3.2 — AI coach" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3.3 — Algorithm bank" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3.4 — Training and lessons" })).toBeVisible();
 });

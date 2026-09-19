@@ -1,16 +1,16 @@
-# Handoff (updated 2026-09-18, Claude Code)
+# Handoff (updated 2026-09-19, Claude Code)
 
-Everything a new agent needs to continue SolveLab without the previous chat. Read this first, then `AGENTS.md`, then the docs linked below.
+Everything a new agent needs to continue SolveLab without the previous chat. Read this first, then `AGENTS.md`, [OVERVIEW.md](OVERVIEW.md) (product summary and plan) and [NEXT_STEPS.md](NEXT_STEPS.md) (the detailed next phases).
 
-**Work in progress: the 3.1 plan** (five phases, review stop after each; see §10 and `docs/DEVELOPMENT_LOG.md` entries 103+). Phase 1 (save and sync everything) is done and awaiting the owner's review.
+**Current release: 3.1 — Solve profile**, which covers plan phases 1–2 (see `docs/DEVELOPMENT_LOG.md` entries 103–116). **Next: Phase 3, the AI test planner and conversational coach (release 3.2).** Details are in NEXT_STEPS.md. It needs the owner's go-ahead.
 
 ## 1. What SolveLab is
 
 A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer → algorithm trainer → evidence-based diagnostics → training plans → retests. The full product and engineering spec is `docs/PRODUCT_SPECIFICATION.md` (~3,600 lines; it is the source of truth). Key sections: §1 principles, §22–33 algorithm trainer, §52–60 UI/design, §70 phased plan (V1.5 at line ~2548), §91 what not to build yet.
 
 - Next.js 16.3 App Router, **static export** (`out/`), webpack, React 19, strict TypeScript, Tailwind 4, shadcn/ui, Dexie (IndexedDB), Zod, Recharts, motion, cubing.js, Firebase Auth (Google) and Cloud Firestore when env vars are set.
-- Signed-in timer data lives in Firestore (`users/{uid}/…`). IndexedDB is a working copy so the timer stays fast. Signed-out use stays browser-only. Coach works without an account. Train and Learn are disabled in 3.0.
-- Branding is centralized in `lib/config/brand.ts`. Product version is **3.0**. Feature flags in `lib/config/features.ts` hide Train/Learn.
+- Signed-in timer data lives in Firestore (`users/{uid}/…`). IndexedDB is a working copy so the timer stays fast. Signed-out use stays browser-only. Coach works without an account. Train and Learn are still "coming later" pages in 3.1.
+- Branding is centralized in `lib/config/brand.ts`. Product version is **3.1** (`package.json` 3.1.0; the version is also sent with shared test results). Feature flags in `lib/config/features.ts` hide Train/Learn.
 
 ## 2. How the owner works (follow these)
 
@@ -25,11 +25,11 @@ A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer 
 
 The checkout is `~/Projects/solvelab` on the owner's current Mac, outside iCloud (the earlier `~/Documents` checkout is not on this machine). Remote: `github.com/bhargava-gumpula/solvelab` (private).
 
-| Branch           | Contents                                               | On GitHub?                                            |
-| ---------------- | ------------------------------------------------------ | ----------------------------------------------------- |
-| `main`           | 3.0 release (`174279e`); tag `v3.0.0` is one before it | Yes                                                   |
-| `ui-overhaul`    | Working branch: `main` + 3.1 work (type-fix, phase 1)  | 3.1 commits are local until the owner approves a push |
-| `v1-daily-timer` | V1 daily timer; fully merged into `main`               | Yes                                                   |
+| Branch           | Contents                                           | On GitHub? |
+| ---------------- | -------------------------------------------------- | ---------- |
+| `main`           | 3.1 release; tag `v3.1.0`                          | Yes        |
+| `ui-overhaul`    | Working branch; equal to `main` at the 3.1 release | Yes        |
+| `v1-daily-timer` | V1 daily timer; fully merged into `main`           | Yes        |
 
 Work is committed on `ui-overhaul`; releases fast-forward `main` after the owner approves.
 
@@ -50,7 +50,7 @@ npx playwright test --workers=1      # e2e against the static export (build firs
 - Visual review: build, serve `out/` on 4173 (`PORT=4173 npm start`), then `SHOTS=<dir> node scripts/review-screenshots.mjs`. It imports 320 realistic sample solves and captures every theme and key screen.
 - Sub-path check: `SOLVELAB_BASE_PATH=/solvelab npm run build`, serve so `out/` appears at `/solvelab/`, run `scripts/check-base-path.mjs`.
 
-Last verified at 3.1 phase 1: `npm run validate` passed (the production build type-checks again), **153 unit tests** (18 files), **49 e2e tests** (1 worker, ~1.1 min).
+Last verified at the 3.1 release: `npm run validate` passed, **190 unit tests** (21 files), **56 e2e tests** (1 worker, ~1.7 min).
 
 ## 5. What exists today
 
@@ -116,6 +116,8 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 | Adapted UI components | `components/ui/glowing-effect.tsx`, `border-beam.tsx`, `spotlight-card.tsx`, `animated-time.tsx` (plus stock shadcn/ui)                                                                                                                                                                                                                                                                                                                                 |
 | Tests                 | `tests/unit/*` (Vitest; jsdom where needed), `tests/e2e/*` (Playwright; import `test` from `tests/e2e/fixtures.ts`, which blocks Firebase), `tests/e2e/helpers.ts`                                                                                                                                                                                                                                                                                      |
 
+**Local-only files (git-ignored):** `.env.local` (Firebase web config), `.env.deploy` (Pi deploy details), `.claude/` (tool config such as `launch.json`).
+
 **Saved data keys:** IndexedDB `speedcubing-local` (schema v4 adds `profileSnapshots`, v5 `dailyChecks`; never rename, add migrations with tests). The settings record holds timer options, `panelOffsets`, `appearance` and `view` (Stats range/session, times sort). localStorage holds caches only: `solvelab.appearance.v1` (for the no-flash boot script), `solvelab.panels.v4`, `solvelab.sync.tombstones.v1`, the device-only `solvelab.timerDevice.v1`, and for coach training `solvelab.trainingContributors.v1` (ids this browser shared under) and `solvelab.trainingWithdrawPending.v1`; `solvelab.lessonProgress.v1` is imported into IndexedDB once and removed. Backup format id `speedcubing-local-backup`, version 2 (v1 still imports). **Every user choice must be saved in a synced table or the settings record** (owner rule); signed-in data lives in Firestore at `users/{uid}/{table}/{key}` for each table in `lib/sync/collections.ts`, plus `settings/preferences` and `tombstones`.
 
 **Firebase (optional at build time):** `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, optional `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in `.env.local` (gitignored). Authorized domains: `localhost`, `127.0.0.1`, `solvelab.bhargava-gumpula.com`. Google sign-in uses a same-origin OIDC redirect to `/signed-in/`. After sign-in the client router goes to `/timer/` without a full reload, then merges local IndexedDB with Firestore.
@@ -139,9 +141,10 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 - The owner's website is a Next.js app on a Raspberry Pi behind a Cloudflare Tunnel. Its repo is `~/projects/Website`, with deploy notes in `PI_AND_DEPLOYMENT_COMMANDS.md`.
 - **Live URL:** `https://solvelab.bhargava-gumpula.com` (subdomain, empty `SOLVELAB_BASE_PATH`). Public HTML is served in a Cloudflare Pages style (`cache-control: public, max-age=0, must-revalidate`). The Pi copy at `~/Work/solvelab` (pm2 `solvelab` on `127.0.0.1:4173`) is a fallback, not what the hostname currently hits.
-- Build on the Mac (`npm run build`). `bash scripts/deploy-pi.sh` copies `out/` to the Pi. Do not `next build` SolveLab on the Pi. A Pages deploy is a fresh upload of `out/`.
+- Build on the Mac (`npm run build`). A **Cloudflare Pages** deploy (project `solvelab`, direct upload) is a fresh upload of `out/`. Do it through Aside in the Cloudflare dashboard, uploading a zip of `out/`, with the owner's approval. No API tokens should pass through the agent.
+- Pi fallback: `bash scripts/deploy-pi.sh` copies `out/` to the Pi. The Pi's address and paths are read from the git-ignored `.env.deploy` (see the script header). This Mac has no SSH key for the Pi yet. Do not `next build` SolveLab on the Pi.
+- The repository is **public** on GitHub (since 2026-09-19). Never commit personal data or secrets; `.gitignore` has a section for them.
 - Browser data is per origin. Local `127.0.0.1:5173` times do not appear on the live subdomain. Use Settings → Export/Import to move them.
-- **Known live bug (fixed in local `ui-overhaul`, not deployed):** Clear session can leave `1/1` because `pendingSolve` is merged back after IndexedDB is emptied. Fix is in `timer-workspace.tsx` / `times-panel.tsx`.
 
 ## 9. Known limitations and follow-ups
 
@@ -152,14 +155,14 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 ## 10. Waiting on the owner (ask; don't assume)
 
-The approved 3.1 plan (details in dev log entry 103; review stop after each phase):
+The approved plan (details in dev log entry 103 and [NEXT_STEPS.md](NEXT_STEPS.md); review stop after each phase):
 
-1. ✅ **Save and sync everything** (phase 1, commit `d41129d`, pushed).
-2. ✅ **Tests and Solve profile** (phase 2, awaiting review; dev log 106–112, including the owner's first feedback: clearer joins, no retake loop, daily check): (15 aspects with tag, goal, current average; many tests incl. transitions, lookahead, TPS; delete accidental attempts) plus **data contribution** for AI training (on by default, opt-out, signed-out users via Firebase anonymous auth; privacy policy and terms updated).
-3. **AI test planner + guided coach** (simulator of slow→fast cubers, diagnoser + planner heads, benchmark against rules, conversational Coach page) plus the real-data retraining pipeline.
-4. **Algorithm bank:** 2-look OLL/PLL, OLL, PLL, F2L, COLL, WV, several verified options per case with source attribution.
-5. **Training packs** with researched lessons, drills and retests (Train tab on).
-6. Later: BETA AI chat using the owner's own AI provider (official APIs only).
+1. ✅ **Save and sync everything** (phase 1). Shipped in 3.1.
+2. ✅ **Skill tests, Solve profile, daily check, coach training data** (phase 2 plus the owner's feedback). Shipped in 3.1.
+3. **AI test planner + conversational coach** (release 3.2): simulator of slow→fast cubers, diagnoser and planner heads, benchmark against the rules, conversational Coach page, tips for every aspect, and the real-data retraining pipeline. **Next; needs the owner's go-ahead.**
+4. **Algorithm bank** (3.3): 2-look OLL/PLL, OLL, PLL, F2L, COLL, WV, with several verified options per case and source attribution.
+5. **Training packs** (3.4): researched lessons, drills and retests; Train and Learn on.
+6. Later: a BETA AI chat using the owner's own AI provider (official APIs only).
 
 Firebase for coach training data is live on project SolveLab (`solvelab-1bb6e`): **Anonymous** sign-in enabled and the current `firestore.rules` published on 2026-09-18 (done through Aside with the owner's approval; dev log 109). If `firestore.rules` changes again, it must be republished before the matching app ships. Still owner-only: running each training-data export with their own admin credentials, and a quick legal review of on-by-default collection before launch. Also still open: real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
 

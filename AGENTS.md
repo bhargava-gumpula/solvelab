@@ -1,6 +1,7 @@
 # SolveLab contributor instructions
 
-- Start every new session by reading docs/HANDOFF.md (current state, branches, how to run and test, gotchas, open questions). Then read docs/DEVELOPMENT_LOG.md and docs/ARCHITECTURE.md before implementation.
+- Start every new session by reading docs/HANDOFF.md (current state, branches, how to run and test, gotchas, open questions), docs/OVERVIEW.md (what the product is and the plan) and docs/NEXT_STEPS.md (the detailed plan for the next phases). Read the latest entries of docs/DEVELOPMENT_LOG.md and docs/ARCHITECTURE.md before implementation.
+- Anything the owner would otherwise have to do that isn't a matter of their opinion (Firebase or Cloudflare console changes, dashboard uploads, signed-in checks) is done through the aside-browser skill. Get the owner's approval first for anything that changes production. Never handle the owner's passwords, API tokens or admin credentials.
 - Implement only the next agreed phase. Stop for user review between phases. After each phase run `npm run validate` and `npx playwright test --workers=1`, share screenshots, and wait for explicit approval.
 - Ask before pushing to GitHub, merging branches, or moving the repository folder.
 - The timer starts only with the space bar (touch-and-hold on touch screens). Mouse clicks must never start or stop it.
@@ -11,7 +12,7 @@
 - Preserve local data with versioned IndexedDB migrations. Never insert mock records into production tables. Signed-in times sync to Cloud Firestore under that Google account; do not store user times on the operator’s laptop or the Pi.
 - Keep the timer local first. Use performance.now timestamps when V1 is implemented.
 - Review existing components and 21st.dev before substantial UI work. Reuse the installed shadcn primitives.
-- Deployment to the owner's website is a later milestone. Do not publish merely because a phase is complete.
+- Deploy only when the owner asks (see docs/HANDOFF.md §8). Do not publish merely because a phase is complete.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

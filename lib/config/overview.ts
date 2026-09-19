@@ -1,6 +1,17 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "3.1",
+    title: "Solve profile",
+    items: [
+      "Ten short skill tests (cross, F2L, OLL, PLL, the joins between them, one pair, unlimited-inspection cross, turning speed) with a timer that never touches your normal solves",
+      "Solve profile in Stats: 15 parts of your solve rated slow / average / fast for your goal, with how each number is worked out",
+      "Quick daily check: two attempts of each test compared with your profile, with a streak and an optional reminder",
+      "Every setting and choice saved and synced to your Google account",
+      "Finished tests help train the coach (on by default, off anytime in Settings)",
+    ],
+  },
+  {
     version: "3.0",
     title: "Diagnostic coach",
     items: [
@@ -43,19 +54,28 @@ export const shipped = [
 
 export const planned = [
   {
-    version: "3.1",
-    title: "Training",
+    version: "3.2",
+    title: "AI coach",
     items: [
-      "Practice each CFOP stage after the diagnostic, with slow / average / fast tags that update as you train",
-      "Algorithm drills start (cases you can run, not only browse)",
+      "A coach that talks you through it: picks your goal, asks for the tests it needs, and explains what it found",
+      "An on-device model trained on simulated cubers and shared test results chooses which test tells it the most",
+      "Tips for every part of your solve",
     ],
   },
   {
-    version: "3.2",
-    title: "Learn and algorithms",
+    version: "3.3",
+    title: "Algorithm bank",
     items: [
-      "Lesson plans for beginner, CFOP, and refinement",
-      "Algorithm variants, diagrams, and mastery tracking",
+      "2-look OLL and PLL, full OLL and PLL, F2L, COLL and WV, with several verified algorithms per case",
+      "Case diagrams, your preferred algorithm, and learning progress that syncs",
+    ],
+  },
+  {
+    version: "3.4",
+    title: "Training and lessons",
+    items: [
+      "Training packs for each part of your solve: short lessons, drills, and a retest",
+      "Train and Learn turn on",
     ],
   },
 ] as const;

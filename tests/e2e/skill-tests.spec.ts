@@ -328,7 +328,7 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page).toHaveURL(/\/train\/?$/);
     await expect(page.getByRole("heading", { name: "Practice is coming later." })).toBeVisible();
     await expect(
-      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.1\.$/ }),
+      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.4\.$/ }),
     ).toBeVisible();
     await expect(page.getByTestId("start-topic-cross")).toHaveCount(0);
 
@@ -338,7 +338,7 @@ test.describe("skill tests and the solve profile", () => {
     await page.goto("/learn/");
     await expect(page.getByRole("heading", { name: "Lessons are coming later." })).toBeVisible();
     await expect(
-      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.2\.$/ }),
+      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.4\.$/ }),
     ).toBeVisible();
 
     await page.goto("/algorithms/");
@@ -346,12 +346,12 @@ test.describe("skill tests and the solve profile", () => {
       "Build a repertoire you can rely on.",
     );
     await expect(
-      page.getByRole("strong").filter({ hasText: /^Planned for 3\.1–3\.2\.$/ }),
+      page.getByRole("strong").filter({ hasText: /^Planned for 3\.3\.$/ }),
     ).toBeVisible();
-    await expect(page.getByText(/coming in 3\.1–3\.2/).first()).toBeVisible();
+    await expect(page.getByText(/coming in 3\.3/).first()).toBeVisible();
 
     await page.goto("/settings/");
-    await expect(page.getByRole("heading", { name: "SolveLab 3.0" })).toBeVisible();
-    await expect(page.getByText("Diagnostic coach")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "SolveLab 3.1" })).toBeVisible();
+    await expect(page.getByText("Solve profile", { exact: true })).toBeVisible();
   });
 });

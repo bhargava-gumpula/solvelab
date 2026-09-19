@@ -168,7 +168,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         <StorageAlert />
         {children}
-        {hideLegal ? null : <LegalLinks className="mt-10" />}
+        {hideLegal ? null : (
+          <div data-focus-hide>
+            <LegalLinks className="mt-10" />
+          </div>
+        )}
       </main>
 
       <div

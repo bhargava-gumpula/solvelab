@@ -96,7 +96,11 @@ export function TestTimerCard({
     : "Timer. Hold Space, or press and hold here on a touch screen, then release to start.";
 
   return (
-    <section aria-label="Timer" className="grid gap-3 rounded-3xl p-3 glass sm:p-4">
+    <section
+      aria-label="Timer"
+      data-focus-shell
+      className="grid gap-3 rounded-3xl p-3 glass transition-[background-color,border-color,box-shadow] duration-200 sm:p-4"
+    >
       {needsScramble ? (
         <ScrambleBar
           scramble={scrambles.scramble}
