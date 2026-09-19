@@ -53,3 +53,32 @@ export function DailyCheckCard({ className }: { className?: string }) {
     </div>
   );
 }
+
+/** The daily check as a single button, for rows of other actions. */
+export function DailyCheckButton() {
+  const checks = useDailyChecks();
+  if (!checks) return null;
+  const today = localDay();
+  const check = checkForDay(checks, today);
+  const streak = dailyStreak(checks, today);
+  const label = check?.completedAt
+    ? "See today’s daily check"
+    : check
+      ? "Continue daily check"
+      : "Start daily check";
+  return (
+    <Button asChild size="lg" variant="outline">
+      <Link href={DAILY_HREF} data-testid="daily-check-link">
+        <CalendarCheck /> {label}
+        {streak > 0 ? (
+          <span
+            className="ml-1 inline-flex items-center gap-0.5 text-xs text-primary"
+            aria-label={`${streak}-day streak`}
+          >
+            <Flame className="size-3.5" aria-hidden /> {streak}
+          </span>
+        ) : null}
+      </Link>
+    </Button>
+  );
+}

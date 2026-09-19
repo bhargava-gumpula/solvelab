@@ -427,6 +427,8 @@ describe("coach and lesson records", () => {
       goalMilestoneId: "sub20",
       values: { cross: 2400 },
     });
+    // Snapshots are ordered by time; make sure the second gets a later one.
+    await new Promise((resolve) => setTimeout(resolve, 5));
     await repos.coach.saveProfileSnapshot({
       testId: "f2l_only",
       goalMilestoneId: "sub20",

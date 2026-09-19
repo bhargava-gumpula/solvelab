@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AspectCard } from "@/components/tests/aspect-card";
 import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
-import { DailyCheckCard } from "@/components/tests/daily-check-card";
+import { DailyCheckButton } from "@/components/tests/daily-check-card";
 import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import { getExercise, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
@@ -128,6 +128,7 @@ export function CoachDashboard() {
               </Link>
             </Button>
           ) : null}
+          {started ? <DailyCheckButton /> : null}
         </div>
         {started ? (
           <p className="mt-4 text-xs text-muted-foreground">
@@ -141,8 +142,6 @@ export function CoachDashboard() {
           </p>
         )}
       </CoachMessage>
-
-      {started ? <DailyCheckCard className="border-0 p-5 glass md:max-w-md" /> : null}
 
       {slow.length > 0 ? (
         <section aria-labelledby="work-on-heading" className="rounded-3xl p-5 glass md:p-6">
