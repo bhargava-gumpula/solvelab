@@ -48,12 +48,9 @@ Signed-in accounts also store sessions, solves, and timer settings in Cloud Fire
 
 `npm run build` produces `out/`, a static site with no server requirements. `SOLVELAB_BASE_PATH` sets a sub-path at build time; links, assets, icons and the scramble worker all honor it (verified with `scripts/check-base-path.mjs`).
 
-The owner's website is a Next.js app on a Raspberry Pi behind a Cloudflare Tunnel. Two workable options, to be decided at the deployment milestone:
+SolveLab is served from **Cloudflare Pages** at the subdomain `solvelab.bhargava-gumpula.com`: a direct upload of `out/` (see HANDOFF §8). It needs no server, because accounts, sync and training data go through Firebase. That keeps it fast worldwide and up when the owner's home network or Raspberry Pi is down. The owner's main website stays on the Pi behind a Cloudflare Tunnel because it needs a server (payments, email, calendar). An earlier Pi copy of SolveLab was retired on 2026-09-19.
 
-1. **Sub-path** (`/solvelab`): build with the base path and serve `out/` from the website (Next.js `public/` does not serve `index.html` for directory URLs, so this needs rewrites or a small static handler).
-2. **Subdomain** (`solvelab.<domain>`): serve `out/` from any static server and add a tunnel ingress rule. Simplest isolation; separate browser storage from the main site.
-
-Build on a development machine and copy `out/`; it avoids running `next build` on the Pi, which is memory-constrained. IndexedDB is per origin, so preview data does not carry over — use backup/restore. Offline reloads need a service worker (PWA phase).
+A sub-path deployment (`SOLVELAB_BASE_PATH=/solvelab`) still works if it's ever needed. IndexedDB is per origin, so data on a preview address does not carry over; use backup/restore. Offline reloads need a service worker (PWA phase).
 
 ## Phase boundaries
 

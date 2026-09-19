@@ -30,7 +30,7 @@ next-env.d.ts
 # Personal data and secrets. This repository is public: never commit these.
 # ---------------------------------------------------------------------------
 
-# Environment files: Firebase web config (.env.local), Pi deploy details (.env.deploy)
+# Environment files (for example the Firebase web config in .env.local)
 .env*
 
 # Keys and credentials (Firebase admin / service accounts, certificates)

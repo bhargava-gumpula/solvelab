@@ -53,7 +53,7 @@ Phase 3 adds an AI that chooses the next test (planner) and judges which parts a
 
 ## Tech
 
-Next.js 16 static export (webpack), React 19, TypeScript (strict), Tailwind 4, shadcn/ui, Dexie (IndexedDB) for local data, Zod schemas, Firebase Auth and Firestore for accounts and training data, cubing.js (vendored) for scrambles, Vitest and Playwright for tests. Deployed as static files to Cloudflare Pages (project `solvelab`), with a Raspberry Pi copy as a fallback. Details: [ARCHITECTURE.md](ARCHITECTURE.md), [HANDOFF.md](HANDOFF.md).
+Next.js 16 static export (webpack), React 19, TypeScript (strict), Tailwind 4, shadcn/ui, Dexie (IndexedDB) for local data, Zod schemas, Firebase Auth and Firestore for accounts and training data, cubing.js (vendored) for scrambles, Vitest and Playwright for tests. Deployed as static files to Cloudflare Pages (project `solvelab`). It needs no server of its own; accounts, sync and training data go through Firebase. Details: [ARCHITECTURE.md](ARCHITECTURE.md), [HANDOFF.md](HANDOFF.md).
 
 ## Plan
 

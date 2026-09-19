@@ -111,6 +111,6 @@ Goal: the Coach becomes a conversation. It picks up the current average, asks fo
 
 - Skill tests record the raw time and ignore inspection penalties (+2/DNF past 15 s). Decide whether to warn or exclude those attempts.
 - Goals for joins and lookahead are starting estimates. Calibrate them once real data arrives (Phase 3e).
-- The Raspberry Pi fallback copy isn't updated automatically. This Mac has no SSH key for the Pi (`scripts/deploy-pi.sh`). Set it up or retire the fallback.
+- The Pi copy of SolveLab is retired, and SolveLab is only on Cloudflare Pages. The owner still has to stop its pm2 process from the home Wi-Fi: `pm2 delete solvelab && pm2 save`. Also optional: if the Cloudflare Tunnel still has a public-hostname route for `solvelab` → `localhost:4173`, remove it (Aside, with approval). DNS already points the hostname at Pages, so the route is unused.
 - Remove the unused 3.0 coach path (listed in 3b) once Phase 3 replaces it.
 - Carried from earlier: a layout flash on phones from `useMediaQuery`, glass blur performance on low-end devices, and no offline/PWA support yet.
