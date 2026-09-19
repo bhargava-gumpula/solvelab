@@ -10,9 +10,10 @@ import { Button } from "@/components/ui/button";
 import { useStorageStatus } from "@/components/layout/storage-provider";
 import { AspectCard } from "@/components/tests/aspect-card";
 import { AttemptList } from "@/components/tests/attempt-list";
+import { DAILY_HREF } from "@/components/tests/daily-check-card";
 import { TestTimerCard } from "@/components/tests/test-timer-card";
 import { TrainingDataNotice } from "@/components/tests/training-data-notice";
-import { getExercise, isTestId, testButtonLabel, testHref, testTitle } from "@/data/exercises";
+import { getExercise, isTestId, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { aspectTargetsFor, testGoal } from "@/data/milestones/aspect-targets";
 import { useSettings } from "@/hooks/use-local-data";
@@ -308,7 +309,10 @@ function TestResults({
   const result = estimate(times);
   const aspectIds = new Set(aspectsForTest(test.id).map((aspect) => aspect.id));
   const aspects = profile?.aspects.filter((aspect) => aspectIds.has(aspect.id)) ?? [];
-  const nextTest = profile?.nextTest && profile.nextTest !== test.id ? profile.nextTest : null;
+  const nextTest =
+    profile && !profile.complete && profile.nextTest && profile.nextTest !== test.id
+      ? profile.nextTest
+      : null;
   const targets = aspectTargetsFor(settings?.targetMilestone);
   const testTarget = targets ? testGoal(test.id, targets) : null;
   const turns = test.algorithm
@@ -372,16 +376,29 @@ function TestResults({
       ) : null}
 
       <section className="flex flex-wrap items-center gap-2 rounded-3xl p-5 glass">
+        {profile?.complete ? (
+          <p className="w-full pb-2 text-sm" data-testid="profile-complete">
+            <span className="font-semibold">Your solve profile is complete.</span>{" "}
+            <span className="text-muted-foreground">
+              Every test is done. Retake one after practising it, or try a quick daily check.
+            </span>
+          </p>
+        ) : null}
         {nextTest ? (
           <Button asChild size="lg">
             <Link href={testHref(nextTest)} data-testid="next-test">
-              Next: {testButtonLabel(nextTest).replace(/^Start /, "")} <ArrowRight />
+              Next: {testTitle(nextTest)} <ArrowRight />
             </Link>
           </Button>
         ) : null}
         <Button asChild size="lg" variant={nextTest ? "outline" : "default"}>
           <Link href={PROFILE_HREF}>See your solve profile</Link>
         </Button>
+        {profile?.complete ? (
+          <Button asChild size="lg" variant="outline">
+            <Link href={DAILY_HREF}>Daily check</Link>
+          </Button>
+        ) : null}
         <Button size="lg" variant="ghost" onClick={onRetake}>
           <RotateCcw /> Retake this test
         </Button>

@@ -70,11 +70,13 @@ export const ASPECTS: AspectDefinition[] = [
   },
   {
     id: "cross_planning",
-    label: "Cross planning",
+    label: "Inspection planning",
     group: "cross",
     kind: "loss",
-    description: "Time lost when you can't plan the whole cross during inspection.",
-    howMeasured: "Cross test minus the cross planning test, where you plan as long as you like.",
+    description:
+      "Time your cross loses because 15 seconds isn't enough to plan all of it, so you finish planning while solving.",
+    howMeasured:
+      "Your normal cross test (15-second inspection) minus the unlimited-inspection cross test, where you plan every move first.",
     tests: ["cross_only", "cross_unlimited"],
     target: (t) => t.crossPlanningGapMs,
   },

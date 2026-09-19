@@ -1,6 +1,6 @@
 import type { DiagnosticRun, PaceTag, ProfileSnapshot, Solve } from "@/types/domain";
 import { aspectTargetsFor } from "@/data/milestones/aspect-targets";
-import { getExercise, TEST_ORDER } from "@/data/exercises";
+import { CORE_TESTS, getExercise, TEST_ORDER } from "@/data/exercises";
 import { selectBaselineSolves } from "./baseline";
 import { averageOf, coefficientOfVariation, mean, validTimes } from "./stats";
 import { ASPECTS, rateAspect, type AspectDefinition, type AspectId } from "./aspects";
@@ -97,9 +97,17 @@ export interface SolveProfile {
   aspects: AspectResult[];
   measuredCount: number;
   counts: Record<PaceTag, number>;
-  /** Next test to suggest overall. */
+  /**
+   * The test to take next: one left unfinished, else the first core test not
+   * yet done. Null once every core test is done — the profile is complete.
+   */
   nextTest: string | null;
+  /** Tests with at least one finished run. */
   testsTaken: string[];
+  /** Core tests finished, out of `coreTotal`. */
+  coreDone: number;
+  coreTotal: number;
+  complete: boolean;
 }
 
 interface ComputedValue {
@@ -335,28 +343,28 @@ export function buildSolveProfile({
   const counts: Record<PaceTag, number> = { fast: 0, average: 0, slow: 0 };
   for (const aspect of aspects) if (aspect.tag) counts[aspect.tag]++;
 
-  const testsTaken = TEST_ORDER.filter((testId) => samples.has(testId));
-  const untaken = TEST_ORDER.find((testId) => !samples.has(testId)) ?? null;
-  const slowest = aspects
-    .filter((aspect) => aspect.tag === "slow" && aspect.definition.tests.length > 0)
-    .sort((a, b) => gapRatio(b) - gapRatio(a))[0];
+  const finished = new Set(runs.filter((run) => run.completedAt).map((run) => run.exerciseId));
+  const testsTaken = TEST_ORDER.filter((testId) => finished.has(testId));
+  const coreDone = CORE_TESTS.filter((testId) => finished.has(testId)).length;
+  // Only suggest tests that aren't done, so finishing them all ends the list.
+  const unfinished = [...runs]
+    .filter((run) => !run.completedAt && (run.timesMs?.length ?? 0) > 0)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+    .find((run) => (CORE_TESTS as readonly string[]).includes(run.exerciseId));
+  const nextTest =
+    unfinished?.exerciseId ?? CORE_TESTS.find((testId) => !finished.has(testId)) ?? null;
 
   return {
     goalMilestoneId,
     aspects,
     measuredCount: aspects.filter((aspect) => aspect.value !== null).length,
     counts,
-    nextTest: untaken ?? slowest?.nextTest ?? null,
+    nextTest,
     testsTaken,
+    coreDone,
+    coreTotal: CORE_TESTS.length,
+    complete: coreDone === CORE_TESTS.length,
   };
-}
-
-/** How far past the goal an aspect is, comparable across kinds. */
-function gapRatio(aspect: AspectResult): number {
-  if (aspect.value === null || aspect.target === null || aspect.target === 0) return 0;
-  return aspect.definition.kind === "speed"
-    ? aspect.target / aspect.value
-    : aspect.value / aspect.target;
 }
 
 /** Values to store in a profile snapshot. */

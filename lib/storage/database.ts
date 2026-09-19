@@ -2,6 +2,7 @@ import Dexie, { type Table, type Transaction } from "dexie";
 import type {
   AlgorithmAttempt,
   AlgorithmProgress,
+  DailyCheck,
   DiagnosticRun,
   LessonProgress,
   ProfileSnapshot,
@@ -50,7 +51,13 @@ export const SCHEMA_V4 = {
   profileSnapshots: "id, createdAt",
 } as const;
 
-export const DATABASE_VERSION = 4;
+/** V5 (3.1): quick daily checks, two attempts of each core test. */
+export const SCHEMA_V5 = {
+  ...SCHEMA_V4,
+  dailyChecks: "id, day, createdAt",
+} as const;
+
+export const DATABASE_VERSION = 5;
 
 export async function upgradeToV2(transaction: Transaction): Promise<void> {
   let order = 0;
@@ -82,6 +89,7 @@ export class LocalDatabase extends Dexie {
   diagnosticRuns!: Table<DiagnosticRun, string>;
   lessonProgress!: Table<LessonProgress, string>;
   profileSnapshots!: Table<ProfileSnapshot, string>;
+  dailyChecks!: Table<DailyCheck, string>;
 
   constructor(name = DATABASE_NAME) {
     super(name);
@@ -89,6 +97,7 @@ export class LocalDatabase extends Dexie {
     this.version(2).stores(SCHEMA_V2).upgrade(upgradeToV2);
     this.version(3).stores(SCHEMA_V3);
     this.version(4).stores(SCHEMA_V4);
+    this.version(5).stores(SCHEMA_V5);
   }
 }
 

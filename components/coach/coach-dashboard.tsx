@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AspectCard } from "@/components/tests/aspect-card";
 import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
+import { DailyCheckCard } from "@/components/tests/daily-check-card";
 import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import { getExercise, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
@@ -71,7 +72,8 @@ export function CoachDashboard() {
     );
   }
 
-  const next = profile.nextTest;
+  const complete = profile.complete;
+  const next = complete ? null : profile.nextTest;
   const status = next ? testStatus(runs, next) : null;
   const started = profile.testsTaken.length > 0;
   const slow = profile.aspects
@@ -105,8 +107,10 @@ export function CoachDashboard() {
         {next ? (
           <NextReason testId={next} started={started} />
         ) : (
-          <p className="mt-1 text-sm text-muted-foreground">
-            Retake any test to see how you’ve improved.
+          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+            {profile.counts.slow > 0
+              ? `${profile.counts.slow} ${profile.counts.slow === 1 ? "part is" : "parts are"} slower than ${goal.label} pace. Start with the ones below, then retake that test to see your progress.`
+              : `Everything is on pace for ${goal.label}. Retake a test any time to see how you’ve improved.`}
           </p>
         )}
         <div className="mt-5 flex flex-wrap gap-2">
@@ -127,8 +131,8 @@ export function CoachDashboard() {
         </div>
         {started ? (
           <p className="mt-4 text-xs text-muted-foreground">
-            {profile.measuredCount} of {ASPECTS.length} parts of your solve measured ·{" "}
-            {profile.counts.slow} slow, {profile.counts.average} average, {profile.counts.fast} fast
+            {profile.coreDone} of {profile.coreTotal} tests done · {profile.counts.slow} slow,{" "}
+            {profile.counts.average} average, {profile.counts.fast} fast
           </p>
         ) : (
           <p className="mt-4 text-xs text-muted-foreground">
@@ -137,6 +141,8 @@ export function CoachDashboard() {
           </p>
         )}
       </CoachMessage>
+
+      {started ? <DailyCheckCard className="border-0 p-5 glass md:max-w-md" /> : null}
 
       {slow.length > 0 ? (
         <section aria-labelledby="work-on-heading" className="rounded-3xl p-5 glass md:p-6">
@@ -189,7 +195,7 @@ function Tips({ aspect }: { aspect: AspectResult }) {
 
 function headline(profile: SolveProfile, goalLabel: string, next: string | null): string {
   if (profile.testsTaken.length === 0) return `Let’s see where you are on the way to ${goalLabel}.`;
-  if (!next) return "Your solve profile is complete.";
+  if (profile.complete || !next) return "Your solve profile is complete.";
   if (profile.counts.slow > 0) {
     return `${profile.counts.slow} ${profile.counts.slow === 1 ? "part is" : "parts are"} slower than ${goalLabel} pace so far.`;
   }

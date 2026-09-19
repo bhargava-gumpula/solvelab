@@ -100,6 +100,8 @@ export interface UserSettings {
   contributeTrainingData: boolean;
   /** The one-time notice about sharing practice data has been dismissed. */
   trainingNoticeSeen: boolean;
+  /** Mark Coach in the menu until today's daily check is done. Off unless turned on. */
+  dailyCheckReminder: boolean;
   updatedAt?: string;
 }
 
@@ -285,6 +287,20 @@ export interface DiagnosticRun {
 }
 
 /** Every aspect of a solve at one moment, saved after each finished test. */
+/** A quick daily check: two attempts of each core test. */
+export interface DailyCheck {
+  id: string;
+  /** Local calendar day it was started, e.g. "2026-09-18". */
+  day: string;
+  createdAt: string;
+  completedAt?: string;
+  /** Test id → attempt times in ms. */
+  attempts: Record<string, number[]>;
+  /** Tests skipped in this check. */
+  skipped: string[];
+  updatedAt?: string;
+}
+
 export interface ProfileSnapshot {
   id: string;
   createdAt: string;

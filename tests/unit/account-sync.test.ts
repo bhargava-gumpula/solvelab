@@ -65,6 +65,7 @@ function settings(activeSessionId: string): UserSettings {
     view: DEFAULT_VIEW,
     contributeTrainingData: true,
     trainingNoticeSeen: false,
+    dailyCheckReminder: false,
   };
 }
 

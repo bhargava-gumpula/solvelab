@@ -1,5 +1,17 @@
 # Validation report
 
+## 3.1 phase 2 follow-up — clearer joins, completion, daily check
+
+Run on 2026-09-18 against the static export, Chromium headless, one Playwright worker, Firebase blocked.
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass                  |
+| Unit tests      | `npm test`                        | 190 passed (21 files) |
+| End-to-end      | `npx playwright test --workers=1` | 56 passed             |
+
+New unit coverage: the profile completes on core tests only and never suggests a retake; an unfinished test is continued first; the working shown for joins, lookahead, shares, turning speed and plain averages; daily-check test order, skips, deleting back into a test, local days, streaks, today-vs-profile direction per kind, history; Dexie v4→v5; the daily-check repository. New end-to-end coverage: finishing the last core test completes the profile and removes "Up next"; a daily check with the reminder dot, delete-and-redo, skips, results, and a reload that keeps today's results without changing the profile.
+
 ## 3.1 phase 2 — skill tests, solve profile, coach training data
 
 Run on 2026-09-18 against the static export, Chromium headless, one Playwright worker, with Firebase traffic blocked by `tests/e2e/fixtures.ts`.

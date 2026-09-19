@@ -17,9 +17,12 @@ async function takeShortTest(page: Page) {
 test.describe("sharing test results to train the coach", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/settings/");
-    await expect(page.getByText("Local database ready")).toBeVisible({ timeout: 20_000 });
-    const configured = await page.getByRole("switch", { name: "Help improve the coach" }).count();
-    test.skip(configured === 0, "Sharing needs a build with Firebase configured.");
+    const toggle = page.getByRole("switch", { name: "Help improve the coach" });
+    // Wait until Settings has decided either way before checking.
+    await expect(
+      toggle.or(page.getByText("Accounts aren’t configured on this build.")).first(),
+    ).toBeVisible({ timeout: 20_000 });
+    test.skip((await toggle.count()) === 0, "Sharing needs a build with Firebase configured.");
   });
 
   test("the notice shows once, and a finished test is shared", async ({

@@ -8,6 +8,7 @@ import {
   SCHEMA_V2,
   SCHEMA_V3,
   SCHEMA_V4,
+  SCHEMA_V5,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
@@ -42,7 +43,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V4).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V5).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -265,6 +266,29 @@ describe("schema v3", () => {
     await Dexie.delete(name);
   });
 
+  it("adds daily checks without touching version 4 data", async () => {
+    const name = `test-v4-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(4).stores(SCHEMA_V4);
+    await legacy.open();
+    await legacy.table("profileSnapshots").add({
+      id: "snap-1",
+      createdAt: "2026-09-02T00:00:00.000Z",
+      testId: "cross_only",
+      goalMilestoneId: "sub20",
+      values: { cross: 2100 },
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
+    expect((await upgraded.profileSnapshots.get("snap-1"))?.values.cross).toBe(2100);
+    expect(await upgraded.dailyChecks.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+
   it("adds profile snapshots without touching version 3 data", async () => {
     const name = `test-v3-${crypto.randomUUID()}`;
     const legacy = new Dexie(name);
@@ -291,6 +315,7 @@ describe("schema v3", () => {
     expect((await upgraded.diagnosticRuns.get("run-1"))?.timesMs).toEqual([2100, 2300, 2500]);
     expect(await upgraded.lessonProgress.count()).toBe(1);
     expect(await upgraded.profileSnapshots.count()).toBe(0);
+    expect(await upgraded.dailyChecks.count()).toBe(0);
     upgraded.close();
     await Dexie.delete(name);
   });
@@ -376,6 +401,24 @@ describe("coach and lesson records", () => {
     const cleared = await db.diagnosticRuns.get(run.id);
     expect(cleared?.contributedAt).toBeUndefined();
     expect(cleared!.updatedAt! >= marked!.updatedAt!).toBe(true);
+  });
+
+  it("saves a daily check test by test, with skips and completion", async () => {
+    const started = await repos.coach.startDailyCheck("2026-09-18");
+    expect(started).toMatchObject({ day: "2026-09-18", attempts: {}, skipped: [] });
+    await repos.coach.saveDailyAttempts(started.id, "cross_only", [1500, 1600]);
+    await repos.coach.skipDailyTest(started.id, "f2l_only");
+    await repos.coach.skipDailyTest(started.id, "f2l_only");
+    // Timing a skipped test un-skips it.
+    await repos.coach.skipDailyTest(started.id, "oll_only");
+    await repos.coach.saveDailyAttempts(started.id, "oll_only", [1400]);
+    const done = await repos.coach.completeDailyCheck(started.id);
+    expect(done.attempts).toEqual({ cross_only: [1500, 1600], oll_only: [1400] });
+    expect(done.skipped).toEqual(["f2l_only"]);
+    expect(done.completedAt).toBeDefined();
+    expect(done.updatedAt! >= started.updatedAt!).toBe(true);
+    expect((await repos.coach.listDailyChecks()).map((entry) => entry.id)).toEqual([started.id]);
+    await expect(repos.coach.saveDailyAttempts("missing", "cross_only", [1])).rejects.toThrow();
   });
 
   it("saves profile snapshots in order", async () => {

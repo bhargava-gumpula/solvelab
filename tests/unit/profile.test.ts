@@ -11,8 +11,13 @@ import {
   snapshotValues,
   type SolveProfile,
 } from "@/lib/coach/profile";
-import { aspectVerdict, formatAspectGoal, formatAspectValue } from "@/lib/coach/profile-format";
-import { TEST_ORDER, testButtonLabel, getExercise } from "@/data/exercises";
+import {
+  aspectMath,
+  aspectVerdict,
+  formatAspectGoal,
+  formatAspectValue,
+} from "@/lib/coach/profile-format";
+import { CORE_TESTS, TEST_ORDER, testButtonLabel, getExercise } from "@/data/exercises";
 
 let counter = 0;
 function run(
@@ -247,6 +252,66 @@ describe("solve profile", () => {
     expect(profile.nextTest).toBe("f2l_only");
     expect(profile.testsTaken).toEqual(["cross_only"]);
     expect(testButtonLabel("cross_f2l")).toBe("Start cross + F2L test");
+  });
+
+  it("is complete once every core test is done, without the extra tests", () => {
+    const runs = CORE_TESTS.map((testId) => run(testId, around(2000)));
+    const profile = buildSolveProfile({ runs, solves: [], goalMilestoneId: "sub20" });
+    expect(profile.complete).toBe(true);
+    expect(profile.coreDone).toBe(CORE_TESTS.length);
+    expect(profile.nextTest).toBeNull();
+
+    // One core test short: that test is next, never a retake of a finished one.
+    const almost = buildSolveProfile({
+      runs: runs.filter((entry) => entry.exerciseId !== "tps_test"),
+      solves: [],
+      goalMilestoneId: "sub20",
+    });
+    expect(almost.complete).toBe(false);
+    expect(almost.nextTest).toBe("tps_test");
+  });
+
+  it("suggests continuing an unfinished test first, and counts only finished tests as done", () => {
+    const profile = buildSolveProfile({
+      runs: [
+        run("cross_only", around(2000)),
+        run("oll_only", [1500, 1600, 1700], { completedAt: undefined }),
+      ],
+      solves: [],
+      goalMilestoneId: "sub20",
+    });
+    expect(profile.nextTest).toBe("oll_only");
+    expect(profile.testsTaken).toEqual(["cross_only"]);
+    expect(profile.coreDone).toBe(1);
+  });
+
+  it("shows the working behind each kind of number", () => {
+    const profile = buildSolveProfile({
+      runs: [
+        run("cross_only", around(1670)),
+        run("cross_unlimited", around(1520)),
+        run("f2l_only", around(6700)),
+        run("last_slot", around(1450)),
+        run("cross_f2l", around(9700)),
+        run("tps_test", [2900, 3000, 3100]),
+        run("oll_only", [...around(1500), 3200, 3300]),
+      ],
+      solves: [],
+      goalMilestoneId: "sub20",
+    });
+    expect(aspectMath(aspect(profile, "cross_planning"))).toBe(
+      "Cross test 1.67 s − Unlimited-inspection cross test 1.52 s = 0.15 s",
+    );
+    expect(aspectMath(aspect(profile, "cross_to_f2l"))).toBe(
+      "Cross + F2L test 9.70 s − (Cross test 1.67 s + F2L test 6.70 s) = 1.33 s",
+    );
+    expect(aspectMath(aspect(profile, "lookahead"))).toBe(
+      "F2L test 6.70 s − 4 × Single pair test 1.45 s = 0.90 s",
+    );
+    expect(aspectMath(aspect(profile, "turning_speed"))).toBe("24 turns ÷ 3.00 s = 8.0 turns/s");
+    expect(aspectMath(aspect(profile, "oll_algorithms"))).toContain("2 of 12 attempts");
+    expect(aspectMath(aspect(profile, "cross"))).toContain("fastest and slowest left out");
+    expect(aspectMath(aspect(profile, "pll"))).toBeNull();
   });
 
   it("estimates cross → F2L from cross + first pair until the better test is taken", () => {

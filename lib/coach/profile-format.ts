@@ -1,3 +1,4 @@
+import { getExercise, testTitle } from "@/data/exercises";
 import { formatTime, type TimeDecimals } from "@/lib/timer/format";
 import type { AspectKind } from "./aspects";
 import type { AspectResult } from "./profile";
@@ -91,5 +92,51 @@ export function aspectVerdict(
       return tag === "average"
         ? "Close to the turning speed this goal needs."
         : `Your turning is slower than a typical ${goalLabel} solver's.`;
+  }
+}
+
+function signedSeconds(ms: number, decimals: TimeDecimals): string {
+  return ms < 0 ? `−${seconds(-ms, decimals)}` : seconds(ms, decimals);
+}
+
+/**
+ * The working behind a number, e.g. "Cross + F2L test 9.70 s − (Cross test
+ * 1.90 s + F2L test 6.70 s) = 1.10 s". Null when there is nothing to show.
+ */
+export function aspectMath(aspect: AspectResult, decimals: TimeDecimals = 2): string | null {
+  const { value, parts } = aspect;
+  if (value === null || parts.length === 0) return null;
+  const part = (testId: string, ms: number, weight = 1) =>
+    `${weight > 1 ? `${weight} × ` : ""}${testTitle(testId)} ${seconds(ms, decimals)}`;
+  switch (aspect.definition.kind) {
+    case "loss": {
+      const [combined, ...rest] = parts;
+      if (!combined || rest.length === 0) return null;
+      // Lookahead compares F2L with four single pairs.
+      const weight = aspect.id === "lookahead" ? 4 : 1;
+      const subtracted = rest.map((p) => part(p.testId, p.meanMs, weight));
+      const minus = subtracted.length > 1 ? `(${subtracted.join(" + ")})` : subtracted[0];
+      return `${part(combined.testId, combined.meanMs)} − ${minus} = ${signedSeconds(value, decimals)}`;
+    }
+    case "share": {
+      const slow = Math.round(value * aspect.samples);
+      return `${slow} of ${aspect.samples} attempts took more than 1.5 times your usual (median) time.`;
+    }
+    case "speed": {
+      const [timed] = parts;
+      const algorithm = getExercise(timed!.testId)?.algorithm;
+      if (!timed || !algorithm) return null;
+      const turns = algorithm.moves.trim().split(/\s+/).length * algorithm.repetitions;
+      return `${turns} turns ÷ ${seconds(timed.meanMs, decimals)} = ${value.toFixed(1)} turns/s`;
+    }
+    case "time": {
+      const [timed] = parts;
+      if (!timed) return null;
+      return timed.attempts >= 5
+        ? `Average of your ${timed.attempts} attempts, with the fastest and slowest left out.`
+        : `Average of your ${timed.attempts} attempts.`;
+    }
+    case "spread":
+      return null;
   }
 }

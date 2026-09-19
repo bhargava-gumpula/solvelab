@@ -1,7 +1,14 @@
-import type { DiagnosticRun, ProfileSnapshot, SkillScore, TrainingPlan } from "@/types/domain";
+import type {
+  DailyCheck,
+  DiagnosticRun,
+  ProfileSnapshot,
+  SkillScore,
+  TrainingPlan,
+} from "@/types/domain";
 import type { LocalDatabase } from "./database";
 import { createId } from "./ids";
 import {
+  dailyCheckSchema,
   diagnosticRunSchema,
   profileSnapshotSchema,
   skillScoreSchema,
@@ -166,5 +173,56 @@ export class CoachRepository {
 
   async listProfileSnapshots(): Promise<ProfileSnapshot[]> {
     return this.db.profileSnapshots.orderBy("createdAt").toArray();
+  }
+
+  async listDailyChecks(): Promise<DailyCheck[]> {
+    return this.db.dailyChecks.orderBy("createdAt").toArray();
+  }
+
+  async startDailyCheck(day: string): Promise<DailyCheck> {
+    const createdAt = now();
+    const check = dailyCheckSchema.parse({
+      id: createId(),
+      day,
+      createdAt,
+      attempts: {},
+      skipped: [],
+      updatedAt: createdAt,
+    });
+    await this.db.dailyChecks.add(check);
+    return check;
+  }
+
+  /** Replaces one test's attempts (adding, deleting or undoing all go through here). */
+  async saveDailyAttempts(id: string, testId: string, timesMs: number[]): Promise<DailyCheck> {
+    return this.updateDailyCheck(id, (check) => ({
+      ...check,
+      attempts: { ...check.attempts, [testId]: timesMs },
+      skipped: check.skipped.filter((skipped) => skipped !== testId),
+    }));
+  }
+
+  async skipDailyTest(id: string, testId: string): Promise<DailyCheck> {
+    return this.updateDailyCheck(id, (check) => ({
+      ...check,
+      skipped: check.skipped.includes(testId) ? check.skipped : [...check.skipped, testId],
+    }));
+  }
+
+  async completeDailyCheck(id: string): Promise<DailyCheck> {
+    return this.updateDailyCheck(id, (check) => ({ ...check, completedAt: now() }));
+  }
+
+  private async updateDailyCheck(
+    id: string,
+    change: (check: DailyCheck) => DailyCheck,
+  ): Promise<DailyCheck> {
+    return this.db.transaction("rw", this.db.dailyChecks, async () => {
+      const existing = await this.db.dailyChecks.get(id);
+      if (!existing) throw new Error("Daily check not found.");
+      const next = dailyCheckSchema.parse({ ...change(existing), updatedAt: now() });
+      await this.db.dailyChecks.put(next);
+      return next;
+    });
   }
 }

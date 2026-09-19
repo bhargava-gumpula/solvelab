@@ -4,6 +4,52 @@ import { inspectionSolve, keyboardSolve, makeBackup } from "./helpers";
 const surface = (page: Page) => page.getByTestId("test-timer-surface");
 const progress = (page: Page) => page.getByTestId("test-progress");
 
+/** Imports finished runs of the core tests (cross 2.00 s, unlimited cross 1.80 s, …) with goal Sub 20. */
+async function importProfile(page: Page, { skip = [] as string[] } = {}) {
+  const means: Record<string, number> = {
+    cross_only: 2000,
+    f2l_only: 7000,
+    oll_only: 1600,
+    pll_only: 1900,
+    cross_f2l: 9800,
+    last_slot: 1500,
+    ls_oll: 3400,
+    oll_pll_only: 3700,
+    cross_unlimited: 1800,
+    tps_test: 3000,
+  };
+  const backup = makeBackup([{ rawTimeMs: 20_000 }]);
+  const start = Date.UTC(2026, 7, 2);
+  Object.assign(backup.data, {
+    diagnosticRuns: Object.entries(means)
+      .filter(([testId]) => !skip.includes(testId))
+      .map(([exerciseId, mean], index) => {
+        const at = new Date(start + index * 60_000).toISOString();
+        return {
+          id: `run-${exerciseId}`,
+          exerciseId,
+          createdAt: at,
+          completedAt: at,
+          updatedAt: at,
+          solveIds: [],
+          sampleCount: 12,
+          timesMs: Array(12).fill(mean),
+        };
+      }),
+  });
+  Object.assign(backup.data.settings, { targetMilestone: "sub20", trainingNoticeSeen: true });
+  await page.goto("/settings/");
+  await expect(page.getByText("Local database ready")).toBeVisible();
+  await page.getByTestId("backup-file-input").setInputFiles({
+    name: "profile.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await page.getByRole("radio", { name: /Replace/ }).click();
+  await page.getByRole("button", { name: "Replace my data" }).click();
+  await expect(page.getByText(/Imported 1 solves/)).toBeVisible();
+}
+
 async function openTest(page: Page, testId: string) {
   await page.goto(`/coach/tests/${testId}/`);
   await expect(surface(page)).toBeVisible({ timeout: 20_000 });
@@ -68,7 +114,7 @@ test.describe("skill tests and the solve profile", () => {
       timeout: 15_000,
     });
     await expect(cross.getByTestId("aspect-value")).toHaveText(/^0\.\d+ s$/);
-    await expect(page.getByTestId("profile-summary")).toContainText("1 of 15 parts measured");
+    await expect(page.getByTestId("profile-summary")).toContainText("1 of 10 tests done");
     await expect(page.getByTestId("start-next-test")).toHaveText(/Start F2L test/);
     await expect(page.getByTestId("test-card-cross_only")).toContainText("Done");
 
@@ -144,6 +190,107 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page.getByTestId("aspect-row-full_solve").getByTestId("aspect-value")).toHaveText(
       /^20\.\d+ s$/,
       { timeout: 15_000 },
+    );
+  });
+
+  test("finishing the last core test completes the profile, with no retake loop", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    await importProfile(page, { skip: ["tps_test"] });
+
+    await page.goto("/stats/profile/");
+    await expect(page.getByTestId("profile-summary")).toContainText("9 of 10 tests done", {
+      timeout: 20_000,
+    });
+    await expect(page.getByTestId("start-next-test")).toHaveText(/Start turning speed test/);
+
+    await page.getByTestId("start-next-test").click();
+    await expect(surface(page)).toBeVisible({ timeout: 20_000 });
+    await surface(page).focus();
+    for (let i = 0; i < 4; i++) await keyboardSolve(page, 700);
+    await keyboardSolve(page, 700, { moveOn: true });
+    await expect(page.getByTestId("test-results")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("profile-complete")).toContainText(
+      "Your solve profile is complete.",
+    );
+    await expect(page.getByTestId("next-test")).toHaveCount(0);
+
+    await page.getByRole("link", { name: "See your solve profile" }).click();
+    await expect(page.getByTestId("profile-summary")).toContainText(
+      "Your solve profile is complete",
+    );
+    await expect(page.getByTestId("start-next-test")).toHaveCount(0);
+    await expect(page.getByTestId("daily-check-card")).toContainText("Start daily check");
+
+    // Each join shows the sum behind it.
+    const planning = page.getByTestId("aspect-row-cross_planning");
+    await planning.getByRole("button").first().click();
+    await expect(planning.getByTestId("aspect-math")).toContainText(
+      "Cross test 2.00 s − Unlimited-inspection cross test 1.80 s = 0.20 s",
+    );
+
+    await page.goto("/coach/");
+    await expect(page.getByTestId("coach-headline")).toHaveText("Your solve profile is complete.", {
+      timeout: 20_000,
+    });
+    await expect(page.getByTestId("coach-next-test")).toHaveCount(0);
+  });
+
+  test("daily check: two attempts each, fix a mistake, skip, results and reminder", async ({
+    page,
+  }) => {
+    test.setTimeout(150_000);
+    await importProfile(page);
+
+    await page.goto("/coach/daily/");
+    await expect(page.getByTestId("daily-intro")).toBeVisible({ timeout: 20_000 });
+    const reminder = page.getByRole("switch", { name: "Remind me each day" });
+    await reminder.click();
+    await expect(reminder).toBeChecked();
+    await expect(page.getByTestId("nav-alert-coach").first()).toBeAttached();
+
+    await page.getByRole("button", { name: "Start daily check" }).click();
+    await expect(page.getByTestId("daily-test-title")).toHaveText("Cross test");
+    await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20_000 });
+    await surface(page).focus();
+    await inspectionSolve(page, 400);
+    await inspectionSolve(page, 2500, { moveOn: true });
+    // Two attempts move on to the next test…
+    await expect(page.getByTestId("daily-test-title")).toHaveText("F2L test");
+    // …and deleting one brings the cross test back.
+    await page.getByRole("button", { name: /^Delete Cross test attempt 2,/ }).click();
+    await expect(page.getByTestId("daily-test-title")).toHaveText("Cross test");
+    await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20_000 });
+    await surface(page).focus();
+    await inspectionSolve(page, 450, { moveOn: true });
+    await expect(page.getByTestId("daily-test-title")).toHaveText("F2L test");
+
+    await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20_000 });
+    await surface(page).focus();
+    await keyboardSolve(page, 500);
+    await keyboardSolve(page, 550, { moveOn: true });
+    await expect(page.getByTestId("daily-progress")).toHaveText("2 of 10 tests done");
+
+    for (let i = 0; i < 8; i++) {
+      await page.getByRole("button", { name: "Skip this test" }).click();
+    }
+    await expect(page.getByTestId("daily-results")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("daily-row-cross").getByText("Better")).toBeVisible();
+    await expect(page.getByTestId("daily-row-oll").locator("[data-change]")).toHaveAttribute(
+      "data-change",
+      "none",
+    );
+    await expect(page.getByText("1-day streak")).toBeVisible();
+    await expect(page.getByTestId("nav-alert-coach")).toHaveCount(0);
+
+    // Coming back today shows today's results, and the check never touches the profile.
+    await page.reload();
+    await expect(page.getByTestId("daily-results")).toBeVisible({ timeout: 20_000 });
+    await page.goto("/stats/profile/");
+    await expect(page.getByTestId("aspect-row-cross").getByTestId("aspect-value")).toHaveText(
+      "2.00 s",
+      { timeout: 20_000 },
     );
   });
 

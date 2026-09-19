@@ -10,6 +10,7 @@ import { z } from "zod";
 import type {
   AlgorithmAttempt,
   AlgorithmProgress,
+  DailyCheck,
   DiagnosticRun,
   LessonProgress,
   ProfileSnapshot,
@@ -25,6 +26,7 @@ import { DATABASE_VERSION } from "@/lib/storage/database";
 import {
   algorithmAttemptSchema,
   algorithmProgressSchema,
+  dailyCheckSchema,
   diagnosticRunSchema,
   lessonProgressSchema,
   normalizeSettings,
@@ -52,6 +54,7 @@ const EXTRA_TABLES = {
   algorithmAttempts: "id",
   lessonProgress: "lessonId",
   profileSnapshots: "id",
+  dailyChecks: "id",
 } as const;
 
 type ExtraTable = keyof typeof EXTRA_TABLES;
@@ -73,6 +76,7 @@ export interface BackupData {
   algorithmAttempts: AlgorithmAttempt[];
   lessonProgress: LessonProgress[];
   profileSnapshots: ProfileSnapshot[];
+  dailyChecks: DailyCheck[];
 }
 
 export interface BackupDocument {
@@ -104,6 +108,7 @@ const backupSchema = z
       algorithmAttempts: extraArray(algorithmAttemptSchema),
       lessonProgress: extraArray(lessonProgressSchema),
       profileSnapshots: extraArray(profileSnapshotSchema),
+      dailyChecks: extraArray(dailyCheckSchema),
     }),
   })
   .superRefine((document, context) => {
@@ -158,6 +163,7 @@ export async function createBackup(db: LocalDatabase, now = new Date()): Promise
       algorithmAttempts: await db.algorithmAttempts.orderBy("createdAt").toArray(),
       lessonProgress: await db.lessonProgress.toArray(),
       profileSnapshots: await db.profileSnapshots.orderBy("createdAt").toArray(),
+      dailyChecks: await db.dailyChecks.orderBy("createdAt").toArray(),
     },
   }));
 }

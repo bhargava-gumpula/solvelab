@@ -4,6 +4,7 @@ import { cubeEventSchema } from "@/lib/cube/events";
 import type {
   AlgorithmAttempt,
   AlgorithmProgress,
+  DailyCheck,
   DiagnosticRun,
   LessonProgress,
   ProfileSnapshot,
@@ -98,6 +99,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   view: DEFAULT_VIEW,
   contributeTrainingData: true,
   trainingNoticeSeen: false,
+  dailyCheckReminder: false,
 };
 
 export const settingsSchema = z.object({
@@ -119,6 +121,7 @@ export const settingsSchema = z.object({
   view: viewSchema.default(DEFAULT_VIEW),
   contributeTrainingData: z.boolean().catch(true).default(true),
   trainingNoticeSeen: z.boolean().catch(false).default(false),
+  dailyCheckReminder: z.boolean().catch(false).default(false),
   updatedAt: isoDate.optional(),
 });
 
@@ -173,6 +176,16 @@ export const diagnosticRunSchema: z.ZodType<DiagnosticRun> = z.object({
   timesMs: z.array(z.number().nonnegative()).optional(),
   updatedAt: optionalIso,
   contributedAt: optionalIso,
+});
+
+export const dailyCheckSchema: z.ZodType<DailyCheck> = z.object({
+  id: z.string().min(1),
+  day: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  createdAt: z.string().min(1),
+  completedAt: optionalIso,
+  attempts: z.record(z.array(z.number().finite().positive()).max(20)),
+  skipped: z.array(z.string().min(1)),
+  updatedAt: optionalIso,
 });
 
 export const profileSnapshotSchema: z.ZodType<ProfileSnapshot> = z.object({

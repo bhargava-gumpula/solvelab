@@ -11,6 +11,7 @@ import { useAppearance } from "@/components/appearance/appearance-provider";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRegisterCommands } from "@/hooks/use-commands";
+import { useDailyCheckDue } from "@/hooks/use-daily-checks";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { brand } from "@/lib/config/brand";
 import { isActivePath, navigation, settingsNavigation } from "@/lib/config/navigation";
@@ -32,6 +33,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [appearanceOpen, setAppearanceOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const fullBleed = isActivePath(pathname, "/timer");
+  const dailyDue = useDailyCheckDue();
+  const navAlerts = dailyDue ? { "/coach": "Today’s daily check is waiting" } : undefined;
   const hideLegal =
     fullBleed ||
     isActivePath(pathname, "/privacy") ||
@@ -114,6 +117,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             layoutId="nav-top"
             variant="top"
             label="Main navigation"
+            alerts={navAlerts}
           />
         </div>
 
@@ -177,6 +181,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           layoutId="nav-bottom"
           variant="bottom"
           label="Mobile navigation"
+          alerts={navAlerts}
         />
       </div>
 

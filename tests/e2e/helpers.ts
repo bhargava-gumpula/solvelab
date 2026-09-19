@@ -8,8 +8,11 @@ export async function openTimer(page: Page) {
 
 export const display = (page: Page) => page.getByTestId("timer-display");
 
-/** Holds space long enough to arm, solves for `solveMs`, then stops. */
-export async function keyboardSolve(page: Page, solveMs = 600) {
+/**
+ * Holds space long enough to arm, solves for `solveMs`, then stops. Pass
+ * `moveOn` when stopping leaves the timer (the last attempt of a test).
+ */
+export async function keyboardSolve(page: Page, solveMs = 600, { moveOn = false } = {}) {
   await page.keyboard.down("Space");
   await page.waitForTimeout(450);
   await expect(display(page)).toHaveAttribute("data-tone", "armed");
@@ -17,7 +20,7 @@ export async function keyboardSolve(page: Page, solveMs = 600) {
   await expect(display(page)).toHaveAttribute("data-tone", "running");
   await page.waitForTimeout(solveMs);
   await page.keyboard.down("Space");
-  await expect(display(page)).toHaveAttribute("data-tone", "result");
+  if (!moveOn) await expect(display(page)).toHaveAttribute("data-tone", "result");
   await page.keyboard.up("Space");
 }
 
@@ -77,9 +80,9 @@ export function makeBackup(solves: BackupSolveInput[], sessionName = "Imported")
 }
 
 /** Starts 15-second inspection with a tap of Space, then solves like keyboardSolve. */
-export async function inspectionSolve(page: Page, solveMs = 600) {
+export async function inspectionSolve(page: Page, solveMs = 600, options = { moveOn: false }) {
   await page.keyboard.down("Space");
   await page.keyboard.up("Space");
   await expect(display(page)).toHaveAttribute("data-tone", "inspection");
-  await keyboardSolve(page, solveMs);
+  await keyboardSolve(page, solveMs, options);
 }

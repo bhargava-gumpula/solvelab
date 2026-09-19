@@ -120,17 +120,17 @@ export const exercises: ExerciseDefinition[] = [
   },
   {
     id: "cross_unlimited",
-    name: "Cross, fully planned",
+    name: "Unlimited-inspection cross",
     type: "diagnostic",
     category: "cross",
     description: "Solve the cross after planning it for as long as you like.",
-    testName: "cross planning",
+    testName: "unlimited-inspection cross",
     whatItShows:
-      "Compared with the cross test, how much time you lose when inspection is limited to 15 seconds.",
+      "Your cross when you have all the time you want to plan it. The difference from your normal cross test is the time the 15-second limit costs you.",
     inspection: "none",
     instructions: [
       "Scramble your cube with the scramble shown.",
-      "Plan the whole cross, taking as long as you need. Don't start until you know every move.",
+      "Plan the whole cross before starting the timer, taking as long as you need. Don't start until you know every move.",
       "Start the timer, solve only the cross, then stop.",
     ],
     skillsMeasured: ["cross_planning"],
@@ -433,8 +433,8 @@ export function exerciseScrambleEvent(exerciseId: string): CubeEvent {
   return getExercise(exerciseId)?.scrambleEvent ?? "333";
 }
 
-/** Every test a person can take, in the order they are suggested. */
-export const TEST_ORDER = [
+/** Tests the solve profile needs, in the order they are suggested. */
+export const CORE_TESTS = [
   "cross_only",
   "f2l_only",
   "oll_only",
@@ -444,12 +444,20 @@ export const TEST_ORDER = [
   "ls_oll",
   "oll_pll_only",
   "cross_unlimited",
-  "slow_turning_f2l",
   "tps_test",
-  "cross_first_pair",
 ] as const;
 
+/** Tests that add detail but aren't needed to finish the profile. */
+export const EXTRA_TESTS = ["slow_turning_f2l", "cross_first_pair"] as const;
+
+/** Every test a person can take. */
+export const TEST_ORDER = [...CORE_TESTS, ...EXTRA_TESTS] as const;
+
 export type TestId = (typeof TEST_ORDER)[number];
+
+export function isCoreTest(id: string): boolean {
+  return (CORE_TESTS as readonly string[]).includes(id);
+}
 
 export function isTestId(id: string): id is TestId {
   return (TEST_ORDER as readonly string[]).includes(id);

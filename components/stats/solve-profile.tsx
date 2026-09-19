@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Timer } from "lucide-react";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { PageHeading } from "@/components/layout/page-heading";
+import { DailyCheckCard } from "@/components/tests/daily-check-card";
 import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
 import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import {
@@ -14,11 +15,11 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getExercise, TEST_ORDER, testHref, testTitle } from "@/data/exercises";
+import { CORE_TESTS, EXTRA_TESTS, getExercise, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
 import { useTimeFormat } from "@/hooks/use-time-format";
-import { ASPECT_GROUPS, ASPECTS, aspectsForTest } from "@/lib/coach/aspects";
+import { ASPECT_GROUPS, aspectsForTest } from "@/lib/coach/aspects";
 import {
   estimate,
   MIN_TIMER_SOLVES,
@@ -26,6 +27,7 @@ import {
   type SolveProfile,
 } from "@/lib/coach/profile";
 import {
+  aspectMath,
   aspectVerdict,
   formatAspectGoal,
   formatAspectRange,
@@ -129,12 +131,13 @@ function NextStep({
   runs: DiagnosticRun[];
   goalLabel: string;
 }) {
-  const next = profile.nextTest;
+  const complete = profile.complete;
+  const next = complete ? null : profile.nextTest;
   const test = next ? getExercise(next) : undefined;
   const status = next ? testStatus(runs, next) : null;
   const measures = next ? aspectsForTest(next).map((aspect) => aspect.label) : [];
   const started = profile.testsTaken.length > 0;
-  const total = ASPECTS.length;
+  const { coreDone, coreTotal } = profile;
 
   return (
     <section className="rounded-3xl p-6 glass md:p-8" data-testid="profile-summary">
@@ -144,16 +147,16 @@ function NextStep({
           <h2 className="mt-1 text-xl font-semibold tracking-tight">
             {!started
               ? "Find out what’s slowing you down"
-              : next
-                ? `${profile.measuredCount} of ${total} parts measured`
-                : "Your profile is complete"}
+              : complete
+                ? "Your solve profile is complete"
+                : `${coreDone} of ${coreTotal} tests done`}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {!started
               ? "Each test takes a few minutes and times one part of your solve. Start with the cross; the next test is suggested when you finish."
-              : next
-                ? "Keep going to fill in the rest. Retake any test later to see how you’ve improved."
-                : "Retake any test to track your progress."}
+              : complete
+                ? "Every part of your solve has been measured. Retake a test after you’ve practised it, or do a quick daily check to see how you’re doing."
+                : "Keep going to fill in the rest. Every part below updates as you finish tests."}
           </p>
           {started ? (
             <ul className="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Summary">
@@ -162,24 +165,26 @@ function NextStep({
               <SummaryCount tag="fast" count={profile.counts.fast} />
             </ul>
           ) : null}
-          {started && next ? (
+          {started && !complete ? (
             <div
               className="mt-4 h-2 max-w-sm overflow-hidden rounded-full bg-muted"
               role="progressbar"
-              aria-label="Parts measured"
+              aria-label="Tests done"
               aria-valuemin={0}
-              aria-valuemax={total}
-              aria-valuenow={profile.measuredCount}
+              aria-valuemax={coreTotal}
+              aria-valuenow={coreDone}
             >
               <div
                 className="h-full rounded-full bg-primary"
-                style={{ width: `${(profile.measuredCount / total) * 100}%` }}
+                style={{ width: `${(coreDone / coreTotal) * 100}%` }}
               />
             </div>
           ) : null}
         </div>
 
-        {next && test && status ? (
+        {complete ? (
+          <DailyCheckCard className="w-full max-w-sm" />
+        ) : next && test && status ? (
           <div className="w-full max-w-sm rounded-2xl border bg-background/40 p-4">
             <p className="text-xs text-muted-foreground">Up next</p>
             <p className="mt-0.5 font-semibold">{testTitle(next)}</p>
@@ -263,6 +268,7 @@ function AspectRow({
   const measured = aspect.value !== null;
   const timerBased = aspect.definition.tests.length === 0;
   const range = formatAspectRange(kind, aspect.range, decimals);
+  const math = aspectMath(aspect, decimals);
   const trend = trendOf(aspect);
 
   return (
@@ -316,23 +322,16 @@ function AspectRow({
           </p>
         ) : null}
         {aspect.note ? <p className="text-muted-foreground">{aspect.note}</p> : null}
-        <p className="text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">How it’s measured:</span>{" "}
-          {aspect.definition.howMeasured}
-        </p>
-        {aspect.parts.length > 0 ? (
-          <ul className="flex flex-wrap gap-2 text-xs">
-            {aspect.parts.map((part) => (
-              <li key={part.testId} className="rounded-lg border bg-background/40 px-2 py-1">
-                {testTitle(part.testId)}:{" "}
-                <span className="font-mono tabular">
-                  {formatAspectValue("time", part.meanMs, decimals)}
-                </span>{" "}
-                · {part.attempts} {part.attempts === 1 ? "attempt" : "attempts"}
-              </li>
-            ))}
-          </ul>
-        ) : null}
+        {math ? (
+          <p className="text-muted-foreground" data-testid="aspect-math">
+            <span className="font-medium text-foreground">How it’s worked out:</span> {math}
+          </p>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">How it’s measured:</span>{" "}
+            {aspect.definition.howMeasured}
+          </p>
+        )}
         {!timerBased && aspect.missingTests.length > 0 && measured ? (
           <p className="text-xs text-muted-foreground">
             Still to take: {listText(aspect.missingTests.map(testTitle))}.
@@ -356,7 +355,12 @@ function AspectAction({
 }) {
   if (timerBased) {
     return (
-      <Button asChild size="sm" variant="ghost" className="w-full">
+      <Button
+        asChild
+        size="sm"
+        variant="ghost"
+        className="h-auto min-h-8 w-full py-1.5 whitespace-normal"
+      >
         <Link href="/timer/">
           <Timer /> Solve on the timer
         </Link>
@@ -369,7 +373,12 @@ function AspectAction({
   const taken = profile.testsTaken.includes(testId);
   const primary = aspect.value === null || aspect.missingTests.length > 0;
   return (
-    <Button asChild size="sm" variant={primary ? "outline" : "ghost"} className="w-full">
+    <Button
+      asChild
+      size="sm"
+      variant={primary ? "outline" : "ghost"}
+      className="h-auto min-h-8 w-full py-1.5 whitespace-normal"
+    >
       <Link href={testHref(testId)} data-testid={`aspect-action-${aspect.id}`}>
         {testActionLabel(testId, state === "new" && taken ? "done" : state)}
       </Link>
@@ -378,7 +387,6 @@ function AspectAction({
 }
 
 function AllTests({ runs }: { runs: DiagnosticRun[] }) {
-  const { formatTime } = useTimeFormat();
   return (
     <section aria-labelledby="all-tests-heading" className="rounded-3xl p-4 glass md:p-5">
       <h2 id="all-tests-heading" className="px-1 text-base font-semibold">
@@ -388,61 +396,72 @@ function AllTests({ runs }: { runs: DiagnosticRun[] }) {
         Take them in any order. Your latest finished run of each test is used.
       </p>
       <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {TEST_ORDER.map((testId) => {
-          const test = getExercise(testId)!;
-          const status = testStatus(runs, testId);
-          const latest = runs
-            .filter((run) => run.exerciseId === testId && run.completedAt && run.timesMs?.length)
-            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
-          const times = latest?.timesMs ?? [];
-          const average = estimate(times)?.mean ?? null;
-          return (
-            <li
-              key={testId}
-              className="flex flex-col gap-2 rounded-2xl border bg-background/30 p-4"
-              data-testid={`test-card-${testId}`}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <p className="font-semibold">{testTitle(testId)}</p>
-                <span
-                  className={cn(
-                    "shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium",
-                    status.state === "done" && "bg-primary/15 text-primary",
-                    status.state === "in_progress" &&
-                      "bg-amber-500/15 text-amber-800 dark:text-amber-300",
-                    status.state === "new" && "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {status.state === "done"
-                    ? "Done"
-                    : status.state === "in_progress"
-                      ? `${status.attempts} of ${status.target}`
-                      : "Not taken"}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">{test.whatItShows}</p>
-              {average !== null ? (
-                <p className="text-xs text-muted-foreground">
-                  Last result:{" "}
-                  <span className="font-mono tabular text-foreground">
-                    {formatTime(average, "round")}
-                  </span>{" "}
-                  average of {times.length}
-                </p>
-              ) : null}
-              <Button
-                asChild
-                size="sm"
-                variant={status.state === "done" ? "ghost" : "outline"}
-                className="mt-auto self-start"
-              >
-                <Link href={testHref(testId)}>{testActionLabel(testId, status.state)}</Link>
-              </Button>
-            </li>
-          );
-        })}
+        {CORE_TESTS.map((testId) => (
+          <TestCard key={testId} testId={testId} runs={runs} />
+        ))}
+      </ul>
+      <h3 className="mt-6 px-1 text-sm font-semibold">Extra tests</h3>
+      <p className="mt-0.5 px-1 text-sm text-muted-foreground">
+        Optional. They add detail to cross → F2L and lookahead but aren’t needed for a complete
+        profile.
+      </p>
+      <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {EXTRA_TESTS.map((testId) => (
+          <TestCard key={testId} testId={testId} runs={runs} />
+        ))}
       </ul>
     </section>
+  );
+}
+
+function TestCard({ testId, runs }: { testId: string; runs: DiagnosticRun[] }) {
+  const { formatTime } = useTimeFormat();
+  const test = getExercise(testId)!;
+  const status = testStatus(runs, testId);
+  const latest = runs
+    .filter((run) => run.exerciseId === testId && run.completedAt && run.timesMs?.length)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt))[0];
+  const times = latest?.timesMs ?? [];
+  const average = estimate(times)?.mean ?? null;
+  return (
+    <li
+      className="flex flex-col gap-2 rounded-2xl border bg-background/30 p-4"
+      data-testid={`test-card-${testId}`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <p className="font-semibold">{testTitle(testId)}</p>
+        <span
+          className={cn(
+            "shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium",
+            status.state === "done" && "bg-primary/15 text-primary",
+            status.state === "in_progress" && "bg-amber-500/15 text-amber-800 dark:text-amber-300",
+            status.state === "new" && "bg-muted text-muted-foreground",
+          )}
+        >
+          {status.state === "done"
+            ? "Done"
+            : status.state === "in_progress"
+              ? `${status.attempts} of ${status.target}`
+              : "Not taken"}
+        </span>
+      </div>
+      <p className="text-sm text-muted-foreground">{test.whatItShows}</p>
+      {average !== null ? (
+        <p className="text-xs text-muted-foreground">
+          Last result:{" "}
+          <span className="font-mono tabular text-foreground">{formatTime(average, "round")}</span>{" "}
+          average of {times.length}
+        </p>
+      ) : null}
+      <Button
+        asChild
+        size="sm"
+        variant={status.state === "done" ? "ghost" : "outline"}
+        className="mt-auto self-start"
+      >
+        <Link href={testHref(testId)}>{testActionLabel(testId, status.state)}</Link>
+      </Button>
+    </li>
   );
 }
 

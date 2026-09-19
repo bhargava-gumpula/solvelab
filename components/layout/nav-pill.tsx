@@ -16,9 +16,11 @@ interface NavPillProps {
   layoutId: string;
   variant: "top" | "bottom";
   label: string;
+  /** A dot on an item, keyed by href, with what it means for screen readers. */
+  alerts?: Partial<Record<string, string>>;
 }
 
-export function NavPill({ items, pathname, layoutId, variant, label }: NavPillProps) {
+export function NavPill({ items, pathname, layoutId, variant, label, alerts }: NavPillProps) {
   return (
     <nav aria-label={label}>
       <ul
@@ -33,6 +35,7 @@ export function NavPill({ items, pathname, layoutId, variant, label }: NavPillPr
         {items.map(({ href, label: itemLabel, icon: Icon, enabled, comingIn }) => {
           const active = isActivePath(pathname, href);
           const preview = !enabled;
+          const alert = alerts?.[href];
           return (
             <li key={href} className={cn(variant === "bottom" && "flex-1")}>
               <Link
@@ -70,15 +73,25 @@ export function NavPill({ items, pathname, layoutId, variant, label }: NavPillPr
                     </span>
                   </motion.span>
                 )}
-                <Icon
-                  aria-hidden
-                  className={cn(
-                    "relative size-4",
-                    variant === "bottom" && "size-5",
-                    !active && "opacity-80",
-                    preview && "opacity-55",
-                  )}
-                />
+                <span className="relative">
+                  <Icon
+                    aria-hidden
+                    className={cn(
+                      "size-4",
+                      variant === "bottom" && "size-5",
+                      !active && "opacity-80",
+                      preview && "opacity-55",
+                    )}
+                  />
+                  {alert ? (
+                    <span
+                      className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary ring-2 ring-background"
+                      data-testid={`nav-alert-${href.replace(/\W/g, "")}`}
+                    >
+                      <span className="sr-only">{alert}</span>
+                    </span>
+                  ) : null}
+                </span>
                 <span className={cn("relative", variant === "top" && "sr-only lg:not-sr-only")}>
                   {itemLabel}
                 </span>
