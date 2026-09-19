@@ -133,7 +133,10 @@ const round10 = (ms: number) => Math.round(ms / 10) * 10;
 
 export function aspectTargetsFor(milestoneId: string | null | undefined): AspectTargets | null {
   const level = milestoneId ? LEVELS[milestoneId] : undefined;
-  if (!level) return null;
+  return level ? targetsFromLevel(level) : null;
+}
+
+function targetsFromLevel(level: LevelModel): AspectTargets {
   const total = level.thresholdMs;
   const [cross, f2l, oll, pll] = level.split;
   const crossToF2lMs = total * TRANSITION_SHARE.crossToF2l;
@@ -161,6 +164,44 @@ export function aspectTargetsFor(milestoneId: string | null | undefined): Aspect
     consistencyCv: level.consistencyCv,
     turningTps: level.turningTps,
   };
+}
+
+/**
+ * What a typical solver averaging `totalMs` does in each part, for any
+ * average: the level table interpolated on a log scale (and held at its ends).
+ * Used by the coach simulator to create solvers of any speed.
+ */
+export function aspectTargetsForTime(totalMs: number): AspectTargets {
+  const levels = Object.values(LEVELS).sort((a, b) => b.thresholdMs - a.thresholdMs);
+  const slowest = levels[0]!;
+  const fastest = levels[levels.length - 1]!;
+  const clamped = Math.min(slowest.thresholdMs, Math.max(fastest.thresholdMs, totalMs));
+  let upper = slowest;
+  let lower = fastest;
+  for (let i = 0; i < levels.length - 1; i++) {
+    if (clamped <= levels[i]!.thresholdMs && clamped >= levels[i + 1]!.thresholdMs) {
+      upper = levels[i]!;
+      lower = levels[i + 1]!;
+      break;
+    }
+  }
+  const span = Math.log(upper.thresholdMs) - Math.log(lower.thresholdMs);
+  const t = span === 0 ? 0 : (Math.log(upper.thresholdMs) - Math.log(clamped)) / span;
+  const mix = (a: number, b: number) => a + (b - a) * t;
+  const split = upper.split.map((share, index) => mix(share, lower.split[index]!));
+  const shareSum = split.reduce((sum, share) => sum + share, 0);
+  return targetsFromLevel({
+    thresholdMs: totalMs,
+    split: split.map((share) => share / shareSum) as unknown as LevelModel["split"],
+    slowShare: mix(upper.slowShare, lower.slowShare),
+    consistencyCv: mix(upper.consistencyCv, lower.consistencyCv),
+    turningTps:
+      totalMs < fastest.thresholdMs
+        ? fastest.turningTps * Math.sqrt(fastest.thresholdMs / totalMs)
+        : totalMs > slowest.thresholdMs
+          ? slowest.turningTps * Math.sqrt(slowest.thresholdMs / totalMs)
+          : mix(upper.turningTps, lower.turningTps),
+  });
 }
 
 export const TARGET_MILESTONE_IDS = Object.keys(LEVELS);

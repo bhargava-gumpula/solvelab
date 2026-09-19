@@ -80,7 +80,7 @@ export function aspectVerdict(
     case "share": {
       if (tag === "fast") return "Your cases take about the same time.";
       const slow = Math.round(value * aspect.samples);
-      return `${slow} of ${aspect.samples} attempts were much slower than your usual. That usually means cases to learn or practise.`;
+      return `${slow} of ${aspect.samples} attempts were much slower than your quick ones. That usually means cases to learn or practise.`;
     }
     case "spread":
       if (tag === "fast") return "Your times are steady.";
@@ -120,7 +120,7 @@ export function aspectMath(aspect: AspectResult, decimals: TimeDecimals = 2): st
     }
     case "share": {
       const slow = Math.round(value * aspect.samples);
-      return `${slow} of ${aspect.samples} attempts took more than 1.5 times your usual (median) time.`;
+      return `${slow} of ${aspect.samples} attempts took more than 1.5 times as long as your quick ones.`;
     }
     case "speed": {
       const [timed] = parts;

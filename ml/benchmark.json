@@ -1,0 +1,228 @@
+{
+  "cubers": 3000,
+  "stopThreshold": 0.3,
+  "thresholdSweep": [
+    {
+      "threshold": 0,
+      "f1": 0.835,
+      "randomSameCountF1": 0.835,
+      "meanTests": 10
+    },
+    {
+      "threshold": 0.1,
+      "f1": 0.832,
+      "randomSameCountF1": 0.827,
+      "meanTests": 8.82
+    },
+    {
+      "threshold": 0.2,
+      "f1": 0.829,
+      "randomSameCountF1": 0.821,
+      "meanTests": 8.15
+    },
+    {
+      "threshold": 0.3,
+      "f1": 0.823,
+      "randomSameCountF1": 0.812,
+      "meanTests": 7.36
+    },
+    {
+      "threshold": 0.4,
+      "f1": 0.813,
+      "randomSameCountF1": 0.8,
+      "meanTests": 6.47
+    },
+    {
+      "threshold": 0.5,
+      "f1": 0.802,
+      "randomSameCountF1": 0.787,
+      "meanTests": 5.66
+    },
+    {
+      "threshold": 0.6,
+      "f1": 0.788,
+      "randomSameCountF1": 0.77,
+      "meanTests": 4.9
+    },
+    {
+      "threshold": 0.8,
+      "f1": 0.767,
+      "randomSameCountF1": 0.755,
+      "meanTests": 4.13
+    },
+    {
+      "threshold": 1,
+      "f1": 0.767,
+      "randomSameCountF1": 0.755,
+      "meanTests": 4.1
+    }
+  ],
+  "f1": {
+    "rules_all": 0.774,
+    "model_all": 0.833,
+    "planner": 0.82,
+    "random_same_count": 0.81
+  },
+  "plannerMeanTests": 7.41,
+  "plannerTestHistogram": [0, 0, 0, 0, 622, 56, 371, 343, 349, 539, 720],
+  "fixedOrderF1": [
+    {
+      "tests": 1,
+      "rules": 0.19,
+      "model": 0.685
+    },
+    {
+      "tests": 2,
+      "rules": 0.349,
+      "model": 0.718
+    },
+    {
+      "tests": 3,
+      "rules": 0.49,
+      "model": 0.741
+    },
+    {
+      "tests": 4,
+      "rules": 0.604,
+      "model": 0.77
+    },
+    {
+      "tests": 5,
+      "rules": 0.622,
+      "model": 0.779
+    },
+    {
+      "tests": 6,
+      "rules": 0.708,
+      "model": 0.791
+    },
+    {
+      "tests": 7,
+      "rules": 0.716,
+      "model": 0.802
+    },
+    {
+      "tests": 8,
+      "rules": 0.723,
+      "model": 0.81
+    },
+    {
+      "tests": 9,
+      "rules": 0.735,
+      "model": 0.816
+    },
+    {
+      "tests": 10,
+      "rules": 0.774,
+      "model": 0.833
+    }
+  ],
+  "perAspectF1": {
+    "cross": {
+      "rules_all": 0.934,
+      "model_all": 0.942,
+      "planner": 0.937,
+      "random_same_count": 0.936
+    },
+    "cross_planning": {
+      "rules_all": 0.641,
+      "model_all": 0.709,
+      "planner": 0.675,
+      "random_same_count": 0.686
+    },
+    "cross_to_f2l": {
+      "rules_all": 0.586,
+      "model_all": 0.679,
+      "planner": 0.654,
+      "random_same_count": 0.625
+    },
+    "f2l": {
+      "rules_all": 0.946,
+      "model_all": 0.96,
+      "planner": 0.959,
+      "random_same_count": 0.955
+    },
+    "pair_speed": {
+      "rules_all": 0.89,
+      "model_all": 0.936,
+      "planner": 0.931,
+      "random_same_count": 0.931
+    },
+    "lookahead": {
+      "rules_all": 0.661,
+      "model_all": 0.724,
+      "planner": 0.683,
+      "random_same_count": 0.692
+    },
+    "f2l_to_oll": {
+      "rules_all": 0.568,
+      "model_all": 0.694,
+      "planner": 0.631,
+      "random_same_count": 0.621
+    },
+    "oll": {
+      "rules_all": 0.862,
+      "model_all": 0.907,
+      "planner": 0.904,
+      "random_same_count": 0.902
+    },
+    "oll_algorithms": {
+      "rules_all": 0.601,
+      "model_all": 0.671,
+      "planner": 0.67,
+      "random_same_count": 0.654
+    },
+    "oll_to_pll": {
+      "rules_all": 0.562,
+      "model_all": 0.685,
+      "planner": 0.682,
+      "random_same_count": 0.617
+    },
+    "pll": {
+      "rules_all": 0.861,
+      "model_all": 0.909,
+      "planner": 0.906,
+      "random_same_count": 0.895
+    },
+    "pll_algorithms": {
+      "rules_all": 0.634,
+      "model_all": 0.682,
+      "planner": 0.682,
+      "random_same_count": 0.668
+    },
+    "turning_speed": {
+      "rules_all": 0.915,
+      "model_all": 0.922,
+      "planner": 0.909,
+      "random_same_count": 0.904
+    }
+  },
+  "byGoal": {
+    "slow": {
+      "cubers": 1039,
+      "plannerMeanTests": 6.86,
+      "rules_all": 0.808,
+      "model_all": 0.849,
+      "planner": 0.835,
+      "random_same_count": 0.83
+    },
+    "fast": {
+      "cubers": 1191,
+      "plannerMeanTests": 7.78,
+      "rules_all": 0.73,
+      "model_all": 0.816,
+      "planner": 0.801,
+      "random_same_count": 0.781
+    },
+    "middle": {
+      "cubers": 770,
+      "plannerMeanTests": 7.59,
+      "rules_all": 0.779,
+      "model_all": 0.829,
+      "planner": 0.817,
+      "random_same_count": 0.811
+    }
+  },
+  "beatsRules": true,
+  "quick": false
+}

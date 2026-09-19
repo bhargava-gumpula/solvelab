@@ -149,7 +149,8 @@ export const ASPECTS: AspectDefinition[] = [
     kind: "share",
     description:
       "How often an OLL takes much longer than usual. Frequent slow cases usually mean algorithms you don't know well yet.",
-    howMeasured: "Share of OLL test attempts that took over 1.5 times your median.",
+    howMeasured:
+      "Share of OLL test attempts that took over 1.5 times as long as your quick ones (your fastest quarter).",
     tests: ["oll_only"],
     target: (t) => t.ollSlowShare,
   },
@@ -180,7 +181,8 @@ export const ASPECTS: AspectDefinition[] = [
     kind: "share",
     description:
       "How often a PLL takes much longer than usual. Frequent slow cases usually mean algorithms you don't know well yet.",
-    howMeasured: "Share of PLL test attempts that took over 1.5 times your median.",
+    howMeasured:
+      "Share of PLL test attempts that took over 1.5 times as long as your quick ones (your fastest quarter).",
     tests: ["pll_only"],
     target: (t) => t.pllSlowShare,
   },

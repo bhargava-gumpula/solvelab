@@ -1,6 +1,7 @@
 import type {
   AlgorithmAttempt,
   AlgorithmProgress,
+  CoachThread,
   DailyCheck,
   DiagnosticRun,
   LessonProgress,
@@ -28,6 +29,7 @@ export interface SyncedRecords {
   lessonProgress: LessonProgress;
   profileSnapshots: ProfileSnapshot;
   dailyChecks: DailyCheck;
+  coachThreads: CoachThread;
 }
 
 export type CollectionName = keyof SyncedRecords;
@@ -51,6 +53,7 @@ export const COLLECTIONS: { readonly [K in CollectionName]: CollectionSpec<K> } 
   lessonProgress: { tombstoneKind: "lessonProgress", keyOf: (record) => record.lessonId },
   profileSnapshots: { tombstoneKind: "profileSnapshot", keyOf: (record) => record.id },
   dailyChecks: { tombstoneKind: "dailyCheck", keyOf: (record) => record.id },
+  coachThreads: { tombstoneKind: "coachThread", keyOf: (record) => record.id },
 };
 
 export const COLLECTION_NAMES = Object.keys(COLLECTIONS) as CollectionName[];

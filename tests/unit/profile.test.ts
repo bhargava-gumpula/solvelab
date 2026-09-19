@@ -116,8 +116,10 @@ describe("estimates", () => {
     expect(estimate([])).toBeNull();
   });
 
-  it("count attempts much slower than the median as slow cases", () => {
+  it("count attempts much slower than the quick ones as slow cases", () => {
     expect(slowShare([1000, 1100, 1000, 1050, 2000, 1000, 2600, 1000])).toBe(0.25);
+    // Still works when most cases are slow (the median is then a slow case).
+    expect(slowShare([1000, 2400, 2500, 1050, 2600, 2300, 2450, 1000])).toBe(0.625);
   });
 
   it("use the latest finished run, or an unfinished one with enough attempts", () => {
@@ -177,7 +179,7 @@ describe("solve profile", () => {
     expect(oll.value).toBe(0.25);
     expect(oll.tag).toBe("slow");
     expect(aspectVerdict(oll, "Sub 20")).toBe(
-      "3 of 12 attempts were much slower than your usual. That usually means cases to learn or practise.",
+      "3 of 12 attempts were much slower than your quick ones. That usually means cases to learn or practise.",
     );
     expect(aspect(profile, "pll_algorithms").tag).toBe("fast");
   });

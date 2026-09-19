@@ -1,5 +1,39 @@
 # Validation report
 
+## Phase 3 — AI coach (release 3.2, awaiting review)
+
+Run on 2026-09-19 against the static export, Chromium headless, one Playwright worker, Firebase blocked.
+
+| Check           | Command                           | Result                                                            |
+| --------------- | --------------------------------- | ----------------------------------------------------------------- |
+| Full validation | `npm run validate`                | Pass                                                              |
+| Unit tests      | `npm test`                        | 208 passed (23 files)                                             |
+| End-to-end      | `npx playwright test --workers=1` | 57 of 58, then the outdated check fixed and its spec rerun: 10/10 |
+| Model benchmark | `npm run ml:train`                | Coach F1 0.820 with 7.4 tests vs rules 0.774 with 10              |
+
+The model benchmark uses 3,000 fresh simulated cubers (details in `ml/README.md`). The coach beats random test order at every test count. A trained planner that didn't beat random was dropped (dev log 120).
+
+New unit coverage:
+
+- **Network:** it learns and survives saving, for each output kind.
+- **Features:** parity with the profile formulas, and odd inputs held at the edge.
+- **Guards.**
+- **Uncertainty ranking.**
+- **Simulator:** weaknesses show up in the right tests, and goal tables exist for any average.
+- **The shipped model:** it covers the app's tests and parts, beats the rules in its stored benchmark, and never asks for a disallowed test or stops before 4 tests (checked on 20 simulated cubers).
+- **Coach engine:** goal → request → result → next, skip, fresh tests used, old tests re-asked, start over, retest, finished conversations left alone.
+- **Messages:** grammar, the focus/suspect split, disagreement notes, confidence wording.
+- **Tips:** every part has tips, a drill and sources.
+- **Export:** de-identification and record checks.
+- **Storage:** the v5→v6 upgrade, one conversation even when started twice, and transactional steps.
+
+New end-to-end coverage:
+
+- The coach asks for a goal, requests a test, takes it, and "Back to your coach" records the result and the next request. Skipping works, and the conversation survives a reload.
+- With recent tests it sums up at once, with tips and sources, and "Start over" keeps the earlier summary.
+
+Not covered automatically: the export against real Firestore (it needs the owner's key and real data).
+
 ## 3.1 release — Solve profile
 
 Run on 2026-09-19 against the static export, Chromium headless, one Playwright worker, Firebase blocked.

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeading } from "@/components/layout/page-heading";
-import { CoachDashboard } from "@/components/coach/coach-dashboard";
+import { CoachThreadView } from "@/components/coach/coach-thread";
 
 export const metadata: Metadata = { title: "Coach" };
 
@@ -10,9 +10,9 @@ export default function CoachPage() {
       <PageHeading
         eyebrow="Your coach"
         title="Find what’s slowing you down."
-        description="Pick a goal, take a few short tests, and see which parts of your solve to work on."
+        description="Your coach asks for the tests it needs, then tells you what to work on."
       />
-      <CoachDashboard />
+      <CoachThreadView />
     </>
   );
 }

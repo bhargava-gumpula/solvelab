@@ -18,7 +18,11 @@
     "test:e2e": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "validate": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build"
+    "validate": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build",
+    "ml:train": "node ml/scripts/train-coach.mjs",
+    "ml:export": "node ml/scripts/run.mjs ml/train/export-contributions.ts",
+    "ml:calibrate": "node ml/scripts/run.mjs ml/train/calibrate.ts",
+    "ml:sample": "node ml/scripts/run.mjs ml/train/sample-cuber.ts"
   },
   "dependencies": {
     "@number-flow/react": "^0.6.2",
@@ -56,6 +60,7 @@
     "eslint": "9.39.4",
     "eslint-config-next": "16.3.4",
     "fake-indexeddb": "^6.2.5",
+    "firebase-admin": "^14.4.0",
     "jsdom": "^30.0.1",
     "prettier": "^3.9.6",
     "prettier-plugin-tailwindcss": "^0.8.1",

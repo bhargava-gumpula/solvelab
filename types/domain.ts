@@ -287,6 +287,60 @@ export interface DiagnosticRun {
 }
 
 /** Every aspect of a solve at one moment, saved after each finished test. */
+/** One step of a coach conversation. Messages are rendered from these. */
+export type CoachEvent =
+  | { type: "goal"; at: string; goalMilestoneId: string }
+  | {
+      type: "requested";
+      at: string;
+      testId: string;
+      /** Who picked it: the model or the plain rules. */
+      source: "ai" | "rules";
+      /** The part of the solve this test should clear up. */
+      focus: string | null;
+    }
+  | { type: "skipped"; at: string; testId: string }
+  | {
+      type: "result";
+      at: string;
+      testId: string;
+      runId: string;
+      aspects: { id: string; value: number | null; tag: PaceTag | null }[];
+    }
+  | {
+      type: "summary";
+      at: string;
+      goalMilestoneId: string;
+      source: "ai" | "rules";
+      modelVersion: number | null;
+      testsUsed: string[];
+      aspects: {
+        id: string;
+        value: number | null;
+        target: number | null;
+        tag: PaceTag | null;
+        /** Model's chance this is a real weakness; null for rules-only parts. */
+        probability: number | null;
+        weak: boolean;
+      }[];
+    };
+
+/**
+ * A conversation with the coach. "normal" uses recent test data; "fresh"
+ * (start over) measures again from scratch; "retest" retakes the tests behind
+ * the last summary's weak parts.
+ */
+export interface CoachThread {
+  id: string;
+  createdAt: string;
+  mode: "normal" | "fresh" | "retest";
+  /** Retest only: the tests to retake, in order. */
+  plannedTests: string[];
+  events: CoachEvent[];
+  completedAt?: string;
+  updatedAt?: string;
+}
+
 /** A quick daily check: two attempts of each core test. */
 export interface DailyCheck {
   id: string;

@@ -9,6 +9,7 @@ import {
   SCHEMA_V3,
   SCHEMA_V4,
   SCHEMA_V5,
+  SCHEMA_V6,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
@@ -43,7 +44,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V5).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V6).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -266,6 +267,29 @@ describe("schema v3", () => {
     await Dexie.delete(name);
   });
 
+  it("adds coach conversations without touching version 5 data", async () => {
+    const name = `test-v5-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(5).stores(SCHEMA_V5);
+    await legacy.open();
+    await legacy.table("dailyChecks").add({
+      id: "check-1",
+      day: "2026-09-18",
+      createdAt: "2026-09-18T08:00:00.000Z",
+      attempts: { cross_only: [1500, 1600] },
+      skipped: [],
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
+    expect((await upgraded.dailyChecks.get("check-1"))?.attempts.cross_only).toEqual([1500, 1600]);
+    expect(await upgraded.coachThreads.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+
   it("adds daily checks without touching version 4 data", async () => {
     const name = `test-v4-${crypto.randomUUID()}`;
     const legacy = new Dexie(name);
@@ -419,6 +443,47 @@ describe("coach and lesson records", () => {
     expect(done.updatedAt! >= started.updatedAt!).toBe(true);
     expect((await repos.coach.listDailyChecks()).map((entry) => entry.id)).toEqual([started.id]);
     await expect(repos.coach.saveDailyAttempts("missing", "cross_only", [1])).rejects.toThrow();
+  });
+
+  it("starts one coach conversation even if asked twice, and adds steps safely", async () => {
+    const [a, b] = await Promise.all([
+      repos.coach.ensureCoachThread(),
+      repos.coach.ensureCoachThread(),
+    ]);
+    expect(a.id).toBe(b.id);
+    expect(await repos.coach.listCoachThreads()).toHaveLength(1);
+
+    const at = "2026-09-19T12:00:00.000Z";
+    await repos.coach.advanceCoachThread(a.id, () => ({
+      events: [{ type: "goal", at, goalMilestoneId: "sub20" }],
+    }));
+    // Nothing to add: the thread is left alone.
+    const same = await repos.coach.advanceCoachThread(a.id, () => ({ events: [] }));
+    expect(same?.events).toHaveLength(1);
+    const done = await repos.coach.advanceCoachThread(a.id, (thread) => ({
+      events: [
+        {
+          type: "summary",
+          at,
+          goalMilestoneId: "sub20",
+          source: "rules",
+          modelVersion: null,
+          testsUsed: [],
+          aspects: [
+            { id: "cross", value: null, target: 2600, tag: null, probability: null, weak: false },
+          ],
+        },
+      ],
+      complete: thread.events.length === 1,
+    }));
+    expect(done?.events.map((event) => event.type)).toEqual(["goal", "summary"]);
+    expect(done?.completedAt).toBeDefined();
+
+    // Conversations are ordered by start time; make sure this one starts later.
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    const fresh = await repos.coach.startCoachThread("retest", ["pll_only"]);
+    expect(fresh.plannedTests).toEqual(["pll_only"]);
+    expect((await repos.coach.listCoachThreads()).at(-1)?.id).toBe(fresh.id);
   });
 
   it("saves profile snapshots in order", async () => {

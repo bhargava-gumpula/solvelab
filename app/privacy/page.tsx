@@ -25,11 +25,12 @@ export default function PrivacyPage() {
         <li>
           <strong className="text-foreground">When you are signed in</strong>, your solves,
           sessions, settings (timer options, appearance such as theme and digit style, and view
-          choices such as chart ranges), skill tests, daily checks and training plans, finished
-          lessons, and algorithm choices are stored in Google Cloud Firestore under your Firebase
-          user id (<code className="text-foreground">users/&lt;uid&gt;/…</code>). That copy is what
-          restores them on a new device or after you clear this browser. It is not stored as a file
-          on {legal.operator}’s laptop, Raspberry Pi, or git repository.
+          choices such as chart ranges), skill tests, daily checks, coach conversations and
+          summaries, training plans, finished lessons, and algorithm choices are stored in Google
+          Cloud Firestore under your Firebase user id (
+          <code className="text-foreground">users/&lt;uid&gt;/…</code>). That copy is what restores
+          them on a new device or after you clear this browser. It is not stored as a file on{" "}
+          {legal.operator}’s laptop, Raspberry Pi, or git repository.
         </li>
         <li>
           <strong className="text-foreground">A working copy</strong> of the same records also stays

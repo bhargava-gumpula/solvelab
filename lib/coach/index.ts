@@ -1,14 +1,11 @@
 import type { DiagnosticRun, Solve } from "@/types/domain";
-import coachMlp from "@/ml/coach-mlp.json";
 import { summarizeBaseline } from "./baseline";
 import { diagnose, type Diagnosis } from "./diagnose";
 import { buildTrainingPlan } from "./plan";
 import { compareRetest } from "./retest";
-import { predictWeakness } from "./ml-features";
 import { scoreSkillsFromSolves } from "./scoring";
 import { materializeDiagnosticSolves, sandboxTimesToSolves } from "./sandbox-solves";
 import { coachNarrative } from "./templates";
-import type { MlpModel } from "@/ml/mlp";
 
 export type { Diagnosis } from "./diagnose";
 export { summarizeBaseline, selectBaselineSolves, inferMilestone } from "./baseline";
@@ -18,7 +15,6 @@ export { buildTrainingPlan, markPlanProgress, isPlanComplete } from "./plan";
 export { compareRetest } from "./retest";
 export { coachNarrative } from "./templates";
 export { mean, averageOf, coefficientOfVariation, validTimes } from "./stats";
-export { predictWeakness, featuresFromSolves } from "./ml-features";
 export { materializeDiagnosticSolves, sandboxTimesToSolves } from "./sandbox-solves";
 export {
   analyzeGoalStages,
@@ -41,9 +37,11 @@ export {
 export { STAGE_TIPS, tipsForStage } from "./tips";
 export type { PaceTag } from "@/types/domain";
 
-const model = coachMlp as unknown as MlpModel;
-
-/** One-shot pipeline: solves → skill scores → (rules + MLP) diagnosis → optional plan. */
+/**
+ * The 3.0 pipeline: solves → skill scores → rule diagnosis → optional plan.
+ * The 3.2 coach (lib/coach/coach-engine.ts) replaces it on the Coach page;
+ * the Train preview still uses it until training packs arrive.
+ */
 export function analyzeSolves(
   solves: Solve[],
   options?: {
@@ -65,14 +63,13 @@ export function analyzeSolves(
   const skillScores = scoreSkillsFromSolves(combined, baseline, undefined, {
     targetMilestoneId: options?.targetMilestoneId,
   });
-  const ml = predictWeakness(model, combined);
   const diagnosis = diagnose(skillScores, baseline, {
     targetMilestoneId: options?.targetMilestoneId,
     diagnosticRuns: options?.diagnosticRuns,
     solves,
     extraTimesMs: options?.extraTimesMs,
     extraExerciseId: options?.extraExerciseId,
-    ml: ml ? { skillId: ml.skillId, confidence: ml.confidence } : null,
+    ml: null,
   });
   const narrative = coachNarrative(diagnosis);
   const plan = diagnosis.ready ? buildTrainingPlan(diagnosis) : null;
@@ -104,4 +101,3 @@ export function analyzeSandboxAttempt(
 }
 
 export { compareRetest as retest };
-export { model as coachMlpModel };

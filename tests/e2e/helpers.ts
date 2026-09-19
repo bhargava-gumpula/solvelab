@@ -86,3 +86,59 @@ export async function inspectionSolve(page: Page, solveMs = 600, options = { mov
   await expect(display(page)).toHaveAttribute("data-tone", "inspection");
   await keyboardSolve(page, solveMs, options);
 }
+
+/** Mean times used for imported core-test runs (a solver close to Sub 20). */
+const CORE_TEST_MEANS: Record<string, number> = {
+  cross_only: 2000,
+  f2l_only: 7000,
+  oll_only: 1600,
+  pll_only: 1900,
+  cross_f2l: 9800,
+  last_slot: 1500,
+  ls_oll: 3400,
+  oll_pll_only: 3700,
+  cross_unlimited: 1800,
+  tps_test: 3000,
+};
+
+/**
+ * Imports one timer solve plus finished runs of the core tests (cross 2.00 s,
+ * unlimited cross 1.80 s, …) with goal Sub 20, through Settings → Import.
+ */
+export async function importCoreTests(
+  page: Page,
+  { skip = [] as string[], finishedAt = Date.UTC(2026, 7, 2) } = {},
+) {
+  const backup = makeBackup([{ rawTimeMs: 20_000 }]);
+  Object.assign(backup.data, {
+    diagnosticRuns: Object.entries(CORE_TEST_MEANS)
+      .filter(([testId]) => !skip.includes(testId))
+      .map(([exerciseId, mean], index) => {
+        const at = new Date(finishedAt + index * 60_000).toISOString();
+        return {
+          id: `run-${exerciseId}`,
+          exerciseId,
+          createdAt: at,
+          completedAt: at,
+          updatedAt: at,
+          solveIds: [],
+          sampleCount: 12,
+          timesMs: Array(12).fill(mean),
+        };
+      }),
+  });
+  Object.assign(backup.data.settings, { targetMilestone: "sub20", trainingNoticeSeen: true });
+  await page.goto("/settings/");
+  await expect(page.getByText("Local database ready")).toBeVisible();
+  await page.getByTestId("backup-file-input").setInputFiles({
+    name: "profile.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await page.getByRole("radio", { name: /Replace/ }).click();
+  await page.getByRole("button", { name: "Replace my data" }).click();
+  await expect(page.getByText(/Imported 1 solves/)).toBeVisible();
+}
+
+/** Tests that start with 15-second inspection. */
+export const INSPECTION_TESTS = new Set(["cross_only", "cross_f2l", "cross_first_pair"]);

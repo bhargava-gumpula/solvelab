@@ -1,4 +1,6 @@
 import type {
+  CoachEvent,
+  CoachThread,
   DailyCheck,
   DiagnosticRun,
   ProfileSnapshot,
@@ -8,6 +10,7 @@ import type {
 import type { LocalDatabase } from "./database";
 import { createId } from "./ids";
 import {
+  coachThreadSchema,
   dailyCheckSchema,
   diagnosticRunSchema,
   profileSnapshotSchema,
@@ -173,6 +176,72 @@ export class CoachRepository {
 
   async listProfileSnapshots(): Promise<ProfileSnapshot[]> {
     return this.db.profileSnapshots.orderBy("createdAt").toArray();
+  }
+
+  async listCoachThreads(): Promise<CoachThread[]> {
+    return this.db.coachThreads.orderBy("createdAt").toArray();
+  }
+
+  /** The latest conversation, starting one if there's none yet (safe to call twice). */
+  async ensureCoachThread(): Promise<CoachThread> {
+    return this.db.transaction("rw", this.db.coachThreads, async () => {
+      const latest = await this.db.coachThreads.orderBy("createdAt").last();
+      if (latest) return latest;
+      const createdAt = now();
+      const thread = coachThreadSchema.parse({
+        id: createId(),
+        createdAt,
+        mode: "normal",
+        plannedTests: [],
+        events: [],
+        updatedAt: createdAt,
+      });
+      await this.db.coachThreads.add(thread);
+      return thread;
+    });
+  }
+
+  async startCoachThread(
+    mode: CoachThread["mode"],
+    plannedTests: string[] = [],
+  ): Promise<CoachThread> {
+    const createdAt = now();
+    const thread = coachThreadSchema.parse({
+      id: createId(),
+      createdAt,
+      mode,
+      plannedTests,
+      events: [],
+      updatedAt: createdAt,
+    });
+    await this.db.coachThreads.add(thread);
+    return thread;
+  }
+
+  /**
+   * Adds events worked out from the thread as it is inside the transaction, so
+   * two tabs can't add the same step twice. `decide` returns the new events,
+   * and whether the conversation is now finished.
+   */
+  async advanceCoachThread(
+    id: string,
+    decide: (thread: CoachThread) => { events: CoachEvent[]; complete?: boolean },
+  ): Promise<CoachThread | undefined> {
+    return this.db.transaction("rw", this.db.coachThreads, async () => {
+      const thread = await this.db.coachThreads.get(id);
+      if (!thread) return undefined;
+      const { events, complete } = decide(thread);
+      if (events.length === 0 && !complete) return thread;
+      const stamp = now();
+      const next = coachThreadSchema.parse({
+        ...thread,
+        events: [...thread.events, ...events],
+        ...(complete && !thread.completedAt ? { completedAt: stamp } : {}),
+        updatedAt: stamp,
+      });
+      await this.db.coachThreads.put(next);
+      return next;
+    });
   }
 
   async listDailyChecks(): Promise<DailyCheck[]> {

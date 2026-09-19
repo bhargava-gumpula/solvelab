@@ -17,6 +17,7 @@ import { getExercise, isTestId, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { aspectTargetsFor, testGoal } from "@/data/milestones/aspect-targets";
 import { useSettings } from "@/hooks/use-local-data";
+import { useOpenCoachRequest } from "@/hooks/use-coach-thread";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
 import { useTimeFormat } from "@/hooks/use-time-format";
 import { aspectsForTest } from "@/lib/coach/aspects";
@@ -309,6 +310,8 @@ function TestResults({
   const result = estimate(times);
   const aspectIds = new Set(aspectsForTest(test.id).map((aspect) => aspect.id));
   const aspects = profile?.aspects.filter((aspect) => aspectIds.has(aspect.id)) ?? [];
+  // When the coach asked for this test, it decides what comes next.
+  const coachWaiting = useOpenCoachRequest() === test.id;
   const nextTest =
     profile && !profile.complete && profile.nextTest && profile.nextTest !== test.id
       ? profile.nextTest
@@ -384,14 +387,20 @@ function TestResults({
             </span>
           </p>
         ) : null}
-        {nextTest ? (
+        {coachWaiting ? (
+          <Button asChild size="lg">
+            <Link href="/coach/" data-testid="back-to-coach">
+              Back to your coach <ArrowRight />
+            </Link>
+          </Button>
+        ) : nextTest ? (
           <Button asChild size="lg">
             <Link href={testHref(nextTest)} data-testid="next-test">
               Next: {testTitle(nextTest)} <ArrowRight />
             </Link>
           </Button>
         ) : null}
-        <Button asChild size="lg" variant={nextTest ? "outline" : "default"}>
+        <Button asChild size="lg" variant={nextTest || coachWaiting ? "outline" : "default"}>
           <Link href={PROFILE_HREF}>See your solve profile</Link>
         </Button>
         {profile?.complete ? (

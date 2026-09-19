@@ -2,6 +2,8 @@ import { z } from "zod";
 import { sanitizeAppearance } from "@/lib/appearance/preferences";
 import { cubeEventSchema } from "@/lib/cube/events";
 import type {
+  CoachEvent,
+  CoachThread,
   AlgorithmAttempt,
   AlgorithmProgress,
   DailyCheck,
@@ -176,6 +178,57 @@ export const diagnosticRunSchema: z.ZodType<DiagnosticRun> = z.object({
   timesMs: z.array(z.number().nonnegative()).optional(),
   updatedAt: optionalIso,
   contributedAt: optionalIso,
+});
+
+const paceTagSchema = z.enum(["slow", "average", "fast"]).nullable();
+
+const coachEventSchema: z.ZodType<CoachEvent> = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("goal"), at: z.string(), goalMilestoneId: z.string().min(1) }),
+  z.object({
+    type: z.literal("requested"),
+    at: z.string(),
+    testId: z.string().min(1),
+    source: z.enum(["ai", "rules"]),
+    focus: z.string().nullable(),
+  }),
+  z.object({ type: z.literal("skipped"), at: z.string(), testId: z.string().min(1) }),
+  z.object({
+    type: z.literal("result"),
+    at: z.string(),
+    testId: z.string().min(1),
+    runId: z.string().min(1),
+    aspects: z.array(
+      z.object({ id: z.string(), value: z.number().finite().nullable(), tag: paceTagSchema }),
+    ),
+  }),
+  z.object({
+    type: z.literal("summary"),
+    at: z.string(),
+    goalMilestoneId: z.string().min(1),
+    source: z.enum(["ai", "rules"]),
+    modelVersion: z.number().int().nullable(),
+    testsUsed: z.array(z.string()),
+    aspects: z.array(
+      z.object({
+        id: z.string(),
+        value: z.number().finite().nullable(),
+        target: z.number().finite().nullable(),
+        tag: paceTagSchema,
+        probability: z.number().min(0).max(1).nullable(),
+        weak: z.boolean(),
+      }),
+    ),
+  }),
+]);
+
+export const coachThreadSchema: z.ZodType<CoachThread> = z.object({
+  id: z.string().min(1),
+  createdAt: z.string().min(1),
+  mode: z.enum(["normal", "fresh", "retest"]),
+  plannedTests: z.array(z.string()),
+  events: z.array(coachEventSchema).max(200),
+  completedAt: optionalIso,
+  updatedAt: optionalIso,
 });
 
 export const dailyCheckSchema: z.ZodType<DailyCheck> = z.object({

@@ -11,7 +11,11 @@ export const MIN_TEST_TIMES = 3;
 export const MIN_SHARE_ATTEMPTS = 8;
 /** Timer solves needed for the full-solve average and consistency. */
 export const MIN_TIMER_SOLVES = 12;
-/** An attempt over this multiple of the median counts as a slow case. */
+/**
+ * An attempt over this multiple of a quick attempt (the fastest quarter)
+ * counts as a slow case. Measuring from the quick end rather than the median
+ * still works when most cases are slow, which is exactly when it matters.
+ */
 export const SLOW_CASE_FACTOR = 1.5;
 
 export interface TestSample {
@@ -60,12 +64,11 @@ export function estimate(times: number[]): Estimate | null {
   return { mean: trimmed, se: Math.sqrt(variance / n), n };
 }
 
-/** Share of attempts that took over SLOW_CASE_FACTOR × the median. */
+/** Share of attempts that took over SLOW_CASE_FACTOR × a quick one (the lower quartile). */
 export function slowShare(times: number[]): number {
   const sorted = [...times].sort((a, b) => a - b);
-  const middle = Math.floor(sorted.length / 2);
-  const median = sorted.length % 2 ? sorted[middle]! : (sorted[middle - 1]! + sorted[middle]!) / 2;
-  return times.filter((time) => time > median * SLOW_CASE_FACTOR).length / times.length;
+  const quick = sorted[Math.floor((sorted.length - 1) * 0.25)]!;
+  return times.filter((time) => time > quick * SLOW_CASE_FACTOR).length / times.length;
 }
 
 export interface AspectResult {

@@ -39,8 +39,12 @@ const testRuns = [
   ["pll_only", around(1800, 180, 12)],
   ["cross_f2l", around(9700, 700, 10)],
   ["last_slot", around(1450, 200, 12)],
+  ["ls_oll", around(3300, 300, 10)],
+  ["oll_pll_only", around(3900, 350, 10)],
+  ["cross_unlimited", around(1650, 200, 10)],
+  ["tps_test", around(2900, 150, 5)],
 ].map(([exerciseId, timesMs], i) => {
-  const at = new Date(now - (6 - i) * 20 * 60 * 1000).toISOString();
+  const at = new Date(now - (10 - i) * 20 * 60 * 1000).toISOString();
   return {
     id: `run-${exerciseId}`,
     exerciseId,
@@ -181,8 +185,26 @@ await shoot("coach", {
   height: 900,
   run: async (page) => {
     await page.goto(`${base}/coach/`);
-    await page.getByTestId("coach-message").waitFor();
+    await page.getByTestId("coach-thread").waitFor();
     await page.waitForTimeout(600);
+  },
+});
+await shoot("coach-summary", {
+  width: 1440,
+  height: 2400,
+  run: async (page) => {
+    await page.goto(`${base}/coach/`);
+    await page.getByTestId("coach-summary").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(800);
+  },
+});
+await shoot("coach-summary-mobile", {
+  width: 390,
+  height: 2200,
+  run: async (page) => {
+    await page.goto(`${base}/coach/`);
+    await page.getByTestId("coach-summary").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(800);
   },
 });
 await shoot("solve-profile", {

@@ -1,54 +1,13 @@
 import { expect, test, type Page } from "./fixtures";
-import { inspectionSolve, keyboardSolve, makeBackup } from "./helpers";
+import {
+  importCoreTests as importProfile,
+  inspectionSolve,
+  keyboardSolve,
+  makeBackup,
+} from "./helpers";
 
 const surface = (page: Page) => page.getByTestId("test-timer-surface");
 const progress = (page: Page) => page.getByTestId("test-progress");
-
-/** Imports finished runs of the core tests (cross 2.00 s, unlimited cross 1.80 s, …) with goal Sub 20. */
-async function importProfile(page: Page, { skip = [] as string[] } = {}) {
-  const means: Record<string, number> = {
-    cross_only: 2000,
-    f2l_only: 7000,
-    oll_only: 1600,
-    pll_only: 1900,
-    cross_f2l: 9800,
-    last_slot: 1500,
-    ls_oll: 3400,
-    oll_pll_only: 3700,
-    cross_unlimited: 1800,
-    tps_test: 3000,
-  };
-  const backup = makeBackup([{ rawTimeMs: 20_000 }]);
-  const start = Date.UTC(2026, 7, 2);
-  Object.assign(backup.data, {
-    diagnosticRuns: Object.entries(means)
-      .filter(([testId]) => !skip.includes(testId))
-      .map(([exerciseId, mean], index) => {
-        const at = new Date(start + index * 60_000).toISOString();
-        return {
-          id: `run-${exerciseId}`,
-          exerciseId,
-          createdAt: at,
-          completedAt: at,
-          updatedAt: at,
-          solveIds: [],
-          sampleCount: 12,
-          timesMs: Array(12).fill(mean),
-        };
-      }),
-  });
-  Object.assign(backup.data.settings, { targetMilestone: "sub20", trainingNoticeSeen: true });
-  await page.goto("/settings/");
-  await expect(page.getByText("Local database ready")).toBeVisible();
-  await page.getByTestId("backup-file-input").setInputFiles({
-    name: "profile.json",
-    mimeType: "application/json",
-    buffer: Buffer.from(JSON.stringify(backup)),
-  });
-  await page.getByRole("radio", { name: /Replace/ }).click();
-  await page.getByRole("button", { name: "Replace my data" }).click();
-  await expect(page.getByText(/Imported 1 solves/)).toBeVisible();
-}
 
 async function openTest(page: Page, testId: string) {
   await page.goto(`/coach/tests/${testId}/`);
@@ -60,16 +19,11 @@ async function openTest(page: Page, testId: string) {
 test.describe("skill tests and the solve profile", () => {
   test("goal → cross test → delete an attempt → results → profile", async ({ page }) => {
     test.setTimeout(150_000);
-    await page.goto("/coach/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Find what’s slowing you down.",
-    );
-    await expect(page.getByText("What time are you aiming for?")).toBeVisible({
-      timeout: 20_000,
-    });
+    await page.goto("/stats/profile/");
+    await expect(page.getByTestId("pick-goal")).toBeVisible({ timeout: 20_000 });
     await page.getByRole("button", { name: /^Sub 20/ }).click();
 
-    await page.getByRole("link", { name: "Start cross test" }).click();
+    await page.getByTestId("start-next-test").click();
     await page.waitForURL(/\/coach\/tests\/cross_only\/?$/, { timeout: 20_000 });
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Cross test");
     await expect(page.getByText("Goal for Sub 20:")).toBeVisible();
@@ -230,11 +184,9 @@ test.describe("skill tests and the solve profile", () => {
       "Cross test 2.00 s − Unlimited-inspection cross test 1.80 s = 0.20 s",
     );
 
+    // The imported tests are over two weeks old, so the coach asks to measure again.
     await page.goto("/coach/");
-    await expect(page.getByTestId("coach-headline")).toHaveText("Your solve profile is complete.", {
-      timeout: 20_000,
-    });
-    await expect(page.getByTestId("coach-next-test")).toHaveCount(0);
+    await expect(page.getByTestId("coach-request")).toBeVisible({ timeout: 20_000 });
   });
 
   test("daily check: two attempts each, fix a mistake, skip, results and reminder", async ({
