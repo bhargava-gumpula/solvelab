@@ -1,12 +1,22 @@
 #!/usr/bin/env bash
 # Copy the static export to the Pi and (re)start the SolveLab process.
 # Cloudflare Tunnel still needs a public hostname pointing at localhost:4173.
+#
+# Machine details stay out of git: put them in .env.deploy at the repo root
+# (git-ignored), for example
+#   SOLVELAB_PI=user@pi-hostname
+#   SOLVELAB_REMOTE=/home/user/Work/solvelab
+#   SOLVELAB_NODE=/home/user/.nvm/versions/node/v20.20.2/bin/node
 set -euo pipefail
 
-PI="${SOLVELAB_PI:-bhargavagumpula@10.0.0.16}"
-REMOTE="${SOLVELAB_REMOTE:-/home/bhargavagumpula/Work/solvelab}"
-NODE="${SOLVELAB_NODE:-/home/bhargavagumpula/.nvm/versions/node/v20.20.2/bin/node}"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+if [[ -f "$ROOT/.env.deploy" ]]; then
+  # shellcheck disable=SC1091
+  source "$ROOT/.env.deploy"
+fi
+PI="${SOLVELAB_PI:?Set SOLVELAB_PI (user@host) in .env.deploy or the environment}"
+REMOTE="${SOLVELAB_REMOTE:-Work/solvelab}"
+NODE="${SOLVELAB_NODE:-node}"
 
 if [[ ! -d "$ROOT/out" ]] || ! find "$ROOT/out" -name index.html | grep -q .; then
   echo "No production build in out/. Run npm run build first." >&2
