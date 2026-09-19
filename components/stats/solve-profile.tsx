@@ -159,7 +159,7 @@ function NextStep({
                 : "Keep going to fill in the rest. Every part below updates as you finish tests."}
           </p>
           {started ? (
-            <ul className="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Summary">
+            <ul className="mt-5 flex flex-wrap gap-3" aria-label="Summary">
               <SummaryCount tag="slow" count={profile.counts.slow} />
               <SummaryCount tag="average" count={profile.counts.average} />
               <SummaryCount tag="fast" count={profile.counts.fast} />
@@ -211,9 +211,9 @@ function NextStep({
 
 function SummaryCount({ tag, count }: { tag: "slow" | "average" | "fast"; count: number }) {
   return (
-    <li className="flex items-center gap-1.5 rounded-lg border bg-background/40 px-2.5 py-1">
-      <span className="font-mono tabular font-semibold">{count}</span>
-      <PaceBadge tag={tag} />
+    <li className="flex items-center gap-2.5 rounded-xl border bg-background/40 px-4 py-2">
+      <span className="font-mono tabular text-xl font-semibold">{count}</span>
+      <PaceBadge tag={tag} className="rounded-lg px-2.5 py-1 text-sm" />
     </li>
   );
 }
