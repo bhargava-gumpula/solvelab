@@ -16,7 +16,9 @@ export type CaseKind =
   /** The last layer's top stickers all face up; where its pieces sit is free. */
   | "oll"
   /** Corners home and oriented, edges oriented but free to sit anywhere. */
-  | "coll";
+  | "coll"
+  /** The first two layers finished; the last layer is left as it is. */
+  | "f2l";
 
 export const AUF = ["", "U", "U2", "U'"] as const;
 
@@ -28,24 +30,54 @@ export const AUF = ["", "U", "U2", "U'"] as const;
 const TURNS = ["", "y", "y2", "y'"] as const;
 
 /** The same state with the cube stood back up in the usual orientation. */
-function upright(facelets: string): string | null {
+function upright(facelets: string, test = firstTwoLayersSolved): string | null {
   for (const turn of TURNS) {
     const candidate = turn ? applyAlgorithm(turn, facelets) : facelets;
-    if (firstTwoLayersSolved(candidate)) return candidate;
+    if (test(candidate)) return candidate;
   }
   return null;
+}
+
+/**
+ * The front-right slot: the corner between D, F and R, and the edge between F
+ * and R. Every F2L case is written for this slot, and the solver turns the cube
+ * to bring their slot here.
+ */
+const SLOT = { corner: [26, 15, 29], edge: [23, 12] } as const;
+
+/** Everything in the first two layers except the front-right slot. */
+export function otherSlotsSolved(facelets: string): boolean {
+  const spare = new Set<number>([...SLOT.corner, ...SLOT.edge]);
+  const faces = { R: 9, F: 18, D: 27, L: 36, B: 45 } as const;
+  for (const [face, start] of Object.entries(faces)) {
+    // The bottom two rows of each side, and all of D.
+    const from = face === "D" ? 0 : 3;
+    for (let index = from; index < 9; index++) {
+      const at = start + index;
+      if (spare.has(at)) continue;
+      if (facelets[at] !== face) return false;
+    }
+  }
+  return true;
 }
 
 /**
  * The state this algorithm leaves behind when it is undone on a solved cube,
  * stood upright. Throws when the algorithm isn't a last-layer one at all.
  */
-export function caseStateOf(algorithm: string): string {
+export function caseStateOf(algorithm: string, kind: CaseKind = "pll"): string {
   const parsed = parseAlgorithm(algorithm);
   if (!parsed.ok) throw new Error(`Not an algorithm: ${algorithm} (${parsed.error.message})`);
   const state = applyAlgorithm(formatAlgorithm(invertAlgorithm(parsed.moves)), SOLVED_FACELETS);
-  const stood = upright(state);
-  if (!stood) throw new Error(`${algorithm} does not leave the first two layers alone`);
+  // An F2L case is one pair short by definition; the rest must still be there.
+  const stood = kind === "f2l" ? upright(state, otherSlotsSolved) : upright(state);
+  if (!stood) {
+    throw new Error(
+      kind === "f2l"
+        ? `${algorithm} disturbs more than the front-right slot`
+        : `${algorithm} does not leave the first two layers alone`,
+    );
+  }
   return stood;
 }
 
@@ -79,6 +111,9 @@ function satisfies(facelets: string, kind: CaseKind): boolean {
   if (!stood) return false;
   if (kind === "pll") return isSolved(stood);
   if (kind === "oll") return lastLayerOriented(stood);
+  // The pair is in and the rest of the first two layers is untouched; what the
+  // last layer looks like is the next step's problem.
+  if (kind === "f2l") return true;
   return cornersSolved(stood);
 }
 
@@ -133,4 +168,55 @@ export function orientationSignature(facelets: string): string {
   })
     .sort()
     .at(0)!;
+}
+
+/** Where each corner and edge's stickers sit, in the usual facelet order. */
+const CORNER_SPOTS: readonly (readonly [number, number, number])[] = [
+  [8, 9, 20],
+  [6, 18, 38],
+  [0, 36, 47],
+  [2, 45, 11],
+  [29, 26, 15],
+  [27, 44, 24],
+  [33, 42, 53],
+  [35, 51, 17],
+];
+const EDGE_SPOTS: readonly (readonly [number, number])[] = [
+  [5, 10],
+  [7, 19],
+  [3, 37],
+  [1, 46],
+  [32, 16],
+  [28, 25],
+  [30, 43],
+  [34, 52],
+  [23, 12],
+  [21, 41],
+  [50, 39],
+  [48, 14],
+];
+
+/**
+ * The stickers of the pair that belongs in the front-right slot: the corner
+ * carrying the down, front and right colours, and the edge carrying front and
+ * right. Everything else in an F2L case is the last layer, which doesn't matter
+ * yet, so a diagram can leave it grey.
+ */
+export function pairStickers(facelets: string): number[] {
+  const spots: number[] = [];
+  for (const corner of CORNER_SPOTS) {
+    const stickers = corner.map((spot) => facelets[spot]!);
+    if (["D", "F", "R"].every((colour) => stickers.includes(colour))) {
+      spots.push(...corner);
+      break;
+    }
+  }
+  for (const edge of EDGE_SPOTS) {
+    const stickers = edge.map((spot) => facelets[spot]!);
+    if (stickers.includes("F") && stickers.includes("R")) {
+      spots.push(...edge);
+      break;
+    }
+  }
+  return spots;
 }

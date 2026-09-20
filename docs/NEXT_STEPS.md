@@ -48,12 +48,9 @@ Still open from this phase:
 
 ## Algorithm bank — what is left
 
-PLL and OLL are done (78 cases, 199 algorithms, all verified by `tests/unit/algorithms.test.ts`).
-Still to add, each needing its own check in `lib/cube/case-check.ts`:
+PLL, OLL and F2L are done (119 cases, 311 algorithms, all verified by
+`tests/unit/algorithms.test.ts`). Still to add:
 
-- **F2L (41 cases):** the check is "this slot is solved and everything else is untouched", not a
-  last-layer one. Cases are defined by the pair's starting position, so each needs a setup as well
-  as its algorithms.
 - **2-look OLL and PLL:** curated subsets. 2-look OLL's first step only orients edges, so it needs
   an "edges oriented, corners free" check; the second step is the seven cases already in OLL
   (21–27). 2-look PLL is a subset of the PLL cases.

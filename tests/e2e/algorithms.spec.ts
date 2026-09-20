@@ -5,6 +5,7 @@ test.describe("the algorithm bank", () => {
     await page.goto("/algorithms/");
     await expect(page.getByTestId("set-pll")).toContainText("21 cases");
     await expect(page.getByTestId("set-oll")).toContainText("57 cases");
+    await expect(page.getByTestId("set-f2l")).toContainText("41 cases");
 
     await page.getByTestId("set-pll").click();
     await expect(page).toHaveURL(/\/algorithms\/pll\/?$/);
@@ -42,6 +43,19 @@ test.describe("the algorithm bank", () => {
     await page.getByLabel("Find a case").fill("edges only");
     await expect(page.getByTestId("case-pll-h")).toBeVisible();
     await expect(page.getByTestId("case-pll-t")).toHaveCount(0);
+  });
+
+  test("pair cases show where the pair is and how to put it in", async ({ page }) => {
+    await page.goto("/algorithms/f2l/");
+    await expect(page.getByTestId("set-progress")).toContainText("0 of 41 known", {
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid^="case-f2l-"]')).toHaveCount(41);
+    await page.getByTestId("case-f2l-1").click();
+    const dialog = page.getByRole("dialog");
+    // The case says where the pair sits, in words.
+    await expect(dialog).toContainText(/Corner .*\. Edge .*\./);
+    await expect(dialog.locator('[data-testid^="algorithm-f1-"]').first()).toContainText("R U R'");
   });
 
   test("every case shows a diagram and at least one algorithm", async ({ page }) => {

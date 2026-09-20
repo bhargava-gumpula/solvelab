@@ -1,10 +1,11 @@
+import { f2l } from "@/data/algorithms/sets/f2l";
 import { oll } from "@/data/algorithms/sets/oll";
 import { pll } from "@/data/algorithms/sets/pll";
 import type { AlgorithmSetData, CaseAlgorithm, CaseEntry } from "@/data/algorithms/types";
-import { caseStateOf } from "@/lib/cube/case-check";
+import { caseStateOf, type CaseKind } from "@/lib/cube/case-check";
 
 /** Every set with cases behind it. Others are still to come. */
-export const ALGORITHM_SETS: AlgorithmSetData[] = [pll, oll];
+export const ALGORITHM_SETS: AlgorithmSetData[] = [pll, oll, f2l];
 
 export function getAlgorithmSet(setId: string): AlgorithmSetData | null {
   return ALGORITHM_SETS.find((set) => set.id === setId) ?? null;
@@ -17,10 +18,10 @@ export function getCase(setId: string, caseId: string): CaseEntry | null {
 /** The cube as this case leaves it, worked out once per case. */
 const states = new Map<string, string>();
 
-export function caseStateFor(entry: CaseEntry): string {
+export function caseStateFor(entry: CaseEntry, kind: CaseKind = "pll"): string {
   const cached = states.get(entry.id);
   if (cached) return cached;
-  const state = caseStateOf(entry.algorithms[0]!.moves);
+  const state = caseStateOf(entry.algorithms[0]!.moves, kind);
   states.set(entry.id, state);
   return state;
 }

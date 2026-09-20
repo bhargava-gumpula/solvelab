@@ -35,7 +35,7 @@ export function CaseDetail({
       <div className="flex flex-wrap items-start gap-4">
         <div className="w-28 shrink-0">
           <CaseDiagram
-            facelets={caseStateFor(entry)}
+            facelets={caseStateFor(entry, set.kind)}
             kind={set.kind}
             title={`${entry.name}, seen from above`}
           />

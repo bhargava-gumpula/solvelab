@@ -10,6 +10,7 @@ import {
   checkAlgorithm,
   firstTwoLayersSolved,
   orientationSignature,
+  otherSlotsSolved,
 } from "@/lib/cube/case-check";
 import { countLabels, labelForState, stateForLabel } from "@/lib/algorithms/labels";
 
@@ -18,8 +19,16 @@ describe("the algorithm bank", () => {
     "%s: every algorithm solves the case it is listed under",
     (_name, set) => {
       for (const entry of set.cases) {
-        const state = caseStateFor(entry);
-        expect(firstTwoLayersSolved(state), `${entry.name} leaves the first two layers`).toBe(true);
+        const state = caseStateFor(entry, set.kind);
+        if (set.kind === "f2l") {
+          // A pair case is one slot short, and nothing else may be missing.
+          expect(otherSlotsSolved(state), `${entry.name} disturbs another slot`).toBe(true);
+          expect(firstTwoLayersSolved(state), `${entry.name} is already solved`).toBe(false);
+        } else {
+          expect(firstTwoLayersSolved(state), `${entry.name} leaves the first two layers`).toBe(
+            true,
+          );
+        }
         for (const algorithm of entry.algorithms) {
           const result = checkAlgorithm(state, algorithm.moves, set.kind);
           expect(result.ok, `${entry.name} ${algorithm.id}: ${algorithm.moves}`).toBe(true);
@@ -33,7 +42,7 @@ describe("the algorithm bank", () => {
     (_name, set) => {
       const seen = new Map<string, string>();
       for (const entry of set.cases) {
-        const state = caseStateFor(entry);
+        const state = caseStateFor(entry, set.kind);
         const signature = set.kind === "oll" ? orientationSignature(state) : caseSignature(state);
         expect(seen.get(signature), `${entry.name} repeats ${seen.get(signature)}`).toBeUndefined();
         seen.set(signature, entry.name);
@@ -44,8 +53,11 @@ describe("the algorithm bank", () => {
   it("covers the standard sets, with ids that never collide", () => {
     const pll = ALGORITHM_SETS.find((set) => set.id === "pll")!;
     const oll = ALGORITHM_SETS.find((set) => set.id === "oll")!;
+    const f2l = ALGORITHM_SETS.find((set) => set.id === "f2l")!;
     expect(pll.cases).toHaveLength(21);
     expect(oll.cases).toHaveLength(57);
+    // Every way the last pair can sit, worked out from the cube itself.
+    expect(f2l.cases).toHaveLength(41);
     const ids = ALGORITHM_SETS.flatMap((set) =>
       set.cases.flatMap((entry) => [entry.id, ...entry.algorithms.map((a) => a.id)]),
     );

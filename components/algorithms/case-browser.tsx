@@ -122,7 +122,7 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
                       className="w-full rounded-2xl border p-3 text-left glass transition-colors hover:border-primary/40"
                     >
                       <CaseDiagram
-                        facelets={caseStateFor(entry)}
+                        facelets={caseStateFor(entry, set.kind)}
                         kind={set.kind}
                         className="mx-auto w-20"
                         title={`${entry.name}, seen from above`}
