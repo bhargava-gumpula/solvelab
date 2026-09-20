@@ -239,7 +239,8 @@ export interface AlgorithmProgress {
   preferredVariantId?: string;
   customVariants: AlgorithmVariant[];
   notes?: string;
-  performance: AlgorithmPerformance;
+  /** Drill timings, once practice is added. */
+  performance?: AlgorithmPerformance;
   updatedAt?: string;
 }
 export interface AlgorithmAttempt {

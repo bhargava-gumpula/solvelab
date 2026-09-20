@@ -293,14 +293,13 @@ test.describe("skill tests and the solve profile", () => {
       page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.4\.$/ }),
     ).toBeVisible();
 
+    // Algorithms is open for business: two sets built, the rest still to come.
     await page.goto("/algorithms/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-      "Build a repertoire you can rely on.",
+      "Every case, every algorithm that works.",
     );
-    await expect(
-      page.getByRole("strong").filter({ hasText: /^Planned for 3\.3\.$/ }),
-    ).toBeVisible();
-    await expect(page.getByText(/coming in 3\.3/).first()).toBeVisible();
+    await expect(page.getByTestId("set-pll")).toContainText("21 cases");
+    await expect(page.getByTestId("set-f2l")).toContainText("Coming later");
 
     await page.goto("/settings/");
     await expect(page.getByRole("heading", { name: "SolveLab 3.1" })).toBeVisible();

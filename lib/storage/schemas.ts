@@ -268,20 +268,22 @@ export const algorithmProgressSchema: z.ZodType<AlgorithmProgress> = z.object({
   preferredVariantId: z.string().min(1).optional(),
   customVariants: z.array(algorithmVariantSchema).max(50),
   notes: z.string().max(MAX_NOTES_LENGTH).optional(),
-  performance: z.object({
-    caseId: z.string().min(1),
-    attempts: z.number().int().nonnegative(),
-    successfulAttempts: z.number().int().nonnegative(),
-    recognitionAverageMs: z.number().nonnegative().optional(),
-    executionAverageMs: z.number().nonnegative().optional(),
-    totalAverageMs: z.number().nonnegative().optional(),
-    bestRecognitionMs: z.number().nonnegative().optional(),
-    bestExecutionMs: z.number().nonnegative().optional(),
-    lastPracticedAt: optionalIso,
-    masteryScore: z.number(),
-    confidence: z.number(),
-    dueAt: optionalIso,
-  }),
+  performance: z
+    .object({
+      caseId: z.string().min(1),
+      attempts: z.number().int().nonnegative(),
+      successfulAttempts: z.number().int().nonnegative(),
+      recognitionAverageMs: z.number().nonnegative().optional(),
+      executionAverageMs: z.number().nonnegative().optional(),
+      totalAverageMs: z.number().nonnegative().optional(),
+      bestRecognitionMs: z.number().nonnegative().optional(),
+      bestExecutionMs: z.number().nonnegative().optional(),
+      lastPracticedAt: optionalIso,
+      masteryScore: z.number(),
+      confidence: z.number(),
+      dueAt: optionalIso,
+    })
+    .optional(),
   updatedAt: optionalIso,
 });
 

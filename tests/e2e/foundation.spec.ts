@@ -104,7 +104,7 @@ test("command palette runs actions", async ({ page }) => {
   await expect(page).toHaveURL(/\/stats\/?$/);
 });
 
-test("mobile navigation, algorithm search and empty results", async ({ page }) => {
+test("mobile navigation, case search and empty results", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/timer/");
   await page
@@ -112,12 +112,15 @@ test("mobile navigation, algorithm search and empty results", async ({ page }) =
     .getByRole("link", { name: "Algorithms" })
     .click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
-    "Build a repertoire you can rely on.",
+    "Every case, every algorithm that works.",
   );
-  await page.getByRole("textbox", { name: "Search algorithm sets" }).fill("pll");
-  await expect(page.getByRole("status")).toHaveText("2 planned sets");
-  await page.getByRole("textbox", { name: "Search algorithm sets" }).fill("no-such-case");
-  await expect(page.getByText("No matching sets")).toBeVisible();
+  // Searching happens inside a set, where the cases are.
+  await page.getByTestId("set-oll").click();
+  await page.getByLabel("Find a case").fill("sune");
+  await expect(page.getByTestId("case-oll-27")).toBeVisible();
+  await expect(page.getByTestId("case-oll-1")).toHaveCount(0);
+  await page.getByLabel("Find a case").fill("no-such-case");
+  await expect(page.getByText("No case here matches that.")).toBeVisible();
 });
 
 test("keyboard users can skip to content", async ({ page }) => {

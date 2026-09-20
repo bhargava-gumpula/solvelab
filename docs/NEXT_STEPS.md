@@ -46,6 +46,23 @@ Still open from this phase:
 - **Turn on Train and Learn:** `features.train = true` and `features.learn = true` in `lib/config/features.ts`. Rebuild or replace `components/train/train-dashboard.tsx`. The existing Learn lesson content can seed the Learn tab.
 - **Tests:** the e2e test opens a recommended pack, does a drill, reloads (progress survives), and retests (the profile changes).
 
+## Algorithm bank — what is left
+
+PLL and OLL are done (78 cases, 199 algorithms, all verified by `tests/unit/algorithms.test.ts`).
+Still to add, each needing its own check in `lib/cube/case-check.ts`:
+
+- **F2L (41 cases):** the check is "this slot is solved and everything else is untouched", not a
+  last-layer one. Cases are defined by the pair's starting position, so each needs a setup as well
+  as its algorithms.
+- **2-look OLL and PLL:** curated subsets. 2-look OLL's first step only orients edges, so it needs
+  an "edges oriented, corners free" check; the second step is the seven cases already in OLL
+  (21–27). 2-look PLL is a subset of the PLL cases.
+- **COLL (40) and WV (27):** `checkAlgorithm` already understands COLL (corners home and oriented,
+  edges free). WV acts on a last slot that is not yet in, so it needs a setup per case.
+- **Custom algorithms:** the repository already stores them (`addCustom`); the case dialog doesn't
+  offer them yet. Validate with `parseAlgorithm` and check with `checkAlgorithm` before saving, so
+  a person can't save one that doesn't solve the case.
+
 ## Phase 6 — BETA AI chat (later)
 
 - An optional chat that uses the person's own AI provider through official APIs (their API key) or a local Ollama. No cookie or credential scraping.

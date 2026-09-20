@@ -1,4 +1,5 @@
 import { getDatabase, type LocalDatabase } from "./database";
+import { AlgorithmRepository } from "./algorithm-repository";
 import { CoachRepository } from "./coach-repository";
 import { LessonRepository } from "./lesson-repository";
 import { SessionRepository } from "./session-repository";
@@ -11,6 +12,7 @@ export interface Repositories {
   solves: SolveRepository;
   settings: SettingsRepository;
   coach: CoachRepository;
+  algorithms: AlgorithmRepository;
   lessons: LessonRepository;
 }
 
@@ -21,6 +23,7 @@ export function createRepositories(db: LocalDatabase): Repositories {
     solves: new SolveRepository(db),
     settings: new SettingsRepository(db),
     coach: new CoachRepository(db),
+    algorithms: new AlgorithmRepository(db),
     lessons: new LessonRepository(db),
   };
 }

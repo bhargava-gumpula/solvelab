@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeading } from "@/components/layout/page-heading";
-import { PhaseNotice } from "@/components/layout/phase-notice";
-import { AlgorithmCatalog } from "@/components/algorithms/algorithm-catalog";
-import { upcoming } from "@/lib/config/features";
+import { AlgorithmSetList } from "@/components/algorithms/set-list";
 
 export const metadata: Metadata = { title: "Algorithms" };
 
@@ -10,15 +8,11 @@ export default function AlgorithmsPage() {
   return (
     <>
       <PageHeading
-        eyebrow="Recognize. Recall. Execute."
-        title="Build a repertoire you can rely on."
-        description="Browse the sets we will train. Drills and tracking come later."
+        eyebrow="Algorithms"
+        title="Every case, every algorithm that works."
+        description="Mark what you know, what you're learning and what you don't, and pick the algorithm your fingers like. Each one is checked against a cube."
       />
-      <AlgorithmCatalog />
-      <PhaseNotice phase={upcoming.algorithms}>
-        Case diagrams, variants, timed drills, and mastery tracking are planned for{" "}
-        {upcoming.algorithms}. You can browse the set list now.
-      </PhaseNotice>
+      <AlgorithmSetList />
     </>
   );
 }

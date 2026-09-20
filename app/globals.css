@@ -209,6 +209,8 @@
   --cube-r: #b71234;
   --cube-l: #ff5800;
   --cube-stroke: #0b0c0e;
+  /* A last-layer sticker that isn't facing up yet. */
+  --cube-unsolved: #3d4350;
 }
 
 @theme inline {
