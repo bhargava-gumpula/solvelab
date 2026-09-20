@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { keyboardSolve, openTimer } from "./helpers";
+import { keyboardSolve, openTimer, seedStoredAccount } from "./helpers";
 
 test.describe("without an account", () => {
   test.use({ account: "signedOut" });
@@ -95,6 +95,66 @@ test.describe("with an account", () => {
     expect(left.counts.coachThreads).toBe(0);
     expect(left.counts.diagnosticRuns).toBe(0);
     expect(left.tombstones).toBeNull();
+  });
+});
+
+test.describe("switching accounts", () => {
+  test("a second account signing in gets none of the first one's data", async ({ page }) => {
+    // The first account leaves a solve and a conversation behind.
+    await openTimer(page);
+    await keyboardSolve(page, 300);
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+    await page.goto("/coach/");
+    await expect(page.getByTestId("coach-thread")).toBeVisible({ timeout: 20_000 });
+
+    // Someone else signs in on the same browser without signing out first.
+    await seedStoredAccount(page, "e2e-account-two");
+    await page.goto("/timer/");
+
+    // The app clears the other account's copy and starts the page again, so
+    // read until that has settled.
+    let left: { solves: number; threads: number; owner: string | null } | null = null;
+    await expect
+      .poll(
+        async () => {
+          try {
+            left = await page.evaluate(
+              async () =>
+                await new Promise<{ solves: number; threads: number; owner: string | null }>(
+                  (resolve) => {
+                    const open = indexedDB.open("speedcubing-local");
+                    open.onsuccess = () => {
+                      const db = open.result;
+                      const transaction = db.transaction(
+                        ["solves", "coachThreads", "meta"],
+                        "readonly",
+                      );
+                      const solves = transaction.objectStore("solves").count();
+                      const threads = transaction.objectStore("coachThreads").count();
+                      const owner = transaction.objectStore("meta").get("accountOwner");
+                      transaction.oncomplete = () =>
+                        resolve({
+                          solves: solves.result,
+                          threads: threads.result,
+                          owner: (owner.result as { value?: string } | undefined)?.value ?? null,
+                        });
+                    };
+                  },
+                ),
+            );
+          } catch {
+            // The page reloaded mid-read; try again.
+            return null;
+          }
+          return left;
+        },
+        { timeout: 30_000 },
+      )
+      .toMatchObject({ solves: 0, owner: "e2e-account-two" });
+
+    await expect(page.getByText("No solves yet")).toBeVisible({ timeout: 20_000 });
+    // Any conversation here is a new, empty one for the second account.
+    expect(left!.threads).toBeLessThanOrEqual(1);
   });
 });
 

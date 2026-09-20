@@ -10,6 +10,7 @@ import {
   SCHEMA_V4,
   SCHEMA_V5,
   SCHEMA_V6,
+  SCHEMA_V7,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
@@ -44,7 +45,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V6).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V7).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -263,6 +264,30 @@ describe("schema v3", () => {
     expect(await upgraded.solves.count()).toBe(1);
     expect((await upgraded.diagnosticRuns.get("run-1"))?.timesMs).toEqual([2100]);
     expect(await upgraded.lessonProgress.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+
+  it("adds the local notes table without touching version 6 data", async () => {
+    const name = `test-v6-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(6).stores(SCHEMA_V6);
+    await legacy.open();
+    await legacy.table("coachThreads").add({
+      id: "thread-1",
+      createdAt: "2026-09-19T08:00:00.000Z",
+      mode: "normal",
+      plannedTests: [],
+      events: [],
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
+    expect(await upgraded.coachThreads.get("thread-1")).toBeDefined();
+    // An upgraded copy has no owner yet, so the next sign-in adopts it.
+    expect(await upgraded.meta.count()).toBe(0);
     upgraded.close();
     await Dexie.delete(name);
   });

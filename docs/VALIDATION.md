@@ -16,8 +16,10 @@ There is no test-only switch in the app itself. A test asks for the signed-out s
 `test.use({ account: "signedOut" })`.
 
 New unit coverage: which areas need an account and which stay open, the state for each auth status
-(a build with no Firebase config locks nothing), and the sign-out reset — the database is dropped,
-`solvelab.` keys go, the appearance key and other apps' keys stay, and the next open starts empty.
+(a build with no Firebase config locks nothing), the sign-out reset (the database is dropped,
+`solvelab.` keys go, the appearance key and other apps' keys stay, the next open starts empty, and
+the tables are emptied even while another connection holds the database open), the account claim
+(adopted / same / switched, and refusing doesn't take the copy over) and the v6→v7 upgrade.
 
 New end-to-end coverage:
 
@@ -28,6 +30,8 @@ New end-to-end coverage:
   runs, no tombstones, and Coach locked again.
 - Sharing for coach training is now judged by what the app records and sends, not by counting
   Firebase calls, since a signed-in account syncs as well.
+- A second account signing in on the same browser, with no sign-out in between, gets none of the
+  first account's solves or conversations, and the copy is stamped with the new account.
 
 Not covered automatically: a real Google sign-in, and sync against real Firestore.
 

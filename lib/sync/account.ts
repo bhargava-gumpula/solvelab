@@ -1,5 +1,6 @@
 import type { LocalDatabase } from "@/lib/storage/database";
 import { getRepositories } from "@/lib/storage";
+import { claimAccount } from "@/lib/storage/account-owner";
 import { getAuthSnapshot } from "@/lib/auth/session";
 import { getFirebaseConfig } from "@/lib/auth/config";
 import {
@@ -240,4 +241,17 @@ export function isOfflineSyncError(error: unknown): boolean {
   if (code === "unavailable" || code === "deadline-exceeded" || code === "cancelled") return true;
   const message = error instanceof Error ? error.message : "";
   return /network|offline|failed to fetch|err_(blocked|failed|internet)/i.test(message);
+}
+
+/**
+ * What this browser's copy means for the account that just signed in. Called
+ * before any sync, so one account's data is never merged into another's — or
+ * uploaded to it.
+ */
+export async function startAccountSession(uid: string): Promise<"synced" | "switched"> {
+  const { db } = getRepositories();
+  const claim = await claimAccount(db, uid);
+  if (claim === "switched") return "switched";
+  await syncAccountNow();
+  return "synced";
 }

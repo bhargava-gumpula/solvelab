@@ -142,3 +142,68 @@ export async function importCoreTests(
 
 /** Tests that start with 15-second inspection. */
 export const INSPECTION_TESTS = new Set(["cross_only", "cross_f2l", "cross_first_pair"]);
+
+export async function seedStoredAccount(page: Page, uid = "e2e-account"): Promise<void> {
+  await page.goto("/timer/");
+  await page.evaluate(async (accountId) => {
+    const urls = performance
+      .getEntriesByType("resource")
+      .map((entry) => entry.name)
+      .filter((name) => name.includes("/_next/static/chunks/"));
+    let apiKey: string | null = null;
+    for (const url of urls) {
+      const source = await (await fetch(url)).text();
+      const match = /AIzaSy[A-Za-z0-9_-]{20,}/.exec(source);
+      if (match) {
+        apiKey = match[0];
+        break;
+      }
+    }
+    // A build without Firebase config can't sign anyone in, and doesn't lock.
+    if (!apiKey) return;
+    const now = Date.now();
+    const user = {
+      uid: accountId,
+      email: `${accountId}@example.com`,
+      displayName: `Tester ${accountId}`,
+      photoURL: null,
+      emailVerified: true,
+      isAnonymous: false,
+      providerData: [
+        {
+          providerId: "google.com",
+          uid: accountId,
+          displayName: `Tester ${accountId}`,
+          email: `${accountId}@example.com`,
+          phoneNumber: null,
+          photoURL: null,
+        },
+      ],
+      stsTokenManager: {
+        refreshToken: `${accountId}-refresh`,
+        accessToken: `${accountId}-access`,
+        expirationTime: now + 86_400_000,
+      },
+      createdAt: String(now),
+      lastLoginAt: String(now),
+      apiKey,
+      appName: "[DEFAULT]",
+    };
+    const key = `firebase:authUser:${apiKey}:[DEFAULT]`;
+    // Firebase settles on localStorage in this browser, so that is what it
+    // reads on the next load; the IndexedDB copy is kept in step with it.
+    localStorage.setItem(key, JSON.stringify(user));
+    await new Promise<void>((resolve) => {
+      const open = indexedDB.open("firebaseLocalStorageDb", 1);
+      open.onupgradeneeded = () =>
+        open.result.createObjectStore("firebaseLocalStorage", { keyPath: "fbase_key" });
+      open.onsuccess = () => {
+        const transaction = open.result.transaction("firebaseLocalStorage", "readwrite");
+        transaction.objectStore("firebaseLocalStorage").put({ fbase_key: key, value: user });
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => resolve();
+      };
+      open.onerror = () => resolve();
+    });
+  }, uid);
+}

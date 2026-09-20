@@ -64,7 +64,23 @@ export const SCHEMA_V6 = {
   coachThreads: "id, createdAt",
 } as const;
 
-export const DATABASE_VERSION = 6;
+/** V7 (3.2): local-only notes about this copy, such as the account it belongs to. */
+export const SCHEMA_V7 = {
+  ...SCHEMA_V6,
+  meta: "key",
+} as const;
+
+export const DATABASE_VERSION = 7;
+
+/**
+ * A local-only note. This table is deliberately absent from the sync registry:
+ * it describes this browser's copy, not the person's data.
+ */
+export interface MetaRecord {
+  key: string;
+  value: string;
+  updatedAt: string;
+}
 
 export async function upgradeToV2(transaction: Transaction): Promise<void> {
   let order = 0;
@@ -98,6 +114,7 @@ export class LocalDatabase extends Dexie {
   profileSnapshots!: Table<ProfileSnapshot, string>;
   dailyChecks!: Table<DailyCheck, string>;
   coachThreads!: Table<CoachThread, string>;
+  meta!: Table<MetaRecord, string>;
 
   constructor(name = DATABASE_NAME) {
     super(name);
@@ -107,6 +124,7 @@ export class LocalDatabase extends Dexie {
     this.version(4).stores(SCHEMA_V4);
     this.version(5).stores(SCHEMA_V5);
     this.version(6).stores(SCHEMA_V6);
+    this.version(7).stores(SCHEMA_V7);
   }
 }
 

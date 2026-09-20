@@ -1,6 +1,7 @@
 import Dexie from "dexie";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { accessState, areaOf, ACCOUNT_AREAS } from "@/lib/auth/access";
+import { claimAccount, readAccountOwner } from "@/lib/storage/account-owner";
 import { APPEARANCE_STORAGE_KEY } from "@/lib/appearance/preferences";
 import { DATABASE_NAME, initializeStorage, LocalDatabase } from "@/lib/storage/database";
 import { resetLocalData } from "@/lib/storage/reset";
@@ -86,6 +87,23 @@ describe("signing out", () => {
     expect(localStorage.getItem("other-app.keep")).toBe("not ours");
   });
 
+  it("empties the data even when another tab is holding the database open", async () => {
+    // The other tab's connection blocks a delete; the tables are cleared anyway.
+    const other = new LocalDatabase();
+    await other.open();
+    try {
+      await resetLocalData();
+      const rows = new LocalDatabase();
+      await rows.open();
+      expect(await rows.solves.count()).toBe(0);
+      expect(await rows.coachThreads.count()).toBe(0);
+      expect(await rows.meta.count()).toBe(0);
+      rows.close();
+    } finally {
+      other.close();
+    }
+  }, 15_000);
+
   it("starts from an empty database afterwards, with no leftover solves", async () => {
     await resetLocalData();
     const fresh = new LocalDatabase();
@@ -93,5 +111,32 @@ describe("signing out", () => {
     await initializeStorage(fresh);
     expect(await fresh.solves.count()).toBe(0);
     fresh.close();
+  });
+});
+
+describe("whose copy this browser holds", () => {
+  let db: LocalDatabase;
+
+  beforeEach(async () => {
+    db = new LocalDatabase();
+    await db.open();
+  });
+
+  afterEach(async () => {
+    db.close();
+    await Dexie.delete(DATABASE_NAME);
+  });
+
+  it("adopts a copy with no owner, knows its own, and refuses another account's", async () => {
+    expect(await readAccountOwner(db)).toBeNull();
+    // A signed-out person's own times join the account they sign in to.
+    expect(await claimAccount(db, "account-a")).toBe("adopted");
+    expect(await readAccountOwner(db)).toBe("account-a");
+    expect(await claimAccount(db, "account-a")).toBe("same");
+
+    // Someone else signing in on this browser gets nothing of account A's,
+    // and the copy is not quietly signed over to them either.
+    expect(await claimAccount(db, "account-b")).toBe("switched");
+    expect(await readAccountOwner(db)).toBe("account-a");
   });
 });
