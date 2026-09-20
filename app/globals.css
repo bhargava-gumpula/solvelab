@@ -385,6 +385,84 @@
   }
 }
 
+/* The coach blinks now and then, and more often while it is working. */
+@keyframes coach-blink {
+  0%,
+  90%,
+  100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.12);
+  }
+}
+
+.coach-avatar-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: coach-blink 6s ease-in-out infinite;
+}
+
+.coach-avatar[data-thinking="true"] .coach-avatar-eyes {
+  animation-duration: 2.4s;
+}
+
+.coach-avatar[data-thinking="true"] {
+  animation: coach-thinking 1.8s ease-in-out infinite;
+}
+
+@keyframes coach-thinking {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--color-primary);
+  }
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-primary) 12%, transparent);
+  }
+}
+
+/* Three dots, like a chat app typing indicator. */
+@keyframes coach-typing-dot {
+  0%,
+  70%,
+  100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  35% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.coach-typing-dot {
+  animation: coach-typing-dot 1.3s ease-in-out infinite;
+}
+
+.coach-typing-dot:nth-child(2) {
+  animation-delay: 0.18s;
+}
+
+.coach-typing-dot:nth-child(3) {
+  animation-delay: 0.36s;
+}
+
+/* Each message fades up as it lands. */
+@keyframes coach-message-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.coach-message-in {
+  animation: coach-message-in 220ms ease-out both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

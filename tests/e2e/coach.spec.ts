@@ -27,7 +27,11 @@ test.describe("coach conversation", () => {
   }) => {
     test.setTimeout(150_000);
     await page.goto("/coach/");
+    // The coach writes its messages, so the dots show before the first bubble.
+    await expect(page.getByTestId("coach-typing")).toBeVisible({ timeout: 20_000 });
     await expect(page.getByTestId("coach-ask-goal")).toBeVisible({ timeout: 20_000 });
+    // Typing back isn't possible yet, and the page says so.
+    await expect(page.getByTestId("coach-composer")).toContainText("planned for a later version");
     await page
       .getByTestId("coach-ask-goal")
       .getByRole("button", { name: /^Sub 20/ })

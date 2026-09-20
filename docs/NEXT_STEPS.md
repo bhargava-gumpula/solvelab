@@ -51,6 +51,7 @@ Still open from this phase:
 - An optional chat that uses the person's own AI provider through official APIs (their API key) or a local Ollama. No cookie or credential scraping.
 - The chat sees only the `CoachContext` summary and can only suggest known tests and packs.
 - Check at the time what providers officially allow. Consumer subscriptions such as ChatGPT Plus usually can't be connected to other sites.
+- Settings already has the row for it: **AI coach → Connect your own AI**, disabled with a "Coming later" badge (`components/settings/settings-panel.tsx`, anchor `#coach-ai`). The Coach page's chat box is disabled and links to it. Both switch on when this ships.
 
 ## Open items and follow-ups
 

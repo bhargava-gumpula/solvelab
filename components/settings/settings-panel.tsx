@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -126,6 +128,40 @@ export function SettingsPanel() {
             Loading preferences…
           </p>
         )}
+      </SettingsSection>
+
+      <SettingsSection
+        id="coach-ai"
+        title="AI coach"
+        description="The coach that reads your test results and says what to work on."
+      >
+        <div className="grid gap-5">
+          <div className="bg-surface-sunken flex items-start gap-3 rounded-lg p-4">
+            <Sparkles className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+            <div className="text-sm">
+              <p className="font-medium">Built-in coach · on this device</p>
+              <p className="mt-0.5 text-muted-foreground">
+                It was trained on simulated solvers and runs in your browser. Your times are never
+                sent anywhere to produce its advice.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-start justify-between gap-6">
+            <div>
+              <p className="text-sm font-medium">
+                Connect your own AI <Badge variant="outline">Coming later</Badge>
+              </p>
+              <p className="mt-0.5 text-sm text-muted-foreground">
+                Chat with the coach in your own words, using your own AI account or a model running
+                on your computer. Planned for a later version of {brand.name}; the coach stays
+                guided for now.
+              </p>
+            </div>
+            <div className="pt-0.5">
+              <Switch aria-label="Connect your own AI" checked={false} disabled />
+            </div>
+          </div>
+        </div>
       </SettingsSection>
 
       <DataSection />

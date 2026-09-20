@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -8,10 +8,12 @@ import {
   Check,
   ExternalLink,
   RotateCcw,
+  SendHorizontal,
   SkipForward,
-  Sparkles,
   Target,
 } from "lucide-react";
+import { useAppearance } from "@/components/appearance/appearance-provider";
+import { CoachAvatar } from "@/components/coach/coach-avatar";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { DailyCheckButton } from "@/components/tests/daily-check-card";
 import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
@@ -31,6 +33,7 @@ import { aspectTargetsFor } from "@/data/milestones/aspect-targets";
 import { useCoachThread } from "@/hooks/use-coach-thread";
 import { useTimeFormat } from "@/hooks/use-time-format";
 import { baselineOf } from "@/lib/coach/ai/features";
+import type { CoachModel } from "@/lib/coach/ai/model";
 import { getAspect, type AspectId } from "@/lib/coach/aspects";
 import { openRequest, summaryOf, type Summary } from "@/lib/coach/coach-engine";
 import {
@@ -48,28 +51,42 @@ import { formatAspectGoal, formatAspectValue } from "@/lib/coach/profile-format"
 import { testActionLabel, testStatus } from "@/lib/coach/test-status";
 import type { TimeDecimals } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
-import type { CoachEvent, CoachThread, DiagnosticRun } from "@/types/domain";
+import type { CoachEvent, CoachThread, DiagnosticRun, Solve } from "@/types/domain";
 
 const PROFILE_HREF = "/stats/profile/";
+
+/** The coach's name, so the conversation has someone in it. */
+const COACH_NAME = "Cube Coach";
 
 const goalLabel = (id: string | null | undefined) =>
   milestones.find((m) => m.id === id)?.label ?? "your goal";
 
+/**
+ * How long the coach "writes" each kind of message. The work is instant, but a
+ * pause with a typing indicator reads as an answer rather than a page render.
+ */
+const TYPING_MS = {
+  hello: 700,
+  note: 900,
+  goal: 0,
+  requested: 1100,
+  skipped: 0,
+  result: 1500,
+  summary: 2300,
+} as const;
+
+/** One message in the thread; `you` messages appear at once, with no typing. */
+interface Message {
+  from: "coach" | "you";
+  typingMs: number;
+  /** Shown under the dots while the coach works on a long answer. */
+  caption?: string;
+  node: React.ReactNode;
+}
+
 /** The Coach page: a conversation that asks for tests and ends with a summary. */
 export function CoachThreadView() {
   const { loaded, thread, threads, runs, solves, settings, model, actions } = useCoachThread();
-  const { formatAverage, decimals } = useTimeFormat();
-  const endRef = useRef<HTMLDivElement>(null);
-  const eventCount = thread?.events.length ?? 0;
-  // Follow new messages as they arrive, but open an existing conversation at the top.
-  const seenCount = useRef<number | null>(null);
-  useEffect(() => {
-    if (!loaded) return;
-    if (seenCount.current !== null && eventCount > seenCount.current) {
-      endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
-    seenCount.current = eventCount;
-  }, [loaded, eventCount]);
 
   if (!loaded || !settings) {
     return (
@@ -80,12 +97,6 @@ export function CoachThreadView() {
     );
   }
 
-  const baseline = baselineOf(solves);
-  const averageText =
-    baseline.averageMs !== null && baseline.count >= 5 ? formatAverage(baseline.averageMs) : null;
-  const goal = settings.targetMilestone;
-  const summary = summaryOf(thread);
-  const open = thread ? openRequest(thread.events) : null;
   const earlier = threads
     .slice(0, -1)
     .filter((entry) => summaryOf(entry))
@@ -94,37 +105,50 @@ export function CoachThreadView() {
   return (
     <div className="mx-auto grid max-w-3xl gap-4">
       <TrainingDataNotice />
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3 glass">
-        <p className="text-sm text-muted-foreground">
-          {averageText ? (
-            <>
-              Your average: <span className="font-mono tabular text-foreground">{averageText}</span>
-            </>
-          ) : (
-            "No timer average yet"
-          )}
-        </p>
-        <div className="flex flex-wrap items-center gap-2">
-          {goal ? (
-            <>
-              <span className="text-sm text-muted-foreground">Goal</span>
-              <GoalSelect value={goal} />
-            </>
-          ) : null}
-          <Button asChild variant="ghost" size="sm">
-            <Link href={PROFILE_HREF}>
-              <ChartColumnBig /> Solve profile
-            </Link>
-          </Button>
-        </div>
-      </div>
+      {/* Keyed by conversation: starting over begins a new one, typed out again. */}
+      <Conversation
+        key={thread?.id ?? "empty"}
+        thread={thread}
+        runs={runs}
+        solves={solves}
+        goal={settings.targetMilestone}
+        model={model}
+        actions={actions}
+      />
+      {earlier.length > 0 ? <EarlierSummaries threads={earlier} /> : null}
+    </div>
+  );
+}
 
-      <ol
-        className="grid gap-3"
-        aria-label="Conversation with your coach"
-        data-testid="coach-thread"
-      >
-        <CoachBubble>
+function Conversation({
+  thread,
+  runs,
+  solves,
+  goal,
+  model,
+  actions,
+}: {
+  thread: CoachThread | null;
+  runs: DiagnosticRun[];
+  solves: Solve[];
+  goal: string | null;
+  model: CoachModel | null;
+  actions: ReturnType<typeof useCoachThread>["actions"];
+}) {
+  const { formatAverage, decimals } = useTimeFormat();
+  const { reducedMotion } = useAppearance();
+  const baseline = baselineOf(solves);
+  const averageText =
+    baseline.averageMs !== null && baseline.count >= 5 ? formatAverage(baseline.averageMs) : null;
+  const summary = summaryOf(thread);
+  const open = thread ? openRequest(thread.events) : null;
+
+  const messages: Message[] = [
+    {
+      from: "coach",
+      typingMs: TYPING_MS.hello,
+      node: (
+        <CoachBubble key="hello">
           <p>
             Hi! I&apos;ll find what&apos;s slowing you down with a few short tests, then tell you
             what to work on.
@@ -136,81 +160,231 @@ export function CoachThreadView() {
             </p>
           )}
         </CoachBubble>
+      ),
+    },
+  ];
 
-        {thread?.mode === "fresh" ? (
-          <CoachBubble>Starting over: I&apos;ll measure everything again from scratch.</CoachBubble>
-        ) : null}
-        {thread?.mode === "retest" ? (
-          <CoachBubble>
-            Let&apos;s check your weak spots again:{" "}
-            {thread.plannedTests.map((id) => testPhrase(id)).join(", ")}.
-          </CoachBubble>
-        ) : null}
+  if (thread?.mode === "fresh") {
+    messages.push({
+      from: "coach",
+      typingMs: TYPING_MS.note,
+      node: (
+        <CoachBubble key="fresh">
+          Starting over: I&apos;ll measure everything again from scratch.
+        </CoachBubble>
+      ),
+    });
+  }
+  if (thread?.mode === "retest") {
+    messages.push({
+      from: "coach",
+      typingMs: TYPING_MS.note,
+      node: (
+        <CoachBubble key="retest">
+          Let&apos;s check your weak spots again:{" "}
+          {thread.plannedTests.map((id) => testPhrase(id)).join(", ")}.
+        </CoachBubble>
+      ),
+    });
+  }
+  if (!goal) {
+    messages.push({
+      from: "coach",
+      typingMs: TYPING_MS.note,
+      node: (
+        <CoachBubble key="ask-goal" testId="coach-ask-goal">
+          <p className="font-medium">What time are you aiming for?</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            I&apos;ll compare every part of your solve with what a typical solver at that goal does.
+          </p>
+          <div className="mt-3">
+            <GoalChips value={null} suggested={suggestedGoal(baseline.averageMs)} />
+          </div>
+        </CoachBubble>
+      ),
+    });
+  }
 
-        {!goal ? (
-          <CoachBubble testId="coach-ask-goal">
-            <p className="font-medium">What time are you aiming for?</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              I&apos;ll compare every part of your solve with what a typical solver at that goal
-              does.
-            </p>
-            <div className="mt-3">
-              <GoalChips value={null} suggested={suggestedGoal(baseline.averageMs)} />
-            </div>
-          </CoachBubble>
-        ) : null}
+  for (const [index, event] of (thread?.events ?? []).entries()) {
+    messages.push({
+      from: event.type === "goal" || event.type === "skipped" ? "you" : "coach",
+      typingMs: TYPING_MS[event.type],
+      caption: event.type === "summary" ? "Working out your summary" : undefined,
+      node: (
+        <EventMessage
+          key={`${event.type}-${index}`}
+          event={event}
+          events={thread!.events}
+          index={index}
+          open={open}
+          runs={runs}
+          decimals={decimals}
+          onSkip={(testId) => void actions.skip(testId)}
+        />
+      ),
+    });
+  }
 
-        {thread
-          ? thread.events.map((event, index) => (
-              <EventMessage
-                key={`${event.type}-${index}`}
-                event={event}
-                events={thread.events}
-                index={index}
-                open={open}
-                runs={runs}
-                decimals={decimals}
-                onSkip={(testId) => void actions.skip(testId)}
-              />
-            ))
-          : null}
+  if (summary && goal && summary.goalMilestoneId !== goal) {
+    messages.push({
+      from: "coach",
+      typingMs: TYPING_MS.note,
+      node: (
+        <CoachBubble key="goal-changed">
+          <p>
+            Your goal is now {goalLabel(goal)}. Want me to update the summary for it? I&apos;ll use
+            the tests you&apos;ve already done.
+          </p>
+          <Button className="mt-3" size="sm" onClick={() => void actions.refresh()}>
+            <Target /> Update for {goalLabel(goal)}
+          </Button>
+        </CoachBubble>
+      ),
+    });
+  }
 
-        {summary && goal && summary.goalMilestoneId !== goal ? (
-          <CoachBubble>
-            <p>
-              Your goal is now {goalLabel(goal)}. Want me to update the summary for it? I&apos;ll
-              use the tests you&apos;ve already done.
-            </p>
-            <Button className="mt-3" size="sm" onClick={() => void actions.refresh()}>
-              <Target /> Update for {goalLabel(goal)}
-            </Button>
-          </CoachBubble>
-        ) : null}
+  const { shown, typing, endRef } = useTypedMessages(messages, {
+    // A conversation opened part-way through is already said and done.
+    instant: reducedMotion || (thread?.events.length ?? 0) > 0,
+  });
+  const visible = messages.slice(0, shown);
+
+  return (
+    <>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl px-4 py-3 glass">
+        <CoachAvatar size="lg" thinking={typing !== null} />
+        <div className="min-w-0 flex-1">
+          <p className="leading-tight font-semibold">{COACH_NAME}</p>
+          <p className="text-xs text-muted-foreground" data-testid="coach-status">
+            {typing ? "Typing…" : model ? "AI coach · runs in your browser" : "Standard test order"}
+            {averageText ? ` · your average ${averageText}` : ""}
+          </p>
+        </div>
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          {goal ? (
+            <>
+              <span className="text-sm text-muted-foreground">Goal</span>
+              <GoalSelect value={goal} />
+            </>
+          ) : null}
+          <Button asChild variant="ghost" size="sm" className="ml-auto sm:ml-0">
+            <Link href={PROFILE_HREF}>
+              <ChartColumnBig /> Solve profile
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      <ol
+        className="grid gap-3"
+        aria-label={`Conversation with ${COACH_NAME}`}
+        aria-live="polite"
+        data-testid="coach-thread"
+      >
+        {visible.map((message) => message.node)}
+        {typing ? <TypingBubble caption={typing.caption} /> : null}
       </ol>
 
-      {summary ? (
+      {summary && shown >= messages.length ? (
         <SummaryActions
           summary={summary}
           onRetest={() => void actions.retest()}
           onStartOver={() => void actions.startOver()}
         />
       ) : null}
-
-      {earlier.length > 0 ? <EarlierSummaries threads={earlier} /> : null}
+      <ChatComposer />
       <div ref={endRef} />
+    </>
+  );
+}
+
+/**
+ * A chat box that doesn't take messages yet: the coach is guided for now, and
+ * typing to it arrives with "Connect your own AI".
+ */
+function ChatComposer() {
+  return (
+    <div className="grid gap-1.5" data-testid="coach-composer">
+      <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5 glass">
+        <input
+          disabled
+          aria-label="Message your coach — coming later"
+          placeholder="Typing to your coach is coming later…"
+          className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed"
+        />
+        <Button size="icon" variant="ghost" disabled tabIndex={-1} aria-hidden>
+          <SendHorizontal />
+        </Button>
+      </div>
+      <p className="px-1 text-xs text-muted-foreground">
+        For now the coach asks and you tap.{" "}
+        <Link href="/settings/#coach-ai" className="underline underline-offset-4">
+          Connecting your own AI
+        </Link>{" "}
+        is planned for a later version.
+      </p>
     </div>
+  );
+}
+
+/**
+ * Reveals messages one at a time, pausing on each as if the coach were writing
+ * it. Messages already in the thread when the conversation opens show at once.
+ */
+function useTypedMessages(messages: Message[], { instant }: { instant: boolean }) {
+  const [shown, setShown] = useState(() => (instant ? messages.length : 0));
+  const next = messages[shown];
+  // A queue that built up while the tab was away shouldn't take as long.
+  const queued = messages.length - shown;
+  const typingMs = next && !instant ? Math.round(next.typingMs / (queued > 1 ? 2 : 1)) : 0;
+  const waiting = next !== undefined;
+
+  useEffect(() => {
+    if (!waiting) return;
+    const id = setTimeout(() => setShown((count) => count + 1), typingMs);
+    return () => clearTimeout(id);
+  }, [waiting, typingMs, shown]);
+
+  const endRef = useRef<HTMLDivElement>(null);
+  const seen = useRef(shown);
+  useEffect(() => {
+    if (shown > seen.current) endRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    seen.current = shown;
+  }, [shown]);
+
+  return {
+    shown,
+    // Dots only while the coach writes; the person's own replies appear at once.
+    typing: next && next.from === "coach" && typingMs > 0 ? next : null,
+    endRef,
+  };
+}
+
+function TypingBubble({ caption }: { caption?: string }) {
+  return (
+    <li className="flex gap-3" data-testid="coach-typing">
+      <CoachAvatar thinking className="mt-1" />
+      <div className="rounded-2xl rounded-tl-md px-4 py-3 glass">
+        <span className="sr-only">{caption ?? `${COACH_NAME} is typing`}…</span>
+        <span className="flex items-center gap-1.5" aria-hidden>
+          {[0, 1, 2].map((dot) => (
+            <span key={dot} className="coach-typing-dot size-1.5 rounded-full bg-primary" />
+          ))}
+        </span>
+        {caption ? (
+          <span className="mt-1.5 block text-xs text-muted-foreground" aria-hidden>
+            {caption}…
+          </span>
+        ) : null}
+      </div>
+    </li>
   );
 }
 
 function CoachBubble({ children, testId }: { children: React.ReactNode; testId?: string }) {
   return (
-    <li className="flex gap-3" data-testid={testId}>
-      <span
-        className="mt-1 grid size-8 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"
-        aria-hidden
-      >
-        <Sparkles className="size-4" />
-      </span>
+    <li className="coach-message-in flex gap-3" data-testid={testId}>
+      <CoachAvatar className="mt-1" />
       <div className="min-w-0 flex-1 rounded-2xl rounded-tl-md px-4 py-3 text-sm glass">
         {children}
       </div>
@@ -220,7 +394,7 @@ function CoachBubble({ children, testId }: { children: React.ReactNode; testId?:
 
 function YouBubble({ children }: { children: React.ReactNode }) {
   return (
-    <li className="flex justify-end">
+    <li className="coach-message-in flex justify-end">
       <div className="max-w-[80%] rounded-2xl rounded-tr-md bg-primary px-4 py-2 text-sm text-primary-foreground">
         {children}
       </div>

@@ -186,6 +186,8 @@ await shoot("coach", {
   run: async (page) => {
     await page.goto(`${base}/coach/`);
     await page.getByTestId("coach-thread").waitFor();
+    // Let the coach finish "typing" its opening messages.
+    await page.getByTestId("coach-typing").waitFor({ state: "detached", timeout: 15000 });
     await page.waitForTimeout(600);
   },
 });
