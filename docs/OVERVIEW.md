@@ -10,7 +10,7 @@ A cuber picks a goal (for example sub-20). SolveLab then measures every part of 
 
 - **Who it's for:** cubers from about 2-minute averages down to sub-10, mostly CFOP.
 - **Owner:** Bhargava Gumpula. Live at <https://solvelab.bhargava-gumpula.com>.
-- **Principles:** local-first (works offline and without an account), keyboard-first timer (Space only; the mouse never starts or stops it), honest numbers (show how each number is worked out, say "likely" when a number is an estimate), and everything a person customizes is saved and synced.
+- **Principles:** local-first (works offline; the timer needs no account, while the parts that keep your own data — Coach, Stats, Train and Learn — need one), keyboard-first timer (Space only; the mouse never starts or stops it), honest numbers (show how each number is worked out, say "likely" when a number is an estimate), and everything a person customizes is saved and synced.
 
 ## What it does today (3.1 — Solve profile)
 

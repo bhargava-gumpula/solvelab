@@ -4,13 +4,15 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { LegalLinks } from "@/components/legal/legal-links";
 import { AUTH_NOT_CONFIGURED } from "@/lib/auth/config";
-import { googleSignInErrorMessage, signInWithGoogle, signOutAccount } from "@/lib/auth/actions";
+import { googleSignInErrorMessage, signInWithGoogle } from "@/lib/auth/actions";
 import { useAuth } from "@/components/auth/auth-provider";
 import { GoogleIcon } from "@/components/auth/google-icon";
+import { useSignOutDialog } from "@/components/auth/sign-out-dialog";
 import { SettingsSection } from "./settings-section";
 
 export function AccountSection() {
   const { status, user } = useAuth();
+  const signOut = useSignOutDialog();
 
   const signingIn = async () => {
     try {
@@ -24,7 +26,7 @@ export function AccountSection() {
     <SettingsSection
       id="account"
       title="Account"
-      description="Google sign-in keeps your times on the Google account (not on the operator’s laptop). A working copy stays in this browser so the timer stays fast. Coach works without signing in."
+      description="The Coach, your stats, training and lessons need a Google account: they hold your own data, and it lives on the account (not on the operator’s laptop) so another device can pick it up. A working copy stays in this browser so the timer stays fast."
     >
       {status === "signedIn" && user ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -35,10 +37,11 @@ export function AccountSection() {
             ) : null}
             <p className="mt-1 text-sm text-muted-foreground">
               Times on this account live in Google Cloud. Clearing this browser does not delete
-              them; sign in on another device to restore them.
+              them; sign in on another device to restore them. Signing out clears this browser’s
+              copy, so nothing of yours is left behind.
             </p>
           </div>
-          <Button type="button" variant="outline" size="sm" onClick={() => void signOutAccount()}>
+          <Button type="button" variant="outline" size="sm" onClick={() => signOut.setOpen(true)}>
             Sign out
           </Button>
         </div>
@@ -49,7 +52,7 @@ export function AccountSection() {
               ? AUTH_NOT_CONFIGURED
               : status === "loading"
                 ? "Checking account…"
-                : "Not signed in."}
+                : "Not signed in. The timer works without an account; Coach, Stats, Train and Learn need one."}
           </p>
           <Button
             type="button"
@@ -63,6 +66,7 @@ export function AccountSection() {
         </div>
       )}
       <LegalLinks className="mt-4" />
+      {signOut.dialog}
     </SettingsSection>
   );
 }

@@ -15,10 +15,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRegisterCommands } from "@/hooks/use-commands";
-import { googleSignInErrorMessage, signInWithGoogle, signOutAccount } from "@/lib/auth/actions";
+import { googleSignInErrorMessage, signInWithGoogle } from "@/lib/auth/actions";
 import type { Command } from "@/lib/commands/registry";
 import { useAuth } from "./auth-provider";
 import { GoogleIcon } from "./google-icon";
+import { useSignOutDialog } from "./sign-out-dialog";
 
 async function handleGoogleSignIn() {
   try {
@@ -30,6 +31,7 @@ async function handleGoogleSignIn() {
 
 export function AccountButton() {
   const { status, user } = useAuth();
+  const signOut = useSignOutDialog();
   const commands = useMemo<Command[]>(
     () =>
       status === "signedIn"
@@ -39,7 +41,7 @@ export function AccountButton() {
               label: "Sign out",
               group: "Account",
               icon: LogOut,
-              run: () => void signOutAccount(),
+              run: () => signOut.setOpen(true),
             },
           ]
         : [
@@ -52,7 +54,7 @@ export function AccountButton() {
               run: () => void handleGoogleSignIn(),
             },
           ],
-    [status],
+    [status, signOut],
   );
   useRegisterCommands("account", commands);
 
@@ -78,11 +80,12 @@ export function AccountButton() {
             ) : null}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => void signOutAccount()}>
+          <DropdownMenuItem onSelect={() => signOut.setOpen(true)}>
             <LogOut />
             Sign out
           </DropdownMenuItem>
         </DropdownMenuContent>
+        {signOut.dialog}
       </DropdownMenu>
     );
   }

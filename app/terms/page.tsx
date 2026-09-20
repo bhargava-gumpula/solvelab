@@ -15,17 +15,19 @@ export default function TermsPage() {
 
       <h2>What {brand.name} is</h2>
       <p>
-        {brand.name} is a personal speedcubing timer and diagnostic coach. The timer and Coach run
-        in your browser without an account. Google Sign-In is optional, for syncing times to another
-        device. {brand.name} is not affiliated with the World Cube Association.
+        {brand.name} is a personal speedcubing timer and diagnostic coach. It runs in your browser.
+        The timer and the algorithm pages work without an account; Coach, Stats, Train and Learn
+        need Google Sign-In, because they keep data of yours on the account and sync it between
+        devices. {brand.name} is not affiliated with the World Cube Association.
       </p>
 
       <h2>Your data</h2>
       <p>
-        While you are signed out, solves stay in this browser. After you sign in, times are stored
-        in Google Cloud Firestore on your Google account so they can restore on another device. They
-        are not kept as a database on the operator’s laptop. See the Privacy Policy. You can still
-        export a JSON backup from Settings → Data.
+        While you are signed out, solves stay in this browser and the timer still works. Signing out
+        clears this browser’s copy. After you sign in, times are stored in Google Cloud Firestore on
+        your Google account so they can restore on another device. They are not kept as a database
+        on the operator’s laptop. See the Privacy Policy. You can still export a JSON backup from
+        Settings → Data.
       </p>
       <p>
         Finished skill test results are also used to train {brand.name}’s coach, and for nothing

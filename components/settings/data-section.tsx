@@ -97,7 +97,7 @@ export function DataSection() {
       description={
         signedIn
           ? "This browser keeps a working copy so the timer stays fast. Signed-in times also live on the Google account in Google Cloud — not on the operator’s laptop."
-          : "Signed out, everything stays in this browser. Sign in to keep times on the Google account so a new device can restore them."
+          : "Signed out, the timer still works and its times stay in this browser. Coach, Stats, Train and Learn need an account, and signing out clears this browser’s copy."
       }
     >
       <div className="bg-surface-sunken flex items-start gap-3 rounded-lg p-4" role="status">

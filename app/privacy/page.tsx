@@ -80,11 +80,10 @@ export default function PrivacyPage() {
         <li>
           <strong className="text-foreground">Where it goes.</strong> Google Cloud Firestore, under
           a random Firebase id (
-          <code className="text-foreground">trainingContributions/&lt;id&gt;/…</code>). If you are
-          signed in, that is your account id. If you are signed out, the app creates an anonymous id
-          that holds nothing but these test results. Only that id can read or delete them.{" "}
-          {legal.operator} downloads the results to retrain the coach, with the ids replaced by new
-          random ones, and ships improved coaches in normal updates.
+          <code className="text-foreground">trainingContributions/&lt;id&gt;/…</code>). Skill tests
+          need an account, so that id is your account id, and only it can read or delete the
+          results. {legal.operator} downloads the results to retrain the coach, with the ids
+          replaced by new random ones, and ships improved coaches in normal updates.
         </li>
         <li>
           <strong className="text-foreground">On by default, off anytime.</strong> Sharing starts
@@ -98,11 +97,11 @@ export default function PrivacyPage() {
 
       <h2>Google Sign-In</h2>
       <p>
-        Coach works without an account. Sign in if you want times to follow you to another device.
-        The timer, Stats, Algorithms, and Settings stay usable either way. When you choose Sign in
-        with Google, Google shares your basic profile (name, email, photo) with this app. We use
-        that to show your account and attach your timer data to that account in Firestore. We do not
-        post to Google on your behalf, read your Gmail, or attach your solves to Google Drive.
+        Coach, Stats, Train and Learn need a Google account, because they hold data of yours that
+        lives on the account. The timer, Algorithms and Settings work without one. When you choose
+        Sign in with Google, Google shares your basic profile (name, email, photo) with this app. We
+        use that to show your account and attach your timer data to that account in Firestore. We do
+        not post to Google on your behalf, read your Gmail, or attach your solves to Google Drive.
       </p>
 
       <h2>What we do not collect</h2>
@@ -115,7 +114,12 @@ export default function PrivacyPage() {
 
       <h2>Your choices</h2>
       <ul>
-        <li>Sign out from the header or Settings. That ends the Google session on this device.</li>
+        <li>
+          Sign out from the header or Settings. That ends the Google session on this device and
+          clears this browser’s copy of your data — times, sessions, coach conversations, tests and
+          your solve profile. Only how the app looks is kept. Your account keeps its own copy, so
+          signing back in restores it.
+        </li>
         <li>
           Export or delete your data from Settings → Data. A backup file holds everything listed
           above. Deleting solves while signed in also removes them from the Google account copy.

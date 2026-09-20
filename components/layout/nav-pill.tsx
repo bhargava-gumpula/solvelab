@@ -7,6 +7,7 @@
  */
 import Link from "next/link";
 import { motion } from "motion/react";
+import { Lock } from "lucide-react";
 import { isActivePath, type NavigationItem } from "@/lib/config/navigation";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +19,19 @@ interface NavPillProps {
   label: string;
   /** A dot on an item, keyed by href, with what it means for screen readers. */
   alerts?: Partial<Record<string, string>>;
+  /** Items that need an account right now, so they show a small lock. */
+  lockedHrefs?: readonly string[];
 }
 
-export function NavPill({ items, pathname, layoutId, variant, label, alerts }: NavPillProps) {
+export function NavPill({
+  items,
+  pathname,
+  layoutId,
+  variant,
+  label,
+  alerts,
+  lockedHrefs,
+}: NavPillProps) {
   return (
     <nav aria-label={label}>
       <ul
@@ -36,15 +47,26 @@ export function NavPill({ items, pathname, layoutId, variant, label, alerts }: N
           const active = isActivePath(pathname, href);
           const preview = !enabled;
           const alert = alerts?.[href];
+          const locked = lockedHrefs?.includes(href) ?? false;
           return (
             <li key={href} className={cn(variant === "bottom" && "flex-1")}>
               <Link
                 href={href}
                 aria-current={active ? "page" : undefined}
                 aria-description={
-                  preview && comingIn ? `${itemLabel} planned for ${comingIn}` : undefined
+                  locked
+                    ? `${itemLabel} needs a Google account`
+                    : preview && comingIn
+                      ? `${itemLabel} planned for ${comingIn}`
+                      : undefined
                 }
-                title={preview && comingIn ? `Planned for ${comingIn}` : undefined}
+                title={
+                  locked
+                    ? "Needs a Google account"
+                    : preview && comingIn
+                      ? `Planned for ${comingIn}`
+                      : undefined
+                }
                 data-preview={preview ? "true" : undefined}
                 className={cn(
                   "relative flex items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors",
@@ -83,7 +105,14 @@ export function NavPill({ items, pathname, layoutId, variant, label, alerts }: N
                       preview && "opacity-55",
                     )}
                   />
-                  {alert ? (
+                  {locked ? (
+                    <Lock
+                      aria-hidden
+                      className="absolute -top-1 -right-1.5 size-2.5 text-muted-foreground"
+                      data-testid={`nav-locked-${href.replace(/\W/g, "")}`}
+                    />
+                  ) : null}
+                  {alert && !locked ? (
                     <span
                       className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary ring-2 ring-background"
                       data-testid={`nav-alert-${href.replace(/\W/g, "")}`}

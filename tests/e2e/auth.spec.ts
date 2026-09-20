@@ -1,21 +1,101 @@
 import { expect, test } from "./fixtures";
 import { keyboardSolve, openTimer } from "./helpers";
 
-test("unsigned visitors can time solves and use Coach locally", async ({ page }) => {
-  await openTimer(page);
-  await keyboardSolve(page, 300);
-  await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+test.describe("without an account", () => {
+  test.use({ account: "signedOut" });
 
-  await page.goto("/coach/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find what’s slowing you down.");
-  await expect(page.getByText(/works without an account/i)).toBeVisible();
+  test("the timer works, and the areas that keep your data ask you to sign in", async ({
+    page,
+  }) => {
+    await openTimer(page);
+    await keyboardSolve(page, 300);
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+
+    for (const [path, heading] of [
+      ["/coach/", "Sign in to use Coach."],
+      ["/stats/", "Sign in to use Stats."],
+      ["/train/", "Sign in to use Train."],
+      ["/learn/", "Sign in to use Learn."],
+    ] as const) {
+      await page.goto(path);
+      await expect(page.getByTestId("sign-in-wall")).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(heading);
+      await expect(
+        page.getByTestId("sign-in-wall").getByRole("button", { name: "Sign in with Google" }),
+      ).toBeVisible();
+    }
+
+    // A test inside Coach is locked too, not just the front page.
+    await page.goto("/coach/tests/pll_only/");
+    await expect(page.getByTestId("sign-in-wall")).toBeVisible({ timeout: 20_000 });
+
+    // Pages that are nobody's private data stay open.
+    await page.goto("/algorithms/");
+    await expect(page.getByTestId("sign-in-wall")).toHaveCount(0);
+    await page.goto("/settings/");
+    await expect(page.getByTestId("sign-in-wall")).toHaveCount(0);
+  });
 });
 
-test("Train and Learn show the later-release notice without signing in", async ({ page }) => {
-  await page.goto("/train/");
-  await expect(page.getByRole("heading", { name: "Practice is coming later." })).toBeVisible();
-  await page.goto("/learn/");
-  await expect(page.getByRole("heading", { name: "Lessons are coming later." })).toBeVisible();
+test.describe("with an account", () => {
+  test("Coach and Stats open, and signing out clears this browser", async ({ page }) => {
+    await page.goto("/coach/");
+    await expect(page.getByTestId("coach-thread")).toBeVisible({ timeout: 20_000 });
+    await page.goto("/stats/");
+    await expect(page.getByTestId("sign-in-wall")).toHaveCount(0);
+    await page.goto("/train/");
+    await expect(page.getByRole("heading", { name: "Practice is coming later." })).toBeVisible();
+    await page.goto("/learn/");
+    await expect(page.getByRole("heading", { name: "Lessons are coming later." })).toBeVisible();
+
+    // Something of "mine" to leave behind: a solve and a coach conversation.
+    await openTimer(page);
+    await keyboardSolve(page, 300);
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+
+    await page.goto("/settings/");
+    await page.getByRole("button", { name: "Sign out" }).click();
+    const dialog = page.getByTestId("sign-out-dialog");
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Sign out" }).click();
+    // Firebase is blocked here, so it warns that the account is out of reach
+    // before clearing anything, and only goes ahead when told to.
+    await expect(dialog).toContainText("out of reach", { timeout: 20_000 });
+    await dialog.getByRole("button", { name: "Sign out anyway" }).click();
+
+    // Back to the timer, signed out, with nothing of the account's left.
+    await expect(page).toHaveURL(/\/timer\/?$/, { timeout: 20_000 });
+    await expect(page.getByText("No solves yet")).toBeVisible({ timeout: 20_000 });
+    await page.goto("/coach/");
+    await expect(page.getByTestId("sign-in-wall")).toBeVisible({ timeout: 20_000 });
+
+    // The database the reload rebuilt holds no solves and no conversations.
+    const left = await page.evaluate(async () => {
+      const counts = await new Promise<Record<string, number>>((resolve, reject) => {
+        const open = indexedDB.open("speedcubing-local");
+        open.onerror = () => reject(open.error);
+        open.onsuccess = () => {
+          const db = open.result;
+          const names = Array.from(db.objectStoreNames);
+          const transaction = db.transaction(names, "readonly");
+          const totals: Record<string, number> = {};
+          let pending = names.length;
+          for (const name of names) {
+            const request = transaction.objectStore(name).count();
+            request.onsuccess = () => {
+              totals[name] = request.result;
+              if (--pending === 0) resolve(totals);
+            };
+          }
+        };
+      });
+      return { counts, tombstones: localStorage.getItem("solvelab.sync.tombstones.v1") };
+    });
+    expect(left.counts.solves).toBe(0);
+    expect(left.counts.coachThreads).toBe(0);
+    expect(left.counts.diagnosticRuns).toBe(0);
+    expect(left.tombstones).toBeNull();
+  });
 });
 
 test("privacy, terms and overview are public", async ({ page }) => {

@@ -2,8 +2,30 @@ import { expect, test, type Page } from "./fixtures";
 import { keyboardSolve } from "./helpers";
 
 const notice = (page: Page) => page.getByTestId("training-data-notice");
-const firebaseCalls = (requests: string[]) =>
-  requests.filter((url) => /identitytoolkit|firestore/.test(url));
+
+/**
+ * Uploads of a finished test: a Firestore body carrying a payload for the
+ * training collection. Ordinary account sync and withdrawals also talk to
+ * Firestore, so the attempt times are what tells an upload apart.
+ */
+async function watchUploads(page: Page): Promise<string[]> {
+  const uploads: string[] = [];
+  await page.route(/^https:\/\/firestore\.googleapis\.com\//, (route) => {
+    const body = route.request().postData() ?? "";
+    if (body.includes("trainingContributions") && body.includes("attemptsMs")) {
+      uploads.push(body.slice(0, 120));
+    }
+    return route.abort();
+  });
+  return uploads;
+}
+
+/**
+ * The ids this browser has shared under. The uploader records one before it
+ * writes, so this shows an upload was made even though Firebase is blocked.
+ */
+const sharedUnder = (page: Page) =>
+  page.evaluate(() => localStorage.getItem("solvelab.trainingContributors.v1"));
 
 async function takeShortTest(page: Page) {
   await page.goto("/coach/tests/pll_only/");
@@ -25,10 +47,7 @@ test.describe("sharing test results to train the coach", () => {
     test.skip((await toggle.count()) === 0, "Sharing needs a build with Firebase configured.");
   });
 
-  test("the notice shows once, and a finished test is shared", async ({
-    page,
-    firebaseRequests,
-  }) => {
+  test("the notice shows once, and a finished test is shared", async ({ page }) => {
     test.setTimeout(90_000);
     await page.goto("/stats/profile/");
     await expect(notice(page)).toBeVisible({ timeout: 20_000 });
@@ -42,14 +61,13 @@ test.describe("sharing test results to train the coach", () => {
     await expect(notice(page)).toHaveCount(0);
 
     await takeShortTest(page);
-    // Signed out, sharing starts by creating an anonymous id (blocked here).
-    await expect
-      .poll(() => firebaseCalls(firebaseRequests).length, { timeout: 15_000 })
-      .toBeGreaterThan(0);
+    // The finished test is shared under the account id (the write is blocked here).
+    await expect.poll(() => sharedUnder(page), { timeout: 15_000 }).toContain("e2e-account");
   });
 
-  test("turning sharing off is saved and stops uploads", async ({ page, firebaseRequests }) => {
+  test("turning sharing off is saved and stops uploads", async ({ page }) => {
     test.setTimeout(90_000);
+    const uploads = await watchUploads(page);
     await page.goto("/settings/");
     const toggle = page.getByRole("switch", { name: "Help improve the coach" });
     await expect(toggle).toBeChecked({ timeout: 20_000 });
@@ -66,10 +84,10 @@ test.describe("sharing test results to train the coach", () => {
     await page.goto("/coach/tests/pll_only/");
     await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20_000 });
     await expect(notice(page)).toHaveCount(0);
-    const before = firebaseCalls(firebaseRequests).length;
     await takeShortTest(page);
     await page.waitForTimeout(2_000);
-    expect(firebaseCalls(firebaseRequests).length).toBe(before);
+    expect(uploads).toEqual([]);
+    expect(await sharedUnder(page)).toBeNull();
   });
 
   test("Don’t share in the notice turns sharing off", async ({ page }) => {

@@ -1,7 +1,7 @@
 "use client";
 
-import { AuthGate } from "@/components/auth/auth-gate";
+import { RequireAccount } from "@/components/auth/require-account";
 
 export default function CoachLayout({ children }: { children: React.ReactNode }) {
-  return <AuthGate area="Coach">{children}</AuthGate>;
+  return <RequireAccount area="coach">{children}</RequireAccount>;
 }

@@ -15,6 +15,8 @@ import { useDailyCheckDue } from "@/hooks/use-daily-checks";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { brand } from "@/lib/config/brand";
 import { isActivePath, navigation, settingsNavigation } from "@/lib/config/navigation";
+import { accessState, ACCOUNT_AREAS } from "@/lib/auth/access";
+import { useAuth } from "@/components/auth/auth-provider";
 import type { Command } from "@/lib/commands/registry";
 import { THEMES } from "@/lib/appearance/themes";
 import { cn } from "@/lib/utils";
@@ -35,6 +37,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const fullBleed = isActivePath(pathname, "/timer");
   const dailyDue = useDailyCheckDue();
   const navAlerts = dailyDue ? { "/coach": "Today’s daily check is waiting" } : undefined;
+  // Signed out, the areas that keep your own data show a small lock.
+  const lockedHrefs =
+    accessState(useAuth().status) === "locked"
+      ? ACCOUNT_AREAS.map((area) => `/${area}`)
+      : undefined;
   const hideLegal =
     fullBleed ||
     isActivePath(pathname, "/privacy") ||
@@ -118,6 +125,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             variant="top"
             label="Main navigation"
             alerts={navAlerts}
+            lockedHrefs={lockedHrefs}
           />
         </div>
 
@@ -186,6 +194,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           variant="bottom"
           label="Mobile navigation"
           alerts={navAlerts}
+          lockedHrefs={lockedHrefs}
         />
       </div>
 

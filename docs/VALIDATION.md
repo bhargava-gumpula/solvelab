@@ -1,5 +1,36 @@
 # Validation report
 
+## Accounts — locked areas and a clean sign-out (awaiting review)
+
+Run on 2026-09-19 against the static export, Chromium headless, one Playwright worker, Firebase blocked.
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass                  |
+| Unit tests      | `npm test`                        | 212 passed (24 files) |
+| End-to-end      | `npx playwright test --workers=1` | see the table below   |
+
+How the suite signs in: Firebase is blocked for every test, so `tests/e2e/fixtures.ts` seeds the
+stored session a real Google sign-in leaves behind in IndexedDB, and the app reads it on start-up.
+There is no test-only switch in the app itself. A test asks for the signed-out site with
+`test.use({ account: "signedOut" })`.
+
+New unit coverage: which areas need an account and which stay open, the state for each auth status
+(a build with no Firebase config locks nothing), and the sign-out reset — the database is dropped,
+`solvelab.` keys go, the appearance key and other apps' keys stay, and the next open starts empty.
+
+New end-to-end coverage:
+
+- Signed out: the timer records a solve, Coach, Stats, Train and Learn all show the sign-in card
+  (including a test page inside Coach), and Algorithms and Settings stay open.
+- Signed in: Coach and Stats open, and signing out warns that the account can't be reached (Firebase
+  is blocked), then clears the browser — back at the timer with no solves, no conversations, no
+  runs, no tombstones, and Coach locked again.
+- Sharing for coach training is now judged by what the app records and sends, not by counting
+  Firebase calls, since a signed-in account syncs as well.
+
+Not covered automatically: a real Google sign-in, and sync against real Firestore.
+
 ## Phase 3 — AI coach (release 3.2, awaiting review)
 
 Run on 2026-09-19 against the static export, Chromium headless, one Playwright worker, Firebase blocked.

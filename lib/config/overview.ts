@@ -45,7 +45,7 @@ export const shipped = [
     items: [
       "Daily timer with WCA inspection, sessions, penalties, stats, and JSON backup",
       "Themes, command palette, and keyboard-first timer (space to start; mouse never starts or stops)",
-      "Google sign-in to sync times (Coach works without an account)",
+      "Google sign-in for Coach, Stats, Train and Learn; the timer works without an account",
       "Times stored on the Google account in Cloud Firestore, with a working copy in this browser",
       "Privacy and Terms pages",
     ],

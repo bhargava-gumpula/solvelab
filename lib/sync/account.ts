@@ -225,3 +225,19 @@ export function resetAccountSyncForTests(): void {
   if (typeof window !== "undefined") window.clearTimeout(pushTimer);
   pushTimer = undefined;
 }
+
+/**
+ * True when a sync failed because the device (or the test run) couldn't reach
+ * Google, rather than because something is wrong with the account. The app
+ * stays quiet about these: the next sync picks the changes up.
+ */
+export function isOfflineSyncError(error: unknown): boolean {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return true;
+  const code =
+    typeof error === "object" && error !== null && "code" in error
+      ? String((error as { code: unknown }).code)
+      : "";
+  if (code === "unavailable" || code === "deadline-exceeded" || code === "cancelled") return true;
+  const message = error instanceof Error ? error.message : "";
+  return /network|offline|failed to fetch|err_(blocked|failed|internet)/i.test(message);
+}
