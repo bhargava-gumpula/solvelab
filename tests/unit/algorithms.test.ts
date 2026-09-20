@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   ALGORITHM_SETS,
+  algorithmsFor,
   caseStateFor,
   chosenAlgorithm,
+  kindFor,
   searchCases,
 } from "@/lib/algorithms/catalog";
 import {
@@ -19,8 +21,9 @@ describe("the algorithm bank", () => {
     "%s: every algorithm solves the case it is listed under",
     (_name, set) => {
       for (const entry of set.cases) {
-        const state = caseStateFor(entry, set.kind);
-        if (set.kind === "f2l") {
+        const kind = kindFor(set, entry);
+        const state = caseStateFor(entry, kind);
+        if (kind === "f2l" || kind === "wv") {
           // A pair case is one slot short, and nothing else may be missing.
           expect(otherSlotsSolved(state), `${entry.name} disturbs another slot`).toBe(true);
           expect(firstTwoLayersSolved(state), `${entry.name} is already solved`).toBe(false);
@@ -29,8 +32,8 @@ describe("the algorithm bank", () => {
             true,
           );
         }
-        for (const algorithm of entry.algorithms) {
-          const result = checkAlgorithm(state, algorithm.moves, set.kind);
+        for (const algorithm of algorithmsFor(entry)) {
+          const result = checkAlgorithm(state, algorithm.moves, kind);
           expect(result.ok, `${entry.name} ${algorithm.id}: ${algorithm.moves}`).toBe(true);
         }
       }
@@ -42,8 +45,9 @@ describe("the algorithm bank", () => {
     (_name, set) => {
       const seen = new Map<string, string>();
       for (const entry of set.cases) {
-        const state = caseStateFor(entry, set.kind);
-        const signature = set.kind === "oll" ? orientationSignature(state) : caseSignature(state);
+        const kind = kindFor(set, entry);
+        const state = caseStateFor(entry, kind);
+        const signature = kind === "oll" ? orientationSignature(state) : caseSignature(state);
         expect(seen.get(signature), `${entry.name} repeats ${seen.get(signature)}`).toBeUndefined();
         seen.set(signature, entry.name);
       }
@@ -58,6 +62,17 @@ describe("the algorithm bank", () => {
     expect(oll.cases).toHaveLength(57);
     // Every way the last pair can sit, worked out from the cube itself.
     expect(f2l.cases).toHaveLength(41);
+    const coll = ALGORITHM_SETS.find((set) => set.id === "coll")!;
+    const wv = ALGORITHM_SETS.find((set) => set.id === "winter-variation")!;
+    expect(coll.cases).toHaveLength(40);
+    expect(wv.cases).toHaveLength(27);
+    // The two-look sets are the same cases as the full ones, minus the new steps.
+    const twoLook = ALGORITHM_SETS.filter((set) => set.id.startsWith("two-look"));
+    for (const set of twoLook) {
+      for (const entry of set.cases) {
+        expect(algorithmsFor(entry).length, `${entry.name} has no algorithm`).toBeGreaterThan(0);
+      }
+    }
     const ids = ALGORITHM_SETS.flatMap((set) =>
       set.cases.flatMap((entry) => [entry.id, ...entry.algorithms.map((a) => a.id)]),
     );

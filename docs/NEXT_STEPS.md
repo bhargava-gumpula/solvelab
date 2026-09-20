@@ -48,8 +48,13 @@ Still open from this phase:
 
 ## Algorithm bank — what is left
 
-PLL, OLL and F2L are done (119 cases, 311 algorithms, all verified by
-`tests/unit/algorithms.test.ts`). Still to add:
+Eight sets are done: 2-look OLL, 2-look PLL, PLL, OLL, F2L, COLL and Winter Variation — 233 cases
+and 494 algorithms, all verified by `tests/unit/algorithms.test.ts`. Still to add:
+
+- **Fundamentals:** triggers and turning blocks rather than cases; needs its own shape, since there
+  is nothing to "solve" and so nothing for the checker to confirm.
+- **ZBLL (493 cases):** a big content job. The checker already understands it (corners and edges
+  both solved from an edge-oriented last layer, which is the `pll` goal from a `coll`-style start).
 
 - **2-look OLL and PLL:** curated subsets. 2-look OLL's first step only orients edges, so it needs
   an "edges oriented, corners free" check; the second step is the seven cases already in OLL

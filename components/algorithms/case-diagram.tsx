@@ -23,6 +23,8 @@ export function CaseDiagram({
 }) {
   const up = getFace(facelets, "U");
   // In a pair case only the pair matters; the last layer around it is noise.
+  // A pair case is only about the pair; Winter Variation also shows the
+  // corners it is about to bring up, so nothing is greyed there.
   const pair = kind === "f2l" ? new Set(pairStickers(facelets)) : null;
   // Top rows of the sides, read left to right as seen from above, with the
   // facelet each one comes from so the pair can be picked out.
@@ -59,7 +61,7 @@ export function CaseDiagram({
   // For a pair case, the slot itself matters as much as the top: two stickers of
   // the front face and two of the right face, seen edge on.
   const slot =
-    kind === "f2l"
+    kind === "f2l" || kind === "wv"
       ? {
           front: [facelets[23]!, facelets[26]!],
           right: [facelets[12]!, facelets[15]!],

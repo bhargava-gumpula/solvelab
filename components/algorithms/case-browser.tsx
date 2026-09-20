@@ -11,7 +11,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
 import { useAlgorithmProgress } from "@/hooks/use-algorithms";
-import { caseStateFor, chosenAlgorithm, groupCases, searchCases } from "@/lib/algorithms/catalog";
+import {
+  caseStateFor,
+  chosenAlgorithm,
+  groupCases,
+  kindFor,
+  progressIdFor,
+  searchCases,
+} from "@/lib/algorithms/catalog";
 import { countLabels, type CaseLabel } from "@/lib/algorithms/labels";
 import { cn } from "@/lib/utils";
 
@@ -42,11 +49,11 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
   const [open, setOpen] = useState<CaseEntry | null>(null);
 
   const counts = countLabels(
-    set.cases.map((entry) => entry.id),
+    set.cases.map((entry) => progressIdFor(entry)),
     labels,
   );
   const matching = searchCases(set, query).filter(
-    (entry) => filter === "all" || (labels.get(entry.id) ?? "unknown") === filter,
+    (entry) => filter === "all" || (labels.get(progressIdFor(entry)) ?? "unknown") === filter,
   );
   const groups = groupCases(matching);
 
@@ -112,7 +119,7 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
             </h2>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {cases.map((entry) => {
-                const label = labels.get(entry.id) ?? "unknown";
+                const label = labels.get(progressIdFor(entry)) ?? "unknown";
                 return (
                   <li key={entry.id}>
                     <button
@@ -122,8 +129,8 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
                       className="w-full rounded-2xl border p-3 text-left glass transition-colors hover:border-primary/40"
                     >
                       <CaseDiagram
-                        facelets={caseStateFor(entry, set.kind)}
-                        kind={set.kind}
+                        facelets={caseStateFor(entry, kindFor(set, entry))}
+                        kind={kindFor(set, entry)}
                         className="mx-auto w-20"
                         title={`${entry.name}, seen from above`}
                       />
@@ -132,8 +139,8 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
                         {
                           chosenAlgorithm(
                             entry,
-                            progress.get(entry.id)?.preferredVariantId,
-                            progress.get(entry.id)?.customVariants.map((variant) => ({
+                            progress.get(progressIdFor(entry))?.preferredVariantId,
+                            progress.get(progressIdFor(entry))?.customVariants.map((variant) => ({
                               id: variant.id,
                               moves: variant.algorithm,
                             })),
@@ -161,7 +168,9 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
       <Dialog open={open !== null} onOpenChange={(next) => !next && setOpen(null)}>
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
           <DialogTitle className="sr-only">{open?.name ?? "Case"}</DialogTitle>
-          {open ? <CaseDetail set={set} entry={open} progress={progress.get(open.id)} /> : null}
+          {open ? (
+            <CaseDetail set={set} entry={open} progress={progress.get(progressIdFor(open))} />
+          ) : null}
           <div className="mt-2 flex justify-end">
             <Button variant="outline" onClick={() => setOpen(null)}>
               Done

@@ -18,7 +18,11 @@ export type CaseKind =
   /** Corners home and oriented, edges oriented but free to sit anywhere. */
   | "coll"
   /** The first two layers finished; the last layer is left as it is. */
-  | "f2l";
+  | "f2l"
+  /** The last layer's edges facing up; its corners are the next step's problem. */
+  | "eoll"
+  /** The last pair going in and the last layer coming up oriented, in one go. */
+  | "wv";
 
 export const AUF = ["", "U", "U2", "U'"] as const;
 
@@ -70,10 +74,11 @@ export function caseStateOf(algorithm: string, kind: CaseKind = "pll"): string {
   if (!parsed.ok) throw new Error(`Not an algorithm: ${algorithm} (${parsed.error.message})`);
   const state = applyAlgorithm(formatAlgorithm(invertAlgorithm(parsed.moves)), SOLVED_FACELETS);
   // An F2L case is one pair short by definition; the rest must still be there.
-  const stood = kind === "f2l" ? upright(state, otherSlotsSolved) : upright(state);
+  const missingSlot = kind === "f2l" || kind === "wv";
+  const stood = missingSlot ? upright(state, otherSlotsSolved) : upright(state);
   if (!stood) {
     throw new Error(
-      kind === "f2l"
+      missingSlot
         ? `${algorithm} disturbs more than the front-right slot`
         : `${algorithm} does not leave the first two layers alone`,
     );
@@ -97,6 +102,12 @@ export function lastLayerOriented(facelets: string): boolean {
   return getFace(facelets, "U") === "U".repeat(9);
 }
 
+/** True when the four last-layer edges face up, whatever the corners do. */
+export function lastLayerEdgesOriented(facelets: string): boolean {
+  const up = getFace(facelets, "U");
+  return [1, 3, 5, 7].every((spot) => up[spot] === "U");
+}
+
 /** True when the last-layer corners are home, with the edges free to be anywhere. */
 export function cornersSolved(facelets: string): boolean {
   if (!lastLayerOriented(facelets)) return false;
@@ -111,6 +122,9 @@ function satisfies(facelets: string, kind: CaseKind): boolean {
   if (!stood) return false;
   if (kind === "pll") return isSolved(stood);
   if (kind === "oll") return lastLayerOriented(stood);
+  if (kind === "eoll") return lastLayerEdgesOriented(stood);
+  // Winter Variation puts the pair in and brings the corners up at the same time.
+  if (kind === "wv") return lastLayerOriented(stood);
   // The pair is in and the rest of the first two layers is untouched; what the
   // last layer looks like is the next step's problem.
   if (kind === "f2l") return true;

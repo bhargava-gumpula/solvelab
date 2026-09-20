@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { algorithmSets } from "@/data/algorithms/sets";
 import { useAlgorithmProgress } from "@/hooks/use-algorithms";
-import { ALGORITHM_SETS } from "@/lib/algorithms/catalog";
+import { ALGORITHM_SETS, algorithmsFor, progressIdFor } from "@/lib/algorithms/catalog";
 import { countLabels } from "@/lib/algorithms/labels";
 
 /** The sets you can open, and the ones still to come. */
@@ -34,10 +34,13 @@ export function AlgorithmSetList() {
           );
         }
         const counts = countLabels(
-          set.cases.map((entry) => entry.id),
+          set.cases.map((entry) => progressIdFor(entry)),
           labels,
         );
-        const algorithms = set.cases.reduce((total, entry) => total + entry.algorithms.length, 0);
+        const algorithms = set.cases.reduce(
+          (total, entry) => total + algorithmsFor(entry).length,
+          0,
+        );
         return (
           <li key={set.id}>
             <Link

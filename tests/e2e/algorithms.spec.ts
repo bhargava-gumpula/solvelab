@@ -6,6 +6,8 @@ test.describe("the algorithm bank", () => {
     await expect(page.getByTestId("set-pll")).toContainText("21 cases");
     await expect(page.getByTestId("set-oll")).toContainText("57 cases");
     await expect(page.getByTestId("set-f2l")).toContainText("41 cases");
+    await expect(page.getByTestId("set-coll")).toContainText("40 cases");
+    await expect(page.getByTestId("set-winter-variation")).toContainText("27 cases");
 
     await page.getByTestId("set-pll").click();
     await expect(page).toHaveURL(/\/algorithms\/pll\/?$/);
@@ -56,6 +58,26 @@ test.describe("the algorithm bank", () => {
     // The case says where the pair sits, in words.
     await expect(dialog).toContainText(/Corner .*\. Edge .*\./);
     await expect(dialog.locator('[data-testid^="algorithm-f1-"]').first()).toContainText("R U R'");
+  });
+
+  test("a two-look step is the same case as the full one it comes from", async ({ page }) => {
+    // Sune in 2-look OLL is OLL 27: the same algorithms, and one shared label.
+    await page.goto("/algorithms/two-look-oll/");
+    await expect(page.getByTestId("set-progress")).toContainText("0 of 10 known", {
+      timeout: 20_000,
+    });
+    await page.getByTestId("case-2oll-sune").click();
+    const dialog = page.getByRole("dialog");
+    await expect(dialog.locator('[data-testid^="algorithm-o27-"]').first()).toContainText(
+      "R U R' U R U2 R'",
+    );
+    await dialog.getByTestId("case-label-known").click();
+    await dialog.getByRole("button", { name: "Done" }).click();
+    await expect(page.getByTestId("case-state-2oll-sune")).toHaveText("Know it");
+
+    // The full set knows it too, because it is one case, not two.
+    await page.goto("/algorithms/oll/");
+    await expect(page.getByTestId("case-state-oll-27")).toHaveText("Know it", { timeout: 20_000 });
   });
 
   test("every case shows a diagram and at least one algorithm", async ({ page }) => {

@@ -20,6 +20,14 @@ export interface CaseEntry {
   aliases?: string[];
   /** What to look for on the cube, in the person's terms. */
   recognition?: string;
+  /** When this case is finished differently from the rest of its set. */
+  kind?: CaseKind;
+  /**
+   * The same case in another set, by id. A two-look set is made of steps that
+   * also belong to the full sets, and knowing one is knowing the other, so the
+   * algorithms and the label both come from there.
+   */
+  sameAs?: string;
   algorithms: CaseAlgorithm[];
 }
 

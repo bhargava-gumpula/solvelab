@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
 import { algorithmActions } from "@/hooks/use-algorithms";
-import { caseStateFor } from "@/lib/algorithms/catalog";
+import { algorithmsFor, caseStateFor, kindFor, progressIdFor } from "@/lib/algorithms/catalog";
 import { CASE_LABELS, type CaseLabel } from "@/lib/algorithms/labels";
 import { cn } from "@/lib/utils";
 import type { AlgorithmProgress } from "@/types/domain";
@@ -28,15 +28,18 @@ export function CaseDetail({
       : progress?.state === "learning" || progress?.state === "practicing"
         ? "learning"
         : "unknown";
-  const preferred = progress?.preferredVariantId ?? entry.algorithms[0]!.id;
+  const algorithms = algorithmsFor(entry);
+  const kind = kindFor(set, entry);
+  const caseId = progressIdFor(entry);
+  const preferred = progress?.preferredVariantId ?? algorithms[0]!.id;
 
   return (
     <div className="grid gap-5">
       <div className="flex flex-wrap items-start gap-4">
         <div className="w-28 shrink-0">
           <CaseDiagram
-            facelets={caseStateFor(entry, set.kind)}
-            kind={set.kind}
+            facelets={caseStateFor(entry, kind)}
+            kind={kind}
             title={`${entry.name}, seen from above`}
           />
         </div>
@@ -65,7 +68,7 @@ export function CaseDetail({
           aria-labelledby={`${entry.id}-label`}
           value={label}
           onValueChange={(value) => {
-            if (value) void algorithmActions.setLabel(entry.id, value as CaseLabel);
+            if (value) void algorithmActions.setLabel(caseId, value as CaseLabel);
           }}
         >
           {CASE_LABELS.map((option) => (
@@ -83,15 +86,14 @@ export function CaseDetail({
 
       <div className="grid gap-2">
         <p className="text-sm font-medium">
-          {entry.algorithms.length} {entry.algorithms.length === 1 ? "algorithm" : "algorithms"}{" "}
-          that solve it
+          {algorithms.length} {algorithms.length === 1 ? "algorithm" : "algorithms"} that solve it
         </p>
         <p className="text-xs text-muted-foreground">
           Every one is checked against a cube, so any of them works. Pick the one your fingers like;
           it&apos;s the one shown on the case from now on.
         </p>
         <ul className="mt-1 grid gap-2">
-          {entry.algorithms.map((algorithm) => {
+          {algorithms.map((algorithm) => {
             const chosen = algorithm.id === preferred;
             return (
               <li key={algorithm.id}>
@@ -116,7 +118,7 @@ export function CaseDetail({
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => void algorithmActions.setPreferred(entry.id, algorithm.id)}
+                      onClick={() => void algorithmActions.setPreferred(caseId, algorithm.id)}
                     >
                       <Check /> Use this one
                     </Button>
