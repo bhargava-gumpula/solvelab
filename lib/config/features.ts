@@ -1,8 +1,8 @@
 /** Product surface flags for this release. Disabled surfaces stay visible but inert. */
 export const features = {
-  /** Training packs (lessons, drills, retests). Visible in nav; page is coming-soon until 3.4. */
+  /** Training packs (lessons, drills, retests). Visible in nav; page is coming-soon until 4.1. */
   train: false,
-  /** Lesson plans. Visible in nav; page is coming-soon until 3.4. */
+  /** Lesson plans. Visible in nav; page is coming-soon until 4.1. */
   learn: false,
   /**
    * Algorithm catalog is browsable; drills and tracking are later.
@@ -12,7 +12,7 @@ export const features = {
 } as const;
 
 export const upcoming = {
-  train: "3.4",
-  learn: "3.4",
-  algorithms: "3.3",
+  train: "4.1",
+  learn: "4.1",
+  algorithms: "4.0",
 } as const;

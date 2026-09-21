@@ -2,7 +2,7 @@
 
 A local-first speedcubing timer that will grow into a coach.
 
-**Current release: 3.1 — Solve profile.** Pick a goal, take short skill tests, and see every part of your solve (stages, the joins between them, lookahead, algorithm knowledge, turning speed) rated slow / average / fast, with how each number is worked out. There's also a quick daily check. The daily timer, Bluetooth path, stats and Google sync stay. Train and Learn are off until 3.4; the algorithm bank comes in 3.3.
+**Current release: 4.0 — Algorithm bank.** Every case for 2-look OLL and PLL, full OLL and PLL, F2L, COLL and Winter Variation: 233 cases and 463 algorithms, each one checked against a cube before it ships. Mark each case don't know, learning or know it, pick the algorithm your fingers like, and both follow your Google account. The coach still picks your goal, asks for the tests it needs and rates every part of your solve, with a quick daily check. Coach, Stats, Train and Learn need an account; the timer doesn't. Train and Learn are off until 4.1, and connecting your own AI comes in 4.2.
 
 See [docs/OVERVIEW.md](docs/OVERVIEW.md) for the product summary and plan, and [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md) for the detailed next phases.
 

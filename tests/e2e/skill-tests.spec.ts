@@ -283,7 +283,7 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page).toHaveURL(/\/train\/?$/);
     await expect(page.getByRole("heading", { name: "Practice is coming later." })).toBeVisible();
     await expect(
-      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.4\.$/ }),
+      page.getByRole("paragraph").filter({ hasText: /^Planned for 4\.1\.$/ }),
     ).toBeVisible();
     await expect(page.getByTestId("start-topic-cross")).toHaveCount(0);
 
@@ -293,7 +293,7 @@ test.describe("skill tests and the solve profile", () => {
     await page.goto("/learn/");
     await expect(page.getByRole("heading", { name: "Lessons are coming later." })).toBeVisible();
     await expect(
-      page.getByRole("paragraph").filter({ hasText: /^Planned for 3\.4\.$/ }),
+      page.getByRole("paragraph").filter({ hasText: /^Planned for 4\.1\.$/ }),
     ).toBeVisible();
 
     // Algorithms is open for business: two sets built, the rest still to come.
@@ -305,7 +305,7 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page.getByTestId("set-zbll")).toContainText("Coming later");
 
     await page.goto("/settings/");
-    await expect(page.getByRole("heading", { name: "SolveLab 3.1" })).toBeVisible();
-    await expect(page.getByText("Solve profile", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "SolveLab 4.0" })).toBeVisible();
+    await expect(page.getByText("Algorithm bank", { exact: true })).toBeVisible();
   });
 });

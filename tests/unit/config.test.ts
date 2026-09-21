@@ -28,12 +28,12 @@ describe("domain configuration integrity", () => {
     );
     expect(thresholds).toEqual([...thresholds].sort((a, b) => b - a));
   });
-  it("ships 3.1 with Train/Learn visible but not enabled", () => {
-    expect(brand.version).toBe("3.1");
+  it("ships 4.0 with Train/Learn visible but not enabled", () => {
+    expect(brand.version).toBe("4.0");
     expect(features.train).toBe(false);
     expect(features.learn).toBe(false);
     expect(features.algorithms).toBe(true);
-    expect(upcoming).toEqual({ train: "3.4", learn: "3.4", algorithms: "3.3" });
+    expect(upcoming).toEqual({ train: "4.1", learn: "4.1", algorithms: "4.0" });
     expect(navigation.map((item) => item.label)).toEqual([
       "Timer",
       "Coach",

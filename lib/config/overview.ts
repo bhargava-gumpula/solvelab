@@ -1,6 +1,16 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "4.0",
+    title: "Algorithm bank",
+    items: [
+      "Every case for 2-look OLL and PLL, full OLL and PLL, F2L, COLL and Winter Variation — 233 cases and 463 algorithms, each one checked against a cube",
+      "Mark each case don't know, learning or know it, and pick the algorithm your fingers like; both follow your account",
+      "Case pictures drawn from the cube itself, showing only the colours the case actually fixes",
+      "Coach, Stats, Train and Learn need a Google account, and signing out clears this browser",
+    ],
+  },
+  {
     version: "3.1",
     title: "Solve profile",
     items: [
@@ -54,28 +64,19 @@ export const shipped = [
 
 export const planned = [
   {
-    version: "3.2",
-    title: "AI coach",
-    items: [
-      "A coach that talks you through it: picks your goal, asks for the tests it needs, and explains what it found",
-      "An on-device model trained on simulated cubers and shared test results chooses which test tells it the most",
-      "Tips for every part of your solve",
-    ],
-  },
-  {
-    version: "3.3",
-    title: "Algorithm bank",
-    items: [
-      "2-look OLL and PLL, full OLL and PLL, F2L, COLL and WV, with several verified algorithms per case",
-      "Case diagrams, your preferred algorithm, and learning progress that syncs",
-    ],
-  },
-  {
-    version: "3.4",
+    version: "4.1",
     title: "Training and lessons",
     items: [
       "Training packs for each part of your solve: short lessons, drills, and a retest",
       "Train and Learn turn on",
+    ],
+  },
+  {
+    version: "4.2",
+    title: "Connect your own AI",
+    items: [
+      "Ask the coach questions in your own words, using your own AI account or a model on your computer",
+      "The chat sees only your solve profile, and can only point you at tests and packs that exist",
     ],
   },
 ] as const;
