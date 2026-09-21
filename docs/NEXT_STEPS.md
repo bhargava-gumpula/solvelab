@@ -49,7 +49,7 @@ Still open from this phase:
 ## Algorithm bank — what is left
 
 Eight sets are done: 2-look OLL, 2-look PLL, PLL, OLL, F2L, COLL and Winter Variation — 233 cases
-and 494 algorithms, all verified by `tests/unit/algorithms.test.ts`. Still to add:
+and 463 algorithms, all verified by `tests/unit/algorithms.test.ts`. Still to add:
 
 - **Fundamentals:** triggers and turning blocks rather than cases; needs its own shape, since there
   is nothing to "solve" and so nothing for the checker to confirm.

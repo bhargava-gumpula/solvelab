@@ -82,6 +82,25 @@ describe("the algorithm bank", () => {
     expect(withChoices.length).toBeGreaterThan(60);
   });
 
+  it("never starts an algorithm by turning the cube round", () => {
+    // A y at the front only says "hold it the other way", which the picture
+    // already shows. An x or a z tips the cube onto another layer, so it stays.
+    const leading: string[] = [];
+    for (const set of ALGORITHM_SETS) {
+      for (const entry of set.cases) {
+        for (const algorithm of algorithmsFor(entry)) {
+          if (/^y['2]?\s/.test(algorithm.moves)) leading.push(`${entry.name}: ${algorithm.moves}`);
+        }
+      }
+    }
+    expect(leading).toEqual([]);
+    // Rotations elsewhere are part of the algorithm and are left alone.
+    const withRotations = ALGORITHM_SETS.flatMap((set) =>
+      set.cases.flatMap((entry) => algorithmsFor(entry)),
+    ).filter((algorithm) => /[xyz]['2]?(\s|$)/.test(algorithm.moves));
+    expect(withRotations.length).toBeGreaterThan(0);
+  });
+
   it("finds cases by name, nickname or group", () => {
     const oll = ALGORITHM_SETS.find((set) => set.id === "oll")!;
     // Sune, Antisune and Double Sune all answer to "sune".

@@ -19,7 +19,7 @@ export const oll: AlgorithmSetData = {
       aliases: ["Runway"],
       algorithms: [
         { id: "o1-1", moves: "R U2 R2 F R F' U2 R' F R F'" },
-        { id: "o1-2", moves: "y R U B' R B R2 U' R' F R F'" },
+        { id: "o1-2", moves: "R U B' R B R2 U' R' F R F'" },
       ],
     },
     {
@@ -39,7 +39,7 @@ export const oll: AlgorithmSetData = {
       aliases: ["Anti-Nazi"],
       algorithms: [
         { id: "o3-1", moves: "f R U R' U' f' U' F R U R' U' F'" },
-        { id: "o3-2", moves: "y' f' L' U' L U f U F R U R' U' F'" },
+        { id: "o3-2", moves: "f' L' U' L U f U F R U R' U' F'" },
         { id: "o3-3", moves: "r' R2 U R' U r U2 r' U M'" },
       ],
     },
@@ -50,7 +50,7 @@ export const oll: AlgorithmSetData = {
       aliases: ["Nazi"],
       algorithms: [
         { id: "o4-1", moves: "f R U R' U' f' U F R U R' U' F'" },
-        { id: "o4-2", moves: "y' f' L' U' L U f U' F R U R' U' F'" },
+        { id: "o4-2", moves: "f' L' U' L U f U' F R U R' U' F'" },
         { id: "o4-3", moves: "M U' r U2 r' U' R U' R' M'" },
       ],
     },
@@ -62,7 +62,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o5-1", moves: "r' U2 R U R' U r" },
         { id: "o5-2", moves: "l' U2 L U L' U l" },
-        { id: "o5-3", moves: "y2 r' U2 R U R' U r" },
       ],
     },
     {
@@ -73,7 +72,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o6-1", moves: "r U2 R' U' R U' r'" },
         { id: "o6-2", moves: "l U2 L' U' L U' l'" },
-        { id: "o6-3", moves: "y2 r U2 R' U' R U' r'" },
       ],
     },
     {
@@ -95,10 +93,7 @@ export const oll: AlgorithmSetData = {
       name: "OLL 9",
       group: "Fish",
       aliases: ["Kite"],
-      algorithms: [
-        { id: "o9-1", moves: "R U R' U' R' F R2 U R' U' F'" },
-        { id: "o9-2", moves: "y R U R' U' R' F R2 U R' U' F'" },
-      ],
+      algorithms: [{ id: "o9-1", moves: "R U R' U' R' F R2 U R' U' F'" }],
     },
     {
       id: "oll-10",
@@ -108,7 +103,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o10-1", moves: "R U R' U R' F R F' R U2 R'" },
         { id: "o10-2", moves: "R U R' y R' F R U' R' F' R" },
-        { id: "o10-3", moves: "y2 R U R' U R' F R F' R U2 R'" },
       ],
     },
     {
@@ -130,7 +124,7 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o12-1", moves: "F R U R' U' F' U F R U R' U' F'" },
         { id: "o12-2", moves: "M' R' U' R U' R' U2 R U' R r'" },
-        { id: "o12-3", moves: "y' M' R' U' R U' R' U2 R U' M" },
+        { id: "o12-3", moves: "M' R' U' R U' R' U2 R U' M" },
       ],
     },
     {
@@ -214,7 +208,7 @@ export const oll: AlgorithmSetData = {
       aliases: ["Double Sune"],
       algorithms: [
         { id: "o21-1", moves: "R U2 R' U' R U R' U' R U' R'" },
-        { id: "o21-2", moves: "y F R U R' U' R U R' U' R U R' U' F'" },
+        { id: "o21-2", moves: "F R U R' U' R U R' U' R U R' U' F'" },
         { id: "o21-3", moves: "R U R' U R U' R' U R U2 R'" },
       ],
     },
@@ -236,7 +230,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o23-1", moves: "R2 D R' U2 R D' R' U2 R'" },
         { id: "o23-2", moves: "R2 D' R U2 R' D R U2 R" },
-        { id: "o23-3", moves: "y2 R2 D R' U2 R D' R' U2 R'" },
       ],
     },
     {
@@ -247,7 +240,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o24-1", moves: "r U R' U' r' F R F'" },
         { id: "o24-2", moves: "x' R U R' D R U' R' D' x" },
-        { id: "o24-3", moves: "y' x' R U R' D R U' R' D' x" },
       ],
     },
     {
@@ -299,7 +291,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o29-1", moves: "R U R' U' R U' R' F' U' F R U R'" },
         { id: "o29-2", moves: "M U R U R' U' R' F R F' M'" },
-        { id: "o29-3", moves: "y R U R' U' R U' R' F' U' F R U R'" },
       ],
     },
     {
@@ -309,7 +300,7 @@ export const oll: AlgorithmSetData = {
       aliases: ["Knight Move"],
       algorithms: [
         { id: "o30-1", moves: "F R' F R2 U' R' U' R U R' F2" },
-        { id: "o30-2", moves: "y' r' D' r U' r' D r2 U' r' U r U r'" },
+        { id: "o30-2", moves: "r' D' r U' r' D r2 U' r' U r U r'" },
       ],
     },
     {
@@ -319,7 +310,7 @@ export const oll: AlgorithmSetData = {
       aliases: ["P"],
       algorithms: [
         { id: "o31-1", moves: "R' U' F U R U' R' F' R" },
-        { id: "o31-2", moves: "y2 S' L' U' L U L F' L' f" },
+        { id: "o31-2", moves: "S' L' U' L U L F' L' f" },
       ],
     },
     {
@@ -349,7 +340,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["City"],
       algorithms: [
         { id: "o34-1", moves: "R U R2 U' R' F R U R U' F'" },
-        { id: "o34-2", moves: "y2 R U R2 U' R' F R U R U' F'" },
         { id: "o34-3", moves: "F R U R' U' R' F' r U R U' r'" },
       ],
     },
@@ -360,7 +350,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Fish Salad 2"],
       algorithms: [
         { id: "o35-1", moves: "R U2 R2 F R F' R U2 R'" },
-        { id: "o35-2", moves: "y2 R U2 R2 F R F' R U2 R'" },
         { id: "o35-3", moves: "f R U R' U' f' R U R' U R U2 R'" },
       ],
     },
@@ -371,7 +360,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Sea Makai"],
       algorithms: [
         { id: "o36-1", moves: "L' U' L U' L' U L U L F' L' F" },
-        { id: "o36-2", moves: "y2 L' U' L U' L' U L U L F' L' F" },
         { id: "o36-3", moves: "R' U' R U' R' U R U R B' R' B" },
       ],
     },
@@ -392,7 +380,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Mario 2"],
       algorithms: [
         { id: "o38-1", moves: "R U R' U R U' R' U' R' F R F'" },
-        { id: "o38-2", moves: "y2 R U R' U R U' R' U' R' F R F'" },
         { id: "o38-3", moves: "L U L' U L U' L' U' L' B L B'" },
       ],
     },
@@ -403,7 +390,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Big Lightning"],
       algorithms: [
         { id: "o39-1", moves: "L F' L' U' L U F U' L'" },
-        { id: "o39-2", moves: "y2 L F' L' U' L U F U' L'" },
         { id: "o39-3", moves: "R B' R' U' R U B U' R'" },
       ],
     },
@@ -414,7 +400,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Anti-Big Lightning"],
       algorithms: [
         { id: "o40-1", moves: "R' F R U R' U' F' U R" },
-        { id: "o40-2", moves: "y2 R' F R U R' U' F' U R" },
         { id: "o40-3", moves: "L' B L U L' U' B' U L" },
       ],
     },
@@ -423,20 +408,14 @@ export const oll: AlgorithmSetData = {
       name: "OLL 41",
       group: "Awkward",
       aliases: ["Awkward Fish"],
-      algorithms: [
-        { id: "o41-1", moves: "R U R' U R U2 R' F R U R' U' F'" },
-        { id: "o41-2", moves: "y2 R U R' U R U2 R' F R U R' U' F'" },
-      ],
+      algorithms: [{ id: "o41-1", moves: "R U R' U R U2 R' F R U R' U' F'" }],
     },
     {
       id: "oll-42",
       name: "OLL 42",
       group: "Awkward",
       aliases: ["Anti-Awkward Fish"],
-      algorithms: [
-        { id: "o42-1", moves: "R' U' R U' R' U2 R F R U R' U' F'" },
-        { id: "o42-2", moves: "y2 R' U' R U' R' U2 R F R U R' U' F'" },
-      ],
+      algorithms: [{ id: "o42-1", moves: "R' U' R U' R' U2 R F R U R' U' F'" }],
     },
     {
       id: "oll-43",
@@ -447,7 +426,6 @@ export const oll: AlgorithmSetData = {
         { id: "o43-1", moves: "F' U' L' U L F" },
         { id: "o43-2", moves: "f' L' U' L U f" },
         { id: "o43-3", moves: "R' U' F' U F R" },
-        { id: "o43-4", moves: "y2 F' U' L' U L F" },
       ],
     },
     {
@@ -458,7 +436,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o44-1", moves: "F U R U' R' F'" },
         { id: "o44-2", moves: "f R U R' U' f'" },
-        { id: "o44-3", moves: "y2 F U R U' R' F'" },
       ],
     },
     {
@@ -469,7 +446,6 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o45-1", moves: "F R U R' U' F'" },
         { id: "o45-2", moves: "F' L' U' L U F" },
-        { id: "o45-3", moves: "y F R U R' U' F'" },
       ],
     },
     {
@@ -477,10 +453,7 @@ export const oll: AlgorithmSetData = {
       name: "OLL 46",
       group: "C",
       aliases: ["Seein' Headlights"],
-      algorithms: [
-        { id: "o46-1", moves: "R' U' R' F R F' U R" },
-        { id: "o46-2", moves: "y2 R' U' R' F R F' U R" },
-      ],
+      algorithms: [{ id: "o46-1", moves: "R' U' R' F R F' U R" }],
     },
     {
       id: "oll-47",
@@ -497,10 +470,7 @@ export const oll: AlgorithmSetData = {
       name: "OLL 48",
       group: "L",
       aliases: ["Right Back Squeezy"],
-      algorithms: [
-        { id: "o48-1", moves: "F R U R' U' R U R' U' F'" },
-        { id: "o48-2", moves: "y2 F R U R' U' R U R' U' F'" },
-      ],
+      algorithms: [{ id: "o48-1", moves: "F R U R' U' R U R' U' F'" }],
     },
     {
       id: "oll-49",
@@ -509,7 +479,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Right Front Squeezy"],
       algorithms: [
         { id: "o49-1", moves: "r U' r2 U r2 U r2 U' r" },
-        { id: "o49-2", moves: "y2 r U' r2 U r2 U r2 U' r" },
         { id: "o49-3", moves: "l U' l2 U l2 U l2 U' l" },
       ],
     },
@@ -520,7 +489,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Left Back Squeezy"],
       algorithms: [
         { id: "o50-1", moves: "r' U r2 U' r2 U' r2 U r'" },
-        { id: "o50-2", moves: "y2 r' U r2 U' r2 U' r2 U r'" },
         { id: "o50-3", moves: "l' U l2 U' l2 U' l2 U l'" },
       ],
     },
@@ -531,7 +499,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Bottlecap"],
       algorithms: [
         { id: "o51-1", moves: "f R U R' U' R U R' U' f'" },
-        { id: "o51-2", moves: "y2 f R U R' U' R U R' U' f'" },
         { id: "o51-3", moves: "F U R U' R' U R U' R' F'" },
       ],
     },
@@ -573,7 +540,6 @@ export const oll: AlgorithmSetData = {
       aliases: ["Highway"],
       algorithms: [
         { id: "o55-1", moves: "R U2 R2 U' R U' R' U2 F R F'" },
-        { id: "o55-2", moves: "y2 R U2 R2 U' R U' R' U2 F R F'" },
         { id: "o55-3", moves: "R' F U R U' R2 F' R2 U R' U' R" },
       ],
     },

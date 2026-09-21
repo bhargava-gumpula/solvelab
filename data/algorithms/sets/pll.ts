@@ -24,7 +24,7 @@ export const pll: AlgorithmSetData = {
           note: "The usual one, all with the left hand.",
         },
         { id: "aa-2", moves: "x R' U R' D2 R U' R' D2 R2 x'" },
-        { id: "aa-3", moves: "y x' R2 D2 R' U' R D2 R' U R' x" },
+        { id: "aa-3", moves: "x' R2 D2 R' U' R D2 R' U R' x" },
         {
           id: "aa-4",
           moves: "R' F R' B2 R F' R' B2 R2",
@@ -64,7 +64,6 @@ export const pll: AlgorithmSetData = {
         { id: "f-1", moves: "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R" },
         { id: "f-2", moves: "R' U R U' R2 F' U' F U R F R' F' R2 U'" },
         { id: "f-3", moves: "R' U2 R' U' y R' F' R2 U' R' U R' F R U' F" },
-        { id: "f-4", moves: "y2 R' U R U' R2 F' U' F U R F R' F' R2 U'" },
       ],
     },
     {
@@ -185,9 +184,9 @@ export const pll: AlgorithmSetData = {
       algorithms: [
         { id: "ra-1", moves: "R U' R' U' R U R D R' U' R D' R' U2 R'" },
         { id: "ra-2", moves: "L U2 L' U2 L F' L' U' L U L F L2" },
-        { id: "ra-3", moves: "y' R U2 R' U2 R B' R' U' R U R B R2" },
+        { id: "ra-3", moves: "R U2 R' U2 R B' R' U' R U R B R2" },
         { id: "ra-4", moves: "R U' R' U' R U R D R' U' R D' R' U2 R' U'" },
-        { id: "ra-5", moves: "y R U2 R D R' U R D' R' U' R' U R U R'" },
+        { id: "ra-5", moves: "R U2 R D R' U R D' R' U' R' U R U R'" },
       ],
     },
     {
@@ -197,7 +196,6 @@ export const pll: AlgorithmSetData = {
       algorithms: [
         { id: "rb-1", moves: "R2 F R U R U' R' F' R U2 R' U2 R" },
         { id: "rb-2", moves: "R' U2 R U2 R' F R U R' U' R' F' R2" },
-        { id: "rb-3", moves: "y' R2 F R U R U' R' F' R U2 R' U2 R" },
         { id: "rb-4", moves: "R' U2 R' D' R U' R' D R U R U' R' U' R" },
       ],
     },
@@ -218,7 +216,6 @@ export const pll: AlgorithmSetData = {
           note: "The same idea mirrored, for left-handed finger tricks.",
         },
         { id: "t-3", moves: "F R U' R' U R U R2 F' R U R U' R'" },
-        { id: "t-4", moves: "y2 R U R' U' R' F R2 U' R' U' R U R' F'" },
         { id: "t-5", moves: "R U R' U' R' F R2 U' R' U' R U R' F' U" },
       ],
     },
@@ -231,7 +228,6 @@ export const pll: AlgorithmSetData = {
         { id: "ua-1", moves: "M2 U M U2 M' U M2", note: "Fast once M turns feel natural." },
         { id: "ua-2", moves: "R U' R U R U R U' R' U' R2" },
         { id: "ua-3", moves: "R2 U' R' U' R U R U R U' R" },
-        { id: "ua-4", moves: "y2 R U' R U R U R U' R' U' R2" },
         { id: "ua-5", moves: "F2 U' L R' F2 L' R U' F2" },
       ],
     },
@@ -243,7 +239,6 @@ export const pll: AlgorithmSetData = {
       algorithms: [
         { id: "ub-1", moves: "M2 U' M U2 M' U' M2" },
         { id: "ub-2", moves: "R2 U R U R' U' R' U' R' U R'" },
-        { id: "ub-3", moves: "y2 R2 U R U R' U' R' U' R' U R'" },
         { id: "ub-4", moves: "F2 U L R' F2 L' R U F2" },
       ],
     },
@@ -267,7 +262,6 @@ export const pll: AlgorithmSetData = {
       algorithms: [
         { id: "y-1", moves: "F R U' R' U' R U R' F' R U R' U' R' F R F'" },
         { id: "y-2", moves: "F R' F R2 U' R' U' R U R' F' R U R' U' F'" },
-        { id: "y-3", moves: "y F R U' R' U' R U R' F' R U R' U' R' F R F'" },
       ],
     },
     {
@@ -280,7 +274,7 @@ export const pll: AlgorithmSetData = {
         { id: "z-2", moves: "M' U M2 U M2 U M' U2 M2" },
         { id: "z-3", moves: "M' U' M2 U' M2 U' M' U2 M2" },
         { id: "z-4", moves: "R' U' R U' R U R U' R' U R U R2 U' R' U2" },
-        { id: "z-5", moves: "y M2 U' M2 U' M' U2 M2 U2 M' U2" },
+        { id: "z-5", moves: "M2 U' M2 U' M' U2 M2 U2 M' U2" },
       ],
     },
   ],
