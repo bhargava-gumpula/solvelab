@@ -184,9 +184,12 @@ test.describe("skill tests and the solve profile", () => {
       "Cross test 2.00 s − Unlimited-inspection cross test 1.80 s = 0.20 s",
     );
 
-    // The imported tests are over two weeks old, so the coach asks to measure again.
+    // With every core test done, the coach says so and stops asking for more.
     await page.goto("/coach/");
-    await expect(page.getByTestId("coach-request")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId("coach-headline")).toHaveText("Your solve profile is complete.", {
+      timeout: 20_000,
+    });
+    await expect(page.getByTestId("coach-next-test")).toHaveCount(0);
   });
 
   test("daily check: two attempts each, fix a mistake, skip, results and reminder", async ({

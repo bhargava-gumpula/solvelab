@@ -40,7 +40,7 @@ test.describe("without an account", () => {
 test.describe("with an account", () => {
   test("Coach and Stats open, and signing out clears this browser", async ({ page }) => {
     await page.goto("/coach/");
-    await expect(page.getByTestId("coach-thread")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId("coach-message")).toBeVisible({ timeout: 20_000 });
     await page.goto("/stats/");
     await expect(page.getByTestId("sign-in-wall")).toHaveCount(0);
     await page.goto("/train/");
@@ -105,7 +105,7 @@ test.describe("switching accounts", () => {
     await keyboardSolve(page, 300);
     await expect(page.getByTestId("solve-count")).toHaveText("1/1");
     await page.goto("/coach/");
-    await expect(page.getByTestId("coach-thread")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId("coach-message")).toBeVisible({ timeout: 20_000 });
 
     // Someone else signs in on the same browser without signing out first.
     await seedStoredAccount(page, "e2e-account-two");

@@ -2,6 +2,8 @@ import Dexie from "dexie";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { accessState, areaOf, ACCOUNT_AREAS } from "@/lib/auth/access";
 import { claimAccount, readAccountOwner } from "@/lib/storage/account-owner";
+import { hasOwnData } from "@/lib/sync/account";
+import { emptyRecords, setRecords } from "@/lib/sync/collections";
 import { APPEARANCE_STORAGE_KEY } from "@/lib/appearance/preferences";
 import { DATABASE_NAME, initializeStorage, LocalDatabase } from "@/lib/storage/database";
 import { resetLocalData } from "@/lib/storage/reset";
@@ -138,5 +140,38 @@ describe("whose copy this browser holds", () => {
     // and the copy is not quietly signed over to them either.
     expect(await claimAccount(db, "account-b")).toBe("switched");
     expect(await readAccountOwner(db)).toBe("account-a");
+  });
+});
+
+describe("what counts as someone's own data", () => {
+  it("ignores the session and settings a fresh copy makes for itself", () => {
+    const fresh = emptyRecords();
+    setRecords(fresh, "sessions", [
+      {
+        id: "main",
+        name: "Main",
+        event: "333",
+        createdAt: "2026-09-20T00:00:00.000Z",
+        sortOrder: 0,
+      },
+    ]);
+    expect(hasOwnData(fresh)).toBe(false);
+
+    // One solve is a person's work, so signing in has to decide what to do with it.
+    const used = emptyRecords();
+    setRecords(used, "solves", [
+      {
+        id: "solve-1",
+        sessionId: "main",
+        event: "333",
+        scramble: "R U R'",
+        rawTimeMs: 12345,
+        finalTimeMs: 12345,
+        penalty: "none",
+        createdAt: "2026-09-20T00:00:00.000Z",
+        source: "normal",
+      },
+    ]);
+    expect(hasOwnData(used)).toBe(true);
   });
 });

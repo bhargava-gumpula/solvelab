@@ -15,8 +15,18 @@ test.describe("the algorithm bank", () => {
       timeout: 20_000,
     });
 
-    // Open a case and read the algorithms it offers.
+    // Clicking a case moves it round the three labels.
+    await expect(page.getByTestId("case-state-pll-t")).toHaveText("Don't know");
     await page.getByTestId("case-pll-t").click();
+    await expect(page.getByTestId("case-state-pll-t")).toHaveText("Learning");
+    await page.getByTestId("case-pll-t").click();
+    await expect(page.getByTestId("case-state-pll-t")).toHaveText("Know it");
+    await expect(page.getByTestId("set-progress")).toContainText("1 of 21 known");
+    await page.getByTestId("case-pll-t").click();
+    await expect(page.getByTestId("case-state-pll-t")).toHaveText("Don't know");
+
+    // The pencil opens the case, where the algorithms are.
+    await page.getByTestId("case-open-pll-t").click();
     const dialog = page.getByRole("dialog");
     await expect(dialog).toContainText("algorithms that solve it");
     const second = dialog.locator('[data-testid^="algorithm-t-"]').nth(1);
@@ -37,11 +47,18 @@ test.describe("the algorithm bank", () => {
     await expect(page.getByTestId("case-state-pll-t")).toHaveText("Know it", { timeout: 20_000 });
     await expect(page.getByTestId("case-pll-t")).toContainText(secondMoves);
 
-    // Filtering and searching narrow the grid.
-    await page.getByRole("radio", { name: "Know it" }).click();
+    // The filter takes any mix of the labels, not one at a time.
+    await page.getByTestId("case-pll-aa").click();
+    await expect(page.getByTestId("case-state-pll-aa")).toHaveText("Learning");
+    await page.getByTestId("filter-known").click();
     await expect(page.getByTestId("case-pll-t")).toBeVisible();
     await expect(page.getByTestId("case-pll-aa")).toHaveCount(0);
-    await page.getByRole("radio", { name: "All" }).click();
+    await page.getByTestId("filter-learning").click();
+    await expect(page.getByTestId("case-pll-t")).toBeVisible();
+    await expect(page.getByTestId("case-pll-aa")).toBeVisible();
+    await expect(page.getByTestId("case-pll-h")).toHaveCount(0);
+    await page.getByTestId("filter-known").click();
+    await page.getByTestId("filter-learning").click();
     await page.getByLabel("Find a case").fill("edges only");
     await expect(page.getByTestId("case-pll-h")).toBeVisible();
     await expect(page.getByTestId("case-pll-t")).toHaveCount(0);
@@ -53,7 +70,7 @@ test.describe("the algorithm bank", () => {
       timeout: 20_000,
     });
     await expect(page.locator('[data-testid^="case-f2l-"]')).toHaveCount(41);
-    await page.getByTestId("case-f2l-1").click();
+    await page.getByTestId("case-open-f2l-1").click();
     const dialog = page.getByRole("dialog");
     // The case says where the pair sits, in words.
     await expect(dialog).toContainText(/Corner .*\. Edge .*\./);
@@ -66,7 +83,7 @@ test.describe("the algorithm bank", () => {
     await expect(page.getByTestId("set-progress")).toContainText("0 of 10 known", {
       timeout: 20_000,
     });
-    await page.getByTestId("case-2oll-sune").click();
+    await page.getByTestId("case-open-2oll-sune").click();
     const dialog = page.getByRole("dialog");
     await expect(dialog.locator('[data-testid^="algorithm-o27-"]').first()).toContainText(
       "R U R' U R U2 R'",
@@ -86,7 +103,7 @@ test.describe("the algorithm bank", () => {
     const cards = page.locator('[data-testid^="case-oll-"]');
     await expect(cards).toHaveCount(57);
     await expect(page.getByRole("img", { name: /OLL 1, seen from above/ })).toBeVisible();
-    await page.getByTestId("case-oll-57").click();
+    await page.getByTestId("case-open-oll-57").click();
     await expect(page.getByRole("dialog")).toContainText("Mummy");
   });
 });

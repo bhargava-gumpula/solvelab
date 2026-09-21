@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Pencil, Search } from "lucide-react";
 import { CaseDetail } from "@/components/algorithms/case-detail";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
-import { useAlgorithmProgress } from "@/hooks/use-algorithms";
+import { algorithmActions, useAlgorithmProgress } from "@/hooks/use-algorithms";
 import {
   caseStateFor,
   chosenAlgorithm,
@@ -19,20 +19,27 @@ import {
   progressIdFor,
   searchCases,
 } from "@/lib/algorithms/catalog";
-import { countLabels, type CaseLabel } from "@/lib/algorithms/labels";
+import { CASE_LABELS, countLabels, type CaseLabel } from "@/lib/algorithms/labels";
 import { cn } from "@/lib/utils";
 
-const FILTERS = [
-  { id: "all", label: "All" },
-  { id: "unknown", label: "Don't know" },
-  { id: "learning", label: "Learning" },
-  { id: "known", label: "Know it" },
-] as const;
+/** Clicking a case moves it round this loop. */
+const NEXT_LABEL: Record<CaseLabel, CaseLabel> = {
+  unknown: "learning",
+  learning: "known",
+  known: "unknown",
+};
 
-const LABEL_STYLE: Record<CaseLabel, string> = {
+const LABEL_CHIP: Record<CaseLabel, string> = {
   known: "border-primary/45 bg-primary/10 text-primary",
   learning: "border-warning/45 bg-warning/10 text-warning",
   unknown: "border-border bg-background/40 text-muted-foreground",
+};
+
+/** The whole card takes the colour, so a set reads at a glance. */
+const LABEL_CARD: Record<CaseLabel, string> = {
+  known: "border-primary/40 bg-primary/5 hover:border-primary/70",
+  learning: "border-warning/40 bg-warning/5 hover:border-warning/70",
+  unknown: "hover:border-primary/40",
 };
 
 const LABEL_TEXT: Record<CaseLabel, string> = {
@@ -45,7 +52,8 @@ const LABEL_TEXT: Record<CaseLabel, string> = {
 export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
   const { loaded, progress, labels } = useAlgorithmProgress();
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState<(typeof FILTERS)[number]["id"]>("all");
+  // Nothing picked means everything shows; otherwise any mix of the three.
+  const [shown, setShown] = useState<CaseLabel[]>([]);
   const [open, setOpen] = useState<CaseEntry | null>(null);
 
   const counts = countLabels(
@@ -53,7 +61,7 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
     labels,
   );
   const matching = searchCases(set, query).filter(
-    (entry) => filter === "all" || (labels.get(progressIdFor(entry)) ?? "unknown") === filter,
+    (entry) => shown.length === 0 || shown.includes(labels.get(progressIdFor(entry)) ?? "unknown"),
   );
   const groups = groupCases(matching);
 
@@ -73,16 +81,21 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
         </p>
         <div className="flex flex-wrap items-center gap-2">
           <ToggleGroup
-            type="single"
+            type="multiple"
             variant="outline"
             size="sm"
-            aria-label="Show"
-            value={filter}
-            onValueChange={(value) => value && setFilter(value as typeof filter)}
+            aria-label="Show which cases"
+            value={shown}
+            onValueChange={(value) => setShown(value as CaseLabel[])}
           >
-            {FILTERS.map((option) => (
-              <ToggleGroupItem key={option.id} value={option.id} className="px-3">
-                {option.label}
+            {CASE_LABELS.map((option) => (
+              <ToggleGroupItem
+                key={option.id}
+                value={option.id}
+                className="px-3"
+                data-testid={`filter-${option.id}`}
+              >
+                {option.short}
               </ToggleGroupItem>
             ))}
           </ToggleGroup>
@@ -119,14 +132,19 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
             </h2>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {cases.map((entry) => {
-                const label = labels.get(progressIdFor(entry)) ?? "unknown";
+                const caseId = progressIdFor(entry);
+                const label = labels.get(caseId) ?? "unknown";
                 return (
-                  <li key={entry.id}>
+                  <li key={entry.id} className="relative">
                     <button
                       type="button"
-                      onClick={() => setOpen(entry)}
+                      onClick={() => void algorithmActions.setLabel(caseId, NEXT_LABEL[label])}
                       data-testid={`case-${entry.id}`}
-                      className="w-full rounded-2xl border p-3 text-left glass transition-colors hover:border-primary/40"
+                      aria-label={`${entry.name}: ${LABEL_TEXT[label]}. Change to ${LABEL_TEXT[NEXT_LABEL[label]]}.`}
+                      className={cn(
+                        "w-full rounded-2xl border p-3 text-left glass transition-colors",
+                        LABEL_CARD[label],
+                      )}
                     >
                       <CaseDiagram
                         facelets={caseStateFor(entry, kindFor(set, entry))}
@@ -139,8 +157,8 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
                         {
                           chosenAlgorithm(
                             entry,
-                            progress.get(progressIdFor(entry))?.preferredVariantId,
-                            progress.get(progressIdFor(entry))?.customVariants.map((variant) => ({
+                            progress.get(caseId)?.preferredVariantId,
+                            progress.get(caseId)?.customVariants.map((variant) => ({
                               id: variant.id,
                               moves: variant.algorithm,
                             })),
@@ -150,12 +168,27 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
                       <span
                         className={cn(
                           "mt-2 inline-block rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                          LABEL_STYLE[label],
+                          LABEL_CHIP[label],
                         )}
                         data-testid={`case-state-${entry.id}`}
                       >
                         {LABEL_TEXT[label]}
                       </span>
+                    </button>
+                    {/*
+                     * A button rather than a right-click: a context menu is
+                     * invisible until you try it, has no touch equivalent, and
+                     * fights the browser's own menu. This one keeps out of the
+                     * way until you look for it.
+                     */}
+                    <button
+                      type="button"
+                      className="absolute top-1.5 right-1.5 grid size-6 place-items-center rounded-full text-muted-foreground opacity-35 transition-opacity hover:bg-accent hover:opacity-100 focus-visible:opacity-100 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+                      onClick={() => setOpen(entry)}
+                      data-testid={`case-open-${entry.id}`}
+                      aria-label={`Choose an algorithm for ${entry.name}`}
+                    >
+                      <Pencil className="size-3" />
                     </button>
                   </li>
                 );

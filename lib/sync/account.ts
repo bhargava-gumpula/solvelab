@@ -9,6 +9,7 @@ import {
   emptyRecords,
   recordKey,
   recordsOf,
+  type AccountRecords,
   setRecords,
   type AnyRecord,
 } from "./collections";
@@ -248,10 +249,33 @@ export function isOfflineSyncError(error: unknown): boolean {
  * before any sync, so one account's data is never merged into another's — or
  * uploaded to it.
  */
+/** Records that belong to a person, rather than the empty shell a fresh copy has. */
+export function hasOwnData(records: AccountRecords): boolean {
+  // Sessions and settings are made on first run, so they prove nothing.
+  return COLLECTION_NAMES.filter((name) => name !== "sessions").some(
+    (name) => recordsOf(records, name).length > 0,
+  );
+}
+
 export async function startAccountSession(uid: string): Promise<"synced" | "switched"> {
   const { db } = getRepositories();
   const claim = await claimAccount(db, uid);
   if (claim === "switched") return "switched";
+  if (claim === "adopted") {
+    /*
+     * An unclaimed copy with data in it is either this person's own work from
+     * before they signed in, or something an earlier account left behind. An
+     * account that already has times of its own doesn't need either, so the
+     * browser starts clean and takes what the account holds. Only a brand-new
+     * account keeps what is here, which is what makes signing up after a few
+     * solves work.
+     */
+    const local = await localSnapshot(db);
+    if (hasOwnData(local.records)) {
+      const cloud = await readAccountFromCloud();
+      if (cloud && hasOwnData(cloud.records)) return "switched";
+    }
+  }
   await syncAccountNow();
   return "synced";
 }

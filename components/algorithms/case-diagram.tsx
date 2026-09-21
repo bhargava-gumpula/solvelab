@@ -22,12 +22,11 @@ export function CaseDiagram({
   title?: string;
 }) {
   const up = getFace(facelets, "U");
-  // In a pair case only the pair matters; the last layer around it is noise.
-  // A pair case is only about the pair; Winter Variation also shows the
-  // corners it is about to bring up, so nothing is greyed there.
-  const pair = kind === "f2l" ? new Set(pairStickers(facelets)) : null;
+  // The pair a slot case is about; everything else around it is noise.
+  const pair =
+    kind === "f2l" || kind === "wv" ? new Set(pairStickers(facelets)) : new Set<number>();
   // Top rows of the sides, read left to right as seen from above, with the
-  // facelet each one comes from so the pair can be picked out.
+  // facelet each one comes from so each sticker can be judged on its own.
   const strips = {
     B: [47, 46, 45],
     L: [36, 37, 38],
@@ -40,23 +39,6 @@ export function CaseDiagram({
   const strip = 6;
   const board = cell * 3 + gap * 2;
   const size = board + (strip + gap) * 2;
-
-  // An orientation case cares only about what faces up; a permutation case is
-  // read from the colours around the side.
-  const topColour = (sticker: string, index: number) =>
-    kind === "oll"
-      ? sticker === "U"
-        ? "var(--cube-u)"
-        : "var(--cube-unsolved)"
-      : pair && !pair.has(index)
-        ? "var(--cube-unsolved)"
-        : faceColour(sticker);
-
-  const sideColour = (sticker: string, index: number) => {
-    if (kind === "oll") return sticker === "U" ? faceColour(sticker) : "var(--cube-unsolved)";
-    if (pair && !pair.has(index)) return "var(--cube-unsolved)";
-    return faceColour(sticker);
-  };
 
   // For a pair case, the slot itself matters as much as the top: two stickers of
   // the front face and two of the right face, seen edge on.
@@ -85,7 +67,7 @@ export function CaseDiagram({
             width={cell}
             height={cell}
             rx={3}
-            fill={topColour(up[row * 3 + column]!, row * 3 + column)}
+            fill={stickerColour(row * 3 + column, up[row * 3 + column]!, kind, pair)}
             stroke="var(--cube-stroke)"
             strokeWidth={0.75}
           />
@@ -101,7 +83,7 @@ export function CaseDiagram({
               width={cell}
               height={strip}
               rx={1.5}
-              fill={sideColour(facelets[strips.B[index]!]!, strips.B[index]!)}
+              fill={stickerColour(strips.B[index]!, facelets[strips.B[index]!]!, kind, pair)}
             />
             <rect
               x={offset}
@@ -109,7 +91,7 @@ export function CaseDiagram({
               width={cell}
               height={strip}
               rx={1.5}
-              fill={sideColour(facelets[strips.F[index]!]!, strips.F[index]!)}
+              fill={stickerColour(strips.F[index]!, facelets[strips.F[index]!]!, kind, pair)}
             />
             <rect
               x={0}
@@ -117,7 +99,12 @@ export function CaseDiagram({
               width={strip}
               height={cell}
               rx={1.5}
-              fill={sideColour(facelets[strips.L[2 - index]!]!, strips.L[2 - index]!)}
+              fill={stickerColour(
+                strips.L[2 - index]!,
+                facelets[strips.L[2 - index]!]!,
+                kind,
+                pair,
+              )}
             />
             <rect
               x={size - strip}
@@ -125,7 +112,12 @@ export function CaseDiagram({
               width={strip}
               height={cell}
               rx={1.5}
-              fill={sideColour(facelets[strips.R[2 - index]!]!, strips.R[2 - index]!)}
+              fill={stickerColour(
+                strips.R[2 - index]!,
+                facelets[strips.R[2 - index]!]!,
+                kind,
+                pair,
+              )}
             />
           </g>
         );
@@ -163,10 +155,63 @@ export function CaseDiagram({
   );
 }
 
+/** The last layer's edge stickers on top, plus its centre, in facelet numbers. */
+const TOP_EDGES = new Set([1, 3, 4, 5, 7]);
+/** The middle sticker of each side's top row: the last layer's edges, seen edge on. */
+const SIDE_EDGES = new Set([10, 19, 37, 46]);
+
+/** A colour the case doesn't pin down: on the cube it could be any of them. */
+const ANY = "var(--cube-unsolved)";
+
+/**
+ * What colour a sticker should be drawn.
+ *
+ * A picture should only claim what the case actually fixes. An orientation case
+ * says nothing about where the pieces go, so its side colours could be anything
+ * and are left grey; a permutation case is read from exactly those colours, so
+ * they are drawn. Between the two, COLL pins the corners down but lets the
+ * edges sit anywhere, and a pair case pins down the pair alone.
+ */
+function stickerColour(
+  index: number,
+  sticker: string,
+  kind: CaseKind,
+  pair: ReadonlySet<number>,
+): string {
+  const facingUp = sticker === "U";
+  const isEdge = TOP_EDGES.has(index) || SIDE_EDGES.has(index);
+
+  switch (kind) {
+    case "f2l":
+      // Only the pair is the case; the last layer above it is still scrambled.
+      return pair.has(index) ? faceColour(sticker) : ANY;
+    case "wv":
+      // The pair's colours are the case; the corners above it only have to come up.
+      return pair.has(index) ? faceColour(sticker) : facingUp ? faceColour("U") : ANY;
+    case "oll":
+      // Which stickers face up, and nothing else.
+      return facingUp ? faceColour("U") : ANY;
+    case "eoll":
+      // Only the edges are being oriented; the corners are the next step's problem.
+      return isEdge && facingUp ? faceColour("U") : ANY;
+    case "coll":
+      // The corners have to land home the right way up; the edges may sit anywhere.
+      return isEdge ? (facingUp ? faceColour("U") : ANY) : faceColour(sticker);
+    default:
+      // A permutation case: every colour on show is part of it.
+      return faceColour(sticker);
+  }
+}
+
+/*
+ * Cubers solve with the cross on the bottom, so the last layer they are looking
+ * at is the yellow one. The engine calls that face U, and these pictures follow
+ * the hands rather than the engine: up is yellow, down is white.
+ */
 function faceColour(sticker: string): string {
   switch (sticker) {
     case "U":
-      return "var(--cube-u)";
+      return "var(--cube-d)";
     case "F":
       return "var(--cube-f)";
     case "R":
@@ -176,6 +221,6 @@ function faceColour(sticker: string): string {
     case "L":
       return "var(--cube-l)";
     default:
-      return "var(--cube-d)";
+      return "var(--cube-u)";
   }
 }
