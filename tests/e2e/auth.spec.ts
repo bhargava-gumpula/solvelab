@@ -98,6 +98,36 @@ test.describe("with an account", () => {
   });
 });
 
+test.describe("signing in for the first time", () => {
+  test.use({ account: "signedOut" });
+
+  test("keeps the solves you timed before you had an account", async ({ page }) => {
+    await openTimer(page);
+    await keyboardSolve(page, 300);
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+
+    // Sign in. The account is new as far as this browser can tell, so the
+    // solve joins it rather than being thrown away.
+    await seedStoredAccount(page, "e2e-new-account");
+    await openTimer(page);
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1", { timeout: 20_000 });
+    const left = await page.evaluate(
+      async () =>
+        await new Promise<number>((resolve) => {
+          const open = indexedDB.open("speedcubing-local");
+          open.onsuccess = () => {
+            const request = open.result
+              .transaction("solves", "readonly")
+              .objectStore("solves")
+              .count();
+            request.onsuccess = () => resolve(request.result);
+          };
+        }),
+    );
+    expect(left).toBe(1);
+  });
+});
+
 test.describe("switching accounts", () => {
   test("a second account signing in gets none of the first one's data", async ({ page }) => {
     // The first account leaves a solve and a conversation behind.

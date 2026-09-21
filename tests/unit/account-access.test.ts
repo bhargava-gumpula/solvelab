@@ -2,7 +2,7 @@ import Dexie from "dexie";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { accessState, areaOf, ACCOUNT_AREAS } from "@/lib/auth/access";
 import { claimAccount, readAccountOwner } from "@/lib/storage/account-owner";
-import { hasOwnData } from "@/lib/sync/account";
+import { decideAccountStart, hasOwnData } from "@/lib/sync/account";
 import { emptyRecords, setRecords } from "@/lib/sync/collections";
 import { APPEARANCE_STORAGE_KEY } from "@/lib/appearance/preferences";
 import { DATABASE_NAME, initializeStorage, LocalDatabase } from "@/lib/storage/database";
@@ -173,5 +173,62 @@ describe("what counts as someone's own data", () => {
       },
     ]);
     expect(hasOwnData(used)).toBe(true);
+  });
+});
+
+describe("what signing in does with what is already here", () => {
+  const solve = {
+    id: "solve-1",
+    sessionId: "main",
+    event: "333" as const,
+    scramble: "R U R'",
+    rawTimeMs: 12345,
+    finalTimeMs: 12345,
+    penalty: "none" as const,
+    createdAt: "2026-09-20T00:00:00.000Z",
+    source: "normal" as const,
+  };
+  const withSolve = () => {
+    const records = emptyRecords();
+    setRecords(records, "solves", [solve]);
+    return records;
+  };
+  const snapshot = (records = emptyRecords()) => ({ records, settings: null, tombstones: [] });
+  const cloudWith =
+    (records = emptyRecords()) =>
+    () =>
+      Promise.resolve(snapshot(records));
+  const noCloud = () => Promise.resolve(null);
+
+  it("clears a copy that belongs to another account", async () => {
+    expect(await decideAccountStart("switched", withSolve(), cloudWith(withSolve()))).toBe("clear");
+  });
+
+  it("keeps this account's own copy", async () => {
+    expect(await decideAccountStart("same", withSolve(), cloudWith(withSolve()))).toBe("sync");
+  });
+
+  it("keeps solves timed before signing up, when the account is new", async () => {
+    // The whole point of adopting: time a few solves, then make an account.
+    expect(await decideAccountStart("adopted", withSolve(), cloudWith())).toBe("sync");
+    expect(await decideAccountStart("adopted", withSolve(), noCloud)).toBe("sync");
+  });
+
+  it("clears leftovers when the account already has times of its own", async () => {
+    // This is the case the owner hit: old solves following them into an account.
+    expect(await decideAccountStart("adopted", withSolve(), cloudWith(withSolve()))).toBe("clear");
+  });
+
+  it("keeps an empty copy either way, since there is nothing to lose", async () => {
+    expect(await decideAccountStart("adopted", emptyRecords(), cloudWith(withSolve()))).toBe(
+      "sync",
+    );
+  });
+
+  it("keeps the copy when the account can't be reached", async () => {
+    // A dropped connection must not cost someone their solves, and nothing can
+    // be uploaded while it is down either.
+    const offline = () => Promise.reject(new Error("offline"));
+    expect(await decideAccountStart("adopted", withSolve(), offline)).toBe("sync");
   });
 });

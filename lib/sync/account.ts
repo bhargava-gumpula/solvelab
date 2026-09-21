@@ -1,6 +1,6 @@
 import type { LocalDatabase } from "@/lib/storage/database";
 import { getRepositories } from "@/lib/storage";
-import { claimAccount } from "@/lib/storage/account-owner";
+import { claimAccount, type AccountClaim } from "@/lib/storage/account-owner";
 import { getAuthSnapshot } from "@/lib/auth/session";
 import { getFirebaseConfig } from "@/lib/auth/config";
 import {
@@ -244,11 +244,6 @@ export function isOfflineSyncError(error: unknown): boolean {
   return /network|offline|failed to fetch|err_(blocked|failed|internet)/i.test(message);
 }
 
-/**
- * What this browser's copy means for the account that just signed in. Called
- * before any sync, so one account's data is never merged into another's — or
- * uploaded to it.
- */
 /** Records that belong to a person, rather than the empty shell a fresh copy has. */
 export function hasOwnData(records: AccountRecords): boolean {
   // Sessions and settings are made on first run, so they prove nothing.
@@ -257,25 +252,52 @@ export function hasOwnData(records: AccountRecords): boolean {
   );
 }
 
+/** What signing in should do with what is already in this browser. */
+export type AccountStart =
+  /** Keep it and sync: either it is this account's, or the account is new. */
+  | "sync"
+  /** It isn't this account's: clear the browser and take what the account holds. */
+  | "clear";
+
+/**
+ * The rule, kept apart from the plumbing so every branch can be tested.
+ *
+ * An unclaimed copy with data in it is either this person's own work from
+ * before they signed in, or something an earlier account left behind. Telling
+ * those apart is impossible, so the account decides: one that already has times
+ * of its own doesn't need either, and one that is empty keeps what is here,
+ * which is what makes signing up after a few solves work.
+ *
+ * When the account can't be reached the copy is kept. Losing someone's solves
+ * to a dropped connection would be worse than the wait, and nothing can be
+ * uploaded while the connection is down either.
+ */
+export async function decideAccountStart(
+  claim: AccountClaim,
+  local: AccountRecords,
+  readCloud: () => Promise<AccountSnapshot | null>,
+): Promise<AccountStart> {
+  if (claim === "switched") return "clear";
+  if (claim === "same" || !hasOwnData(local)) return "sync";
+  try {
+    const cloud = await readCloud();
+    return cloud && hasOwnData(cloud.records) ? "clear" : "sync";
+  } catch {
+    return "sync";
+  }
+}
+
+/**
+ * What this browser's copy means for the account that just signed in. Called
+ * before any sync, so one account's data is never merged into another's — or
+ * uploaded to it.
+ */
 export async function startAccountSession(uid: string): Promise<"synced" | "switched"> {
   const { db } = getRepositories();
   const claim = await claimAccount(db, uid);
-  if (claim === "switched") return "switched";
-  if (claim === "adopted") {
-    /*
-     * An unclaimed copy with data in it is either this person's own work from
-     * before they signed in, or something an earlier account left behind. An
-     * account that already has times of its own doesn't need either, so the
-     * browser starts clean and takes what the account holds. Only a brand-new
-     * account keeps what is here, which is what makes signing up after a few
-     * solves work.
-     */
-    const local = await localSnapshot(db);
-    if (hasOwnData(local.records)) {
-      const cloud = await readAccountFromCloud();
-      if (cloud && hasOwnData(cloud.records)) return "switched";
-    }
-  }
+  const local = await localSnapshot(db);
+  const start = await decideAccountStart(claim, local.records, readAccountFromCloud);
+  if (start === "clear") return "switched";
   await syncAccountNow();
   return "synced";
 }
