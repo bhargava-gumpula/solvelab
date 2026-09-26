@@ -28,10 +28,10 @@ describe("domain configuration integrity", () => {
     );
     expect(thresholds).toEqual([...thresholds].sort((a, b) => b - a));
   });
-  it("ships 4.0 with Train/Learn visible but not enabled", () => {
-    expect(brand.version).toBe("4.0");
-    expect(features.train).toBe(false);
-    expect(features.learn).toBe(false);
+  it("ships 4.1 with every surface turned on", () => {
+    expect(brand.version).toBe("4.1");
+    expect(features.train).toBe(true);
+    expect(features.learn).toBe(true);
     expect(features.algorithms).toBe(true);
     expect(upcoming).toEqual({ train: "4.1", learn: "4.1", algorithms: "4.0" });
     expect(navigation.map((item) => item.label)).toEqual([
@@ -42,8 +42,8 @@ describe("domain configuration integrity", () => {
       "Learn",
       "Stats",
     ]);
-    expect(navigation.find((item) => item.href === "/train")?.enabled).toBe(false);
-    expect(navigation.find((item) => item.href === "/learn")?.enabled).toBe(false);
+    expect(navigation.find((item) => item.href === "/train")?.enabled).toBe(true);
+    expect(navigation.find((item) => item.href === "/learn")?.enabled).toBe(true);
     expect(navigation.find((item) => item.href === "/algorithms")?.enabled).toBe(true);
   });
 });

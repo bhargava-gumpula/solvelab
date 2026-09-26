@@ -35,16 +35,34 @@ Still open from this phase:
 - **Link from the coach:** the OLL/PLL algorithm aspects link to the relevant set.
 - **Tests:** every shipped algorithm verifies; search works; the e2e test checks that the preferred pick and "known" state survive a reload and that an invalid custom algorithm is rejected.
 
-## Phase 5 — Training packs (release 3.4)
+## Phase 5 — Training packs (release 4.1): built, awaiting review
 
-- **Packs:** one per aspect (`data/training/packs/*.ts`), each with:
-  - short researched lessons with source links;
-  - specific drills run with the test timer (`TestTimerCard`), with targets and rep counts. Examples: last-slot pairs, slow-turning F2L with no pauses, cross planning then blind execution, TPS finger-trick drills, AUF prediction, and OLL/PLL recognition from diagrams (using Phase 4);
-  - a retest that updates the profile.
-- **Recommendations:** after the coach summary, packs for slow aspects are marked **Recommended**, ordered by gap size. Every pack stays browsable.
-- **Progress:** a new synced `trainingProgress` table. Retests use `compareRetest` (`lib/coach/retest.ts`) and show before and after.
-- **Turn on Train and Learn:** `features.train = true` and `features.learn = true` in `lib/config/features.ts`. Rebuild or replace `components/train/train-dashboard.tsx`. The existing Learn lesson content can seed the Learn tab.
-- **Tests:** the e2e test opens a recommended pack, does a drill, reloads (progress survives), and retests (the profile changes).
+Built, with one deliberate change of shape. The plan said "a pack per aspect with lessons, drills
+and a retest". The owner's instruction was sharper: packs must **teach**, not repeat the tests —
+"we already have practice". So:
+
+- **Lessons come first and carry the weight.** Three or four per pack, each explaining a mechanism
+  rather than giving a tip: what a finger trick actually buys you, why a rotation costs more than
+  its two moves, the three stages of lookahead, why two faces are enough to name any PLL. A unit
+  test fails a lesson under 80 words, so they cannot quietly decay into tips.
+- **A drill is practice with a rule attached**, and the rule is the point — half speed and the cube
+  never stops, no rotations at all, no R moves, say the OLL before the last pair goes in. Each
+  states its dose and the signal that says it is working.
+- **The road from two minutes to sub-10** (`data/training/levels.ts`) is on Learn: ten rungs, each
+  with where the time is, what to do, and what to leave alone. Split goals come from
+  `aspectTargetsFor`, so the ladder and the solve profile cannot disagree.
+- `trainingProgress` (Dexie v8, synced) holds the lessons read and drills being done per pack.
+- `features.train` and `features.learn` are on; `/train/[exerciseId]` became `/train/[packId]`.
+
+Still open from this phase:
+
+- **A retest that reads back into the pack.** Each pack links to the right test, but it does not yet
+  show your before-and-after inside the pack. `compareRetest` (`lib/coach/retest.ts`) exists for it.
+- **Diagram-backed recognition drills.** The OLL and PLL packs describe recognition work in words;
+  the algorithm bank from 4.0 has the case pictures to make it a real drill in the app.
+- **Fundamentals** as an algorithm set would give the turning-technique pack somewhere to point.
+- The level ladder's advice is researched, not measured. Once real practice data arrives, check
+  whether people on each rung actually improve fastest doing what it says.
 
 ## Algorithm bank — what is left
 

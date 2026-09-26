@@ -11,6 +11,7 @@ import {
   SCHEMA_V5,
   SCHEMA_V6,
   SCHEMA_V7,
+  SCHEMA_V8,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
@@ -45,7 +46,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V7).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V8).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -264,6 +265,34 @@ describe("schema v3", () => {
     expect(await upgraded.solves.count()).toBe(1);
     expect((await upgraded.diagnosticRuns.get("run-1"))?.timesMs).toEqual([2100]);
     expect(await upgraded.lessonProgress.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+
+  it("adds training progress without touching version 7 data", async () => {
+    const name = `test-v7-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(7).stores(SCHEMA_V7);
+    await legacy.open();
+    await legacy.table("lessonProgress").add({
+      lessonId: "cfop-cross",
+      completedAt: "2026-09-20T08:00:00.000Z",
+      updatedAt: "2026-09-20T08:00:00.000Z",
+    });
+    await legacy.table("meta").add({
+      key: "accountOwner",
+      value: "uid-1",
+      updatedAt: "2026-09-20T08:00:00.000Z",
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
+    expect(await upgraded.lessonProgress.get("cfop-cross")).toBeDefined();
+    // The copy keeps knowing which account it belongs to across the upgrade.
+    expect((await upgraded.meta.get("accountOwner"))?.value).toBe("uid-1");
+    expect(await upgraded.trainingProgress.count()).toBe(0);
     upgraded.close();
     await Dexie.delete(name);
   });

@@ -39,8 +39,9 @@ export type { PaceTag } from "@/types/domain";
 
 /**
  * The 3.0 pipeline: solves → skill scores → rule diagnosis → optional plan.
- * The 3.2 coach (lib/coach/coach-engine.ts) replaces it on the Coach page;
- * the Train preview still uses it until training packs arrive.
+ * Nothing on screen uses it any more — the Coach page has its own profile and
+ * Train and Learn use the training packs — so only its tests call it. Kept
+ * until it is removed on purpose, with its tests and the 3.0 model file.
  */
 export function analyzeSolves(
   solves: Solve[],

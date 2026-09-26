@@ -43,6 +43,13 @@ export interface AspectDefinition {
   description: string;
   /** How the number is worked out. */
   howMeasured: string;
+  /** What measures it: the skill tests, or ordinary timer solves. */
+  measuredBy: "tests" | "timer";
+  /**
+   * The result the other parts add up to, rather than a weakness of its own —
+   * the full-solve average. Nothing recommends a pack for it.
+   */
+  outcome?: true;
   /** Tests whose times feed this aspect, in the order to take them. Empty for timer-based aspects. */
   tests: string[];
   /** Tests that add context or a rough estimate, but aren't needed. */
@@ -63,6 +70,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Cross",
     group: "cross",
     kind: "time",
+    measuredBy: "tests",
     description: "How long your cross takes after 15 seconds of inspection.",
     howMeasured: "Your average on the cross test.",
     tests: ["cross_only"],
@@ -73,6 +81,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Inspection planning",
     group: "cross",
     kind: "loss",
+    measuredBy: "tests",
     description:
       "Time your cross loses because 15 seconds isn't enough to plan all of it, so you finish planning while solving.",
     howMeasured:
@@ -85,6 +94,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Cross → F2L",
     group: "cross",
     kind: "loss",
+    measuredBy: "tests",
     description: "Time lost between finishing the cross and getting into F2L.",
     howMeasured: "Cross + F2L test minus the cross and F2L tests on their own.",
     tests: ["cross_only", "f2l_only", "cross_f2l"],
@@ -96,6 +106,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "F2L",
     group: "f2l",
     kind: "time",
+    measuredBy: "tests",
     description: "All four pairs, starting from a solved cross.",
     howMeasured: "Your average on the F2L test.",
     tests: ["f2l_only"],
@@ -106,6 +117,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Pair speed",
     group: "f2l",
     kind: "time",
+    measuredBy: "tests",
     description: "How fast you find and insert one F2L pair.",
     howMeasured: "Your average on the single pair test.",
     tests: ["last_slot"],
@@ -116,6 +128,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Lookahead",
     group: "f2l",
     kind: "loss",
+    measuredBy: "tests",
     description: "Time lost pausing to find the next pair.",
     howMeasured: "F2L test minus four single pairs.",
     tests: ["f2l_only", "last_slot"],
@@ -127,6 +140,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "F2L → OLL",
     group: "f2l",
     kind: "loss",
+    measuredBy: "tests",
     description: "Time lost between your last pair and starting OLL.",
     howMeasured: "Last pair + OLL test minus the single pair and OLL tests.",
     tests: ["last_slot", "oll_only", "ls_oll"],
@@ -137,6 +151,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "OLL",
     group: "last_layer",
     kind: "time",
+    measuredBy: "tests",
     description: "Orienting the last layer.",
     howMeasured: "Your average on the OLL test.",
     tests: ["oll_only"],
@@ -147,6 +162,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "OLL algorithms",
     group: "last_layer",
     kind: "share",
+    measuredBy: "tests",
     description:
       "How often an OLL takes much longer than usual. Frequent slow cases usually mean algorithms you don't know well yet.",
     howMeasured:
@@ -159,6 +175,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "OLL → PLL",
     group: "last_layer",
     kind: "loss",
+    measuredBy: "tests",
     description: "Time lost between finishing OLL and starting PLL.",
     howMeasured: "OLL + PLL test minus the OLL and PLL tests on their own.",
     tests: ["oll_only", "pll_only", "oll_pll_only"],
@@ -169,6 +186,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "PLL",
     group: "last_layer",
     kind: "time",
+    measuredBy: "tests",
     description: "Permuting the last layer, including the final turn.",
     howMeasured: "Your average on the PLL test.",
     tests: ["pll_only"],
@@ -179,6 +197,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "PLL algorithms",
     group: "last_layer",
     kind: "share",
+    measuredBy: "tests",
     description:
       "How often a PLL takes much longer than usual. Frequent slow cases usually mean algorithms you don't know well yet.",
     howMeasured:
@@ -191,6 +210,8 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Full solve",
     group: "overall",
     kind: "time",
+    measuredBy: "timer",
+    outcome: true,
     description: "Your current average on the timer.",
     howMeasured: "Ao50 of your 3×3 timer solves (Ao12 until you have 50).",
     tests: [],
@@ -201,6 +222,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Consistency",
     group: "overall",
     kind: "spread",
+    measuredBy: "timer",
     description: "How much your solve times vary. Lower is steadier.",
     howMeasured: "Standard deviation of your last 50 timer solves, divided by their mean.",
     tests: [],
@@ -211,6 +233,7 @@ export const ASPECTS: AspectDefinition[] = [
     label: "Turning speed",
     group: "overall",
     kind: "speed",
+    measuredBy: "tests",
     description: "How fast your hands turn when you know exactly what to do.",
     howMeasured: "24 turns (R U R' U' six times) divided by your time.",
     tests: ["tps_test"],

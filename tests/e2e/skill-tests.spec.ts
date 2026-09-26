@@ -256,20 +256,20 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page).toHaveURL(/\/coach\/tests\/cross_only\/?$/, { timeout: 20_000 });
   });
 
-  test("Train and Learn show in nav but open coming-soon pages", async ({ page }) => {
+  test("every surface is open, and the nav reaches all of them", async ({ page }) => {
     test.setTimeout(90_000);
     await page.goto("/timer/");
     const mainNav = page.getByRole("navigation", { name: "Main navigation" });
     await expect(mainNav).toBeVisible();
     const train = mainNav.getByRole("link", { name: "Train", exact: true });
     const learn = mainNav.getByRole("link", { name: "Learn", exact: true });
-    await expect(train).toBeVisible();
-    await expect(learn).toBeVisible();
-    await expect(train).toHaveAttribute("data-preview", "true");
-    await expect(learn).toHaveAttribute("data-preview", "true");
-    await expect(
-      mainNav.getByRole("link", { name: "Algorithms", exact: true }),
-    ).not.toHaveAttribute("data-preview", "true");
+    // Nothing is a preview any more: every area in the nav is a real page.
+    for (const name of ["Train", "Learn", "Algorithms"]) {
+      await expect(mainNav.getByRole("link", { name, exact: true })).not.toHaveAttribute(
+        "data-preview",
+        "true",
+      );
+    }
 
     await page.keyboard.press("ControlOrMeta+k");
     const palette = page.getByRole("dialog", { name: "Command palette" });
@@ -281,22 +281,17 @@ test.describe("skill tests and the solve profile", () => {
 
     await train.click();
     await expect(page).toHaveURL(/\/train\/?$/);
-    await expect(page.getByRole("heading", { name: "Practice is coming later." })).toBeVisible();
-    await expect(
-      page.getByRole("paragraph").filter({ hasText: /^Planned for 4\.1\.$/ }),
-    ).toBeVisible();
-    await expect(page.getByTestId("start-topic-cross")).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("What you're working on.");
+    await expect(page.getByTestId("train-browse-learn")).toBeVisible();
 
-    await page.goto("/train/slow_f2l/");
-    await expect(page.getByRole("heading", { name: "Practice is coming later." })).toBeVisible();
+    await learn.click();
+    await expect(page).toHaveURL(/\/learn\/?$/);
+    await expect(page.getByTestId("level-sub20")).toBeVisible();
+    await expect(page.getByTestId("see-all")).toBeVisible();
 
-    await page.goto("/learn/");
-    await expect(page.getByRole("heading", { name: "Lessons are coming later." })).toBeVisible();
-    await expect(
-      page.getByRole("paragraph").filter({ hasText: /^Planned for 4\.1\.$/ }),
-    ).toBeVisible();
+    await page.goto("/learn/f2l-efficiency/");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("F2L in fewer moves");
 
-    // Algorithms is open for business: two sets built, the rest still to come.
     await page.goto("/algorithms/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(
       "Every case, every algorithm that works.",
@@ -305,7 +300,7 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page.getByTestId("set-zbll")).toContainText("Coming later");
 
     await page.goto("/settings/");
-    await expect(page.getByRole("heading", { name: "SolveLab 4.0" })).toBeVisible();
-    await expect(page.getByText("Algorithm bank", { exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "SolveLab 4.1" })).toBeVisible();
+    await expect(page.getByText("Training packs", { exact: true })).toBeVisible();
   });
 });

@@ -1,4 +1,6 @@
 import type { AspectId } from "@/lib/coach/aspects";
+import { SOURCES as TRAINING_SOURCES } from "@/data/training/sources";
+import type { TrainingSource } from "@/data/training/types";
 
 /**
  * Coaching tips for every part of the solve, written in our own words from
@@ -6,10 +8,7 @@ import type { AspectId } from "@/lib/coach/aspects";
  * purpose: these are what usually helps, not guarantees.
  */
 
-export interface TipSource {
-  label: string;
-  url: string;
-}
+export type TipSource = TrainingSource;
 
 export interface AspectTips {
   /** What usually causes this to be slow, in one sentence. */
@@ -23,78 +22,24 @@ export interface AspectTips {
   sources: TipSource[];
 }
 
+/** The shared source list, plus the few links only the coach's tips use. */
 const SOURCES = {
-  jpermCross: { label: "J Perm: Cross", url: "https://www.jperm.net/3x3/cfop/cross" },
-  jpermF2l: { label: "J Perm: F2L", url: "https://jperm.net/3x3/cfop/f2l" },
-  extendedCross: {
-    label: "CubeSkills: 25 extended cross examples",
-    url: "https://www.cubeskills.com/blog/25-extended-cross-examples",
-  },
-  crossPlusPair: {
-    label: "CubeSkills: Planning cross and one F2L pair",
-    url: "https://www.cubeskills.com/tutorials/advanced-f2l/planning-cross-1-f2l-pair",
-  },
-  crossTransition: {
-    label: "CubeSkills: Improving the cross to F2L transition",
-    url: "https://www.cubeskills.com/tutorials/intermediate-cross-and-f2l/improving-crossf2l-transition",
-  },
-  lookaheadFramework: {
-    label: "CubeSkills: Lookahead progression framework",
-    url: "https://www.cubeskills.com/blog/lookahead-progression-framework",
-  },
-  slowF2l: {
-    label: "SpeedSolving: Going slow and looking ahead",
-    url: "https://www.speedsolving.com/threads/fridrich-f2l-going-slow-and-looking-ahead-tutorial.15213/",
-  },
-  cubefreakLookahead: {
-    label: "Cubefreak: A guide to F2L lookahead",
-    url: "https://cubefreak.net/speed/articles/lookahead.php",
-  },
-  emptySlots: {
-    label: "Jayden McNeill: Taking advantage of empty slots",
-    url: "https://www.jaydenmcneillcubing.com/blog/blog-post-twelve-s6blk",
-  },
-  badmephistoF2l: { label: "Badmephisto: F2L", url: "http://badmephisto.com/f2l.html" },
+  ...TRAINING_SOURCES,
   edgeControl: {
     label: "SpeedSolving: Partial control during F2L",
     url: "https://www.speedsolving.com/threads/partial-corner-control-during-f2l.38870/",
   },
-  ollAlgs: { label: "SpeedCubeDB: OLL algorithms", url: "https://speedcubedb.com/a/3x3/OLL" },
   pllAlgs: {
     label: "SpeedSolving wiki: PLL",
     url: "https://www.speedsolving.com/wiki/index.php/PLL",
-  },
-  pllRecognition: {
-    label: "Sarah's Cubing Site: PLL recognition guide",
-    url: "https://sarah.cubing.net/3x3x3/pll-recognition-guide",
-  },
-  twoSidedPll: {
-    label: "Two-sided PLL recognition",
-    url: "https://logiqx.github.io/cubing-algs/html/2spll.html",
-  },
-  predictPll: {
-    label: "CubeSkills: Predicting PLL drill",
-    url: "https://www.cubeskills.com/tutorials/advanced-last-layer/practice-drill-predicting-pll",
   },
   roll: {
     label: "Jayden McNeill: ROLL for PLL prediction",
     url: "https://www.jaydenmcneillcubing.com/blog/blog-post-nine-9w8xs",
   },
-  fingerTricks: {
-    label: "SpeedSolving wiki: Finger tricks",
-    url: "https://www.speedsolving.com/wiki/index.php/Finger_tricks",
-  },
-  turningSpeed: {
-    label: "CubeSkills: Improving turning speed",
-    url: "https://www.cubeskills.com/blog/improving-turning-speed",
-  },
   lockups: {
     label: "Cubelelo: How to fix cube lockups",
     url: "https://www.cubelelo.com/blogs/cubing/how-to-fix-cube-lockups",
-  },
-  practicePlan: {
-    label: "CuberPal: A better practice session plan",
-    url: "https://www.cuberpal.com/blog/how-to-practice-speedcubing",
   },
 } satisfies Record<string, TipSource>;
 
@@ -227,7 +172,7 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
     ],
     drill: "Do your three slowest PLLs ten times each, focusing on flow rather than speed.",
     keep: "Your PLL is on pace.",
-    sources: [SOURCES.pllRecognition, SOURCES.pllAlgs, SOURCES.fingerTricks],
+    sources: [SOURCES.sarahPll, SOURCES.pllAlgs, SOURCES.fingerTricks],
   },
   pll_algorithms: {
     why: "Some PLL cases take much longer than others, which usually means two-look PLL or a few cases you don't know well.",
@@ -249,7 +194,7 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
     ],
     drill: "Twenty minutes of focused practice on your top weakness, then twelve normal solves.",
     keep: "Your average is already at your goal. Time for a faster one.",
-    sources: [SOURCES.practicePlan],
+    sources: [SOURCES.practiceSession],
   },
   consistency: {
     why: "High spread usually comes from lockups, rushing, or a few bad cases, rather than from being slow overall.",
@@ -261,7 +206,7 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
     drill:
       "Do solves at a pace where you never lock up for a whole average of twelve, then nudge the pace up.",
     keep: "Your times are steady.",
-    sources: [SOURCES.lockups, SOURCES.practicePlan],
+    sources: [SOURCES.lockups, SOURCES.practiceSession],
   },
   turning_speed: {
     why: "Slow turning is usually wrist turns instead of finger tricks, extra regrips, or tight, heavy turning.",

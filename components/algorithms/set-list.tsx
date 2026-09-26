@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { algorithmSets } from "@/data/algorithms/sets";
 import { useAlgorithmProgress } from "@/hooks/use-algorithms";
+import { LabelBar, LabelTally } from "@/components/algorithms/label-style";
 import { ALGORITHM_SETS, algorithmsFor, progressIdFor } from "@/lib/algorithms/catalog";
 import { countLabels } from "@/lib/algorithms/labels";
 
@@ -58,14 +58,10 @@ export function AlgorithmSetList() {
               </p>
               {loaded ? (
                 <>
-                  <Progress
-                    value={counts.total ? (counts.known / counts.total) * 100 : 0}
-                    className="mt-2"
-                  />
-                  <p className="mt-1.5 text-xs text-muted-foreground">
-                    {counts.known} known
-                    {counts.learning > 0 ? ` · ${counts.learning} being learned` : ""}
-                  </p>
+                  <LabelBar counts={counts} className="mt-2" />
+                  <div className="mt-2">
+                    <LabelTally counts={counts} />
+                  </div>
                 </>
               ) : null}
             </Link>

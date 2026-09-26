@@ -1,5 +1,42 @@
 # Validation report
 
+## 4.1 — Training packs
+
+Run on 2026-09-26 against the static export, Chromium headless, one Playwright worker, Firebase
+blocked. The dev server was stopped first; `.next` is shared.
+
+| Check           | Command                                       | Result                |
+| --------------- | --------------------------------------------- | --------------------- |
+| Full validation | `npm run validate`                            | Pass                  |
+| Unit tests      | `npm test`                                    | 301 passed (29 files) |
+| End-to-end      | `npx playwright test --workers=1`             | 70 passed             |
+| Screenshots     | `SHOTS=… node scripts/review-screenshots.mjs` | 19 captured           |
+
+New unit coverage (`tests/unit/training.test.ts`, 22 tests):
+
+- **Content shape.** The fifteen packs cover every aspect of the solve profile exactly once, with
+  no duplicate pack or item ids. Each has at least three lessons and two drills, each lesson body
+  is over 80 words (so a lesson cannot decay into a tip), and each drill states rules, a dose and
+  a signal.
+- **Honesty.** Example moves parse as real notation; every pack cites at least three sources; every
+  link in the shared source list is used by at least one pack; every level a pack claims exists.
+- **The ladder.** Ten rungs in order, each pointing at the next; an average lands on the rung whose
+  band contains it (18 s → the 20-to-15 rung); a goal lands on the rung below it, which is where
+  someone aiming at it stands.
+- **Recommendations.** Slow parts only, ordered by how far behind the goal they are, with speeds
+  read the right way round (higher is better); unmeasured parts are ignored; the level's own packs
+  are the fallback.
+- **Progress.** Nothing until something is ticked; ids the pack no longer has are not counted; a
+  pack is read when its lessons are, with drills left open-ended.
+
+New end-to-end coverage (`tests/e2e/training.spec.ts`): the level card and the packs a profile
+points at; opening a lesson to real teaching and a checkpoint, marking it read and a drill as being
+done, and both surviving a reload; a slow part on Coach linking to its pack and the pack linking
+back to the retest; the road on Learn opening at the right rung with every rung listed.
+
+Storage: a v7 → v8 migration test opens a version 7 copy and checks lesson progress and the account
+owner survive the new `trainingProgress` table.
+
 ## Accounts — locked areas and a clean sign-out (awaiting review)
 
 Run on 2026-09-19 against the static export, Chromium headless, one Playwright worker, Firebase blocked.

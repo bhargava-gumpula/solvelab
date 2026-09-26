@@ -43,7 +43,11 @@ There are two optional **extra tests**: slow-turning F2L, which adds lookahead c
 
 **Coach training data.** Finished tests are shared to train the future AI coach. This is on by default with a one-time notice and can be turned off in Settings → Your data, which deletes what was shared. What's shared: test, attempt times, inspection mode, goal, day, app version, and a summary of timer solves. Never names, emails, notes, scrambles or raw solves. Signed-out people share under an anonymous Firebase id. The Privacy Policy and Terms say this is the only use of solve data besides syncing.
 
-**Not yet on.** Train and Learn show "coming later" pages, and Algorithms is a browsable list of sets. No AI model runs yet: every number and tag comes from plain formulas. The small 3.0 model in `ml/` isn't used by any screen.
+**Training packs** (Train). Fifteen packs, one for each part of the solve profile. Each opens with why that part is usually slow, then three or four lessons that explain the mechanism rather than hand out tips, then drills, then the mistakes that keep it slow, then the sources. **A drill is practice with a rule attached** — half speed and the cube never stops, no rotations at all, no R moves for a session, say the OLL out loud before the last pair goes in — because ordinary solving lets you avoid exactly what you are worst at. Every drill states its dose and the signal that says it is working. Which packs are suggested comes from the solve profile, worst part first; each ends with the test to retake. What you have read and which drills you are doing sync with the account.
+
+**The road, two minutes to sub-10** (Learn). Ten rungs. Each says where the time actually is at that speed, what to do about it, and what to leave alone for now — because most wasted practice is real advice applied at the wrong level. The rung opens itself from the timer average, and its split goals come from the same model the solve profile uses. Underneath it are the twelve short lessons for learning the method itself.
+
+**Not yet on.** Algorithms is a browsable bank without recognition drills, and Fundamentals and ZBLL are unbuilt. No AI model runs yet: every number and tag comes from plain formulas. The small 3.0 model in `ml/` isn't used by any screen.
 
 ## How the coach thinks
 
@@ -57,18 +61,19 @@ Next.js 16 static export (webpack), React 19, TypeScript (strict), Tailwind 4, s
 
 ## Plan
 
-| Release     | What                                                                                                | Status  |
-| ----------- | --------------------------------------------------------------------------------------------------- | ------- |
-| 3.1         | Save and sync everything; skill tests; solve profile; daily check; coach training data (phases 1–2) | Shipped |
-| 3.2         | AI test planner and conversational coach; real-data retraining pipeline (phase 3)                   | Next    |
-| 3.3         | Algorithm bank: 2-look OLL/PLL, OLL, PLL, F2L, COLL, WV with verified options per case (phase 4)    | Planned |
-| 3.4         | Training packs with lessons, drills and retests; Train and Learn on (phase 5)                       | Planned |
-| Later, BETA | Optional AI chat using the person's own AI provider through official APIs (phase 6)                 | Idea    |
+| Release | What                                                                                          | Status          |
+| ------- | --------------------------------------------------------------------------------------------- | --------------- |
+| 3.1     | Save and sync everything; skill tests; solve profile; daily check; coach training data (1–2)  | Shipped         |
+| 4.0     | Algorithm bank: 2-look OLL/PLL, OLL, PLL, F2L, COLL, WV — verified options per case (phase 4) | Live            |
+| 4.1     | Training packs, the road from two minutes to sub-10, Train and Learn on (phase 5)             | Awaiting review |
+| 4.2     | Connect your own AI: ask the coach questions in your own words (phase 6)                      | Planned         |
 
-Vague next steps, in order: build the simulator and train the planner/diagnoser, rebuild Coach as a guided conversation with tips for every part, fill the algorithm bank with verified algorithms, then write the training packs. Everything is broken down in [NEXT_STEPS.md](NEXT_STEPS.md).
+The conversational coach built in phase 3 is parked: the owner preferred the guided page, and the conversation returns when there is a real AI behind it in 4.2. Everything is broken down in [NEXT_STEPS.md](NEXT_STEPS.md).
 
 ## Release history
 
+- **4.1 — Training packs.** Fifteen teaching packs, the two-minutes-to-sub-10 road, Train and Learn on.
+- **4.0 — Algorithm bank.** 233 cases and 463 algorithms, each checked against a cube; three labels per case.
 - **3.1 — Solve profile.** Skill tests, solve profile, daily check, full sync, coach training data.
 - **3.0 — Diagnostic coach.** Goal plus a five-stage diagnostic with slow / average / fast stage tags.
 - **2.2 — Hardware timer and first coach.** Bluetooth timer path, rule-based coach, first local model.

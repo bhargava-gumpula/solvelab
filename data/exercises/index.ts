@@ -369,8 +369,6 @@ export const exercises: ExerciseDefinition[] = [
   },
 ];
 
-export type PracticeMode = "diagnostic" | "training";
-
 export interface PracticeTopic {
   id: string;
   label: string;
@@ -484,10 +482,6 @@ export function topicForExercise(exerciseId: string): PracticeTopic | undefined 
   return PRACTICE_TOPICS.find(
     (topic) => topic.diagnosticId === exerciseId || topic.trainingId === exerciseId,
   );
-}
-
-export function practiceHref(exerciseId: string, mode: PracticeMode): string {
-  return mode === "training" ? `/train/${exerciseId}/` : testHref(exerciseId);
 }
 
 /** Focused diagnostics (not everyday timer solves). */

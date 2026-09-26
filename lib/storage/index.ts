@@ -5,6 +5,7 @@ import { LessonRepository } from "./lesson-repository";
 import { SessionRepository } from "./session-repository";
 import { SettingsRepository } from "./settings-repository";
 import { SolveRepository } from "./solve-repository";
+import { TrainingRepository } from "./training-repository";
 
 export interface Repositories {
   db: LocalDatabase;
@@ -14,6 +15,7 @@ export interface Repositories {
   coach: CoachRepository;
   algorithms: AlgorithmRepository;
   lessons: LessonRepository;
+  training: TrainingRepository;
 }
 
 export function createRepositories(db: LocalDatabase): Repositories {
@@ -25,6 +27,7 @@ export function createRepositories(db: LocalDatabase): Repositories {
     coach: new CoachRepository(db),
     algorithms: new AlgorithmRepository(db),
     lessons: new LessonRepository(db),
+    training: new TrainingRepository(db),
   };
 }
 

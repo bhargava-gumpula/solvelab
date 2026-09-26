@@ -17,6 +17,7 @@ import type { AspectResult, SolveProfile } from "@/lib/coach/profile";
 import { suggestedGoal } from "@/lib/coach/goals";
 import { testActionLabel, testStatus } from "@/lib/coach/test-status";
 import { ASPECT_TIPS } from "@/data/coach/tips";
+import { packForAspect, packHref } from "@/data/training";
 
 const PROFILE_HREF = "/stats/profile/";
 
@@ -152,7 +153,11 @@ export function CoachDashboard() {
             ))}
           </div>
           <p className="mt-3 text-xs text-muted-foreground">
-            Training packs with lessons and drills for each of these are coming next.
+            Each of these has a pack on{" "}
+            <Link href="/learn/#packs" className="underline underline-offset-4">
+              Learn
+            </Link>
+            : what makes it slow, what to change, and drills you can add to Train.
           </p>
         </section>
       ) : null}
@@ -176,6 +181,7 @@ function CoachMessage({ children }: { children: React.ReactNode }) {
 
 function Tips({ aspect }: { aspect: AspectResult }) {
   const help = ASPECT_TIPS[aspect.id];
+  const pack = packForAspect(aspect.id);
   if (!help) return null;
   return (
     <div className="grid gap-2 rounded-2xl border border-dashed px-4 py-3 text-xs text-muted-foreground">
@@ -188,6 +194,18 @@ function Tips({ aspect }: { aspect: AspectResult }) {
       <p>
         <span className="font-medium text-foreground">Try this:</span> {help.drill}
       </p>
+      {pack ? (
+        <p>
+          <span className="font-medium text-foreground">Training pack:</span>{" "}
+          <Link
+            href={packHref(pack)}
+            className="text-foreground underline underline-offset-4"
+            data-testid={`coach-pack-${pack.id}`}
+          >
+            {pack.title}
+          </Link>
+        </p>
+      ) : null}
       <p className="flex flex-wrap gap-x-3">
         <span>Learn more:</span>
         {help.sources.map((source) => (

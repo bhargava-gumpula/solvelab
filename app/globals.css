@@ -211,6 +211,27 @@
   --cube-stroke: #0b0c0e;
   /* A last-layer sticker that isn't facing up yet. */
   --cube-unsolved: #3d4350;
+  /* Arrows on case pictures: dark, with a light edge so they read on any sticker. */
+  --cube-arrow: #0b0c0e;
+  --cube-arrow-edge: rgb(255 255 255 / 0.85);
+
+  /*
+   * Where you stand with an algorithm. Fixed hues rather than the theme's
+   * accent, so "know it" never melts into a green theme and reads the same in
+   * every one.
+   */
+  --known: #34d399;
+  --known-foreground: #02170e;
+  --learning: #fbbf24;
+  --learning-foreground: #1f1300;
+}
+
+/* The light theme needs darker versions to hold contrast on cream. */
+[data-theme="paper"] {
+  --known: #047857;
+  --known-foreground: #ffffff;
+  --learning: #b45309;
+  --learning-foreground: #ffffff;
 }
 
 @theme inline {
@@ -233,6 +254,10 @@
   --color-danger: var(--destructive);
   --color-success: var(--success);
   --color-warning: var(--warning);
+  --color-known: var(--known);
+  --color-known-foreground: var(--known-foreground);
+  --color-learning: var(--learning);
+  --color-learning-foreground: var(--learning-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);

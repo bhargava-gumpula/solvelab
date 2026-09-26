@@ -1,0 +1,14 @@
+# Cloudflare Pages redirects. Before 4.1, Train had a placeholder page for each
+# stage's practice exercise; each now points at the pack for that stage, read on Learn.
+/train/cross_drills/ /learn/cross-efficiency/ 301
+/train/cross_drills /learn/cross-efficiency/ 301
+/train/cross_pair_drills/ /learn/cross-into-f2l/ 301
+/train/cross_pair_drills /learn/cross-into-f2l/ 301
+/train/slow_f2l/ /learn/lookahead/ 301
+/train/slow_f2l /learn/lookahead/ 301
+/train/oll_drills/ /learn/oll-execution/ 301
+/train/oll_drills /learn/oll-execution/ 301
+/train/pll_execution_drills/ /learn/pll-execution/ 301
+/train/pll_execution_drills /learn/pll-execution/ 301
+/train/oll_pll_drills/ /learn/oll-into-pll/ 301
+/train/oll_pll_drills /learn/oll-into-pll/ 301

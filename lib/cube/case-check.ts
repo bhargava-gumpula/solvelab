@@ -8,6 +8,7 @@
  */
 import { applyAlgorithm, getFace, isSolved, SOLVED_FACELETS } from "./cube-state";
 import { formatAlgorithm, invertAlgorithm, parseAlgorithm } from "./notation";
+import { CORNER_SPOTS, EDGE_SPOTS, FRONT_RIGHT_SLOT } from "./pieces";
 
 /** What has to be true once the algorithm has run. */
 export type CaseKind =
@@ -23,6 +24,27 @@ export type CaseKind =
   | "eoll"
   /** The last pair going in and the last layer coming up oriented, in one go. */
   | "wv";
+
+/**
+ * What each kind of case is like, beyond its goal. Anything that differs by
+ * kind reads it from here rather than testing kind names.
+ */
+export const CASE_KINDS: Record<
+  CaseKind,
+  {
+    /** A pair case: the front-right slot is empty, so the picture keeps it there. */
+    slotCase: boolean;
+    /** Which pieces get arrows showing where they go. */
+    arrows: "all" | "corners" | "none";
+  }
+> = {
+  pll: { slotCase: false, arrows: "all" },
+  oll: { slotCase: false, arrows: "none" },
+  coll: { slotCase: false, arrows: "corners" },
+  f2l: { slotCase: true, arrows: "none" },
+  eoll: { slotCase: false, arrows: "none" },
+  wv: { slotCase: true, arrows: "none" },
+};
 
 export const AUF = ["", "U", "U2", "U'"] as const;
 
@@ -47,11 +69,10 @@ function upright(facelets: string, test = firstTwoLayersSolved): string | null {
  * and R. Every F2L case is written for this slot, and the solver turns the cube
  * to bring their slot here.
  */
-const SLOT = { corner: [26, 15, 29], edge: [23, 12] } as const;
 
 /** Everything in the first two layers except the front-right slot. */
 export function otherSlotsSolved(facelets: string): boolean {
-  const spare = new Set<number>([...SLOT.corner, ...SLOT.edge]);
+  const spare = new Set<number>([...FRONT_RIGHT_SLOT.corner, ...FRONT_RIGHT_SLOT.edge]);
   const faces = { R: 9, F: 18, D: 27, L: 36, B: 45 } as const;
   for (const [face, start] of Object.entries(faces)) {
     // The bottom two rows of each side, and all of D.
@@ -74,7 +95,7 @@ export function caseStateOf(algorithm: string, kind: CaseKind = "pll"): string {
   if (!parsed.ok) throw new Error(`Not an algorithm: ${algorithm} (${parsed.error.message})`);
   const state = applyAlgorithm(formatAlgorithm(invertAlgorithm(parsed.moves)), SOLVED_FACELETS);
   // An F2L case is one pair short by definition; the rest must still be there.
-  const missingSlot = kind === "f2l" || kind === "wv";
+  const missingSlot = CASE_KINDS[kind].slotCase;
   const stood = missingSlot ? upright(state, otherSlotsSolved) : upright(state);
   if (!stood) {
     throw new Error(
@@ -139,22 +160,35 @@ export interface CheckResult {
   postAuf?: string;
 }
 
+/**
+ * The last turn of the top that finishes the case after `algorithm`, done
+ * with no set-up turn first ("" for none needed); null if no turn does.
+ */
+function finishingTurn(caseState: string, algorithm: string, kind: CaseKind): string | null {
+  let after: string;
+  try {
+    after = applyAlgorithm(algorithm, caseState);
+  } catch {
+    return null;
+  }
+  return AUF.find((post) => satisfies(post ? applyAlgorithm(post, after) : after, kind)) ?? null;
+}
+
 /** Does this algorithm solve this case, allowing a U turn on either side? */
 export function checkAlgorithm(caseState: string, algorithm: string, kind: CaseKind): CheckResult {
   for (const pre of AUF) {
-    const before = pre ? applyAlgorithm(pre, caseState) : caseState;
-    let after: string;
-    try {
-      after = applyAlgorithm(algorithm, before);
-    } catch {
-      return { ok: false };
-    }
-    for (const post of AUF) {
-      const result = post ? applyAlgorithm(post, after) : after;
-      if (satisfies(result, kind)) return { ok: true, preAuf: pre, postAuf: post };
-    }
+    const post = finishingTurn(pre ? applyAlgorithm(pre, caseState) : caseState, algorithm, kind);
+    if (post !== null) return { ok: true, preAuf: pre, postAuf: post };
   }
   return { ok: false };
+}
+
+/**
+ * Whether `algorithm` solves this case exactly as it stands: no set-up turn
+ * first, though a last turn of the top layer is still allowed.
+ */
+export function solvesFromHere(caseState: string, algorithm: string, kind: CaseKind): boolean {
+  return finishingTurn(caseState, algorithm, kind) !== null;
 }
 
 /**
@@ -183,32 +217,6 @@ export function orientationSignature(facelets: string): string {
     .sort()
     .at(0)!;
 }
-
-/** Where each corner and edge's stickers sit, in the usual facelet order. */
-const CORNER_SPOTS: readonly (readonly [number, number, number])[] = [
-  [8, 9, 20],
-  [6, 18, 38],
-  [0, 36, 47],
-  [2, 45, 11],
-  [29, 26, 15],
-  [27, 44, 24],
-  [33, 42, 53],
-  [35, 51, 17],
-];
-const EDGE_SPOTS: readonly (readonly [number, number])[] = [
-  [5, 10],
-  [7, 19],
-  [3, 37],
-  [1, 46],
-  [32, 16],
-  [28, 25],
-  [30, 43],
-  [34, 52],
-  [23, 12],
-  [21, 41],
-  [50, 39],
-  [48, 14],
-];
 
 /**
  * The stickers of the pair that belongs in the front-right slot: the corner

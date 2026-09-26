@@ -30,11 +30,24 @@ test.describe("the algorithm bank", () => {
     const dialog = page.getByRole("dialog");
     await expect(dialog).toContainText("algorithms that solve it");
     const second = dialog.locator('[data-testid^="algorithm-t-"]').nth(1);
-    const secondMoves = (await second.locator("p").first().innerText()).trim();
+    const secondId = (await second.getAttribute("data-testid"))!.replace("algorithm-", "");
+    const secondMoves = (
+      await dialog.getByTestId(`algorithm-moves-${secondId}`).innerText()
+    ).trim();
+    // This one starts from a different angle to the picture, so it shows the
+    // turn it needs; once chosen, the picture turns instead and the turn goes.
+    await expect(dialog.getByTestId(`algorithm-turn-${secondId}`)).toHaveText("y2");
 
     await dialog.getByTestId("case-label-known").click();
     await second.getByRole("button", { name: "Use this one" }).click();
     await expect(second).toContainText("Yours");
+    await expect(dialog.getByTestId(`algorithm-turn-${secondId}`)).toHaveCount(0);
+    // The one it replaced now needs the opposite turn from the new picture.
+    const firstId = (await dialog
+      .locator('[data-testid^="algorithm-t-"]')
+      .first()
+      .getAttribute("data-testid"))!.replace("algorithm-", "");
+    await expect(dialog.getByTestId(`algorithm-turn-${firstId}`)).toHaveText("y2");
     await dialog.getByRole("button", { name: "Done" }).click();
 
     // The card follows what was chosen, and so does the set's count.

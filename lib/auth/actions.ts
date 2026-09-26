@@ -1,6 +1,12 @@
 import { AUTH_NOT_CONFIGURED, getFirebaseConfig, getGoogleWebClientId } from "./config";
 import { rememberSignInReturn } from "./return-path";
-import { parseOidcHash, startGoogleOidcRedirect, takeStoredOidcState } from "./google";
+import {
+  idTokenNonce,
+  isSignedInPath,
+  parseOidcHash,
+  startGoogleOidcRedirect,
+  takeStoredOidc,
+} from "./google";
 
 export { AUTH_NOT_CONFIGURED };
 
@@ -57,12 +63,22 @@ async function signInWithGoogleTokens(idToken?: string, accessToken?: string): P
   await signInWithCredential(auth, credential);
 }
 
-/** Finish a same-origin Google redirect that returned `#id_token=…`. */
+/**
+ * Finish a same-origin Google redirect that returned `#id_token=…`.
+ *
+ * Fails closed. Anyone can mint a token for this site's public client id and
+ * put it in a link, which would sign the visitor in to the sender's account
+ * and upload this browser's solves to it (login CSRF). So a token is only
+ * accepted on the return page, in the tab that started the sign-in, with the
+ * state and nonce that tab sent.
+ */
 export async function completeGoogleOidcFromLocation(): Promise<boolean> {
   if (typeof window === "undefined") return false;
+  if (!isSignedInPath(window.location.pathname)) return false;
   const parsed = parseOidcHash(window.location.hash);
   if (!parsed) return false;
   history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+  const pending = takeStoredOidc();
   if ("error" in parsed) {
     throw new Error(
       parsed.error === "redirect_uri_mismatch"
@@ -70,8 +86,11 @@ export async function completeGoogleOidcFromLocation(): Promise<boolean> {
         : "Google sign-in didn’t finish.",
     );
   }
-  const expected = takeStoredOidcState();
-  if (expected && parsed.state !== expected) {
+  if (
+    !pending ||
+    parsed.state !== pending.state ||
+    idTokenNonce(parsed.idToken) !== pending.nonce
+  ) {
     throw new Error("Google sign-in didn’t match this tab. Try again.");
   }
   await signInWithGoogleTokens(parsed.idToken);

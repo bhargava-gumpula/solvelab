@@ -5,6 +5,7 @@ import { pll } from "@/data/algorithms/sets/pll";
 import { twoLookOll, twoLookPll } from "@/data/algorithms/sets/two-look";
 import { wv } from "@/data/algorithms/sets/wv";
 import type { AlgorithmSetData, CaseAlgorithm, CaseEntry } from "@/data/algorithms/types";
+import type { AlgorithmProgress } from "@/types/domain";
 import { caseStateOf, type CaseKind } from "@/lib/cube/case-check";
 
 /** Every set with cases behind it. Others are still to come. */
@@ -64,6 +65,18 @@ export function chosenAlgorithm(
   const own = algorithmsFor(entry);
   const all = [...own, ...custom];
   return all.find((algorithm) => algorithm.id === preferredId) ?? own[0]!;
+}
+
+/** The algorithm someone has chosen for a case, from their saved progress. */
+export function chosenFor(
+  entry: CaseEntry,
+  progress: Pick<AlgorithmProgress, "preferredVariantId" | "customVariants"> | undefined,
+): CaseAlgorithm {
+  return chosenAlgorithm(
+    entry,
+    progress?.preferredVariantId,
+    progress?.customVariants.map((variant) => ({ id: variant.id, moves: variant.algorithm })),
+  );
 }
 
 /** Cases whose name, alias, number or group matches what was typed. */

@@ -4,22 +4,29 @@ import { useState } from "react";
 import { Pencil, Search } from "lucide-react";
 import { CaseDetail } from "@/components/algorithms/case-detail";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
+import {
+  LABEL_STYLE,
+  LabelBadge,
+  LabelBar,
+  LabelTally,
+  LabelToggleItem,
+} from "@/components/algorithms/label-style";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ToggleGroup } from "@/components/ui/toggle-group";
 import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
 import { algorithmActions, useAlgorithmProgress } from "@/hooks/use-algorithms";
 import {
-  caseStateFor,
-  chosenAlgorithm,
+  chosenFor,
   groupCases,
   kindFor,
   progressIdFor,
   searchCases,
 } from "@/lib/algorithms/catalog";
 import { CASE_LABELS, countLabels, type CaseLabel } from "@/lib/algorithms/labels";
+import { casePicture } from "@/lib/algorithms/orientation";
 import { cn } from "@/lib/utils";
 
 /** Clicking a case moves it round this loop. */
@@ -27,25 +34,6 @@ const NEXT_LABEL: Record<CaseLabel, CaseLabel> = {
   unknown: "learning",
   learning: "known",
   known: "unknown",
-};
-
-const LABEL_CHIP: Record<CaseLabel, string> = {
-  known: "border-primary/45 bg-primary/10 text-primary",
-  learning: "border-warning/45 bg-warning/10 text-warning",
-  unknown: "border-border bg-background/40 text-muted-foreground",
-};
-
-/** The whole card takes the colour, so a set reads at a glance. */
-const LABEL_CARD: Record<CaseLabel, string> = {
-  known: "border-primary/40 bg-primary/5 hover:border-primary/70",
-  learning: "border-warning/40 bg-warning/5 hover:border-warning/70",
-  unknown: "hover:border-primary/40",
-};
-
-const LABEL_TEXT: Record<CaseLabel, string> = {
-  known: "Know it",
-  learning: "Learning",
-  unknown: "Don't know",
 };
 
 /** The cases of one set, with what you know marked on each. */
@@ -68,17 +56,24 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
   return (
     <div className="grid gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3 glass">
-        <p className="text-sm text-muted-foreground" data-testid="set-progress">
+        <div className="grid min-w-52 flex-1 gap-2">
+          <p className="text-sm text-muted-foreground" data-testid="set-progress">
+            {loaded ? (
+              <>
+                <span className="font-mono tabular text-foreground">{counts.known}</span> of{" "}
+                {counts.total} known
+              </>
+            ) : (
+              "Counting what you know…"
+            )}
+          </p>
           {loaded ? (
             <>
-              <span className="font-mono tabular text-foreground">{counts.known}</span> of{" "}
-              {counts.total} known
-              {counts.learning > 0 ? `, ${counts.learning} being learned` : ""}
+              <LabelBar counts={counts} className="max-w-sm" />
+              <LabelTally counts={counts} />
             </>
-          ) : (
-            "Counting what you know…"
-          )}
-        </p>
+          ) : null}
+        </div>
         <div className="flex flex-wrap items-center gap-2">
           <ToggleGroup
             type="multiple"
@@ -89,14 +84,13 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
             onValueChange={(value) => setShown(value as CaseLabel[])}
           >
             {CASE_LABELS.map((option) => (
-              <ToggleGroupItem
+              <LabelToggleItem
                 key={option.id}
+                label={option.id}
                 value={option.id}
                 className="px-3"
                 data-testid={`filter-${option.id}`}
-              >
-                {option.short}
-              </ToggleGroupItem>
+              />
             ))}
           </ToggleGroup>
           <div className="relative">
@@ -134,46 +128,38 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
               {cases.map((entry) => {
                 const caseId = progressIdFor(entry);
                 const label = labels.get(caseId) ?? "unknown";
+                const kind = kindFor(set, entry);
+                const chosen = chosenFor(entry, progress.get(caseId));
                 return (
                   <li key={entry.id} className="relative">
                     <button
                       type="button"
                       onClick={() => void algorithmActions.setLabel(caseId, NEXT_LABEL[label])}
                       data-testid={`case-${entry.id}`}
-                      aria-label={`${entry.name}: ${LABEL_TEXT[label]}. Change to ${LABEL_TEXT[NEXT_LABEL[label]]}.`}
+                      aria-label={`${entry.name}: ${LABEL_STYLE[label].text}. Change to ${LABEL_STYLE[NEXT_LABEL[label]].text}.`}
+                      data-label={label}
                       className={cn(
-                        "w-full rounded-2xl border p-3 text-left glass transition-colors",
-                        LABEL_CARD[label],
+                        // No `glass` here: it sets its own border and background,
+                        // which would drown out the label's colour.
+                        "w-full rounded-2xl border-2 p-3 text-left backdrop-blur-md transition-colors",
+                        LABEL_STYLE[label].card,
                       )}
                     >
                       <CaseDiagram
-                        facelets={caseStateFor(entry, kindFor(set, entry))}
-                        kind={kindFor(set, entry)}
+                        facelets={casePicture(entry, kind, chosen.moves).facelets}
+                        kind={kind}
                         className="mx-auto w-20"
                         title={`${entry.name}, seen from above`}
                       />
                       <p className="mt-2 font-medium">{entry.name}</p>
                       <p className="truncate font-mono text-[11px] text-muted-foreground">
-                        {
-                          chosenAlgorithm(
-                            entry,
-                            progress.get(caseId)?.preferredVariantId,
-                            progress.get(caseId)?.customVariants.map((variant) => ({
-                              id: variant.id,
-                              moves: variant.algorithm,
-                            })),
-                          ).moves
-                        }
+                        {chosen.moves}
                       </p>
-                      <span
-                        className={cn(
-                          "mt-2 inline-block rounded-full border px-2 py-0.5 text-[11px] font-medium",
-                          LABEL_CHIP[label],
-                        )}
+                      <LabelBadge
+                        label={label}
+                        className="mt-2"
                         data-testid={`case-state-${entry.id}`}
-                      >
-                        {LABEL_TEXT[label]}
-                      </span>
+                      />
                     </button>
                     {/*
                      * A button rather than a right-click: a context menu is

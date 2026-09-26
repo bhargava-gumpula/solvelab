@@ -4,11 +4,14 @@ import { Check, Star } from "lucide-react";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { ToggleGroup } from "@/components/ui/toggle-group";
 import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
 import { algorithmActions } from "@/hooks/use-algorithms";
-import { algorithmsFor, caseStateFor, kindFor, progressIdFor } from "@/lib/algorithms/catalog";
+import { algorithmsFor, chosenFor, kindFor, progressIdFor } from "@/lib/algorithms/catalog";
+import { casePicture, setUpTurn } from "@/lib/algorithms/orientation";
+import { CASE_KINDS } from "@/lib/cube/case-check";
 import { CASE_LABELS, type CaseLabel } from "@/lib/algorithms/labels";
+import { LabelToggleItem } from "@/components/algorithms/label-style";
 import { cn } from "@/lib/utils";
 import type { AlgorithmProgress } from "@/types/domain";
 
@@ -31,14 +34,25 @@ export function CaseDetail({
   const algorithms = algorithmsFor(entry);
   const kind = kindFor(set, entry);
   const caseId = progressIdFor(entry);
-  const preferred = progress?.preferredVariantId ?? algorithms[0]!.id;
+  const chosen = chosenFor(entry, progress);
+  // The picture turns to where your algorithm starts; the others are shown with
+  // the turn they would need from there.
+  const picture = casePicture(entry, kind, chosen.moves);
+  const turns = new Map(
+    algorithms.map((algorithm) => [
+      algorithm.id,
+      algorithm.id === chosen.id ? "" : setUpTurn(entry, kind, algorithm.moves, picture.quarter),
+    ]),
+  );
+  const anyTurn = [...turns.values()].some(Boolean);
+  const turnWord = CASE_KINDS[kind].slotCase ? "top layer" : "cube";
 
   return (
     <div className="grid gap-5">
       <div className="flex flex-wrap items-start gap-4">
         <div className="w-28 shrink-0">
           <CaseDiagram
-            facelets={caseStateFor(entry, kind)}
+            facelets={picture.facelets}
             kind={kind}
             title={`${entry.name}, seen from above`}
           />
@@ -72,14 +86,13 @@ export function CaseDetail({
           }}
         >
           {CASE_LABELS.map((option) => (
-            <ToggleGroupItem
+            <LabelToggleItem
               key={option.id}
+              label={option.id}
               value={option.id}
               className="px-4"
               data-testid={`case-label-${option.id}`}
-            >
-              {option.short}
-            </ToggleGroupItem>
+            />
           ))}
         </ToggleGroup>
       </div>
@@ -92,25 +105,43 @@ export function CaseDetail({
           Every one is checked against a cube, so any of them works. Pick the one your fingers like;
           it&apos;s the one shown on the case from now on.
         </p>
+        {anyTurn ? (
+          <p className="text-xs text-muted-foreground" data-testid="turn-explainer">
+            A turn in front, like{" "}
+            <TurnChip turn={turnWord === "cube" ? "y" : "U"} className="mx-0.5" />, means that
+            algorithm starts with the {turnWord} turned from how it&apos;s pictured. Choose it and
+            the picture turns instead.
+          </p>
+        ) : null}
         <ul className="mt-1 grid gap-2">
           {algorithms.map((algorithm) => {
-            const chosen = algorithm.id === preferred;
+            const isChosen = algorithm.id === chosen.id;
+            const turn = turns.get(algorithm.id);
             return (
               <li key={algorithm.id}>
                 <div
                   className={cn(
                     "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-3 py-2",
-                    chosen ? "border-primary/50 bg-primary/5" : "bg-background/30",
+                    isChosen ? "border-primary/50 bg-primary/5" : "bg-background/30",
                   )}
                   data-testid={`algorithm-${algorithm.id}`}
                 >
                   <div className="min-w-0">
-                    <p className="font-mono text-sm break-words">{algorithm.moves}</p>
+                    <p className="font-mono text-sm break-words">
+                      {turn ? (
+                        <TurnChip
+                          turn={turn}
+                          className="mr-1.5"
+                          data-testid={`algorithm-turn-${algorithm.id}`}
+                        />
+                      ) : null}
+                      <span data-testid={`algorithm-moves-${algorithm.id}`}>{algorithm.moves}</span>
+                    </p>
                     {algorithm.note ? (
                       <p className="mt-0.5 text-xs text-muted-foreground">{algorithm.note}</p>
                     ) : null}
                   </div>
-                  {chosen ? (
+                  {isChosen ? (
                     <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
                       <Star className="size-3.5" aria-hidden /> Yours
                     </span>
@@ -130,5 +161,25 @@ export function CaseDetail({
         </ul>
       </div>
     </div>
+  );
+}
+
+/** A set-up turn, set apart from the algorithm so it reads as "first, turn". */
+function TurnChip({
+  turn,
+  className,
+  ...props
+}: { turn: string; className?: string } & React.HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span
+      className={cn(
+        "inline-block rounded-md bg-primary/15 px-1.5 py-px font-mono text-xs font-semibold text-primary",
+        className,
+      )}
+      title={turn.startsWith("U") ? "Turn the top layer first" : "Turn the whole cube first"}
+      {...props}
+    >
+      {turn}
+    </span>
   );
 }

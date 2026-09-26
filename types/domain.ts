@@ -373,3 +373,18 @@ export interface LessonProgress {
   completedAt: string;
   updatedAt?: string;
 }
+
+/**
+ * How far through a training pack someone is. One record per pack, holding the
+ * lessons they have read and the drills they have marked done, so a part-read
+ * pack is remembered rather than starting again.
+ */
+export interface TrainingProgress {
+  packId: string;
+  /** Lesson ids read. */
+  lessonsDone: string[];
+  /** Drill ids marked done. */
+  drillsDone: string[];
+  startedAt: string;
+  updatedAt: string;
+}

@@ -11,6 +11,7 @@ import type {
   SkillScore,
   Solve,
   TrainingPlan,
+  TrainingProgress,
   UserSettings,
 } from "@/types/domain";
 import { DEFAULT_SETTINGS } from "./schemas";
@@ -70,7 +71,13 @@ export const SCHEMA_V7 = {
   meta: "key",
 } as const;
 
-export const DATABASE_VERSION = 7;
+/** V8 (4.1): how far through each training pack someone is. */
+export const SCHEMA_V8 = {
+  ...SCHEMA_V7,
+  trainingProgress: "packId, updatedAt",
+} as const;
+
+export const DATABASE_VERSION = 8;
 
 /**
  * A local-only note. This table is deliberately absent from the sync registry:
@@ -114,6 +121,7 @@ export class LocalDatabase extends Dexie {
   profileSnapshots!: Table<ProfileSnapshot, string>;
   dailyChecks!: Table<DailyCheck, string>;
   coachThreads!: Table<CoachThread, string>;
+  trainingProgress!: Table<TrainingProgress, string>;
   meta!: Table<MetaRecord, string>;
 
   constructor(name = DATABASE_NAME) {
@@ -125,6 +133,7 @@ export class LocalDatabase extends Dexie {
     this.version(5).stores(SCHEMA_V5);
     this.version(6).stores(SCHEMA_V6);
     this.version(7).stores(SCHEMA_V7);
+    this.version(8).stores(SCHEMA_V8);
   }
 }
 

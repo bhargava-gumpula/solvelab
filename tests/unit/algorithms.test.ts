@@ -13,6 +13,8 @@ import {
   firstTwoLayersSolved,
   orientationSignature,
   otherSlotsSolved,
+  CASE_KINDS,
+  type CaseKind,
 } from "@/lib/cube/case-check";
 import { countLabels, labelForState, stateForLabel } from "@/lib/algorithms/labels";
 
@@ -23,7 +25,7 @@ describe("the algorithm bank", () => {
       for (const entry of set.cases) {
         const kind = kindFor(set, entry);
         const state = caseStateFor(entry, kind);
-        if (kind === "f2l" || kind === "wv") {
+        if (CASE_KINDS[kind as CaseKind].slotCase) {
           // A pair case is one slot short, and nothing else may be missing.
           expect(otherSlotsSolved(state), `${entry.name} disturbs another slot`).toBe(true);
           expect(firstTwoLayersSolved(state), `${entry.name} is already solved`).toBe(false);

@@ -10,6 +10,7 @@ import type {
   SkillScore,
   Solve,
   TrainingPlan,
+  TrainingProgress,
 } from "@/types/domain";
 
 /**
@@ -30,6 +31,7 @@ export interface SyncedRecords {
   profileSnapshots: ProfileSnapshot;
   dailyChecks: DailyCheck;
   coachThreads: CoachThread;
+  trainingProgress: TrainingProgress;
 }
 
 export type CollectionName = keyof SyncedRecords;
@@ -54,6 +56,7 @@ export const COLLECTIONS: { readonly [K in CollectionName]: CollectionSpec<K> } 
   profileSnapshots: { tombstoneKind: "profileSnapshot", keyOf: (record) => record.id },
   dailyChecks: { tombstoneKind: "dailyCheck", keyOf: (record) => record.id },
   coachThreads: { tombstoneKind: "coachThread", keyOf: (record) => record.id },
+  trainingProgress: { tombstoneKind: "trainingProgress", keyOf: (record) => record.packId },
 };
 
 export const COLLECTION_NAMES = Object.keys(COLLECTIONS) as CollectionName[];

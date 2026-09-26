@@ -60,7 +60,11 @@ export function LearnDashboard() {
             >
               <ol className="my-4 divide-y text-sm">
                 {pathLessons.map((lesson, index) => (
-                  <li key={lesson.id} className="flex items-center gap-2 py-2">
+                  <li
+                    key={lesson.id}
+                    id={`lesson-${lesson.id}`}
+                    className="flex scroll-mt-24 items-center gap-2 py-2"
+                  >
                     <span className="font-mono tabular text-xs text-muted-foreground">
                       0{index + 1}
                     </span>
@@ -128,7 +132,7 @@ function LessonReader({
           {completed ? "Completed" : "Mark complete"}
         </Button>
         <Button asChild variant="outline">
-          <Link href="/train">Practice on Train</Link>
+          <Link href="/train/">Practice on Train</Link>
         </Button>
       </div>
     </article>

@@ -98,13 +98,79 @@ writeFileSync(`${out}/demo-backup.json`, JSON.stringify(backup));
 
 const browser = await chromium.launch();
 
+// Coach, Stats, Train and Learn need an account. Firebase is blocked and the
+// session is seeded, exactly as the e2e suite does it, so nothing reaches Google.
+const FIREBASE_HOSTS = /^https:\/\/(identitytoolkit|securetoken|firestore)\.googleapis\.com\//;
+
+// The web API key is the same for every shot, so it is found once, on the
+// first, by scanning the loaded chunks; every later shot reuses it.
+let firebaseApiKey;
+
+async function findApiKey(page) {
+  if (firebaseApiKey !== undefined) return firebaseApiKey;
+  await page.goto(`${base}/timer/`);
+  firebaseApiKey = await page.evaluate(async () => {
+    const urls = performance
+      .getEntriesByType("resource")
+      .map((entry) => entry.name)
+      .filter((name) => name.includes("/_next/static/chunks/"));
+    for (const url of urls) {
+      const match = /AIzaSy[A-Za-z0-9_-]{20,}/.exec(await (await fetch(url)).text());
+      if (match) return match[0];
+    }
+    return null;
+  });
+  return firebaseApiKey;
+}
+
+/** Plants a signed-in session that Firebase reads from localStorage on start-up. */
+async function seedAccount(context, page) {
+  const apiKey = await findApiKey(page);
+  if (!apiKey) return;
+  const now = Date.now();
+  const uid = "screenshots";
+  const user = {
+    uid,
+    email: `${uid}@example.com`,
+    displayName: "Screenshots",
+    photoURL: null,
+    emailVerified: true,
+    isAnonymous: false,
+    providerData: [
+      {
+        providerId: "google.com",
+        uid,
+        displayName: "Screenshots",
+        email: `${uid}@example.com`,
+        phoneNumber: null,
+        photoURL: null,
+      },
+    ],
+    stsTokenManager: {
+      refreshToken: `${uid}-refresh`,
+      accessToken: `${uid}-access`,
+      expirationTime: now + 86_400_000,
+    },
+    createdAt: String(now),
+    lastLoginAt: String(now),
+    apiKey,
+    appName: "[DEFAULT]",
+  };
+  await context.addInitScript(
+    ([key, value]) => localStorage.setItem(key, value),
+    [`firebase:authUser:${apiKey}:[DEFAULT]`, JSON.stringify(user)],
+  );
+}
+
 async function shoot(name, { width, height, appearance = {}, run }) {
   const context = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2 });
+  await context.route(FIREBASE_HOSTS, (route) => route.abort());
   await context.addInitScript((prefs) => {
     localStorage.setItem("solvelab.appearance.v1", JSON.stringify(prefs));
   }, appearance);
   const page = await context.newPage();
   page.on("pageerror", (error) => console.log("pageerror", name, error.message));
+  await seedAccount(context, page);
   await page.goto(`${base}/settings/`);
   await page.getByText("Local database ready").waitFor();
   await page.getByTestId("backup-file-input").setInputFiles(`${out}/demo-backup.json`);
@@ -182,31 +248,20 @@ await shoot("stats-desktop", {
 });
 await shoot("coach", {
   width: 1440,
-  height: 900,
+  height: 1200,
   run: async (page) => {
     await page.goto(`${base}/coach/`);
-    await page.getByTestId("coach-thread").waitFor();
-    // Let the coach finish "typing" its opening messages.
-    await page.getByTestId("coach-typing").waitFor({ state: "detached", timeout: 15000 });
+    await page.getByTestId("coach-message").waitFor({ timeout: 20000 });
     await page.waitForTimeout(600);
   },
 });
-await shoot("coach-summary", {
-  width: 1440,
-  height: 2400,
-  run: async (page) => {
-    await page.goto(`${base}/coach/`);
-    await page.getByTestId("coach-summary").waitFor({ timeout: 20000 });
-    await page.waitForTimeout(800);
-  },
-});
-await shoot("coach-summary-mobile", {
+await shoot("coach-mobile", {
   width: 390,
-  height: 2200,
+  height: 1400,
   run: async (page) => {
     await page.goto(`${base}/coach/`);
-    await page.getByTestId("coach-summary").waitFor({ timeout: 20000 });
-    await page.waitForTimeout(800);
+    await page.getByTestId("coach-message").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(600);
   },
 });
 await shoot("solve-profile", {
@@ -255,6 +310,52 @@ await shoot("skill-test-results", {
     await page.getByRole("button", { name: "Finish now" }).click();
     await page.getByTestId("test-results").waitFor();
     await page.waitForTimeout(600);
+  },
+});
+await shoot("train-packs", {
+  width: 1440,
+  height: 1600,
+  run: async (page) => {
+    await page.goto(`${base}/train/`);
+    await page.getByTestId("train-intro").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(800);
+  },
+});
+await shoot("train-pack-detail", {
+  width: 1440,
+  height: 1700,
+  run: async (page) => {
+    await page.goto(`${base}/learn/lookahead/`);
+    await page.getByTestId("pack-progress").waitFor({ timeout: 20000 });
+    await page.getByTestId("lesson-lookahead-slow-solves").getByRole("button").first().click();
+    await page.waitForTimeout(600);
+  },
+});
+await shoot("train-pack-mobile", {
+  width: 390,
+  height: 1400,
+  run: async (page) => {
+    await page.goto(`${base}/learn/lookahead/`);
+    await page.getByTestId("pack-progress").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(600);
+  },
+});
+await shoot("train-level-pack", {
+  width: 1440,
+  height: 1600,
+  run: async (page) => {
+    await page.goto(`${base}/learn/two-look-pll/`);
+    await page.getByTestId("pack-progress").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(600);
+  },
+});
+await shoot("learn-road", {
+  width: 1440,
+  height: 3200,
+  run: async (page) => {
+    await page.goto(`${base}/learn/`);
+    await page.getByTestId("level-sub25").waitFor({ timeout: 20000 });
+    await page.waitForTimeout(800);
   },
 });
 await browser.close();

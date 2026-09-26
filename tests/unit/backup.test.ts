@@ -153,6 +153,25 @@ describe("JSON backup", () => {
     expect(settings.view).toMatchObject({ statsRange: "all", timesSort: "ao5" });
   });
 
+  it("carries training pack progress, and a replace clears what was there", async () => {
+    await source.repos.training.setDone("lookahead", "lesson", "lookahead-slow-solves", true);
+    await source.repos.training.setDone("lookahead", "drill", "lookahead-metronome", true);
+    const backup = await createBackup(source.db);
+    expect(backup.data.trainingProgress).toHaveLength(1);
+
+    const parsed = parseBackup(JSON.stringify(backup));
+    if (!parsed.ok) throw new Error(parsed.error);
+    const target = await freshDatabase();
+    await target.repos.training.setDone("inspection", "lesson", "inspection-ladder", true);
+    await restoreBackup(target.db, parsed.document, "replace");
+    const rows = await target.db.trainingProgress.toArray();
+    expect(rows.map((row) => row.packId)).toEqual(["lookahead"]);
+    expect(rows[0]).toMatchObject({
+      lessonsDone: ["lookahead-slow-solves"],
+      drillsDone: ["lookahead-metronome"],
+    });
+  });
+
   it("still imports a version 1 backup", async () => {
     const backup = await createBackup(source.db);
     const v1 = {

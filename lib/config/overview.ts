@@ -1,6 +1,17 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "4.1",
+    title: "Training packs",
+    items: [
+      "Thirty-one training packs on Learn: fifteen for the parts of your solve, sixteen written for a level from 2:00 to sub-10 — lessons that explain, drills with a rule attached, and sources",
+      "The trained coach model picks the packs for the parts of your solve it judges weakest, alongside the packs for your level; every other pack is a See all away, filterable by level",
+      "The road from two minutes to sub-10 on Learn, with each level's packs — what matters at each speed, and what to leave alone until later",
+      "Train is what you're working on: the drills you chose to practise, the packs you've started, and what your solve profile says to work on next",
+      "What you have read and which drills you are practising follow your account",
+    ],
+  },
+  {
     version: "4.0",
     title: "Algorithm bank",
     items: [
@@ -63,14 +74,6 @@ export const shipped = [
 ] as const;
 
 export const planned = [
-  {
-    version: "4.1",
-    title: "Training and lessons",
-    items: [
-      "Training packs for each part of your solve: short lessons, drills, and a retest",
-      "Train and Learn turn on",
-    ],
-  },
   {
     version: "4.2",
     title: "Connect your own AI",

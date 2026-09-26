@@ -9,6 +9,7 @@ import type {
   DailyCheck,
   DiagnosticRun,
   LessonProgress,
+  TrainingProgress,
   ProfileSnapshot,
   SkillId,
   SkillScore,
@@ -303,6 +304,14 @@ export const lessonProgressSchema: z.ZodType<LessonProgress> = z.object({
   lessonId: z.string().min(1),
   completedAt: z.string().min(1),
   updatedAt: optionalIso,
+});
+
+export const trainingProgressSchema: z.ZodType<TrainingProgress> = z.object({
+  packId: z.string().min(1),
+  lessonsDone: z.array(z.string().min(1)),
+  drillsDone: z.array(z.string().min(1)),
+  startedAt: z.string().min(1),
+  updatedAt: z.string().min(1),
 });
 
 export function stampSettings(settings: UserSettings): UserSettings {

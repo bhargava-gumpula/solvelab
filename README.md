@@ -2,7 +2,7 @@
 
 A local-first speedcubing timer that will grow into a coach.
 
-**Current release: 4.0 — Algorithm bank.** Every case for 2-look OLL and PLL, full OLL and PLL, F2L, COLL and Winter Variation: 233 cases and 463 algorithms, each one checked against a cube before it ships. Mark each case don't know, learning or know it, pick the algorithm your fingers like, and both follow your Google account. The coach still picks your goal, asks for the tests it needs and rates every part of your solve, with a quick daily check. Coach, Stats, Train and Learn need an account; the timer doesn't. Train and Learn are off until 4.1, and connecting your own AI comes in 4.2.
+**Current release: 4.1 — Training packs.** Thirty-one packs on Learn — fifteen for the parts of a solve, sixteen written for a level from two minutes down to sub-10 — each with lessons that explain the idea, drills that carry a rule rather than just more solving, and sources. Learn also holds the road: what actually costs you time at each speed, and what to leave alone until later. Train is what you're working on now: the drills you chose to practise, the packs you've started, and the packs your solve profile points at, worst part first. The algorithm bank shows arrows for PLL and COLL, turns each picture to match the algorithm you pick, and makes known, learning and not-yet unmistakable. Coach, Stats, Train and Learn need a Google account; the timer doesn't. Connecting your own AI comes in 4.2.
 
 See [docs/OVERVIEW.md](docs/OVERVIEW.md) for the product summary and plan, and [docs/NEXT_STEPS.md](docs/NEXT_STEPS.md) for the detailed next phases.
 
