@@ -19,6 +19,7 @@ import { testHref, testTitle } from "@/data/exercises";
 import { getAspect } from "@/lib/coach/aspects";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
 import { usePackProgress } from "@/hooks/use-training-progress";
+import { drillHref } from "@/lib/hub/drills";
 import { cn } from "@/lib/utils";
 
 export function PackDetail({ pack }: { pack: TrainingPack }) {
@@ -105,6 +106,7 @@ export function PackDetail({ pack }: { pack: TrainingPack }) {
           {pack.drills.map((drill) => (
             <DrillBlock
               key={drill.id}
+              packId={pack.id}
               drill={drill}
               done={progress.isDrillDone(drill.id)}
               loaded={loaded}
@@ -257,12 +259,14 @@ function LessonBlock({
 
 /** One drill, as shown in its pack and on the Train page. */
 export function DrillBlock({
+  packId,
   drill,
   done,
   loaded,
   onToggle,
   pack,
 }: {
+  packId: string;
   drill: PackDrill;
   done: boolean;
   loaded: boolean;
@@ -322,13 +326,11 @@ export function DrillBlock({
           <dd>{drill.signal}</dd>
         </div>
       </dl>
-      {drill.exerciseId ? (
-        <Button asChild variant="ghost" size="sm" className="mt-3 -ml-2">
-          <Link href={testHref(drill.exerciseId)}>
-            <Timer /> Scrambles and a timer for this
-          </Link>
-        </Button>
-      ) : null}
+      <Button asChild size="sm" className="mt-4 rounded-full">
+        <Link href={drillHref(packId, drill.id)} data-testid={`drill-run-${drill.id}`}>
+          <Timer /> Run a timed session
+        </Link>
+      </Button>
     </article>
   );
 }

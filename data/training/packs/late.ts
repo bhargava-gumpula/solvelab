@@ -102,7 +102,7 @@ export const subTwentyBudget: LevelPack = {
       takeaway: "Roughly two seconds of cross, ten or eleven of F2L, and six of last layer.",
       minutes: 4,
       body: [
-        "A widely quoted breakdown of a sub-20 average is a cross of about two seconds, F2L of about ten or eleven, and a last layer of about six. The level card on Train shows the same split worked out from this app's own goals, including the pause in front of each part.",
+        "A widely quoted breakdown of a sub-20 average is a cross of about two seconds, F2L of about ten or eleven, and a last layer of about six. The road on Learn shows the same split worked out from this app's own goals, including the pause in front of each part.",
         "Two things follow from that shape. F2L is more than half of it, so a small improvement there is worth more than a large one anywhere else. And six seconds of last layer is achievable with two-look OLL and full PLL — you don't need full OLL to get here.",
         "Four pairs in ten or eleven seconds is about two and a half seconds a pair including finding it. That is the number to hold in your head during slow solves.",
       ],

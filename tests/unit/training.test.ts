@@ -15,6 +15,8 @@ import {
   packsForIds,
 } from "@/data/training";
 import { ALGORITHM_SETS, algorithmsFor } from "@/lib/algorithms/catalog";
+import { applyAlgorithm, SOLVED_FACELETS } from "@/lib/cube/cube-state";
+import { formatAlgorithm, invertAlgorithm, parseAlgorithm } from "@/lib/cube/notation";
 import { packMinutes } from "@/data/training/types";
 import {
   LEVELS,
@@ -101,6 +103,59 @@ describe("training packs", () => {
         }
       }
     }
+  });
+
+  it("inserts into the slot it says, and nowhere else, whenever an example names a slot", () => {
+    // Each slot's corner and edge, as sticker positions; the cross edges on D.
+    const SLOTS = {
+      FR: [
+        [29, 26, 15],
+        [23, 12],
+      ],
+      FL: [
+        [27, 44, 24],
+        [21, 41],
+      ],
+      BL: [
+        [33, 42, 53],
+        [50, 39],
+      ],
+      BR: [
+        [35, 51, 17],
+        [48, 14],
+      ],
+    } as const;
+    const CROSS = [
+      [32, 16],
+      [28, 25],
+      [30, 43],
+      [34, 52],
+    ];
+    const home = (spot: number) => "URFDLB"[Math.floor(spot / 9)];
+    const solved = (state: string, pieces: readonly (readonly number[])[]) =>
+      pieces.every((piece) => piece.every((spot) => state[spot] === home(spot)));
+    let checked = 0;
+    for (const pack of TRAINING_PACKS) {
+      for (const lesson of pack.lessons) {
+        for (const example of lesson.examples ?? []) {
+          if (!example.slot || !example.moves) continue;
+          const parsed = parseAlgorithm(example.moves);
+          if (!parsed.ok) throw new Error(example.moves);
+          // Undoing the moves on a solved cube shows the case they solve.
+          const state = applyAlgorithm(
+            formatAlgorithm(invertAlgorithm(parsed.moves)),
+            SOLVED_FACELETS,
+          );
+          const label = `${pack.id}/${lesson.id}: ${example.moves}`;
+          expect(solved(state, CROSS), label).toBe(true);
+          for (const [slot, pieces] of Object.entries(SLOTS)) {
+            expect(solved(state, pieces), `${label} (${slot})`).toBe(slot !== example.slot);
+          }
+          checked++;
+        }
+      }
+    }
+    expect(checked).toBeGreaterThan(0);
   });
 
   it("cites a source for everything, over https", () => {
@@ -322,7 +377,13 @@ describe("pack recommendations: rules, level and the whole list", () => {
     const band = bandForRung("sub20")!;
     const level = levelRecommendations(band);
     expect(level.map((entry) => entry.pack.id).sort()).toEqual(
-      ["colour-neutral-plan", "competing", "filler-moves"].sort(),
+      [
+        "colour-neutral-plan",
+        "competing",
+        "filler-moves",
+        "good-and-bad-edges",
+        "stuck-at-fifteen",
+      ].sort(),
     );
     expect(level[0]!.reason).toBe("Written for your level, 20 → 15 s.");
     expect(levelRecommendations(null)).toEqual([]);

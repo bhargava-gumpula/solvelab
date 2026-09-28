@@ -1,8 +1,6 @@
-import type { Metadata } from "next";
-import { SolveProfileView } from "@/components/stats/solve-profile";
+import { redirect } from "next/navigation";
 
-export const metadata: Metadata = { title: "Solve profile" };
-
-export default function SolveProfilePage() {
-  return <SolveProfileView />;
+/** The solve profile moved to the Learning Hub; old links still land on it. */
+export default function OldSolveProfilePage() {
+  redirect("/hub/profile/");
 }

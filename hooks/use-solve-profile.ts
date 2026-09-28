@@ -17,7 +17,13 @@ import { getRepositories } from "@/lib/storage";
 export function useSolveProfile({
   withSolves = true,
   enabled = true,
-}: { withSolves?: boolean; enabled?: boolean } = {}) {
+  excludeDay,
+}: {
+  withSolves?: boolean;
+  enabled?: boolean;
+  /** Leave out this day's daily check, to compare today with the profile before it. */
+  excludeDay?: string;
+} = {}) {
   const ready = useStorageStatus().status === "ready" && enabled;
   const settings = useSettings();
   const solves = useAllSolves(enabled && withSolves);
@@ -29,13 +35,18 @@ export function useSolveProfile({
     async () => (ready ? await getRepositories().coach.listProfileSnapshots() : undefined),
     [ready],
   );
+  const dailyChecks = useLiveQuery(
+    async () => (ready ? await getRepositories().coach.listDailyChecks() : undefined),
+    [ready],
+  );
 
   const loaded =
     ready &&
     settings !== undefined &&
     (!withSolves || solves !== undefined) &&
     runs !== undefined &&
-    snapshots !== undefined;
+    snapshots !== undefined &&
+    dailyChecks !== undefined;
   const goalMilestoneId = settings?.targetMilestone ?? null;
 
   const profile = useMemo(
@@ -46,10 +57,18 @@ export function useSolveProfile({
             solves: solves ?? [],
             goalMilestoneId,
             snapshots: snapshots ?? [],
+            dailyChecks: (dailyChecks ?? []).filter((check) => check.day !== excludeDay),
           })
         : null,
-    [loaded, runs, solves, goalMilestoneId, snapshots],
+    [loaded, runs, solves, goalMilestoneId, snapshots, dailyChecks, excludeDay],
   );
 
-  return { loaded, profile, settings, runs: runs ?? [], solves: solves ?? [] };
+  return {
+    loaded,
+    profile,
+    settings,
+    runs: runs ?? [],
+    solves: solves ?? [],
+    snapshots: snapshots ?? [],
+  };
 }

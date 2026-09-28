@@ -84,9 +84,12 @@ describe("appearance boot script", () => {
     runBootScript(false);
     expect(document.documentElement.dataset.theme).toBe("paper");
 
+    document.documentElement.className = "";
+    delete document.documentElement.dataset.theme;
     localStorage.setItem(APPEARANCE_STORAGE_KEY, "{broken");
     runBootScript(true);
-    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(document.documentElement.dataset.theme).toBe("paper");
+    expect(document.documentElement.classList.contains("light")).toBe(true);
   });
 });
 

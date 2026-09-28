@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Lock } from "lucide-react";
-import { isActivePath, type NavigationItem } from "@/lib/config/navigation";
+import { isActiveItem, type NavigationItem } from "@/lib/config/navigation";
 import { cn } from "@/lib/utils";
 
 interface NavPillProps {
@@ -43,8 +43,9 @@ export function NavPill({
             : "justify-between border bg-background shadow-[0_12px_40px_-12px_rgb(0_0_0/0.6)]",
         )}
       >
-        {items.map(({ href, label: itemLabel, icon: Icon, enabled, comingIn }) => {
-          const active = isActivePath(pathname, href);
+        {items.map((item) => {
+          const { href, label: itemLabel, icon: Icon, enabled, comingIn } = item;
+          const active = isActiveItem(pathname, item);
           const preview = !enabled;
           const alert = alerts?.[href];
           const locked = lockedHrefs?.includes(href) ?? false;

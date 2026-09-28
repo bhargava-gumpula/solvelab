@@ -19,7 +19,7 @@ async function openTest(page: Page, testId: string) {
 test.describe("skill tests and the solve profile", () => {
   test("goal → cross test → delete an attempt → results → profile", async ({ page }) => {
     test.setTimeout(150_000);
-    await page.goto("/stats/profile/");
+    await page.goto("/hub/profile/");
     await expect(page.getByTestId("pick-goal")).toBeVisible({ timeout: 20_000 });
     await page.getByRole("button", { name: /^Sub 20/ }).click();
 
@@ -58,11 +58,12 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page.getByTestId("next-test")).toHaveText(/Next: F2L test/);
 
     await page.getByRole("link", { name: "See your solve profile" }).click();
-    await expect(page).toHaveURL(/\/stats\/profile\/?$/);
-    await expect(page.getByRole("link", { name: "Solve profile" })).toHaveAttribute(
-      "aria-current",
-      "page",
-    );
+    await expect(page).toHaveURL(/\/hub\/profile\/?$/);
+    await expect(
+      page
+        .getByRole("navigation", { name: "Learning Hub sections" })
+        .getByRole("link", { name: "Profile" }),
+    ).toHaveAttribute("aria-current", "page");
     const cross = page.getByTestId("aspect-row-cross");
     await expect(cross.getByTestId("pace-badge")).toHaveAttribute("data-pace", "fast", {
       timeout: 15_000,
@@ -87,7 +88,7 @@ test.describe("skill tests and the solve profile", () => {
     await keyboardSolve(page, 450);
     await expect(progress(page)).toHaveText("2 of 12");
     await page.getByRole("button", { name: "Save and exit" }).click();
-    await expect(page).toHaveURL(/\/stats\/profile\/?$/);
+    await expect(page).toHaveURL(/\/hub\/profile\/?$/);
 
     const card = page.getByTestId("test-card-oll_only");
     await expect(card).toContainText("2 of 12", { timeout: 15_000 });
@@ -140,7 +141,7 @@ test.describe("skill tests and the solve profile", () => {
     await page.goto("/timer/");
     await expect(page.getByTestId("solve-count")).toHaveText("12/12", { timeout: 15_000 });
 
-    await page.goto("/stats/profile/");
+    await page.goto("/hub/profile/");
     await expect(page.getByTestId("aspect-row-full_solve").getByTestId("aspect-value")).toHaveText(
       /^20\.\d+ s$/,
       { timeout: 15_000 },
@@ -153,7 +154,7 @@ test.describe("skill tests and the solve profile", () => {
     test.setTimeout(120_000);
     await importProfile(page, { skip: ["tps_test"] });
 
-    await page.goto("/stats/profile/");
+    await page.goto("/hub/profile/");
     await expect(page.getByTestId("profile-summary")).toContainText("9 of 10 tests done", {
       timeout: 20_000,
     });
@@ -203,7 +204,7 @@ test.describe("skill tests and the solve profile", () => {
     const reminder = page.getByRole("switch", { name: "Remind me each day" });
     await reminder.click();
     await expect(reminder).toBeChecked();
-    await expect(page.getByTestId("nav-alert-coach").first()).toBeAttached();
+    await expect(page.getByTestId("nav-alert-hub").first()).toBeAttached();
 
     await page.getByRole("button", { name: "Start daily check" }).click();
     await expect(page.getByTestId("daily-test-title")).toHaveText("Cross test");
@@ -237,14 +238,16 @@ test.describe("skill tests and the solve profile", () => {
       "none",
     );
     await expect(page.getByText("1-day streak")).toBeVisible();
-    await expect(page.getByTestId("nav-alert-coach")).toHaveCount(0);
+    await expect(page.getByTestId("nav-alert-hub")).toHaveCount(0);
 
-    // Coming back today shows today's results, and the check never touches the profile.
+    // Coming back today shows today's results, still compared with the profile before today.
     await page.reload();
     await expect(page.getByTestId("daily-results")).toBeVisible({ timeout: 20_000 });
-    await page.goto("/stats/profile/");
+    await expect(page.getByTestId("daily-row-cross").getByText("Better")).toBeVisible();
+    // The check's attempts join the latest full test: two fast crosses nudge 2.00 s, not replace it.
+    await page.goto("/hub/profile/");
     await expect(page.getByTestId("aspect-row-cross").getByTestId("aspect-value")).toHaveText(
-      "2.00 s",
+      /^1\.8\d s$/,
       { timeout: 20_000 },
     );
   });
@@ -261,30 +264,28 @@ test.describe("skill tests and the solve profile", () => {
     await page.goto("/timer/");
     const mainNav = page.getByRole("navigation", { name: "Main navigation" });
     await expect(mainNav).toBeVisible();
-    const train = mainNav.getByRole("link", { name: "Train", exact: true });
-    const learn = mainNav.getByRole("link", { name: "Learn", exact: true });
-    // Nothing is a preview any more: every area in the nav is a real page.
-    for (const name of ["Train", "Learn", "Algorithms"]) {
-      await expect(mainNav.getByRole("link", { name, exact: true })).not.toHaveAttribute(
-        "data-preview",
-        "true",
-      );
-    }
+    await expect(mainNav.getByRole("link")).toHaveText(["Timer", "Learning Hub"]);
 
     await page.keyboard.press("ControlOrMeta+k");
     const palette = page.getByRole("dialog", { name: "Command palette" });
     await expect(palette).toBeVisible();
-    await expect(palette.getByText("Go to Coach")).toBeVisible();
-    await expect(palette.getByText("Go to Train")).toBeVisible();
-    await expect(palette.getByText("Go to Learn")).toBeVisible();
+    await expect(palette.getByText("Go to Stats")).toBeVisible();
+    await expect(palette.getByText("Go to Practice")).toBeVisible();
+    await expect(palette.getByText("Go to Library")).toBeVisible();
     await page.keyboard.press("Escape");
 
-    await train.click();
+    await mainNav.getByRole("link", { name: "Learning Hub" }).click();
+    await expect(page).toHaveURL(/\/hub\/?$/);
+    const sections = page.getByRole("navigation", { name: "Learning Hub sections" });
+    await sections.getByRole("link", { name: "Practice" }).click();
     await expect(page).toHaveURL(/\/train\/?$/);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("What you're working on.");
     await expect(page.getByTestId("train-browse-learn")).toBeVisible();
 
-    await learn.click();
+    // The road and every pack stay on Learn, reached from the Library.
+    await sections.getByRole("link", { name: "Library" }).click();
+    await expect(page).toHaveURL(/\/hub\/library\/?$/);
+    await page.getByRole("link", { name: /The road, 2:00 to sub-10/ }).click();
     await expect(page).toHaveURL(/\/learn\/?$/);
     await expect(page.getByTestId("level-sub20")).toBeVisible();
     await expect(page.getByTestId("see-all")).toBeVisible();

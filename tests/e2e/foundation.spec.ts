@@ -1,12 +1,19 @@
 import { expect, test } from "./fixtures";
 
+/** Every page in the two tabs, with the tab and section that should be lit on it. */
 const navRoutes = [
-  { path: "timer", nav: "Timer" },
-  { path: "coach", nav: "Coach" },
-  { path: "train", nav: "Train" },
-  { path: "algorithms", nav: "Algorithms" },
-  { path: "learn", nav: "Learn" },
-  { path: "stats", nav: "Stats" },
+  { path: "timer", tab: "Timer", section: "Timer" },
+  { path: "stats", tab: "Timer", section: "Stats" },
+  { path: "hub", tab: "Learning Hub", section: "Path" },
+  { path: "hub/start", tab: "Learning Hub", section: "Path" },
+  { path: "hub/course/sub-15", tab: "Learning Hub", section: "Path" },
+  { path: "hub/unit/lookahead", tab: "Learning Hub", section: "Path" },
+  { path: "hub/profile", tab: "Learning Hub", section: "Profile" },
+  { path: "coach", tab: "Learning Hub", section: "Profile" },
+  { path: "train", tab: "Learning Hub", section: "Practice" },
+  { path: "algorithms", tab: "Learning Hub", section: "Algorithms" },
+  { path: "hub/library", tab: "Learning Hub", section: "Library" },
+  { path: "learn", tab: "Learning Hub", section: "Library" },
 ];
 
 for (const width of [375, 768, 1024, 1440]) {
@@ -19,7 +26,16 @@ for (const width of [375, 768, 1024, 1440]) {
       expect(response?.status()).toBe(200);
       await expect(page.locator("h1")).toHaveCount(1);
       await expect(
-        page.getByRole("link", { name: route.nav, exact: true }).filter({ visible: true }).first(),
+        page
+          .locator('nav[aria-label="Main navigation"], nav[aria-label="Mobile navigation"]')
+          .getByRole("link", { name: route.tab, exact: true })
+          .filter({ visible: true })
+          .first(),
+      ).toHaveAttribute("aria-current", "page");
+      await expect(
+        page
+          .getByRole("navigation", { name: `${route.tab} sections` })
+          .getByRole("link", { name: route.section, exact: true }),
       ).toHaveAttribute("aria-current", "page");
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -32,7 +48,7 @@ for (const width of [375, 768, 1024, 1440]) {
   });
 }
 
-test("root redirects to the timer", async ({ page }) => {
+test("root opens on the timer the first time", async ({ page }) => {
   await page.goto("/");
   await expect(page).toHaveURL(/\/timer\/?$/);
 });
@@ -43,15 +59,17 @@ test("theme presets persist across reload and Match system follows the browser",
   await page.goto("/settings/");
   await expect(page.getByText("Local database ready")).toBeVisible();
   const html = page.locator("html");
-  await expect(html).toHaveAttribute("data-theme", "matcha");
-
-  await page.getByRole("radio", { name: "Linen" }).click();
+  // Linen is the default.
   await expect(html).toHaveAttribute("data-theme", "paper");
   await expect(html).toHaveClass(/light/);
+
+  await page.getByRole("radio", { name: "Sencha" }).click();
+  await expect(html).toHaveAttribute("data-theme", "matcha");
+  await expect(html).toHaveClass(/dark/);
   await page.reload();
   // The boot script applies the saved theme before the app hydrates.
-  await expect(html).toHaveAttribute("data-theme", "paper");
-  await expect(page.getByRole("radio", { name: "Linen" })).toHaveAttribute("aria-checked", "true");
+  await expect(html).toHaveAttribute("data-theme", "matcha");
+  await expect(page.getByRole("radio", { name: "Sencha" })).toHaveAttribute("aria-checked", "true");
 
   await page.getByRole("radio", { name: "Match system" }).click();
   await page.emulateMedia({ colorScheme: "dark" });
@@ -109,6 +127,10 @@ test("mobile navigation, case search and empty results", async ({ page }) => {
   await page.goto("/timer/");
   await page
     .getByRole("navigation", { name: "Mobile navigation" })
+    .getByRole("link", { name: "Learning Hub" })
+    .click();
+  await page
+    .getByRole("navigation", { name: "Learning Hub sections" })
     .getByRole("link", { name: "Algorithms" })
     .click();
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(

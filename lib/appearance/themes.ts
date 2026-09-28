@@ -115,7 +115,9 @@ export const THEMES: readonly ThemeDefinition[] = [
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = "matcha";
+export const DEFAULT_THEME: ThemeId = "paper";
+/** Used by "Match system" when the device prefers dark. */
+export const SYSTEM_DARK_THEME: ThemeId = "matcha";
 /** Used by "Match system" when the device prefers light. */
 export const SYSTEM_LIGHT_THEME: ThemeId = "paper";
 

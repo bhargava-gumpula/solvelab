@@ -12,6 +12,7 @@ import type {
   Solve,
   TrainingPlan,
   TrainingProgress,
+  DrillRun,
   UserSettings,
 } from "@/types/domain";
 import { DEFAULT_SETTINGS } from "./schemas";
@@ -77,7 +78,13 @@ export const SCHEMA_V8 = {
   trainingProgress: "packId, updatedAt",
 } as const;
 
-export const DATABASE_VERSION = 8;
+/** V9 (4.2): sessions of the drills in training packs, run with the Hub's timer. */
+export const SCHEMA_V9 = {
+  ...SCHEMA_V8,
+  drillRuns: "id, [packId+drillId], createdAt, updatedAt",
+} as const;
+
+export const DATABASE_VERSION = 9;
 
 /**
  * A local-only note. This table is deliberately absent from the sync registry:
@@ -122,6 +129,7 @@ export class LocalDatabase extends Dexie {
   dailyChecks!: Table<DailyCheck, string>;
   coachThreads!: Table<CoachThread, string>;
   trainingProgress!: Table<TrainingProgress, string>;
+  drillRuns!: Table<DrillRun, string>;
   meta!: Table<MetaRecord, string>;
 
   constructor(name = DATABASE_NAME) {
@@ -134,6 +142,7 @@ export class LocalDatabase extends Dexie {
     this.version(6).stores(SCHEMA_V6);
     this.version(7).stores(SCHEMA_V7);
     this.version(8).stores(SCHEMA_V8);
+    this.version(9).stores(SCHEMA_V9);
   }
 }
 

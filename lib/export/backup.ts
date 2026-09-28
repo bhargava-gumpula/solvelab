@@ -20,6 +20,7 @@ import type {
   Solve,
   TrainingPlan,
   TrainingProgress,
+  DrillRun,
   UserSettings,
 } from "@/types/domain";
 import { brand } from "@/lib/config/brand";
@@ -41,6 +42,7 @@ import {
   stampSettings,
   trainingPlanSchema,
   trainingProgressSchema,
+  drillRunSchema,
 } from "@/lib/storage/schemas";
 import { withFinalTime } from "@/lib/storage/solve-repository";
 
@@ -61,6 +63,7 @@ const EXTRA_TABLES = {
   dailyChecks: "id",
   coachThreads: "id",
   trainingProgress: "packId",
+  drillRuns: "id",
 } as const;
 
 type ExtraTable = keyof typeof EXTRA_TABLES;
@@ -85,6 +88,7 @@ export interface BackupData {
   dailyChecks: DailyCheck[];
   coachThreads: CoachThread[];
   trainingProgress: TrainingProgress[];
+  drillRuns: DrillRun[];
 }
 
 export interface BackupDocument {
@@ -119,6 +123,7 @@ const backupSchema = z
       dailyChecks: extraArray(dailyCheckSchema),
       coachThreads: extraArray(coachThreadSchema),
       trainingProgress: extraArray(trainingProgressSchema),
+      drillRuns: extraArray(drillRunSchema),
     }),
   })
   .superRefine((document, context) => {
@@ -176,6 +181,7 @@ export async function createBackup(db: LocalDatabase, now = new Date()): Promise
       dailyChecks: await db.dailyChecks.orderBy("createdAt").toArray(),
       coachThreads: await db.coachThreads.orderBy("createdAt").toArray(),
       trainingProgress: await db.trainingProgress.toArray(),
+      drillRuns: await db.drillRuns.orderBy("createdAt").toArray(),
     },
   }));
 }

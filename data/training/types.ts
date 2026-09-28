@@ -25,6 +25,20 @@ export interface PackLesson {
   checkpoint?: string;
 }
 
+/**
+ * A question that checks the lesson went in: it asks about the idea, not
+ * about the wording, and says why the answer is right.
+ */
+export interface LessonQuiz {
+  question: string;
+  /** Three or four options. */
+  options: string[];
+  /** Index of the right option. */
+  answer: number;
+  /** Why it's right, shown after answering either way. */
+  why: string;
+}
+
 export interface PackExample {
   label: string;
   /** Cube notation; a unit test checks it parses. */
@@ -35,6 +49,11 @@ export interface PackExample {
    * wrong one.
    */
   caseId?: string;
+  /**
+   * The slot these moves put a pair into. When set, a unit test checks the
+   * moves touch only that slot and the top layer.
+   */
+  slot?: "FR" | "FL" | "BR" | "BL";
   note: string;
 }
 

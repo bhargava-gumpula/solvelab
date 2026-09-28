@@ -17,11 +17,17 @@ export function CaseDiagram({
   kind,
   className,
   title,
+  showArrows = true,
+  hiddenSides = [],
 }: {
   facelets: string;
   kind: CaseKind;
   className?: string;
   title?: string;
+  /** Recognition drills hide the arrows, which would give the answer away. */
+  showArrows?: boolean;
+  /** Side strips to leave blank, to show only what you'd see holding the cube. */
+  hiddenSides?: readonly Side[];
 }) {
   const up = getFace(facelets, "U");
   const { slotCase, arrows: arrowPieces } = CASE_KINDS[kind];
@@ -47,7 +53,13 @@ export function CaseDiagram({
   // Cases that move pieces get arrows showing where each one goes. COLL only
   // places the corners, so its edges get none.
   const arrows =
-    arrowPieces === "none" ? [] : caseArrows(facelets, { edges: arrowPieces === "all" });
+    arrowPieces === "none" || !showArrows
+      ? []
+      : caseArrows(facelets, { edges: arrowPieces === "all" });
+  const side = (face: Side, index: number) =>
+    hiddenSides.includes(face)
+      ? HIDDEN
+      : stickerColour(SIDE_STRIPS[face][index]!, facelets[SIDE_STRIPS[face][index]!]!, kind, pair);
   const centre = (index: number) => ({
     x: strip + gap + (index % 3) * (cell + gap) + cell / 2,
     y: strip + gap + Math.floor(index / 3) * (cell + gap) + cell / 2,
@@ -79,57 +91,23 @@ export function CaseDiagram({
         const offset = strip + gap + index * (cell + gap);
         return (
           <g key={`s${index}`}>
-            <rect
-              x={offset}
-              y={0}
-              width={cell}
-              height={strip}
-              rx={1.5}
-              fill={stickerColour(
-                SIDE_STRIPS.B[index]!,
-                facelets[SIDE_STRIPS.B[index]!]!,
-                kind,
-                pair,
-              )}
-            />
+            <rect x={offset} y={0} width={cell} height={strip} rx={1.5} fill={side("B", index)} />
             <rect
               x={offset}
               y={size - strip}
               width={cell}
               height={strip}
               rx={1.5}
-              fill={stickerColour(
-                SIDE_STRIPS.F[index]!,
-                facelets[SIDE_STRIPS.F[index]!]!,
-                kind,
-                pair,
-              )}
+              fill={side("F", index)}
             />
-            <rect
-              x={0}
-              y={offset}
-              width={strip}
-              height={cell}
-              rx={1.5}
-              fill={stickerColour(
-                SIDE_STRIPS.L[index]!,
-                facelets[SIDE_STRIPS.L[index]!]!,
-                kind,
-                pair,
-              )}
-            />
+            <rect x={0} y={offset} width={strip} height={cell} rx={1.5} fill={side("L", index)} />
             <rect
               x={size - strip}
               y={offset}
               width={strip}
               height={cell}
               rx={1.5}
-              fill={stickerColour(
-                SIDE_STRIPS.R[index]!,
-                facelets[SIDE_STRIPS.R[index]!]!,
-                kind,
-                pair,
-              )}
+              fill={side("R", index)}
             />
           </g>
         );
@@ -269,6 +247,10 @@ const SIDE_EDGE_STICKERS = new Set(TOP_EDGES.map((edge) => edge[1]));
 
 /** A colour the case doesn't pin down: on the cube it could be any of them. */
 const ANY = "var(--cube-unsolved)";
+/** A side you can't see from where you're holding the cube. */
+const HIDDEN = "transparent";
+
+type Side = "B" | "F" | "L" | "R";
 
 /**
  * What colour a sticker should be drawn.

@@ -35,8 +35,7 @@ import { getRepositories } from "@/lib/storage";
 import type { TimeDecimals } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
 import type { DailyCheck, UserSettings } from "@/types/domain";
-
-const PROFILE_HREF = "/stats/profile/";
+import { PROFILE_HREF } from "@/lib/config/navigation";
 
 /** Two attempts of each test, compared with the solve profile. */
 export function DailyCheckView() {
@@ -173,7 +172,7 @@ function DailyCheckBody({
 
   const saveAndExit = async () => {
     await writes.current;
-    router.push("/coach/");
+    router.push("/hub/");
   };
 
   if (view === "intro") {
@@ -318,8 +317,8 @@ function DailyIntro({
         <h1 className="mt-1 text-2xl font-semibold tracking-tight">Daily check</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Two attempts of each test, one after another. You’ll see how today compares with your
-          solve profile. Two attempts are a quick read, so your profile only changes when you take
-          the full tests.
+          solve profile, and your attempts feed into it a little at a time: each check joins the
+          latest full test, and the profile uses your most recent twelve attempts.
         </p>
         <ul className="mt-4 flex flex-wrap gap-2" aria-label="Tests in the daily check">
           {DAILY_TESTS.map((testId) => (
@@ -454,7 +453,8 @@ function DailyResults({
   onStartAnother: () => Promise<void>;
 }) {
   const { decimals } = useTimeFormat();
-  const { profile } = useSolveProfile();
+  // Today's attempts are part of the profile now, so compare with the profile before today.
+  const { profile } = useSolveProfile({ excludeDay: today });
   const goal = milestones.find((m) => m.id === settings.targetMilestone) ?? null;
   const todayProfile = dailyProfile(check, settings.targetMilestone);
   const rows = compareDaily(todayProfile, profile);

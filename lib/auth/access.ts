@@ -5,11 +5,12 @@ import type { AuthStatus } from "./session";
  * timer, the algorithms and the public pages stay open, so someone can try
  * the site before signing up.
  */
-export const ACCOUNT_AREAS = ["coach", "stats", "train", "learn"] as const;
+export const ACCOUNT_AREAS = ["hub", "coach", "stats", "train", "learn"] as const;
 
 export type AccountArea = (typeof ACCOUNT_AREAS)[number];
 
 export const AREA_LABELS: Record<AccountArea, string> = {
+  hub: "Learning Hub",
   coach: "Coach",
   stats: "Stats",
   train: "Train",
@@ -18,6 +19,7 @@ export const AREA_LABELS: Record<AccountArea, string> = {
 
 /** Why this area needs an account, in the person's terms. */
 export const AREA_REASONS: Record<AccountArea, string> = {
+  hub: "Your level, your solve profile and the lessons you've finished are kept on your account, so they follow you to any device.",
   coach:
     "Your conversations with the coach, your skill tests and your solve profile are kept on your account, so they follow you to any device.",
   stats:

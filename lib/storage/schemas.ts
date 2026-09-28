@@ -10,6 +10,7 @@ import type {
   DiagnosticRun,
   LessonProgress,
   TrainingProgress,
+  DrillRun,
   ProfileSnapshot,
   SkillId,
   SkillScore,
@@ -105,6 +106,22 @@ export const DEFAULT_SETTINGS: UserSettings = {
   dailyCheckReminder: false,
 };
 
+const knownAlgorithmsSchema = z.enum(["none", "two-look", "some", "all"]).nullable();
+
+/** An unreadable questionnaire is dropped rather than failing the whole record. */
+const hubIntroSchema = z
+  .object({
+    average: z.string().max(40).nullable(),
+    slowParts: z.array(z.string().max(40)).max(20),
+    pll: knownAlgorithmsSchema,
+    oll: knownAlgorithmsSchema,
+    practice: z.string().max(40).nullable(),
+    answeredAt: isoDate,
+    completedAt: isoDate.nullable(),
+  })
+  .optional()
+  .catch(undefined);
+
 export const settingsSchema = z.object({
   id: z.literal("preferences"),
   inspectionSeconds: z.union([z.literal(0), z.literal(15)]),
@@ -125,6 +142,7 @@ export const settingsSchema = z.object({
   contributeTrainingData: z.boolean().catch(true).default(true),
   trainingNoticeSeen: z.boolean().catch(false).default(false),
   dailyCheckReminder: z.boolean().catch(false).default(false),
+  hubIntro: hubIntroSchema,
   updatedAt: isoDate.optional(),
 });
 
@@ -133,8 +151,8 @@ export function normalizeSettings(record: Partial<UserSettings> | undefined): Us
   const merged = { ...DEFAULT_SETTINGS, ...record, id: "preferences" as const };
   const parsed = settingsSchema.safeParse(merged);
   if (!parsed.success) return { ...DEFAULT_SETTINGS, activeSessionId: merged.activeSessionId };
-  const { appearance, ...rest } = parsed.data;
-  return appearance ? { ...rest, appearance } : rest;
+  const { appearance, hubIntro, ...rest } = parsed.data;
+  return { ...rest, ...(appearance ? { appearance } : {}), ...(hubIntro ? { hubIntro } : {}) };
 }
 
 // Coach, algorithm and lesson records. Shared by the repositories and backups.
@@ -311,6 +329,15 @@ export const trainingProgressSchema: z.ZodType<TrainingProgress> = z.object({
   lessonsDone: z.array(z.string().min(1)),
   drillsDone: z.array(z.string().min(1)),
   startedAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+});
+
+export const drillRunSchema: z.ZodType<DrillRun> = z.object({
+  id: z.string().min(1),
+  packId: z.string().min(1),
+  drillId: z.string().min(1),
+  timesMs: z.array(z.number().finite().nonnegative()).max(500),
+  createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 });
 

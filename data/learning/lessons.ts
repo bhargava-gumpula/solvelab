@@ -33,7 +33,7 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Hold the cube consistently",
-        body: "Pick a white-on-top / green-in-front habit early. Consistency makes algorithms and inspection easier later.",
+        body: "Pick one way to hold it early — white on the bottom, green in front is common — and keep it. Consistency makes algorithms and inspection easier later.",
       },
     ],
     practiceHint: "Scramble lightly and name five pieces out loud before solving.",

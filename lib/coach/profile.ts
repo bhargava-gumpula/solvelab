@@ -1,4 +1,4 @@
-import type { DiagnosticRun, PaceTag, ProfileSnapshot, Solve } from "@/types/domain";
+import type { DailyCheck, DiagnosticRun, PaceTag, ProfileSnapshot, Solve } from "@/types/domain";
 import { aspectTargetsFor } from "@/data/milestones/aspect-targets";
 import { CORE_TESTS, getExercise, TEST_ORDER } from "@/data/exercises";
 import { selectBaselineSolves } from "./baseline";
@@ -41,6 +41,41 @@ export function latestTestSample(runs: DiagnosticRun[], testId: string): TestSam
     completed: Boolean(pick.completedAt),
     at: pick.completedAt ?? pick.updatedAt ?? pick.createdAt,
     runId: pick.id,
+  };
+}
+
+/** How many of a test's most recent attempts the profile uses once daily checks join in. */
+export const ROLLING_ATTEMPTS = 12;
+
+/**
+ * Daily-check attempts made after a test's latest full run join it, and the
+ * profile uses the most recent twelve. Two quick attempts nudge a number
+ * rather than replacing a full test; a week of checks moves it for real. A
+ * test with no full run uses daily attempts alone once there are enough.
+ * Whether a test counts as taken still depends only on full runs.
+ */
+export function blendDailyAttempts(
+  sample: TestSample | null,
+  testId: string,
+  checks: readonly DailyCheck[],
+): TestSample | null {
+  const since = sample?.at ?? "";
+  const later = checks
+    .filter((check) => (check.attempts[testId]?.length ?? 0) > 0 && check.createdAt > since)
+    .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  if (later.length === 0) return sample;
+  const times = [
+    ...(sample?.times ?? []),
+    ...later.flatMap((check) => check.attempts[testId]!),
+  ].slice(-ROLLING_ATTEMPTS);
+  if (!sample && times.length < MIN_TEST_TIMES) return null;
+  const latest = later.at(-1)!;
+  return {
+    testId,
+    times,
+    completed: sample?.completed ?? false,
+    at: latest.completedAt ?? latest.updatedAt ?? latest.createdAt,
+    runId: sample?.runId ?? `daily-${latest.id}`,
   };
 }
 
@@ -300,6 +335,8 @@ export interface ProfileInput {
   solves: Solve[];
   goalMilestoneId: string | null;
   snapshots?: ProfileSnapshot[];
+  /** Daily checks, whose attempts join each test's latest full run. */
+  dailyChecks?: readonly DailyCheck[];
 }
 
 export function buildSolveProfile({
@@ -307,10 +344,11 @@ export function buildSolveProfile({
   solves,
   goalMilestoneId,
   snapshots = [],
+  dailyChecks = [],
 }: ProfileInput): SolveProfile {
   const samples: Samples = new Map();
   for (const testId of TEST_ORDER) {
-    const sample = latestTestSample(runs, testId);
+    const sample = blendDailyAttempts(latestTestSample(runs, testId), testId, dailyChecks);
     if (sample) samples.set(testId, sample);
   }
   const targets = aspectTargetsFor(goalMilestoneId);

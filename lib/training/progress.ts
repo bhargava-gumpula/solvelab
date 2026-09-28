@@ -6,6 +6,8 @@ export interface PackProgress {
   lessonTotal: number;
   started: boolean;
   complete: boolean;
+  /** When the first lesson or drill was ticked, for "since you started". */
+  startedAt: string | null;
   isLessonDone: (id: string) => boolean;
   isDrillDone: (id: string) => boolean;
 }
@@ -28,6 +30,7 @@ export function packProgress(
     lessonTotal: pack.lessons.length,
     started: readCount > 0 || doneCount > 0,
     complete: pack.lessons.length > 0 && readCount >= pack.lessons.length,
+    startedAt: record?.startedAt ?? null,
     isLessonDone: (id) => lessons.has(id),
     isDrillDone: (id) => drills.has(id),
   };

@@ -102,7 +102,31 @@ export interface UserSettings {
   trainingNoticeSeen: boolean;
   /** Mark Coach in the menu until today's daily check is done. Off unless turned on. */
   dailyCheckReminder: boolean;
+  /** Answers from the Learning Hub's first questionnaire. Absent until it's answered. */
+  hubIntro?: HubIntro;
   updatedAt?: string;
+}
+
+/** How much of an algorithm set someone says they know. */
+export type KnownAlgorithms = "none" | "two-look" | "some" | "all";
+
+/**
+ * What someone told the Learning Hub about themselves before any test: where
+ * they think they are and what feels slow. Measured results are compared with
+ * it, never replaced by it.
+ */
+export interface HubIntro {
+  /** Their own estimate of their average, as a choice id from `lib/hub/intro.ts`. */
+  average: string | null;
+  /** What feels slow to them, as choice ids. */
+  slowParts: string[];
+  pll: KnownAlgorithms | null;
+  oll: KnownAlgorithms | null;
+  /** Roughly how long they practise a day, as a choice id. */
+  practice: string | null;
+  answeredAt: string;
+  /** When they saw their results and started the path. */
+  completedAt: string | null;
 }
 
 export type SkillId =
@@ -379,6 +403,21 @@ export interface LessonProgress {
  * lessons they have read and the drills they have marked done, so a part-read
  * pack is remembered rather than starting again.
  */
+/**
+ * One session of a training drill: the times from practice done with the
+ * drill's rule. Kept apart from skill tests, since a rule like "turn at half
+ * speed" makes the times mean something different; they're compared only with
+ * earlier sessions of the same drill.
+ */
+export interface DrillRun {
+  id: string;
+  packId: string;
+  drillId: string;
+  timesMs: number[];
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface TrainingProgress {
   packId: string;
   /** Lesson ids read. */

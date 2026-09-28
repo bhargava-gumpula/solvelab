@@ -99,6 +99,7 @@ export function TrainDashboard() {
             {drills.map(({ pack, drill }) => (
               <DrillBlock
                 key={`${pack.id}/${drill.id}`}
+                packId={pack.id}
                 pack={pack}
                 drill={drill}
                 done

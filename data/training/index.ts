@@ -29,6 +29,16 @@ import {
   subTwentyBudget,
   xcrossProperly,
 } from "./packs/late";
+import {
+  f2lFromTheFront,
+  firstLookahead,
+  goodAndBadEdges,
+  lastLayerAtTheTop,
+  pastTheFirstPair,
+  practisingNearTen,
+  speedYouCanUse,
+  stuckAtFifteen,
+} from "./packs/extra";
 import type { AspectPack, LevelPack, TrainingPack } from "./types";
 
 /** Packs about one part of the solve profile, in the order a solve happens. */
@@ -68,6 +78,14 @@ export const LEVEL_PACKS: LevelPack[] = [
   algSetsWorthIt,
   reconstructYourSolves,
   competing,
+  firstLookahead,
+  f2lFromTheFront,
+  goodAndBadEdges,
+  stuckAtFifteen,
+  lastLayerAtTheTop,
+  pastTheFirstPair,
+  speedYouCanUse,
+  practisingNearTen,
 ];
 
 export const TRAINING_PACKS: TrainingPack[] = [...ASPECT_PACKS, ...LEVEL_PACKS];

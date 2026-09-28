@@ -18,6 +18,8 @@ describe("who may open an area", () => {
   });
 
   it("knows which paths belong to an account area", () => {
+    expect(areaOf("/hub/")).toBe("hub");
+    expect(areaOf("/hub/lesson/lookahead/lookahead-three-stages/")).toBe("hub");
     expect(areaOf("/coach/")).toBe("coach");
     expect(areaOf("/coach/tests/pll_only/")).toBe("coach");
     expect(areaOf("/stats/profile/")).toBe("stats");
@@ -28,7 +30,7 @@ describe("who may open an area", () => {
     expect(areaOf("/algorithms/")).toBeNull();
     expect(areaOf("/settings/")).toBeNull();
     expect(areaOf("/")).toBeNull();
-    expect(ACCOUNT_AREAS).toEqual(["coach", "stats", "train", "learn"]);
+    expect(ACCOUNT_AREAS).toEqual(["hub", "coach", "stats", "train", "learn"]);
   });
 });
 

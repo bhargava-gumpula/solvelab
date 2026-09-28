@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
@@ -148,17 +147,17 @@ export function SettingsPanel() {
           </div>
           <div className="flex items-start justify-between gap-6">
             <div>
-              <p className="text-sm font-medium">
-                Connect your own AI <Badge variant="outline">Coming later</Badge>
-              </p>
+              <p className="text-sm font-medium">Your own AI</p>
               <p className="mt-0.5 text-sm text-muted-foreground">
-                Chat with the coach in your own words, using your own AI account or a model running
-                on your computer. Planned for a later version of {brand.name}; the coach stays
-                guided for now.
+                Ask Claude, ChatGPT or Gemini about your solves on your own subscription, or sign in
+                with OpenRouter or use a model on your computer to chat inside {brand.name}. Only
+                numbers from your profile are shared, and you see them first.
               </p>
             </div>
             <div className="pt-0.5">
-              <Switch aria-label="Connect your own AI" checked={false} disabled />
+              <Button asChild size="sm" variant="outline">
+                <Link href="/hub/ask/">Open</Link>
+              </Button>
             </div>
           </div>
         </div>

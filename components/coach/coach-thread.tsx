@@ -52,8 +52,7 @@ import { testActionLabel, testStatus } from "@/lib/coach/test-status";
 import type { TimeDecimals } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
 import type { CoachEvent, CoachThread, DiagnosticRun, Solve } from "@/types/domain";
-
-const PROFILE_HREF = "/stats/profile/";
+import { PROFILE_HREF } from "@/lib/config/navigation";
 
 /** The coach's name, so the conversation has someone in it. */
 const COACH_NAME = "Cube Coach";

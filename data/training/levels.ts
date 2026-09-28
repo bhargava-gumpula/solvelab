@@ -85,6 +85,7 @@ export const LEVELS: LevelGuide[] = [
     ],
     packs: [
       "beginner-method-cold",
+      "first-lookahead",
       "set-up-your-cube",
       "turning-technique",
       "practice-plan",
@@ -169,7 +170,14 @@ export const LEVELS: LevelGuide[] = [
       "Chasing a higher TPS. At 30 seconds, ten wasted moves cost more than a slow hand.",
       "Full colour neutrality if you have not started. Dual (white and yellow) is a cheaper first step.",
     ],
-    packs: ["sub-20-budget", "auf-both-ends", "f2l-efficiency", "lookahead", "pll-algorithms"],
+    packs: [
+      "sub-20-budget",
+      "auf-both-ends",
+      "f2l-from-the-front",
+      "f2l-efficiency",
+      "lookahead",
+      "pll-algorithms",
+    ],
   },
   {
     id: "sub25",
@@ -193,6 +201,7 @@ export const LEVELS: LevelGuide[] = [
     packs: [
       "auf-both-ends",
       "sub-20-budget",
+      "f2l-from-the-front",
       "cross-into-f2l",
       "last-pair-into-oll",
       "oll-into-pll",
@@ -219,6 +228,8 @@ export const LEVELS: LevelGuide[] = [
       "Big algorithm sets beyond full OLL and PLL.",
     ],
     packs: [
+      "stuck-at-fifteen",
+      "good-and-bad-edges",
       "colour-neutral-plan",
       "filler-moves",
       "competing",
@@ -247,7 +258,14 @@ export const LEVELS: LevelGuide[] = [
       "Chasing personal bests. The average is the thing that moves; a lucky single tells you nothing.",
       "Practising only full solves. Half your practice should still be deliberate work on one thing.",
     ],
-    packs: ["xcross-properly", "multislotting", "lookahead", "oll-execution", "pll-execution"],
+    packs: [
+      "xcross-properly",
+      "speed-you-can-use",
+      "multislotting",
+      "lookahead",
+      "oll-execution",
+      "pll-execution",
+    ],
   },
   {
     id: "sub12",
@@ -268,7 +286,14 @@ export const LEVELS: LevelGuide[] = [
       "Learning ZBLL as a whole. It is 493 cases; take the useful subsets first and see whether you want the rest.",
       "Changing method. CFOP goes well past sub-10; a method change now costs months.",
     ],
-    packs: ["multislotting", "xcross-properly", "f2l-efficiency", "consistency"],
+    packs: [
+      "past-the-first-pair",
+      "last-layer-at-the-top",
+      "multislotting",
+      "xcross-properly",
+      "f2l-efficiency",
+      "consistency",
+    ],
   },
   {
     id: "sub10",
@@ -288,7 +313,13 @@ export const LEVELS: LevelGuide[] = [
     notYet: [
       "Expecting steady progress. Improvement at this level arrives in steps with long flat stretches between them.",
     ],
-    packs: ["reconstruct-your-solves", "alg-sets-worth-it", "consistency", "practice-plan"],
+    packs: [
+      "reconstruct-your-solves",
+      "practising-near-ten",
+      "alg-sets-worth-it",
+      "consistency",
+      "practice-plan",
+    ],
   },
 ];
 

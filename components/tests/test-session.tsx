@@ -27,8 +27,7 @@ import { saveProfileSnapshot } from "@/lib/coach/profile-store";
 import { getRepositories } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import type { DiagnosticRun, ExerciseDefinition, UserSettings } from "@/types/domain";
-
-const PROFILE_HREF = "/stats/profile/";
+import { PROFILE_HREF } from "@/lib/config/navigation";
 
 /** A test page: instructions, the timer, attempts, and results at the end. */
 export function TestSession({ testId }: { testId: string }) {
@@ -402,6 +401,11 @@ function TestResults({
         ) : null}
         <Button asChild size="lg" variant={nextTest || coachWaiting ? "outline" : "default"}>
           <Link href={PROFILE_HREF}>See your solve profile</Link>
+        </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link href="/hub/" data-testid="back-to-hub">
+            Back to the Learning Hub
+          </Link>
         </Button>
         {profile?.complete ? (
           <Button asChild size="lg" variant="outline">

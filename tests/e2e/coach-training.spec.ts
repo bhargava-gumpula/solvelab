@@ -49,7 +49,7 @@ test.describe("sharing test results to train the coach", () => {
 
   test("the notice shows once, and a finished test is shared", async ({ page }) => {
     test.setTimeout(90_000);
-    await page.goto("/stats/profile/");
+    await page.goto("/hub/profile/");
     await expect(notice(page)).toBeVisible({ timeout: 20_000 });
     await expect(notice(page)).toContainText("Never your name, email, notes or scrambles");
     await notice(page).getByRole("button", { name: "Got it" }).click();

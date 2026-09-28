@@ -451,7 +451,7 @@ export function TimerWorkspace() {
   return (
     <div
       ref={canvasRef}
-      className="relative flex min-h-0 flex-col gap-1.5 lg:h-[calc(100svh-4rem)] lg:overflow-hidden"
+      className="relative flex min-h-0 flex-col gap-1.5 lg:h-[calc(100svh-7rem)] lg:overflow-hidden"
     >
       <h1 className="sr-only">Timer</h1>
 
@@ -501,7 +501,7 @@ export function TimerWorkspace() {
             Center spans all rows but must not inflate the 1fr spacers:
             min-h-0 + overflow-hidden zeroes its automatic minimum contribution.
           */}
-          <div className="col-start-2 row-[1/-1] flex min-h-0 flex-col gap-2 overflow-hidden">
+          <div className="col-start-2 row-[1/-1] flex min-h-0 flex-col gap-2 overflow-hidden pb-[4svh]">
             {timerSurface}
             <LastSolveBar
               solve={latestSolve}

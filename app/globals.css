@@ -10,7 +10,7 @@
  *
  * Each theme preset sets the tokens under [data-theme="…"]. The animated
  * background colors for each preset live in lib/appearance/themes.ts.
- * :root holds the default (Sencha / matcha) values so the page is styled
+ * :root holds the Sencha (matcha) values so the page is styled
  * before JS runs. Preset palettes are unchanged.
  */
 [data-theme="nebula"] {
@@ -202,12 +202,13 @@
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 
+  /* Bright, saturated stickerless shades, like a GAN cube. */
   --cube-u: #ffffff;
-  --cube-d: #ffd500;
-  --cube-f: #009b48;
-  --cube-b: #0046ad;
-  --cube-r: #b71234;
-  --cube-l: #ff5800;
+  --cube-d: #ffe100;
+  --cube-f: #14c83f;
+  --cube-b: #1466ff;
+  --cube-r: #f0162f;
+  --cube-l: #ff7f00;
   --cube-stroke: #0b0c0e;
   /* A last-layer sticker that isn't facing up yet. */
   --cube-unsolved: #3d4350;
@@ -361,6 +362,14 @@
 @media (pointer: coarse) {
   .glass {
     --blur: 8px;
+  }
+}
+
+/* Horizontal strips that scroll on phones without a visible bar. */
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }
 

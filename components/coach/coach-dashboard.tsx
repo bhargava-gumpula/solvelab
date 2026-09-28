@@ -18,8 +18,7 @@ import { suggestedGoal } from "@/lib/coach/goals";
 import { testActionLabel, testStatus } from "@/lib/coach/test-status";
 import { ASPECT_TIPS } from "@/data/coach/tips";
 import { packForAspect, packHref } from "@/data/training";
-
-const PROFILE_HREF = "/stats/profile/";
+import { PROFILE_HREF } from "@/lib/config/navigation";
 
 /** Guided coach: pick a goal, take the suggested tests, see what to work on. */
 export function CoachDashboard() {
@@ -131,11 +130,11 @@ export function CoachDashboard() {
 
       {started ? (
         <p className="px-1 text-xs text-muted-foreground">
-          Asking your coach questions in your own words needs an AI of your own.{" "}
-          <Link href="/settings/#coach-ai" className="underline underline-offset-4">
-            Connecting one
+          Want to ask in your own words?{" "}
+          <Link href="/hub/ask/" className="underline underline-offset-4">
+            Ask your own AI
           </Link>{" "}
-          is planned for a later version.
+          — Claude, ChatGPT or Gemini — about this profile.
         </p>
       ) : null}
 

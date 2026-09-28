@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { DEFAULT_THEME, SYSTEM_LIGHT_THEME, type ThemeId } from "./themes";
+import {
+  DEFAULT_THEME,
+  SYSTEM_DARK_THEME,
+  SYSTEM_LIGHT_THEME,
+  getTheme,
+  type ThemeId,
+} from "./themes";
 
 /**
  * Appearance is saved in the settings record (IndexedDB, synced with the
@@ -75,7 +81,7 @@ export function sameAppearance(a: AppearancePreferences, b: AppearancePreference
 
 export function resolveTheme(theme: AppearancePreferences["theme"], prefersDark: boolean): ThemeId {
   if (theme !== "system") return theme;
-  return prefersDark ? DEFAULT_THEME : SYSTEM_LIGHT_THEME;
+  return prefersDark ? SYSTEM_DARK_THEME : SYSTEM_LIGHT_THEME;
 }
 
 /**
@@ -85,5 +91,7 @@ export function resolveTheme(theme: AppearancePreferences["theme"], prefersDark:
 export const APPEARANCE_BOOT_SCRIPT = `(function(){try{var p=JSON.parse(localStorage.getItem(${JSON.stringify(
   APPEARANCE_STORAGE_KEY,
 )})||"{}");var t=p.theme||${JSON.stringify(DEFAULT_THEME)};if(t==="system"){t=matchMedia("(prefers-color-scheme: dark)").matches?${JSON.stringify(
-  DEFAULT_THEME,
-)}:${JSON.stringify(SYSTEM_LIGHT_THEME)}}var d=document.documentElement;d.dataset.theme=t;d.classList.add(t==="paper"?"light":"dark");d.dataset.digits=p.digitFont||"clean"}catch(e){document.documentElement.classList.add("dark")}})();`;
+  SYSTEM_DARK_THEME,
+)}:${JSON.stringify(SYSTEM_LIGHT_THEME)}}var d=document.documentElement;d.dataset.theme=t;d.classList.add(t==="paper"?"light":"dark");d.dataset.digits=p.digitFont||"clean"}catch(e){var r=document.documentElement;r.dataset.theme=${JSON.stringify(DEFAULT_THEME)};r.classList.add(${JSON.stringify(
+  getTheme(DEFAULT_THEME).mode,
+)})}})();`;

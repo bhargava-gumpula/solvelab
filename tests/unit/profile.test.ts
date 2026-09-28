@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import type { DiagnosticRun, ProfileSnapshot, Solve } from "@/types/domain";
+import type { DailyCheck, DiagnosticRun, ProfileSnapshot, Solve } from "@/types/domain";
 import { aspectTargetsFor, TARGET_MILESTONE_IDS } from "@/data/milestones/aspect-targets";
 import { stageBarsFor } from "@/data/milestones/stage-bars";
 import { ASPECTS, aspectsForTest, rateAspect } from "@/lib/coach/aspects";
 import {
+  blendDailyAttempts,
   buildSolveProfile,
   estimate,
   latestTestSample,
@@ -389,5 +390,77 @@ describe("test catalog", () => {
         expect(TEST_ORDER, definition.id).toContain(testId);
       }
     }
+  });
+});
+
+describe("daily checks feed the profile", () => {
+  const check = (day: string, attempts: Record<string, number[]>): DailyCheck => ({
+    id: `check-${day}`,
+    day,
+    createdAt: `${day}T08:00:00.000Z`,
+    completedAt: `${day}T08:10:00.000Z`,
+    attempts,
+    skipped: [],
+  });
+
+  it("adds later attempts to the latest full run, keeping the most recent twelve", () => {
+    const full = run("cross_only", Array(12).fill(2000));
+    const sample = blendDailyAttempts(latestTestSample([full], "cross_only"), "cross_only", [
+      check("2026-09-20", { cross_only: [1500, 1600] }),
+    ]);
+    expect(sample?.times).toHaveLength(12);
+    expect(sample?.times.slice(-2)).toEqual([1500, 1600]);
+    expect(sample?.runId).toBe(full.id);
+  });
+
+  it("nudges a number rather than replacing it", () => {
+    const runs = [run("cross_only", Array(12).fill(2000))];
+    const before = aspect(
+      buildSolveProfile({ runs, solves: [], goalMilestoneId: "sub20" }),
+      "cross",
+    );
+    const after = aspect(
+      buildSolveProfile({
+        runs,
+        solves: [],
+        goalMilestoneId: "sub20",
+        dailyChecks: [check("2026-09-20", { cross_only: [1500, 1600] })],
+      }),
+      "cross",
+    );
+    expect(before.value).toBe(2000);
+    expect(after.value!).toBeLessThan(2000);
+    expect(after.value!).toBeGreaterThan(1850);
+  });
+
+  it("ignores checks from before the latest full run", () => {
+    const full = run("cross_only", Array(12).fill(2000));
+    const old = { ...check("2026-08-01", { cross_only: [1000, 1000] }) };
+    expect(blendDailyAttempts(latestTestSample([full], "cross_only"), "cross_only", [old])).toEqual(
+      latestTestSample([full], "cross_only"),
+    );
+  });
+
+  it("uses daily attempts alone once there are enough, without counting the test as taken", () => {
+    const checks = [
+      check("2026-09-20", { oll_only: [1500, 1600] }),
+      check("2026-09-21", { oll_only: [1550, 1650] }),
+    ];
+    const profile = buildSolveProfile({
+      runs: [],
+      solves: [],
+      goalMilestoneId: "sub20",
+      dailyChecks: checks,
+    });
+    expect(aspect(profile, "oll").value).not.toBeNull();
+    expect(profile.testsTaken).not.toContain("oll_only");
+    expect(
+      buildSolveProfile({
+        runs: [],
+        solves: [],
+        goalMilestoneId: "sub20",
+        dailyChecks: checks.slice(0, 1),
+      }).aspects.find((item) => item.id === "oll")?.value,
+    ).toBeNull();
   });
 });

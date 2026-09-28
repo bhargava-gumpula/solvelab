@@ -227,4 +227,24 @@ export const SOURCES = {
     label: "AI Cube Trainer: Your first WCA competition",
     url: "https://aicubetrainer.com/wca-competition-guide",
   },
+  sub15Thread: {
+    label: "SpeedSolving: How do I get sub-15 on 3x3?",
+    url: "https://www.speedsolving.com/threads/how-do-i-get-sub-15-on-3x3.23094/",
+  },
+  edgeOrientationWiki: {
+    label: "SpeedSolving wiki: Edge orientation",
+    url: "https://www.speedsolving.com/wiki/index.php/Edge_Orientation",
+  },
+  advancedF2lTricks: {
+    label: "SpeedSolving: Advanced F2L tricks",
+    url: "https://www.speedsolving.com/threads/advanced-f2l-tricks.77803/",
+  },
+  vhlsWiki: {
+    label: "SpeedSolving wiki: VHLS",
+    url: "https://www.speedsolving.com/wiki/index.php/VHLS",
+  },
+  edgeControlThread: {
+    label: "SpeedSolving: Edge control vs. full OLL",
+    url: "https://www.speedsolving.com/threads/edge-control-vs-full-oll.77167/",
+  },
 } as const satisfies Record<string, TrainingSource>;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Command as CommandIcon, Keyboard, Palette, Settings2 } from "lucide-react";
@@ -14,7 +14,14 @@ import { useRegisterCommands } from "@/hooks/use-commands";
 import { useDailyCheckDue } from "@/hooks/use-daily-checks";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { brand } from "@/lib/config/brand";
-import { isActivePath, navigation, settingsNavigation } from "@/lib/config/navigation";
+import {
+  isActivePath,
+  LAST_TAB_KEY,
+  navigation,
+  settingsNavigation,
+  tabOf,
+  TABS,
+} from "@/lib/config/navigation";
 import { accessState, ACCOUNT_AREAS } from "@/lib/auth/access";
 import { useAuth } from "@/components/auth/auth-provider";
 import type { Command } from "@/lib/commands/registry";
@@ -24,6 +31,7 @@ import { LegalLinks } from "@/components/legal/legal-links";
 import { BrandMark } from "./brand-mark";
 import { CommandPalette } from "./command-palette";
 import { NavPill } from "./nav-pill";
+import { SectionNav } from "./section-nav";
 import { ShortcutsDialog } from "./shortcuts-dialog";
 import { StorageAlert } from "./storage-alert";
 
@@ -36,7 +44,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const fullBleed = isActivePath(pathname, "/timer");
   const dailyDue = useDailyCheckDue();
-  const navAlerts = dailyDue ? { "/coach": "Today’s daily check is waiting" } : undefined;
+  const navAlerts = dailyDue ? { "/hub": "Today’s daily check is waiting" } : undefined;
+  const tab = tabOf(pathname);
+
+  // The site reopens on the tab you were last on, on this device only.
+  useEffect(() => {
+    if (!tab) return;
+    try {
+      localStorage.setItem(LAST_TAB_KEY, tab.id);
+    } catch {
+      // Private windows can refuse storage; the site then opens on the timer.
+    }
+  }, [tab]);
   // Signed out, the areas that keep your own data show a small lock.
   const lockedHrefs =
     accessState(useAuth().status) === "locked"
@@ -57,7 +76,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const commands = useMemo<Command[]>(
     () => [
-      ...[...navigation, settingsNavigation].map((item) => ({
+      ...[...TABS.flatMap((tabItem) => tabItem.sections), settingsNavigation].map((item) => ({
         id: `go-${item.href}`,
         label: `Go to ${item.label}`,
         group: "Navigate" as const,
@@ -95,6 +114,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AppBackground />
+      {/* Content fades out under the floating navigation instead of colliding with it. */}
+      <div
+        aria-hidden
+        data-focus-hide
+        className="pointer-events-none fixed inset-x-0 top-0 z-20 h-28 bg-gradient-to-b from-background via-background/75 to-transparent"
+      />
       <a
         href="#main-content"
         className="fixed top-3 left-3 z-[100] -translate-y-20 rounded-md bg-foreground px-4 py-2 text-sm text-background focus:translate-y-0"
@@ -163,6 +188,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Tooltip>
         </div>
       </header>
+      {tab ? <SectionNav tab={tab} pathname={pathname} /> : null}
 
       <main
         id="main-content"

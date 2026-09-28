@@ -1,5 +1,27 @@
 # Validation report
 
+## The Learning Hub and your AI coach (working tree, awaiting review)
+
+Run on 2026-09-26 against the static export, Chromium headless, one Playwright worker, Firebase
+blocked; OpenRouter and Claude mocked in the AI coach tests. The dev server was stopped first.
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass                  |
+| Unit tests      | `npm test`                        | 355 passed (31 files) |
+| End-to-end      | `npx playwright test --workers=1` | 80 passed             |
+
+New unit coverage: courses cover every pack and method lesson; placement (timer, answers, goal);
+unit order (model picks, what you said, teaching order), passed units, the next lesson; lesson
+cards and written questions (every lesson has one, options shuffled stably with the answer kept);
+since-you-started; recognition decks that the case's own algorithm solves; the model's test planner
+and its rules fallback; slot-tagged examples checked on the cube engine; the AI context (no
+identity), hand-off links, PKCE, single-use verifiers and the stream parser; daily checks blending
+into the profile; Dexie v9 and drill sessions in backups. New end-to-end coverage: two tabs and the
+last-tab reopen; onboarding to a placed course; a lesson to a finished lesson on the path; the
+model's picks on top after tests; a timed drill session kept for next time; the recognition drill;
+the library's search and filters; the AI coach's hand-off, sign-in, chat and planted-code refusal.
+
 ## 4.1 — Training packs
 
 Run on 2026-09-26 against the static export, Chromium headless, one Playwright worker, Firebase

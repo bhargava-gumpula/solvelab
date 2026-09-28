@@ -1,0 +1,294 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowLeft, Eye, RotateCcw, Timer, Trophy, Zap } from "lucide-react";
+import { CaseDiagram } from "@/components/algorithms/case-diagram";
+import { Button } from "@/components/ui/button";
+import { useHotkeys } from "@/hooks/use-hotkeys";
+import { recognitionDeck, seededRandom, type RecognitionCard } from "@/lib/hub/recognition";
+import type { RecognitionSet } from "@/lib/hub/units";
+import { cn } from "@/lib/utils";
+import { celebrate, CountUp } from "./fx";
+
+const DECK_SIZE = 12;
+
+interface Result {
+  card: RecognitionCard;
+  chosen: number;
+  ms: number;
+}
+
+/**
+ * Name the case as fast as you can. You see the top and the front and right
+ * sides, as you would holding the cube, and each answer is timed from the
+ * moment the case appears.
+ */
+export function RecognitionDrill({
+  set,
+  title,
+  backHref,
+}: {
+  set: RecognitionSet;
+  title: string;
+  backHref: string;
+}) {
+  const [deck, setDeck] = useState<RecognitionCard[] | null>(null);
+  const [position, setPosition] = useState(0);
+  const [results, setResults] = useState<Result[]>([]);
+  const [chosen, setChosen] = useState<number | null>(null);
+  // When the card on screen appeared; set wherever a new card is dealt.
+  const [shownAt, setShownAt] = useState(0);
+
+  const start = () => {
+    setDeck(recognitionDeck(set, DECK_SIZE, seededRandom(Date.now())));
+    setPosition(0);
+    setResults([]);
+    setChosen(null);
+    setShownAt(performance.now());
+  };
+
+  const card = deck?.[position] ?? null;
+  const finished = deck !== null && position >= deck.length;
+
+  useEffect(() => {
+    if (!finished) return;
+    const right = results.filter((result) => result.chosen === result.card.answer).length;
+    if (right / results.length >= 0.8) celebrate("big");
+  }, [finished, results]);
+
+  const answer = useCallback(
+    (choice: number) => {
+      if (!card || chosen !== null) return;
+      const ms = performance.now() - shownAt;
+      setChosen(choice);
+      setResults((current) => [...current, { card, chosen: choice, ms }]);
+      window.setTimeout(
+        () => {
+          setChosen(null);
+          setPosition((current) => current + 1);
+          setShownAt(performance.now());
+        },
+        choice === card.answer ? 450 : 1100,
+      );
+    },
+    [card, chosen, shownAt],
+  );
+
+  useHotkeys(
+    [1, 2, 3, 4].map((number) => ({ key: String(number), run: () => answer(number - 1) })),
+  );
+
+  if (!deck) {
+    return (
+      <Shell title={title} backHref={backHref}>
+        <div className="grid gap-5 text-center" data-testid="recognition-intro">
+          <motion.span
+            className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/15 text-primary"
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
+            <Eye className="size-8" />
+          </motion.span>
+          <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+          <p className="mx-auto max-w-md text-muted-foreground">
+            {DECK_SIZE} cases, one at a time. You see the top and the front and right sides — what
+            you see holding the cube. Name each one as fast as you can, with a tap or the keys 1–4.
+          </p>
+          <div>
+            <Button
+              size="lg"
+              className="rounded-full px-8"
+              onClick={start}
+              data-testid="recognition-start"
+            >
+              <Zap /> Start
+            </Button>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  if (finished) {
+    const right = results.filter((result) => result.chosen === result.card.answer);
+    const averageMs = results.reduce((total, result) => total + result.ms, 0) / results.length;
+    const slowest = [...results].sort((a, b) => b.ms - a.ms).slice(0, 3);
+    const missed = results.filter((result) => result.chosen !== result.card.answer);
+    return (
+      <Shell title={title} backHref={backHref}>
+        <div className="grid gap-6" data-testid="recognition-summary">
+          <div className="text-center">
+            <motion.span
+              className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary text-primary-foreground"
+              initial={{ scale: 0, rotate: -90 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 200, damping: 12 }}
+            >
+              <Trophy className="size-8" />
+            </motion.span>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight">
+              {right.length} of {results.length} right
+            </h1>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Stat label="Accuracy">
+              <CountUp value={Math.round((right.length / results.length) * 100)} suffix="%" />
+            </Stat>
+            <Stat label="Average time to name">
+              <CountUp value={Math.round(averageMs / 10) / 100} decimals={2} suffix=" s" />
+            </Stat>
+          </div>
+          <CaseRow title="Slowest to spot" results={slowest} />
+          {missed.length ? <CaseRow title="Missed" results={missed} /> : null}
+          <div className="flex justify-center gap-2">
+            <Button asChild variant="outline" size="lg" className="rounded-full">
+              <Link href={backHref}>Done</Link>
+            </Button>
+            <Button
+              size="lg"
+              className="rounded-full"
+              onClick={start}
+              data-testid="recognition-again"
+            >
+              <RotateCcw /> Again
+            </Button>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
+  return (
+    <Shell title={title} backHref={backHref}>
+      <div className="mb-4 flex items-center gap-3">
+        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+          <motion.div
+            className="h-full rounded-full bg-primary"
+            animate={{ width: `${(position / deck.length) * 100}%` }}
+            transition={{ type: "spring", stiffness: 160, damping: 22 }}
+          />
+        </div>
+        <span className="tabular text-xs text-muted-foreground">
+          {position + 1}/{deck.length}
+        </span>
+      </div>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={position}
+          // Quick in and out: the clock starts as the card is dealt.
+          initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
+          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -12 }}
+          transition={{ duration: 0.14, ease: "easeOut" }}
+          className="grid gap-5"
+          data-testid="recognition-card"
+        >
+          <div className="mx-auto w-56 rounded-3xl p-4 glass">
+            <CaseDiagram
+              facelets={card!.facelets}
+              kind={card!.kind}
+              showArrows={false}
+              hiddenSides={["B", "L"]}
+              title="Which case is this?"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2.5">
+            {card!.options.map((option, choice) => {
+              const answered = chosen !== null;
+              const isAnswer = choice === card!.answer;
+              return (
+                <motion.button
+                  key={option}
+                  type="button"
+                  onClick={() => answer(choice)}
+                  disabled={answered}
+                  data-testid={`recognition-option-${choice}`}
+                  data-correct={isAnswer ? "true" : undefined}
+                  whileTap={{ scale: 0.95 }}
+                  animate={
+                    answered && choice === chosen && !isAnswer ? { x: [0, -8, 8, -4, 0] } : {}
+                  }
+                  className={cn(
+                    "flex items-center gap-2 rounded-2xl border-2 px-3 py-3 text-left text-sm font-semibold transition-colors",
+                    !answered && "hover:border-primary/60 hover:bg-primary/5",
+                    answered && isAnswer && "border-[var(--known)] bg-[var(--known)]/15",
+                    answered &&
+                      choice === chosen &&
+                      !isAnswer &&
+                      "border-destructive bg-destructive/10",
+                  )}
+                >
+                  <span className="grid size-6 place-items-center rounded-lg border text-xs">
+                    {choice + 1}
+                  </span>
+                  {option}
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+      <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+        <Timer className="size-3.5" /> Timed from when the case appears
+      </p>
+    </Shell>
+  );
+}
+
+function Shell({
+  title,
+  backHref,
+  children,
+}: {
+  title: string;
+  backHref: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mx-auto max-w-xl">
+      <Button asChild variant="ghost" size="sm" className="mb-3 -ml-2">
+        <Link href={backHref} aria-label={`Leave ${title}`}>
+          <ArrowLeft /> Back
+        </Link>
+      </Button>
+      <section className="rounded-3xl p-6 glass md:p-8">{children}</section>
+    </div>
+  );
+}
+
+function Stat({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border bg-background/40 p-4 text-center">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="mt-1 text-2xl font-semibold">{children}</p>
+    </div>
+  );
+}
+
+function CaseRow({ title, results }: { title: string; results: Result[] }) {
+  return (
+    <section>
+      <h2 className="mb-2 text-sm font-semibold">{title}</h2>
+      <div className="grid grid-cols-3 gap-2">
+        {results.map((result, index) => (
+          <div
+            key={`${result.card.caseId}-${index}`}
+            className="rounded-2xl border bg-background/40 p-2 text-center"
+          >
+            <CaseDiagram
+              facelets={result.card.facelets}
+              kind={result.card.kind}
+              hiddenSides={["B", "L"]}
+            />
+            <p className="mt-1 text-xs font-semibold">{result.card.options[result.card.answer]}</p>
+            <p className="tabular text-[11px] text-muted-foreground">
+              {(result.ms / 1000).toFixed(2)} s
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
