@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { PackDrill } from "@/data/training/types";
 import { useSettings } from "@/hooks/use-local-data";
 import { setPackItemDone } from "@/hooks/use-training-progress";
-import { drillExercise, lastSession, summarise } from "@/lib/hub/drills";
+import { drillExercise, drillHoldNote, lastSession, summarise } from "@/lib/hub/drills";
 import { getRepositories } from "@/lib/storage";
 import { formatTime } from "@/lib/timer/format";
 import type { DrillRun } from "@/types/domain";
@@ -49,6 +49,7 @@ export function DrillSession({
   const [times, setTimes] = useState<number[]>([]);
   const [saved, setSaved] = useState<DrillRun | null>(null);
   const exercise = drillExercise(drill);
+  const holdNote = drillHoldNote(exercise);
 
   if (!settings || !runs) return <Skeleton className="h-[32rem] rounded-3xl" />;
 
@@ -96,6 +97,11 @@ export function DrillSession({
               </li>
             ))}
           </ol>
+          {holdNote && !saved ? (
+            <p className="text-sm text-muted-foreground" data-testid="drill-hold">
+              {holdNote}
+            </p>
+          ) : null}
           {saved ? (
             <SessionSummaryCard today={today} before={before} signal={drill.signal} />
           ) : (

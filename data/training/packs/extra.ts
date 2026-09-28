@@ -93,7 +93,7 @@ export const firstLookahead: LevelPack = {
 export const f2lFromTheFront: LevelPack = {
   id: "f2l-from-the-front",
   title: "F2L from the front",
-  summary: "Every slot solved without turning the cube over, and when a rotation is still fine.",
+  summary: "Every slot solved without rotating the cube, and when a rotation is still fine.",
   levels: ["sub30", "sub25"],
   why: "A rotation is only two moves' worth of turning, but it moves every piece you were tracking to a new place. Your eyes have to find everything again, and that pause is what costs time. Solving back slots and awkward pairs from where you're already holding the cube keeps your lookahead intact.",
   lessons: [

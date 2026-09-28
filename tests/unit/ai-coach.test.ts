@@ -3,7 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createHash, webcrypto } from "node:crypto";
 import { getCourse } from "@/data/hub/courses";
 import { TRAINING_PACKS } from "@/data/training";
-import { coachContext, coachPrompt, coachSystemPrompt } from "@/lib/ai/context";
+import { HOLD_RULE } from "@/lib/config/cube";
+import { COACH_INSTRUCTIONS, coachContext, coachPrompt, coachSystemPrompt } from "@/lib/ai/context";
 import {
   challengeFor,
   completeOpenRouterSignIn,
@@ -66,8 +67,13 @@ describe("what the AI is told", () => {
   });
 
   it("never carries identity, notes or scrambles", () => {
-    const text = coachPrompt(context(), "What next?");
+    // The fixed instructions name the scramble orientation; the rest is their data.
+    const text = coachPrompt(context(), "What next?").replace(COACH_INSTRUCTIONS, "");
     expect(text).not.toMatch(/@|email|uid|scramble|note/i);
+  });
+
+  it("tells the AI how the cube is held while solving", () => {
+    expect(coachSystemPrompt(context())).toContain(HOLD_RULE);
   });
 
   it("lists every pack by name, so the answer can only point at real ones", () => {

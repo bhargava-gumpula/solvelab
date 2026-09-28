@@ -1,6 +1,8 @@
+import { SOLVING_VIEW, stickerFill } from "@/lib/config/cube";
 import { caseArrows, type PieceArrow } from "@/lib/cube/case-arrows";
 import { CASE_KINDS, pairStickers, type CaseKind } from "@/lib/cube/case-check";
 import { getFace } from "@/lib/cube/cube-state";
+import type { OuterFace } from "@/lib/cube/notation";
 import { FRONT_RIGHT_SLOT, SIDE_STRIPS, TOP_EDGES, stickerOn } from "@/lib/cube/pieces";
 import { cn } from "@/lib/utils";
 
@@ -82,6 +84,7 @@ export function CaseDiagram({
             height={cell}
             rx={3}
             fill={stickerColour(row * 3 + column, up[row * 3 + column]!, kind, pair)}
+            data-face="U"
             stroke="var(--cube-stroke)"
             strokeWidth={0.75}
           />
@@ -91,7 +94,15 @@ export function CaseDiagram({
         const offset = strip + gap + index * (cell + gap);
         return (
           <g key={`s${index}`}>
-            <rect x={offset} y={0} width={cell} height={strip} rx={1.5} fill={side("B", index)} />
+            <rect
+              x={offset}
+              y={0}
+              width={cell}
+              height={strip}
+              rx={1.5}
+              fill={side("B", index)}
+              data-face="B"
+            />
             <rect
               x={offset}
               y={size - strip}
@@ -99,8 +110,17 @@ export function CaseDiagram({
               height={strip}
               rx={1.5}
               fill={side("F", index)}
+              data-face="F"
             />
-            <rect x={0} y={offset} width={strip} height={cell} rx={1.5} fill={side("L", index)} />
+            <rect
+              x={0}
+              y={offset}
+              width={strip}
+              height={cell}
+              rx={1.5}
+              fill={side("L", index)}
+              data-face="L"
+            />
             <rect
               x={size - strip}
               y={offset}
@@ -108,6 +128,7 @@ export function CaseDiagram({
               height={cell}
               rx={1.5}
               fill={side("R", index)}
+              data-face="R"
             />
           </g>
         );
@@ -138,6 +159,7 @@ export function CaseDiagram({
               rx={1.5}
               fill={faceColour(sticker)}
               opacity={0.95}
+              data-slot="F"
             />
           ))}
           {slot.right.map((sticker, index) => (
@@ -150,6 +172,7 @@ export function CaseDiagram({
               rx={1.5}
               fill={faceColour(sticker)}
               opacity={0.95}
+              data-slot="R"
             />
           ))}
         </g>
@@ -293,23 +316,9 @@ function stickerColour(
 }
 
 /*
- * Cubers solve with the cross on the bottom, so the last layer they are looking
- * at is the yellow one. The engine calls that face U, and these pictures follow
- * the hands rather than the engine: up is yellow, down is white.
+ * Cases are drawn as the solver holds the cube: white cross on the bottom,
+ * yellow on top, green in front and so orange on the right (SOLVING_VIEW).
  */
 function faceColour(sticker: string): string {
-  switch (sticker) {
-    case "U":
-      return "var(--cube-d)";
-    case "F":
-      return "var(--cube-f)";
-    case "R":
-      return "var(--cube-r)";
-    case "B":
-      return "var(--cube-b)";
-    case "L":
-      return "var(--cube-l)";
-    default:
-      return "var(--cube-u)";
-  }
+  return stickerFill(sticker as OuterFace, SOLVING_VIEW);
 }

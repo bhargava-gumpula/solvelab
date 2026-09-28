@@ -1,5 +1,33 @@
 # Validation report
 
+## Course content fixes, phase 1: orientation (working tree, awaiting review)
+
+Run on 2026-09-28 against the static export: headless Chromium, one Playwright worker, Firebase blocked,
+dev server stopped first.
+
+| Check           | Command                           | Result                                    |
+| --------------- | --------------------------------- | ----------------------------------------- |
+| Full validation | `npm run validate`                | Pass                                      |
+| Unit tests      | `npm test`                        | 391 passed (34 files)                     |
+| End-to-end      | `npx playwright test --workers=1` | 80 passed, 1 failed (predates this phase) |
+
+The failure is `ai-coach.spec.ts:43`: after Disconnect, the page opened the "Your API key" tab (Hub work
+from 2026-09-27), so the OpenRouter sign-in button never showed (dev log 157–158).
+
+New unit coverage:
+
+- The solving view is the scramble view after `z2`, and every sticker colour is a theme token.
+- Each view draws a solved cube with the right colours on every face: CaseDiagram, CubeNet (scramble
+  and solving views), the 3D scene palette and CubePlayer.
+- CubePlayer's rotated masks grey the right pieces for OLL, PLL, COLL, EOLL, F2L and WVLS.
+- Practice scrambles leave the white layer solved in the scramble hold, and the cross, F2L or
+  oriented top on the bottom after `z2`.
+- `movesBeforeRotation`.
+- The beginner corner trigger's repeat counts, and the cross stays intact after each repeat.
+- Every practice-scramble drill and skill test says to turn the cube over.
+
+Browser check of the player masks: every case kind on a real GPU.
+
 ## The Learning Hub and your AI coach (working tree, awaiting review)
 
 Run on 2026-09-26 against the static export, Chromium headless, one Playwright worker, Firebase

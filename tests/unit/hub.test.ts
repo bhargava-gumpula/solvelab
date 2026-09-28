@@ -1,4 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { exercises } from "@/data/exercises";
+import { SCRAMBLE_HOLD, SOLVING_ROTATION } from "@/lib/config/cube";
+import { drillExercise, drillHoldNote } from "@/lib/hub/drills";
+import { is333SubsetEvent } from "@/lib/scramble/subset-333";
 import { COURSES, courseForRung, getCourse } from "@/data/hub/courses";
 import { lessons as METHOD_LESSONS } from "@/data/learning/lessons";
 import { TRAINING_PACKS, getPack } from "@/data/training";
@@ -413,5 +417,35 @@ describe("choosing the next test while finding your level", () => {
       source: "rules",
       enough: false,
     });
+  });
+});
+
+describe("holding practice scrambles", () => {
+  it("tells every drill on a practice position to turn the cube over first", () => {
+    let practiceDrills = 0;
+    for (const pack of TRAINING_PACKS) {
+      for (const drill of pack.drills) {
+        const exercise = drillExercise(drill);
+        const note = drillHoldNote(exercise);
+        if (!exercise.scrambleEvent || !is333SubsetEvent(exercise.scrambleEvent)) {
+          expect(note, `${pack.id}/${drill.id}`).toBeNull();
+          continue;
+        }
+        practiceDrills++;
+        expect(note, `${pack.id}/${drill.id}`).toContain(SCRAMBLE_HOLD);
+        expect(note, `${pack.id}/${drill.id}`).toContain(SOLVING_ROTATION);
+        expect(note, `${pack.id}/${drill.id}`).toContain("on the bottom");
+      }
+    }
+    expect(practiceDrills).toBeGreaterThan(0);
+  });
+
+  it("opens every test on a scramble with the turn into the solving hold", () => {
+    for (const exercise of exercises) {
+      if (!exercise.scrambleEvent) continue;
+      if (exercise.id === "normal_solves") continue;
+      expect(exercise.instructions[0], exercise.id).toContain(SCRAMBLE_HOLD);
+      expect(exercise.instructions[0], exercise.id).toContain(SOLVING_ROTATION);
+    }
   });
 });

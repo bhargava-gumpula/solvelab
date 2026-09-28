@@ -9,6 +9,7 @@ import { TEST_ORDER, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { TRAINING_PACKS } from "@/data/training";
 import { formatAspectGoal, formatAspectValue } from "@/lib/coach/profile-format";
+import { HOLD_RULE, SCRAMBLE_VIEW, SOLVING_VIEW } from "@/lib/config/cube";
 import type { SolveProfile } from "@/lib/coach/profile";
 import { AVERAGE_CHOICES, SLOW_CHOICES } from "@/lib/hub/intro";
 import type { HubIntro } from "@/types/domain";
@@ -83,6 +84,8 @@ export function catalogue(): string {
 
 export const COACH_INSTRUCTIONS = [
   "You are a friendly, expert speedcubing coach (3x3, CFOP) helping someone improve using the SolveLab app.",
+  `How SolveLab holds the cube: ${HOLD_RULE}`,
+  `Describe every hold, case and algorithm in that solving orientation, with ${SOLVING_VIEW.U} as the last layer. Never tell them to solve with ${SCRAMBLE_VIEW.U} on top; that is only the scramble orientation.`,
   "Base your advice on their data below. Be specific: name the part of the solve, why it matters at their level, and one concrete thing to do this week.",
   "When you suggest practice, point to SolveLab training packs or skill tests by their exact names from the list, and don't invent others.",
   "If the data is thin (few tests taken), say so and suggest which test to take next.",

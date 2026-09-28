@@ -1,4 +1,6 @@
 import type { CubeEvent } from "@/types/domain";
+import { SOLVING_ROTATION } from "@/lib/config/cube";
+import { movesBeforeRotation } from "@/lib/cube/cube-state";
 import {
   formatAlgorithm,
   normalizeNotation,
@@ -36,7 +38,11 @@ export function createCubingProvider(load: () => Promise<CubingScrambleModule>):
           if (!parsed.ok) {
             throw new Error(`cubing.js returned invalid subset notation: ${raw}`);
           }
-          const scramble = formatAlgorithm(parsed.moves);
+          // The pattern keeps the bottom layer of the solving hold. Scrambles
+          // are applied in the scrambling hold, so describe the same turns from
+          // there: once the solver turns the cube over, the solved white cross
+          // (or F2L) is on the bottom and yellow is on top.
+          const scramble = formatAlgorithm(movesBeforeRotation(parsed.moves, SOLVING_ROTATION));
           if (scramble) return scramble;
         }
         throw new Error("Could not generate a subset scramble.");

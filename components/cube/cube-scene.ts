@@ -13,6 +13,7 @@ import {
 } from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+import { CUBE_VIEWS, STICKER_HEX, stickerVariable, type CubeViewName } from "@/lib/config/cube";
 import { FACE_ORDER, getFace } from "@/lib/cube/cube-state";
 import type { OuterFace } from "@/lib/cube/notation";
 
@@ -62,18 +63,16 @@ export interface CubeScene {
   dispose(): void;
 }
 
-/** Reads the sticker colours from the theme tokens (see app/globals.css). */
-export function readPalette(element: Element): CubePalette {
+/**
+ * Reads each face's sticker colour from the theme tokens (see app/globals.css),
+ * in the given view: the timer's scramble preview uses the scrambling one.
+ */
+export function readPalette(element: Element, view: CubeViewName = "scramble"): CubePalette {
   const style = getComputedStyle(element);
-  const read = (name: string, fallback: string) => style.getPropertyValue(name).trim() || fallback;
-  return {
-    U: read("--cube-u", "#ffffff"),
-    D: read("--cube-d", "#ffe100"),
-    F: read("--cube-f", "#14c83f"),
-    B: read("--cube-b", "#1466ff"),
-    R: read("--cube-r", "#f0162f"),
-    L: read("--cube-l", "#ff7f00"),
-  };
+  const colours = CUBE_VIEWS[view];
+  const read = (face: OuterFace) =>
+    style.getPropertyValue(stickerVariable(colours[face])).trim() || STICKER_HEX[colours[face]];
+  return Object.fromEntries(FACE_ORDER.map((face) => [face, read(face)])) as CubePalette;
 }
 
 /** Returns null when WebGL isn't available, so the caller can fall back. */

@@ -3,7 +3,11 @@ import type { CubeEvent } from "@/types/domain";
 /**
  * Random-state 3×3 patterns for CFOP stage practice.
  *
- * Cubing.js / WCA piece order, white on U:
+ * The patterns are built in the solving hold: the solved part is the D layer
+ * (the white cross side once the solver has done SOLVING_ROTATION). The
+ * provider rewrites each scramble for the scrambling hold, white on top.
+ *
+ * Cubing.js piece order (positions, whatever colour sits there):
  *   edges   UF UR UB UL DF DR DB DL FR FL BR BL
  *   corners UFR URB UBL ULF DRF DFL DLB DBR
  *

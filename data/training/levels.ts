@@ -12,6 +12,7 @@
 
 import { milestones } from "@/data/milestones";
 import { aspectTargetsFor } from "@/data/milestones/aspect-targets";
+import { SCRAMBLE_HOLD, SOLVING_HOLD, SOLVING_ROTATION } from "@/lib/config/cube";
 
 export interface LevelGuide {
   /** Matches a milestone id, so a person's goal picks the rung. */
@@ -47,7 +48,7 @@ export const LEVELS: LevelGuide[] = [
     doNow: [
       "Solve it start to finish without looking anything up. Do that ten times before worrying about a single second.",
       "Learn to read notation properly. R, U, F, primes and doubles are the language everything else is written in, and guessing at them will cost you later.",
-      "Hold the cube the same way every solve. White on the bottom, one colour in front. Consistency is what lets recognition become automatic.",
+      `Hold the cube the same way every solve: ${SOLVING_HOLD}. Scrambles are applied with ${SCRAMBLE_HOLD}, so turn the cube over with ${SOLVING_ROTATION} before you start. Consistency is what lets recognition become automatic.`,
       "Solve the cross on the bottom, not the top. Solving it on top means turning the whole cube over before you can go on, and the habit is much harder to drop later than to skip now.",
       "Get a modern magnetic speedcube if you are still on a hardware-store cube. Below about a minute this genuinely is the equipment, not you.",
     ],

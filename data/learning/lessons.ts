@@ -1,3 +1,5 @@
+import { HOLD_RULE, SCRAMBLE_HOLD, SOLVING_HOLD, SOLVING_ROTATION } from "@/lib/config/cube";
+
 export type LessonId = string;
 
 export interface LessonStep {
@@ -20,7 +22,7 @@ export const lessons: Lesson[] = [
     id: "beginner-know-cube",
     pathId: "beginner",
     title: "Know your cube",
-    summary: "Centers, edges, corners, and what never moves.",
+    summary: "Centers, edges, corners, what never moves, and how to hold the cube.",
     minutes: 5,
     steps: [
       {
@@ -32,8 +34,8 @@ export const lessons: Lesson[] = [
         body: "Edges have two colors; corners have three. You never swap a corner with an edge — every move preserves piece type.",
       },
       {
-        title: "Hold the cube consistently",
-        body: "Pick one way to hold it early — white on the bottom, green in front is common — and keep it. Consistency makes algorithms and inspection easier later.",
+        title: "Hold the cube the solving way",
+        body: `Apply every scramble with ${SCRAMBLE_HOLD}. Then turn the whole cube over sideways, as if turning the front face twice (written ${SOLVING_ROTATION}), so green stays in front. Solve with the ${SOLVING_HOLD}. White stays on the bottom and yellow on top for the whole solve (turning the cube around with white still down is fine) — every algorithm and inspection plan here assumes it. An x2 also gets white to the bottom, but it brings blue to the front.`,
       },
     ],
     practiceHint: "Scramble lightly and name five pieces out loud before solving.",
@@ -42,8 +44,8 @@ export const lessons: Lesson[] = [
     id: "beginner-notation",
     pathId: "beginner",
     title: "Read cube notation",
-    summary: "R, U, F and primes — the language of every scramble.",
-    minutes: 8,
+    summary: "Face turns, primes, rotations and slices — the language of every scramble.",
+    minutes: 10,
     steps: [
       {
         title: "Faces",
@@ -57,6 +59,14 @@ export const lessons: Lesson[] = [
         title: "Relative to how you hold it",
         body: "Notation is always relative to the current orientation. If you rotate the whole cube, “R” changes which physical face moves.",
       },
+      {
+        title: "Whole-cube rotations",
+        body: "x, y and z turn the whole cube instead of one face: x turns it the way R turns, y the way U turns, and z the way F turns. Primes and 2s work just as they do for faces. You will do one every solve: after scrambling with white on top and green in front, z2 puts white on the bottom and yellow on top, keeps green in front, and moves red from the right side to the left — so orange is now on the right, and R turns the orange side.",
+      },
+      {
+        title: "Wide moves and slices",
+        body: "A lowercase letter turns a face together with the middle layer next to it: r is R plus the middle layer beside it, and f is F plus the middle layer behind it. You will also see these written Rw and Fw. Slice moves turn only a middle layer: M (between L and R) turns the same way as L, E (between U and D) turns like D, and S (between F and B) turns like F.",
+      },
     ],
     practiceHint: "Execute R U R′ U′ slowly three times and watch the cycle.",
   },
@@ -64,16 +74,16 @@ export const lessons: Lesson[] = [
     id: "beginner-first-layer",
     pathId: "beginner",
     title: "Build your first layer",
-    summary: "White cross, then white corners — a repeatable beginner path.",
+    summary: "White cross on the bottom, then white corners — a repeatable beginner path.",
     minutes: 12,
     steps: [
       {
-        title: "White cross on bottom or top",
-        body: "Match each white edge to its center color before placing it. Daisy → cross is fine while learning.",
+        title: "White cross on the bottom",
+        body: "Hold white on the bottom and yellow on top (z2 after the scramble) and build the cross there, matching each white edge's other color to its center. A daisy is fine as a bridge while learning: gather the four white edges white side up around the yellow center, turn the top until an edge's side color sits above its matching center, then turn that face twice to bring it down. From then on, white stays on the bottom and yellow on top.",
       },
       {
         title: "Insert white corners",
-        body: "Bring a white corner above its slot and use R′ D′ R D (or the mirror) until it sits correctly. Do not break the cross permanently.",
+        body: "Turn the top until a white corner sits directly above the slot it belongs in (turn the whole cube, white still down, to bring that slot to the front). For the front-right slot, repeat R U R′ U′ until the corner drops in white side down: once if white points to the side, three times if it points up, five times if it points at you. For the front-left slot, use L′ U′ L U the same way. Each repeat leaves the cross as it was, and this is the same trigger F2L uses later.",
       },
       {
         title: "Check the layer",
@@ -113,7 +123,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Inspection goal",
-        body: "In 15 seconds, plan the full cross — preferably white or yellow on bottom — and track at least the first F2L pair.",
+        body: `${HOLD_RULE} Do the ${SOLVING_ROTATION} as inspection starts, then in 15 seconds plan the full cross on the bottom and track at least the first F2L pair. Never solve the cross on top; color neutrality is an optional extra for later, not part of this lesson.`,
       },
       {
         title: "Efficient crosses",

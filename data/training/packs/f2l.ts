@@ -16,6 +16,7 @@ export const f2lEfficiency: AspectPack = {
         "Every F2L case is the same two steps. Learning it as 41 algorithms hides that and makes it worse to use.",
       minutes: 4,
       body: [
+        "This pack describes the cube held the way you solve it: white cross on the bottom, yellow on top. The top layer is the yellow one, and the four slots are the corner-and-edge gaps around the white cross. The z2 or x2 you did in inspection to get there is not an F2L rotation; the rotations worth cutting are the ones you make once F2L has started.",
         "F2L looks like a list of cases and is really one idea repeated: get the corner and its edge next to each other in the top layer so the pair is formed, then turn the pair into its slot. Everything else is a variation on getting them next to each other.",
         "There are three shapes worth knowing by name. The pair is already joined and above its slot, so one trigger inserts it. The corner and edge are both in the top layer but not joined, so a move takes one out of the way, a U turn lines them up, and the same move brings it back joined. Or one of them is already in the slot wrong, so you take it out first — which turns the case into one of the other two.",
         "Learn it this way round and you get two things you do not get from memorising: you can solve a case you have never seen, and you can see partway through a solution that a shorter one exists. Learn it as algorithms and you get neither, and you learn it more slowly.",
@@ -86,7 +87,7 @@ export const f2lEfficiency: AspectPack = {
       purpose:
         "You cannot learn the back slots while the front slot is available. Removing the escape route is the whole drill.",
       rules: [
-        "Solve F2L with one rule: no cube rotations at all. y, x and z are forbidden.",
+        "Solve F2L with one rule: no y, x or z rotations once F2L has started.",
         "Untimed. Some cases will take you a long time to work out, which is the point.",
         "If you genuinely cannot see a rotationless solution, note the case and look it up afterwards.",
       ],

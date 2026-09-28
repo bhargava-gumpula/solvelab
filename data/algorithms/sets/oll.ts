@@ -36,7 +36,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-3",
       name: "OLL 3",
       group: "Dot",
-      aliases: ["Anti-Nazi"],
+      aliases: ["One-corner dot"],
       algorithms: [
         { id: "o3-1", moves: "f R U R' U' f' U' F R U R' U' F'" },
         { id: "o3-2", moves: "f' L' U' L U f U F R U R' U' F'" },
@@ -47,7 +47,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-4",
       name: "OLL 4",
       group: "Dot",
-      aliases: ["Nazi"],
+      aliases: ["One-corner dot, mirror"],
       algorithms: [
         { id: "o4-1", moves: "f R U R' U' f' U F R U R' U' F'" },
         { id: "o4-2", moves: "f' L' U' L U f U' F R U R' U' F'" },

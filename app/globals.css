@@ -202,13 +202,16 @@
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 
-  /* Bright, saturated stickerless shades, like a GAN cube. */
-  --cube-u: #ffffff;
-  --cube-d: #ffe100;
-  --cube-f: #14c83f;
-  --cube-b: #1466ff;
-  --cube-r: #f0162f;
-  --cube-l: #ff7f00;
+  /*
+   * Bright, saturated stickerless shades, like a GAN cube. Named by colour, not
+   * face: which face shows which colour depends on the view (lib/config/cube.ts).
+   */
+  --sticker-white: #ffffff;
+  --sticker-yellow: #ffe100;
+  --sticker-green: #14c83f;
+  --sticker-blue: #1466ff;
+  --sticker-red: #f0162f;
+  --sticker-orange: #ff7f00;
   --cube-stroke: #0b0c0e;
   /* A last-layer sticker that isn't facing up yet. */
   --cube-unsolved: #3d4350;

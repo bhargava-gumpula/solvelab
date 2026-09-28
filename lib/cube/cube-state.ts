@@ -162,6 +162,29 @@ export function isSolved(facelets: string): boolean {
   return true;
 }
 
+/**
+ * The same turns, described from before a whole-cube rotation: turning the
+ * face at spot P after `rotation` is turning, the same way, the face that the
+ * rotation brought to P. Used to hand out scrambles for the scrambling hold
+ * that leave the right layer solved once the solver has turned the cube over.
+ * Outer and wide turns only; slices and rotations would change meaning.
+ */
+export function movesBeforeRotation(moves: readonly Move[], rotation: string): Move[] {
+  const turned = applyAlgorithm(rotation);
+  const cameFrom = (face: OuterFace) => turned[FACE_ORDER.indexOf(face) * 9 + 4] as OuterFace;
+  return moves.map((move) => {
+    const outer = move.family.toUpperCase() as OuterFace;
+    if (!FACE_ORDER.includes(outer)) {
+      throw new Error(`Can't carry ${move.family} through ${rotation}`);
+    }
+    const family = cameFrom(outer);
+    return {
+      ...move,
+      family: move.family === outer ? family : (family.toLowerCase() as MoveFamily),
+    };
+  });
+}
+
 export function getFace(facelets: string, face: OuterFace): string {
   const start = FACE_ORDER.indexOf(face) * 9;
   return facelets.slice(start, start + 9);

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CubeNet } from "@/components/cube/cube-net";
 import type { CubeScene } from "@/components/cube/cube-scene";
+import type { CubeViewName } from "@/lib/config/cube";
 import { cn } from "@/lib/utils";
 
 interface Cube3DProps {
@@ -10,6 +11,11 @@ interface Cube3DProps {
   /** Roughly the cube's width in pixels. */
   size?: number;
   className?: string;
+  /**
+   * Which colours sit where. The timer previews scrambles, so the default is
+   * the scrambling orientation; a teaching screen must pass "solving".
+   */
+  view?: CubeViewName;
 }
 
 /**
@@ -17,7 +23,7 @@ interface Cube3DProps {
  * inspect; double-click resets the angle. Falls back to the flat net when
  * WebGL isn't available.
  */
-export function Cube3D({ facelets, size = 132, className }: Cube3DProps) {
+export function Cube3D({ facelets, size = 132, className, view = "scramble" }: Cube3DProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef<CubeScene | null>(null);
   const faceletsRef = useRef(facelets);
@@ -31,7 +37,7 @@ export function Cube3D({ facelets, size = 132, className }: Cube3DProps) {
     import("@/components/cube/cube-scene")
       .then(({ createCubeScene, readPalette }) => {
         if (disposed) return;
-        const scene = createCubeScene(canvas, readPalette(canvas));
+        const scene = createCubeScene(canvas, readPalette(canvas, view));
         if (!scene) return setFailed(true);
         sceneRef.current = scene;
         scene.setFacelets(faceletsRef.current);
@@ -44,7 +50,7 @@ export function Cube3D({ facelets, size = 132, className }: Cube3DProps) {
       sceneRef.current?.dispose();
       sceneRef.current = null;
     };
-  }, []);
+  }, [view]);
 
   useEffect(() => {
     faceletsRef.current = facelets;
@@ -53,7 +59,11 @@ export function Cube3D({ facelets, size = 132, className }: Cube3DProps) {
 
   if (failed)
     return (
-      <CubeNet facelets={facelets} className={cn("h-auto w-full max-w-[12.5rem]", className)} />
+      <CubeNet
+        facelets={facelets}
+        view={view}
+        className={cn("h-auto w-full max-w-[12.5rem]", className)}
+      />
     );
 
   const box = size * 1.42;

@@ -1,4 +1,19 @@
+import { SCRAMBLE_HOLD, SOLVING_ROTATION, SOLVING_VIEW } from "@/lib/config/cube";
 import type { CubeEvent, ExerciseDefinition } from "@/types/domain";
+
+/**
+ * The first step of a stage test. Stage scrambles are applied in the scrambling
+ * hold and keep the white layer solved, so turning over puts it on the bottom.
+ */
+function scrambleThenTurnOver(solvedPart: string, top = `${SOLVING_VIEW.U} is on top`): string {
+  return `Scramble your cube with the scramble shown, holding it with ${SCRAMBLE_HOLD}. Turn it over with ${SOLVING_ROTATION} so ${solvedPart} on the bottom and ${top}.`;
+}
+
+/**
+ * The first step of a test on a full scramble: the turn over happens in
+ * inspection, so the cross is planned where it will be solved.
+ */
+const SCRAMBLE_THEN_TURN_OVER_IN_INSPECTION = `Scramble your cube with the scramble shown, holding it with ${SCRAMBLE_HOLD}. Turn it over with ${SOLVING_ROTATION} as inspection starts, so you plan the ${SOLVING_VIEW.D} cross on the bottom.`;
 
 /** Definitions only; coach engine scores times against the baseline. */
 export const exercises: ExerciseDefinition[] = [
@@ -26,7 +41,7 @@ export const exercises: ExerciseDefinition[] = [
     whatItShows: "How fast your cross is after normal 15-second inspection.",
     inspection: "wca",
     instructions: [
-      "Scramble your cube with the scramble shown.",
+      SCRAMBLE_THEN_TURN_OVER_IN_INSPECTION,
       "Press Space to start inspection and plan your cross (up to 15 seconds).",
       "Hold and release Space to start, solve only the cross, then stop the timer.",
     ],
@@ -47,7 +62,7 @@ export const exercises: ExerciseDefinition[] = [
     whatItShows: "How quickly you get from a scramble through the cross into your first pair.",
     inspection: "wca",
     instructions: [
-      "Scramble your cube with the scramble shown.",
+      SCRAMBLE_THEN_TURN_OVER_IN_INSPECTION,
       "In inspection, plan your cross and look for your first pair.",
       "Solve the cross and one F2L pair, then stop the timer.",
     ],
@@ -68,7 +83,7 @@ export const exercises: ExerciseDefinition[] = [
     whatItShows: "How fast your F2L is on its own, starting from a solved cross.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown. It leaves the cross solved.",
+      scrambleThenTurnOver(`the solved ${SOLVING_VIEW.D} cross is`),
       "Start the timer, solve all four F2L pairs, and stop before OLL.",
     ],
     skillsMeasured: ["f2l_recognition", "f2l_efficiency", "f2l_lookahead"],
@@ -88,7 +103,7 @@ export const exercises: ExerciseDefinition[] = [
     whatItShows: "Your OLL speed, and whether some cases take much longer than others.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown. It leaves F2L solved.",
+      scrambleThenTurnOver("F2L is solved"),
       "Start the timer, solve OLL, and stop before PLL.",
     ],
     skillsMeasured: ["oll_recognition", "oll_execution"],
@@ -108,7 +123,7 @@ export const exercises: ExerciseDefinition[] = [
     whatItShows: "Your PLL speed, and whether some cases take much longer than others.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown. It leaves the top face solved.",
+      scrambleThenTurnOver("F2L is solved", `the top is all ${SOLVING_VIEW.U}`),
       "Start the timer, solve PLL including the final turn (AUF), and stop.",
     ],
     skillsMeasured: ["pll_recognition", "pll_execution"],
@@ -129,7 +144,7 @@ export const exercises: ExerciseDefinition[] = [
       "Your cross when you have all the time you want to plan it. The difference from your normal cross test is the time the 15-second limit costs you.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown.",
+      SCRAMBLE_THEN_TURN_OVER_IN_INSPECTION,
       "Plan the whole cross before starting the timer, taking as long as you need. Don't start until you know every move.",
       "Start the timer, solve only the cross, then stop.",
     ],
@@ -151,7 +166,7 @@ export const exercises: ExerciseDefinition[] = [
       "Compared with the cross and F2L tests, how much time you lose between the cross and F2L.",
     inspection: "wca",
     instructions: [
-      "Scramble your cube with the scramble shown.",
+      SCRAMBLE_THEN_TURN_OVER_IN_INSPECTION,
       "Press Space to start inspection and plan your cross (up to 15 seconds).",
       "Solve the cross and all four F2L pairs, then stop before OLL.",
     ],
@@ -172,7 +187,7 @@ export const exercises: ExerciseDefinition[] = [
     whatItShows: "How fast you find and insert one F2L pair on its own.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown. It leaves the cross and three pairs solved.",
+      scrambleThenTurnOver(`the ${SOLVING_VIEW.D} cross and three pairs are solved`),
       "Start the timer, solve the last F2L pair, and stop.",
     ],
     skillsMeasured: ["f2l_recognition", "f2l_efficiency"],
@@ -193,7 +208,7 @@ export const exercises: ExerciseDefinition[] = [
       "If steady slow turning is barely slower than your normal F2L, pauses are what cost you time.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown. It leaves the cross solved.",
+      scrambleThenTurnOver(`the solved ${SOLVING_VIEW.D} cross is`),
       "Solve all four pairs turning slowly and steadily. Try never to stop turning.",
       "Stop the timer when F2L is done.",
     ],
@@ -215,7 +230,7 @@ export const exercises: ExerciseDefinition[] = [
       "Compared with the single pair and OLL tests, how much time you lose between F2L and OLL.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown. It leaves the cross and three pairs solved.",
+      scrambleThenTurnOver(`the ${SOLVING_VIEW.D} cross and three pairs are solved`),
       "Start the timer, solve the last pair and then OLL, and stop before PLL.",
     ],
     skillsMeasured: ["oll_recognition"],
@@ -252,6 +267,7 @@ export const exercises: ExerciseDefinition[] = [
     category: "cross",
     description: "Practice the cross plus your first F2L pair.",
     instructions: [
+      SCRAMBLE_THEN_TURN_OVER_IN_INSPECTION,
       "In inspection, plan the cross and locate one pair.",
       "Solve the cross and that pair, then stop.",
     ],
@@ -269,6 +285,7 @@ export const exercises: ExerciseDefinition[] = [
     category: "f2l",
     description: "Practice four pairs after a solved cross.",
     instructions: [
+      scrambleThenTurnOver(`the solved ${SOLVING_VIEW.D} cross is`),
       "Turn at a comfortable, deliberately slower pace.",
       "Look for the next pair as you finish the current one.",
     ],
@@ -286,6 +303,7 @@ export const exercises: ExerciseDefinition[] = [
     category: "cross",
     description: "Practice solving only the cross.",
     instructions: [
+      SCRAMBLE_THEN_TURN_OVER_IN_INSPECTION,
       "Use full inspection to plan the entire cross.",
       "Execute without pauses; stop when the cross is done.",
     ],
@@ -303,7 +321,7 @@ export const exercises: ExerciseDefinition[] = [
     category: "oll",
     description: "Practice orienting the last layer.",
     instructions: [
-      "The scramble starts from an OLL-ready state.",
+      scrambleThenTurnOver("F2L is solved"),
       "Recognize quickly, execute cleanly, stop before PLL.",
     ],
     skillsMeasured: [],
@@ -320,7 +338,7 @@ export const exercises: ExerciseDefinition[] = [
     category: "pll",
     description: "Practice permuting the last layer.",
     instructions: [
-      "The scramble starts from a PLL-ready last layer.",
+      scrambleThenTurnOver("F2L is solved", `the top is all ${SOLVING_VIEW.U}`),
       "Start, execute the algorithm cleanly, and stop after AUF.",
     ],
     skillsMeasured: [],
@@ -340,7 +358,7 @@ export const exercises: ExerciseDefinition[] = [
     whatItShows: "Compared with the OLL and PLL tests, how much time you lose between OLL and PLL.",
     inspection: "none",
     instructions: [
-      "Scramble your cube with the scramble shown. It leaves F2L solved.",
+      scrambleThenTurnOver("F2L is solved"),
       "Start the timer, solve OLL and then PLL, and stop when the cube is solved.",
     ],
     skillsMeasured: ["oll_recognition", "oll_execution", "pll_recognition", "pll_execution"],
@@ -357,7 +375,7 @@ export const exercises: ExerciseDefinition[] = [
     category: "oll",
     description: "Practice OLL into PLL as one last-layer solve.",
     instructions: [
-      "The scramble starts from an OLL-ready last layer.",
+      scrambleThenTurnOver("F2L is solved"),
       "Recognize OLL, execute, go straight into PLL, and stop after AUF.",
     ],
     skillsMeasured: [],

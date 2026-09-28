@@ -1,3 +1,4 @@
+import { SCRAMBLE_HOLD, SOLVING_ROTATION, SOLVING_VIEW } from "@/lib/config/cube";
 import { SOURCES } from "../sources";
 import type { AspectPack } from "../types";
 
@@ -13,10 +14,11 @@ export const crossEfficiency: AspectPack = {
       id: "cross-bottom",
       title: "Solve it on the bottom",
       takeaway:
-        "Solving the cross on top costs you a whole-cube flip and hides the slots you are about to fill.",
+        "Solving the cross on top costs you a whole-cube flip on the clock and hides the slots you are about to fill.",
       minutes: 3,
       body: [
-        "Most people learn the cross on the top face, because that is where you can see it. Every one of those solves then needs an x2 rotation before F2L can start, and during the cross itself you are looking at the face you are building rather than the four slots you are about to fill.",
+        "Most people learn the cross on the top face, because that is where you can see it. Every one of those solves then needs a z2 or x2 flip before F2L can start, and during the cross itself you are looking at the face you are building rather than the four slots you are about to fill.",
+        "The flip does not disappear; it moves into inspection, where it is free. Scrambles go on with white on top, so turn the cube over with z2 before you start planning (x2 works too, but brings blue to the front instead of green). Then plan and solve the cross with white on the bottom and yellow on top, and leave it that way up for the rest of the solve.",
         "Solving it on the bottom feels blind at first. It is not: after two or three sessions you read the cross from the side stickers and the bottom edge of each face, the same way you will later read an F2L pair. What you gain is the rotation, the view of the slots, and the ability to see a pair forming while you finish the cross.",
         "If you are still solving on top, switch now rather than later. The habit gets more expensive the more solves you have built on it, and the relearning takes about a week at any level.",
       ],
@@ -151,6 +153,7 @@ export const inspection: AspectPack = {
       minutes: 3,
       body: [
         "Competition rules give you up to fifteen seconds to look at the cube before the timer starts, during which you may hold and turn the puzzle over in your hands but not turn any layer. That time is free: nothing you work out in it costs you anything.",
+        `Spend the first second of it getting into your solving hold. Scrambles are applied with ${SCRAMBLE_HOLD}, so turn the cube over with ${SOLVING_ROTATION}, which keeps ${SOLVING_VIEW.F} in front (x2 does the same job but brings blue round to the front). Then plan the cross where you will solve it, with ${SOLVING_VIEW.D} on the bottom and ${SOLVING_VIEW.U} on top, rather than planning it on top and turning over afterwards.`,
         "The moment the timer starts, thinking is expensive. A pause to work out the next cross edge costs you a second that a plan would have cost nothing. This is why the gap between your timed cross and your unlimited-inspection cross is a real measurement of something: it is exactly the planning you did not finish in time.",
         "So the goal of inspection is not to look at the cube. It is to arrive at the start of the solve with nothing left to decide about the cross.",
       ],

@@ -1,3 +1,4 @@
+import { CUBE_VIEWS, stickerFill, type CubeViewName } from "@/lib/config/cube";
 import { FACE_ORDER, getFace } from "@/lib/cube/cube-state";
 import type { OuterFace } from "@/lib/cube/notation";
 import { cn } from "@/lib/utils";
@@ -17,23 +18,21 @@ const NET_POSITION: Record<OuterFace, [column: number, row: number]> = {
   D: [1, 2],
 };
 
-const COLOR_VARIABLE: Record<OuterFace, string> = {
-  U: "var(--cube-u)",
-  D: "var(--cube-d)",
-  F: "var(--cube-f)",
-  B: "var(--cube-b)",
-  R: "var(--cube-r)",
-  L: "var(--cube-l)",
-};
-
 interface CubeNetProps {
   facelets: string;
   className?: string;
   title?: string;
+  /** Scramble previews use the scrambling orientation; a teaching screen would pass "solving". */
+  view?: CubeViewName;
 }
 
 /** Renders a cube state (URFDLB facelets) as a flat net. Pure presentation. */
-export function CubeNet({ facelets, className, title = "Scrambled cube preview" }: CubeNetProps) {
+export function CubeNet({
+  facelets,
+  className,
+  title = "Scrambled cube preview",
+  view = "scramble",
+}: CubeNetProps) {
   const width = FACE_SIZE * 4 + FACE_GAP * 3;
   const height = FACE_SIZE * 3 + FACE_GAP * 2;
   return (
@@ -55,7 +54,8 @@ export function CubeNet({ facelets, className, title = "Scrambled cube preview" 
             width={STICKER}
             height={STICKER}
             rx={1.6}
-            fill={COLOR_VARIABLE[color as OuterFace]}
+            fill={stickerFill(color as OuterFace, CUBE_VIEWS[view])}
+            data-face={face}
             stroke="var(--cube-stroke)"
             strokeOpacity={0.35}
             strokeWidth={0.5}

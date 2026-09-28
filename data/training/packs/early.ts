@@ -1,3 +1,4 @@
+import { SCRAMBLE_HOLD, SOLVING_ROTATION } from "@/lib/config/cube";
 import { SOURCES } from "../sources";
 import type { LevelPack } from "../types";
 
@@ -21,7 +22,7 @@ export const beginnerMethodCold: LevelPack = {
       minutes: 4,
       body: [
         "Every layer-by-layer method is a short list of steps, and each one ends with something specific solved: the cross, then the first layer, then the second, then the last layer's cross, and so on. Knowing that list well is what lets you notice a mistake the moment it happens rather than three steps later.",
-        "The habit to build is a quick check at the end of each step. After the first layer, turn the cube over once and look: are all four side colours matching their centres in the bottom row? If one isn't, you fix it now, which costs a few seconds, instead of discovering it during the last layer and losing the solve.",
+        "The habit to build is a quick check at the end of each step. After the first layer, keep white on the bottom and turn the cube round a side at a time with y turns, which leave the top and bottom where they are: does each side's bottom row match its centre? There is no need to flip it over to look. If one doesn't, you fix it now, which costs a few seconds, instead of discovering it during the last layer and losing the solve.",
         "This also makes it much easier to learn from mistakes. When a solve goes wrong you can say which step broke, which tells you exactly which algorithm or idea to go back and practise.",
       ],
       checkpoint: "You can name every step in order, and what is solved at the end of each.",
@@ -30,11 +31,13 @@ export const beginnerMethodCold: LevelPack = {
       id: "cold-notation",
       title: "Read notation properly",
       takeaway:
-        "R, U and F, primes and doubles — the language every algorithm and scramble is written in.",
-      minutes: 4,
+        "Face turns, primes and doubles, whole-cube rotations like the z2 after every scramble, and wide and slice moves — the language every algorithm and scramble is written in.",
+      minutes: 6,
       body: [
         "Each letter is a face: R right, L left, U up, D down, F front, B back. The letter alone means a quarter turn clockwise, as if you were looking straight at that face. A prime (R') is anticlockwise, and a 2 (R2) is a half turn, which goes the same place whichever way you turn it.",
         "The part people get wrong is that clockwise is always judged looking at the face being turned. So R and L turn in opposite directions as seen from the front, and U and D do the same from above. If an algorithm keeps coming out wrong, this is the first thing to check.",
+        "The letters x, y and z turn the whole cube in your hands rather than one face: x turns it the way R does, y the way U does and z the way F does, and they take primes and 2s like any other move. The one you will use every solve is z2. Scrambles are applied with white on top and green in front; a z2 turns the cube over sideways, so white goes to the bottom, yellow comes to the top, green stays facing you, orange ends up on the right and red on the left. That is how you hold it for the whole solve.",
+        "A lowercase letter is a wide move: r turns the right face and the middle layer beside it together, in the same direction as R. It is also written Rw, and f (or Fw) does the same for the front. Slices turn only a middle layer: M sits between L and R and turns like L, E sits between U and D and turns like D, and S sits between F and B and turns like F. They turn up in last-layer algorithms, so it is worth knowing them before you get there.",
         "It is worth being exact now, because everything later — two-look last layer, full OLL and PLL, every tutorial and trainer — is written in this notation. Guessing costs you every time you learn something new.",
       ],
       examples: [
@@ -42,6 +45,11 @@ export const beginnerMethodCold: LevelPack = {
           label: "A trigger you will use constantly",
           moves: "R U R' U'",
           note: "Right face up, top left, right face down, top right. Six in a row brings the cube back to where it started, which makes it a good check that you are reading it correctly.",
+        },
+        {
+          label: "From the scramble hold to the solving hold",
+          moves: "z2",
+          note: "White starts on top and ends on the bottom. Green stays in front the whole time.",
         },
       ],
       checkpoint: "You can follow a written algorithm without watching someone do it first.",
@@ -64,6 +72,7 @@ export const beginnerMethodCold: LevelPack = {
         "The daisy is a useful first step and a slow habit. Build the cross where it will stay.",
       minutes: 3,
       body: [
+        `Start every solve in the same hold. Scrambles are applied with ${SCRAMBLE_HOLD}, so do a ${SOLVING_ROTATION} first: white is now on the bottom, yellow on top and green still in front. The cross is built there, and white stays on the bottom for the rest of the solve.`,
         "Many beginner methods start with a daisy — white edges around the yellow centre — and then turn each one down. It is easy to learn and it roughly doubles the moves the cross takes.",
         "Once you can solve reliably, start placing each white edge directly into its spot on the bottom, matched to its side centre. It will feel slow for a few days, because you have to look at the side of the cube rather than the top.",
         "It is worth doing now rather than later: every method you move on to builds the cross on the bottom, and a two-minute solver who already does it has one fewer habit to unlearn.",

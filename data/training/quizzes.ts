@@ -18,7 +18,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "Competition rules penalise it",
       ],
       answer: 1,
-      why: "The cross takes the same moves either way. The cost is the x2 flip afterwards, plus losing the view of the slots — and of pairs forming — while you build it.",
+      why: "The cross takes the same moves either way. The cost is the z2 or x2 flip afterwards, plus losing the view of the slots — and of pairs forming — while you build it.",
     },
   ],
   "cross-move-count": [
@@ -691,6 +691,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "Each move is clockwise as seen from its own face. Looking from the front, the right and left faces are on opposite sides, so they appear to turn opposite ways.",
+    },
+    {
+      question:
+        "Scrambles are applied with white on top and green in front, but you solve with white on the bottom. Which whole-cube turn gets you there and keeps green facing you?",
+      options: ["z2", "x2", "y2", "None — build the cross on top and flip the cube afterwards"],
+      answer: 0,
+      why: "z2 turns the cube over around the line through the front face, so white goes to the bottom, yellow comes to the top and green stays in front. x2 also puts white down but brings blue to the front, and y2 leaves white on top.",
     },
   ],
   "cold-triggers": [
@@ -1491,6 +1498,18 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "A prime means anticlockwise, judged looking straight at that face. R2 would be a half turn.",
+    },
+    {
+      question:
+        "You've just applied a scramble holding white on top and green in front. What do you do before planning the cross?",
+      options: [
+        "Plan it straight away and build the cross on top",
+        "Turn the cube round with y2 so a new side faces you",
+        "Turn the whole cube over with z2, so white is on the bottom, yellow on top and green still in front",
+        "Nothing — you solve in the same hold you scramble in",
+      ],
+      answer: 2,
+      why: "White on top is only how scrambles are applied. z2 is a whole-cube half turn around the front face, so green stays facing you while white goes down; you then plan and build the cross on the bottom and keep yellow on top for the rest of the solve.",
     },
   ],
   "beginner-first-layer": [

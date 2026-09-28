@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { SOLVING_ROTATION } from "@/lib/config/cube";
 import {
   applyAlgorithm,
   applyMoves,
@@ -8,6 +9,7 @@ import {
   hasOllSolved,
   invertAlgorithm,
   isSolved,
+  movesBeforeRotation,
   normalizeNotation,
   parseAlgorithm,
   SOLVED_FACELETS,
@@ -114,5 +116,24 @@ describe("CFOP stage checks", () => {
     expect(hasF2lSolved(sexy)).toBe(false);
 
     expect(hasCrossSolved(applyAlgorithm("R"))).toBe(false);
+  });
+});
+
+describe("movesBeforeRotation", () => {
+  it("describes the solving hold's turns from the scrambling hold", () => {
+    const parsed = parseAlgorithm("R U' F2 D L' B r2 u'");
+    if (!parsed.ok) throw new Error("bad test algorithm");
+    const before = movesBeforeRotation(parsed.moves, SOLVING_ROTATION);
+    expect(formatAlgorithm(before)).toBe("L D' F2 U R' B l2 d'");
+    // Doing them then turning over is the same as turning over then doing the originals.
+    expect(applyAlgorithm(SOLVING_ROTATION, applyMoves(SOLVED_FACELETS, before))).toBe(
+      applyMoves(applyAlgorithm(SOLVING_ROTATION), parsed.moves),
+    );
+  });
+
+  it("refuses slices and rotations, which would change meaning", () => {
+    const parsed = parseAlgorithm("M");
+    if (!parsed.ok) throw new Error("bad test algorithm");
+    expect(() => movesBeforeRotation(parsed.moves, SOLVING_ROTATION)).toThrow();
   });
 });

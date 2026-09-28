@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
+import { SCRAMBLE_VIEW, SOLVING_ROTATION } from "@/lib/config/cube";
 import {
   applyAlgorithm,
+  getFace,
   hasCrossSolved,
   hasF2lSolved,
   hasOllSolved,
@@ -77,21 +79,36 @@ describe("scramble providers", () => {
   }, 20000);
 
   it("generates F2L, OLL and PLL scrambles with the matching pieces solved", async () => {
+    // Scrambles are applied white on top; the checks look at the cube after the
+    // solver's turn into the solving hold, where the cross belongs on the bottom.
+    const scrambled = (scramble: string) =>
+      applyAlgorithm(SOLVING_ROTATION, applyAlgorithm(scramble));
+
     const scramble = await cubingJsProvider.generate("333f2l");
-    expect(hasCrossSolved(applyAlgorithm(scramble))).toBe(true);
+    expect(hasCrossSolved(scrambled(scramble))).toBe(true);
 
     const oll = await cubingJsProvider.generate("333oll");
-    expect(hasF2lSolved(applyAlgorithm(oll))).toBe(true);
+    expect(hasF2lSolved(scrambled(oll))).toBe(true);
 
     const pll = await cubingJsProvider.generate("333pll");
-    const pllFacelets = applyAlgorithm(pll);
+    const pllFacelets = scrambled(pll);
     expect(hasOllSolved(pllFacelets)).toBe(true);
     expect(isSolved(pllFacelets)).toBe(false);
 
     for (let run = 0; run < 3; run++) {
-      const lastSlot = applyAlgorithm(await cubingJsProvider.generate("333ls"));
+      const lastSlot = scrambled(await cubingJsProvider.generate("333ls"));
       expect(hasCrossSolved(lastSlot)).toBe(true);
       expect(solvedF2lSlots(lastSlot)).toBe(3);
+    }
+  }, 60000);
+
+  it("keeps the white layer solved in the scrambling hold, not the yellow one", async () => {
+    for (let run = 0; run < 3; run++) {
+      const facelets = applyAlgorithm(await cubingJsProvider.generate("333oll"));
+      // White is U while scrambling, and an OLL scramble keeps the whole white
+      // face solved (the old scrambles kept the yellow D face instead).
+      expect(SCRAMBLE_VIEW.U).toBe("white");
+      expect(getFace(facelets, "U")).toBe("U".repeat(9));
     }
   }, 60000);
 

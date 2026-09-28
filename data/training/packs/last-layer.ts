@@ -16,6 +16,7 @@ export const ollExecution: AspectPack = {
         "The 57 cases fall into a handful of visual families. Learning the families is what makes recognition instant.",
       minutes: 4,
       body: [
+        "The last layer is the yellow one on top, with the white cross on the bottom where you built it. Every face, shape and sticker in these lessons is described from that hold.",
         "OLL numbers are a way of writing cases down, not a way of seeing them. What you actually recognise is a shape on the top face: a dot, a line, an L, a cross, and within those, where the corner stickers point.",
         "Grouping by shape has two benefits. Recognition becomes a two-step read — the shape narrows it to a few, then one corner sticker decides — which is much faster than comparing against 57 pictures. And when you are learning, cases in the same family share fingertricks, so they go in as a group rather than one at a time.",
         "The families worth having in your head: all edges oriented (the 'cross' cases, seven of them, which are also the second step of 2-look), edges forming a line, edges forming an L, and the dot cases where no edge is oriented. That is the first split; everything after it is corners.",

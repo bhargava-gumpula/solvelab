@@ -1,9 +1,11 @@
 /**
  * CFOP stage checks on a 3×3 facelet string (URFDLB, nine stickers per face).
  *
- * Cross and F2L are the D layer (yellow in the default color scheme); last
- * layer is U. Centers define the colors, so whole-cube rotations are allowed
- * as long as relative stickers still match.
+ * Cross and F2L are the D layer and the last layer is U: the engine works in
+ * the solving hold, where D is the white cross side (SOLVING_VIEW in
+ * lib/config/cube.ts). A real scramble is applied white on top, so check it
+ * after SOLVING_ROTATION. Centers define the colors, so whole-cube rotations
+ * are allowed as long as relative stickers still match.
  */
 
 const U = 0;

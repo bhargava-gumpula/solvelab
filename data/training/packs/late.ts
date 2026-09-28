@@ -1,3 +1,4 @@
+import { SCRAMBLE_HOLD, SOLVING_ROTATION } from "@/lib/config/cube";
 import { SOURCES } from "../sources";
 import type { LevelPack } from "../types";
 
@@ -672,7 +673,7 @@ export const competing: LevelPack = {
       takeaway: "Fifteen seconds of inspection, a stackmat start and stop, and a sheet you sign.",
       minutes: 4,
       body: [
-        "At a WCA competition each attempt runs the same way. A judge uncovers your cube and starts timing inspection. You have fifteen seconds; the judge calls out at eight and twelve. Starting between fifteen and seventeen seconds costs two seconds; after seventeen, the attempt is a DNF.",
+        `At a WCA competition each attempt runs the same way. A judge uncovers your cube and starts timing inspection. You have fifteen seconds; the judge calls out at eight and twelve. The cube was scrambled with ${SCRAMBLE_HOLD}, so the ${SOLVING_ROTATION} into your solving hold comes out of those fifteen seconds. Starting between fifteen and seventeen seconds costs two seconds; after seventeen, the attempt is a DNF.`,
         "You start by placing both hands flat on the stackmat and lifting them, and stop by placing both hands flat again. Pressing the timer's face instead is the classic first-timer mistake. A cube left one move from solved costs a two-second penalty; further off than that and the attempt doesn't count. The regulations have the exact wording.",
         "Most rounds of 3x3 are an average of five: your best and worst attempts are dropped, and your result is the mean of the middle three. That rewards consistency far more than a single fast solve.",
       ],
