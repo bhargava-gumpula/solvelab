@@ -173,7 +173,12 @@ test.describe("your AI coach", () => {
       parts: [{ text: "How do I stop pausing?" }],
     });
 
-    // Still there after a reload, and gone when removed.
+    // Still there after a reload, and gone when removed — staying on this tab
+    // even when OpenRouter is connected too.
+    await page.route("https://openrouter.ai/api/v1/models", (route) =>
+      fulfil(route, JSON.stringify({ data: [] })),
+    );
+    await page.evaluate(() => localStorage.setItem("solvelab.ai.openrouter", "sk-or-test"));
     await page.reload();
     await expect(page.getByTestId("api-key-connected")).toBeVisible();
     await page.getByTestId("api-key-remove").click();

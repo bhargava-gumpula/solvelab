@@ -212,10 +212,12 @@ export function SavedKeyBar({
   saved,
   models,
   onModel,
+  onRemove,
 }: {
   saved: SavedKey;
   models: string[];
   onModel: (model: string) => void;
+  onRemove: () => void;
 }) {
   const options = models.includes(saved.model) ? models : [saved.model, ...models];
   return (
@@ -241,12 +243,7 @@ export function SavedKeyBar({
           ))}
         </select>
       </label>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => writeSavedKey(null)}
-        data-testid="api-key-remove"
-      >
+      <Button variant="ghost" size="sm" onClick={onRemove} data-testid="api-key-remove">
         <Trash2 /> Remove key
       </Button>
     </div>

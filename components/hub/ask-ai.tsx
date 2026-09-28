@@ -439,6 +439,11 @@ function ChatHere({ systemPrompt, question }: { systemPrompt: string; question: 
             saved={saved}
             models={keyModels}
             onModel={(next) => writeSavedKey({ ...saved, model: next })}
+            onRemove={() => {
+              // Stay here so a new key can go straight in.
+              setProvider("key");
+              writeSavedKey(null);
+            }}
           />
         ) : (
           <ApiKeySetup />
@@ -503,7 +508,11 @@ function ChatHere({ systemPrompt, question }: { systemPrompt: string; question: 
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => writeKey(null)}
+            onClick={() => {
+              // Stay on OpenRouter so signing in again is one click away.
+              setProvider("openrouter");
+              writeKey(null);
+            }}
             data-testid="ai-disconnect"
           >
             <LogOut /> Disconnect

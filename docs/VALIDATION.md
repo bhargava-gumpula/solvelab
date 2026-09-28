@@ -12,7 +12,8 @@ dev server stopped first.
 | End-to-end      | `npx playwright test --workers=1` | 80 passed, 1 failed (predates this phase) |
 
 The failure is `ai-coach.spec.ts:43`: after Disconnect, the page opened the "Your API key" tab (Hub work
-from 2026-09-27), so the OpenRouter sign-in button never showed (dev log 157–158).
+from 2026-09-27), so the OpenRouter sign-in button never showed (dev log 157–158). With the fix in 158,
+the full suite on a fresh build gave 81 passed (dev log 159).
 
 New unit coverage:
 
