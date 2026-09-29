@@ -12,6 +12,7 @@ import {
   Lightbulb,
   PartyPopper,
   PlayCircle,
+  RotateCcw,
   Sparkles,
   Trophy,
   X,
@@ -20,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { setPackItemDone } from "@/hooks/use-training-progress";
 import { completeMethodLesson, useHub } from "@/hooks/use-hub";
 import { useHotkeys } from "@/hooks/use-hotkeys";
-import type { LessonStep, QuizStep } from "@/lib/hub/steps";
+import { reshuffled, type LessonStep, type QuizStep } from "@/lib/hub/steps";
 import { lessonHref } from "@/lib/hub/units";
 import { cn } from "@/lib/utils";
 import { CubePlayer } from "./cube-player";
@@ -51,8 +52,9 @@ const SLIDE = {
 
 /**
  * A lesson, one card at a time: read, watch it on a cube, answer a question,
- * try it on your own cube, and finish with a celebration. Arrow keys move
- * between cards.
+ * try it on your own cube. Arrow keys move between cards. The lesson is saved
+ * as read once its question is answered right: a wrong answer shows why and
+ * offers another go, and skipping the question leaves the lesson unread.
  */
 export function LessonPlayer({
   unitId,
@@ -66,10 +68,26 @@ export function LessonPlayer({
 }: LessonPlayerProps) {
   const [[index, direction], setPosition] = useState<[number, number]>([0, 1]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  // How many goes each question has had, and the ones passed over.
+  const [retries, setRetries] = useState<Record<number, number>>({});
+  const [skipped, setSkipped] = useState<ReadonlySet<number>>(new Set());
   const saved = useRef(false);
-  const step = steps[index]!;
+  const shown = (position: number): LessonStep => {
+    const item = steps[position]!;
+    return item.kind === "quiz" ? reshuffled(item, retries[position] ?? 0) : item;
+  };
+  const step = shown(index);
   const last = index === steps.length - 1;
-  const blocked = step.kind === "quiz" && answers[index] === undefined;
+  const isRight = (position: number) => {
+    const item = shown(position);
+    return item.kind === "quiz" && answers[position] === item.answer;
+  };
+  const blocked = step.kind === "quiz" && !isRight(index) && !skipped.has(index);
+  // Every question answered right: the lesson counts as read.
+  const checked = steps.every((item, position) => item.kind !== "quiz" || isRight(position));
+  const firstOpenQuiz = steps.findIndex(
+    (item, position) => item.kind === "quiz" && !isRight(position),
+  );
   const following = useCourseNext(unitId, lessonId, next);
 
   const go = (delta: number) => {
@@ -78,17 +96,35 @@ export function LessonPlayer({
   };
 
   useEffect(() => {
-    if (step.kind !== "done" || saved.current) return;
+    if (step.kind !== "done" || !checked || saved.current) return;
     saved.current = true;
     if (packId) setPackItemDone(packId, "lesson", lessonId, true);
     else completeMethodLesson(lessonId);
-    celebrate("big");
-  }, [step.kind, packId, lessonId]);
+    // The big celebration is kept for a unit passed on its measure.
+    celebrate("small");
+  }, [step.kind, checked, packId, lessonId]);
 
   const answer = (choice: number) => {
     if (step.kind !== "quiz" || answers[index] !== undefined) return;
     setAnswers((current) => ({ ...current, [index]: choice }));
     if (choice === step.answer) celebrate("small");
+  };
+
+  /** Another go at a card's question, with the options in a new order. */
+  const retryAt = (position: number) => {
+    setAnswers((current) => {
+      const next = { ...current };
+      delete next[position];
+      return next;
+    });
+    setRetries((current) => ({ ...current, [position]: (current[position] ?? 0) + 1 }));
+    setSkipped((current) => new Set([...current].filter((item) => item !== position)));
+  };
+  const retry = () => retryAt(index);
+
+  const skip = () => {
+    setSkipped((current) => new Set(current).add(index));
+    go(1);
   };
 
   useHotkeys([
@@ -143,7 +179,19 @@ export function LessonPlayer({
             className="rounded-3xl p-6 glass md:p-8"
             data-testid={`lesson-step-${step.kind}`}
           >
-            <StepBody step={step} chosen={answers[index]} onAnswer={answer} unitTitle={unitTitle} />
+            <StepBody
+              step={step}
+              chosen={answers[index]}
+              onAnswer={answer}
+              onRetry={retry}
+              onSkip={skip}
+              checked={checked}
+              onBackToQuestion={() => {
+                retryAt(firstOpenQuiz);
+                setPosition([firstOpenQuiz, -1]);
+              }}
+              unitTitle={unitTitle}
+            />
           </motion.section>
         </AnimatePresence>
       </div>
@@ -219,11 +267,20 @@ function StepBody({
   step,
   chosen,
   onAnswer,
+  onRetry,
+  onSkip,
+  checked,
+  onBackToQuestion,
   unitTitle,
 }: {
   step: LessonStep;
   chosen: number | undefined;
   onAnswer: (choice: number) => void;
+  onRetry: () => void;
+  onSkip: () => void;
+  /** Every question in the lesson is answered right. */
+  checked: boolean;
+  onBackToQuestion: () => void;
   unitTitle: string;
 }) {
   switch (step.kind) {
@@ -281,7 +338,9 @@ function StepBody({
         </div>
       );
     case "quiz":
-      return <Quiz step={step} chosen={chosen} onAnswer={onAnswer} />;
+      return (
+        <Quiz step={step} chosen={chosen} onAnswer={onAnswer} onRetry={onRetry} onSkip={onSkip} />
+      );
     case "try":
       return (
         <div className="grid gap-4 text-center">
@@ -300,6 +359,30 @@ function StepBody({
         </div>
       );
     case "done":
+      if (!checked) {
+        return (
+          <div className="grid gap-5 text-center" data-testid="lesson-unchecked">
+            <span className="mx-auto grid size-20 place-items-center rounded-3xl bg-muted text-muted-foreground">
+              <Lightbulb className="size-10" />
+            </span>
+            <h2 className="text-3xl font-semibold tracking-tight">One question to go</h2>
+            <p className="mx-auto max-w-md leading-relaxed text-muted-foreground">
+              The lesson counts as read once its question is answered right. It takes a moment, and
+              the answer is in what you just read.
+            </p>
+            <div>
+              <Button
+                size="lg"
+                className="rounded-full"
+                onClick={onBackToQuestion}
+                data-testid="back-to-question"
+              >
+                <RotateCcw /> Back to the question
+              </Button>
+            </div>
+          </div>
+        );
+      }
       return (
         <div className="grid gap-5 text-center">
           <motion.span
@@ -321,13 +404,19 @@ function Quiz({
   step,
   chosen,
   onAnswer,
+  onRetry,
+  onSkip,
 }: {
   step: QuizStep;
   chosen: number | undefined;
   onAnswer: (choice: number) => void;
+  onRetry: () => void;
+  onSkip: () => void;
 }) {
   const answered = chosen !== undefined;
   const right = chosen === step.answer;
+  // After a wrong answer the right one stays hidden, so another go means something.
+  const reveal = answered && right;
   return (
     <div className="grid gap-4">
       <p className="eyebrow text-primary">Quick check</p>
@@ -349,7 +438,7 @@ function Quiz({
               animate={
                 answered && isChosen && !isAnswer
                   ? { x: [0, -10, 10, -6, 6, 0] }
-                  : answered && isAnswer
+                  : reveal && isAnswer
                     ? { scale: [1, 1.04, 1] }
                     : {}
               }
@@ -357,18 +446,18 @@ function Quiz({
               className={cn(
                 "flex items-start gap-3 rounded-2xl border-2 p-3.5 text-left text-sm leading-relaxed transition-colors",
                 !answered && "hover:border-primary/60 hover:bg-primary/5",
-                answered && isAnswer && "border-[var(--known)] bg-[var(--known)]/15",
+                reveal && isAnswer && "border-[var(--known)] bg-[var(--known)]/15",
                 answered && isChosen && !isAnswer && "border-destructive bg-destructive/10",
-                answered && !isAnswer && !isChosen && "opacity-50",
+                answered && !isChosen && !(reveal && isAnswer) && "opacity-50",
               )}
             >
               <span
                 className={cn(
                   "grid size-6 shrink-0 place-items-center rounded-lg border text-xs font-semibold",
-                  answered && isAnswer && "border-transparent bg-[var(--known)] text-white",
+                  reveal && isAnswer && "border-transparent bg-[var(--known)] text-white",
                 )}
               >
-                {answered && isAnswer ? <Check className="size-3.5" /> : choice + 1}
+                {reveal && isAnswer ? <Check className="size-3.5" /> : choice + 1}
               </span>
               {option}
             </motion.button>
@@ -391,6 +480,16 @@ function Quiz({
           </motion.p>
         ) : null}
       </AnimatePresence>
+      {answered && !right ? (
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={onRetry} className="rounded-full" data-testid="quiz-retry">
+            <RotateCcw /> Try again
+          </Button>
+          <Button variant="ghost" onClick={onSkip} className="rounded-full" data-testid="quiz-skip">
+            Skip for now
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

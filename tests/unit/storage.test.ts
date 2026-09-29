@@ -13,6 +13,7 @@ import {
   SCHEMA_V7,
   SCHEMA_V8,
   SCHEMA_V9,
+  SCHEMA_V10,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
@@ -47,7 +48,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V9).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V10).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -293,6 +294,98 @@ describe("schema v3", () => {
     expect(await upgraded.drillRuns.count()).toBe(0);
     upgraded.close();
     await Dexie.delete(name);
+  });
+
+  it("adds unit passes without touching version 9 data", async () => {
+    const name = `test-v9-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(9).stores(SCHEMA_V9);
+    await legacy.open();
+    await legacy.table("trainingProgress").add({
+      packId: "lookahead",
+      lessonsDone: ["lookahead-three-stages"],
+      drillsDone: ["lookahead-slow-solve"],
+      startedAt: "2026-09-21T08:00:00.000Z",
+      updatedAt: "2026-09-21T08:00:00.000Z",
+    });
+    await legacy.table("drillRuns").add({
+      id: "run-1",
+      packId: "lookahead",
+      drillId: "lookahead-slow-solve",
+      timesMs: [19800],
+      createdAt: "2026-09-22T08:00:00.000Z",
+      updatedAt: "2026-09-22T08:00:00.000Z",
+    });
+    await legacy.table("lessonProgress").add({
+      lessonId: "cfop-cross",
+      completedAt: "2026-09-20T08:00:00.000Z",
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
+    // What was read and practised before is all still there, untouched.
+    expect(await upgraded.trainingProgress.get("lookahead")).toMatchObject({
+      lessonsDone: ["lookahead-three-stages"],
+      drillsDone: ["lookahead-slow-solve"],
+    });
+    expect((await upgraded.drillRuns.get("run-1"))?.timesMs).toEqual([19800]);
+    expect(await upgraded.lessonProgress.get("cfop-cross")).toBeDefined();
+    expect(await upgraded.unitPasses.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+
+  it("keeps a unit's first pass, and says whether it wrote one", async () => {
+    const pass = {
+      id: "sub-20:lookahead",
+      courseId: "sub-20",
+      unitId: "lookahead",
+      measure: "aspect" as const,
+      measureId: "lookahead",
+      via: "target" as const,
+      value: 1400,
+      before: 2100,
+      line: 1470,
+    };
+    expect(await repos.passes.record(pass, "2026-09-29T09:00:00.000Z")).toBe(true);
+    expect(
+      await repos.passes.record(
+        { ...pass, via: "improved", value: 900 },
+        "2026-09-30T09:00:00.000Z",
+      ),
+    ).toBe(false);
+    const saved = await repos.passes.list();
+    expect(saved).toHaveLength(1);
+    expect(saved[0]).toMatchObject({
+      via: "target",
+      value: 1400,
+      passedAt: "2026-09-29T09:00:00.000Z",
+    });
+    // Two pages noticing the same pass at once write it once.
+    const other = { ...pass, id: "sub-20:cross-into-f2l", unitId: "cross-into-f2l" };
+    const wrote = await Promise.all([repos.passes.record(other), repos.passes.record(other)]);
+    expect(wrote.filter(Boolean)).toHaveLength(1);
+  });
+
+  it("saves a recognition deck's answers in order, and only those", async () => {
+    await repos.algorithms.recordRecognition(
+      [
+        { caseId: "pll-t", variantId: "t-1", successful: false, recognitionMs: 2400.4 },
+        { caseId: "pll-ua", variantId: "ua-1", successful: true, recognitionMs: 1800 },
+        { caseId: "pll-t", variantId: "t-1", successful: true, recognitionMs: 1500 },
+      ],
+      "2026-09-29T09:00:00.000Z",
+    );
+    const saved = await repos.algorithms.recognitionAttempts();
+    expect(saved.map((row) => [row.caseId, row.successful, row.recognitionMs])).toEqual([
+      ["pll-t", false, 2400],
+      ["pll-ua", true, 1800],
+      ["pll-t", true, 1500],
+    ]);
+    expect(saved.every((row) => row.mode === "recognition")).toBe(true);
+    expect(new Set(saved.map((row) => row.createdAt)).size).toBe(3);
   });
 
   it("keeps each drill's sessions in order", async () => {

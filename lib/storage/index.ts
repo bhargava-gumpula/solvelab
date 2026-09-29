@@ -7,6 +7,7 @@ import { SettingsRepository } from "./settings-repository";
 import { SolveRepository } from "./solve-repository";
 import { TrainingRepository } from "./training-repository";
 import { DrillRepository } from "./drill-repository";
+import { UnitPassRepository } from "./unit-pass-repository";
 
 export interface Repositories {
   db: LocalDatabase;
@@ -18,6 +19,7 @@ export interface Repositories {
   lessons: LessonRepository;
   training: TrainingRepository;
   drills: DrillRepository;
+  passes: UnitPassRepository;
 }
 
 export function createRepositories(db: LocalDatabase): Repositories {
@@ -31,6 +33,7 @@ export function createRepositories(db: LocalDatabase): Repositories {
     lessons: new LessonRepository(db),
     training: new TrainingRepository(db),
     drills: new DrillRepository(db),
+    passes: new UnitPassRepository(db),
   };
 }
 

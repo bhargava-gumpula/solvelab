@@ -1,25 +1,29 @@
 import { describe, expect, it } from "vitest";
 import { getCourse } from "@/data/hub/courses";
-import { buildSolveProfile, type SolveProfile } from "@/lib/coach/profile";
+import { buildSolveProfile } from "@/lib/coach/profile";
 import { courseState, TEST_OUT_SAMPLES, type PathInput } from "@/lib/hub/path";
+import type { DiagnosticRun } from "@/types/domain";
 
-/** A profile where one part measured fast from a given number of attempts. */
-function fastFrom(aspectId: string, samples: number): SolveProfile {
-  const base = buildSolveProfile({ runs: [], solves: [], goalMilestoneId: "sub15", snapshots: [] });
+/** A finished test with every attempt at the same time. */
+function run(testId: string, attempts: number, ms: number): DiagnosticRun {
   return {
-    ...base,
-    aspects: base.aspects.map((aspect) =>
-      aspect.id === aspectId ? { ...aspect, tag: "fast" as const, samples } : aspect,
-    ),
+    id: `${testId}-${attempts}`,
+    exerciseId: testId,
+    createdAt: "2026-09-20T10:00:00.000Z",
+    completedAt: "2026-09-20T10:30:00.000Z",
+    solveIds: [],
+    sampleCount: attempts,
+    timesMs: Array.from({ length: attempts }, () => ms),
   };
 }
 
-const input = (profile: SolveProfile): PathInput => ({
-  profile,
+const input = (runs: DiagnosticRun[]): PathInput => ({
+  profile: buildSolveProfile({ runs, solves: [], goalMilestoneId: "sub15", snapshots: [] }),
   recommendations: [],
   byPack: {},
   methodDone: new Set(),
   intro: undefined,
+  runs,
 });
 
 describe("algorithm units and lucky samples (audit item 60)", () => {
@@ -35,21 +39,23 @@ describe("algorithm units and lucky samples (audit item 60)", () => {
     expect(oll(TEST_OUT_SAMPLES["oll-algorithms"]!) / 57).toBeGreaterThan(0.8);
   });
 
-  it("keeps full PLL open after a short fast test, and passes it after a long one", () => {
+  it("keeps full PLL open after a short even test, and passes it after a long one", () => {
     const course = getCourse("sub-30")!;
-    const unit = (profile: SolveProfile) =>
-      courseState(course, input(profile)).units.find(
-        (state) => state.unit.id === "pll-algorithms",
-      )!;
-    expect(unit(fastFrom("pll_algorithms", 12)).testedOut).toBe(false);
-    expect(unit(fastFrom("pll_algorithms", 60)).testedOut).toBe(true);
+    const unit = (runs: DiagnosticRun[]) =>
+      courseState(course, input(runs)).units.find((state) => state.unit.id === "pll-algorithms")!;
+    // Every case at the same time: no slow cases at all, so the share is as good as it gets.
+    const short = unit([run("pll_only", 12, 3000)]);
+    expect(short.measure?.tag).toBe("fast");
+    expect(short.passed).toBeNull();
+    const long = unit([run("pll_only", 60, 3000)]);
+    expect(long.passed?.via).toBe("tested-out");
   });
 
-  it("leaves other units testing out as before", () => {
+  it("leaves other units passing on a test of ordinary length", () => {
     const course = getCourse("sub-30")!;
-    const lookahead = courseState(course, input(fastFrom("lookahead", 1))).units.find(
-      (state) => state.unit.id === "lookahead",
+    const cross = courseState(course, input([run("cross_only", 12, 3000)])).units.find(
+      (state) => state.unit.id === "cross-efficiency",
     )!;
-    expect(lookahead.testedOut).toBe(true);
+    expect(cross.passed?.via).toBe("tested-out");
   });
 });

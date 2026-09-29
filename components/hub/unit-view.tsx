@@ -2,17 +2,15 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, BookOpen, Check, Eye } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, Eye, Trophy } from "lucide-react";
 import { PackDetail } from "@/components/train/pack-detail";
 import { Button } from "@/components/ui/button";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { testHref } from "@/data/exercises";
 import { useHub } from "@/hooks/use-hub";
-import { useSolveProfile } from "@/hooks/use-solve-profile";
-import { getAspect } from "@/lib/coach/aspects";
-import { formatAspectValue } from "@/lib/coach/profile-format";
-import { sinceStarted, type CourseState } from "@/lib/hub/path";
+import { formatMeasureValue, formatPassLine, passedHow, waitingOn } from "@/lib/hub/measure-format";
+import { courseState, type CourseState } from "@/lib/hub/path";
 import { usePackProgress } from "@/hooks/use-training-progress";
 import { COURSES } from "@/data/hub/courses";
 import {
@@ -72,7 +70,7 @@ export function UnitView({ unitId }: { unitId: string }) {
         </div>
       </motion.header>
 
-      {unit.kind === "pack" && unit.pack.aspectId ? <UnitMeasure unit={unit} /> : null}
+      <UnitMeasure unit={unit} />
       {unit.kind === "pack" ? <PackLessons unit={unit} /> : <MethodLessons unit={unit} />}
       {unit.recognition ? <RecognitionLink unitId={unit.id} set={unit.recognition} /> : null}
       {unit.kind === "pack" ? (
@@ -191,20 +189,46 @@ function LessonList({
 }
 
 /**
- * The number this unit is meant to move: where it stands, and how it has
- * changed since you started the unit, with the test that measures it.
+ * What shows this unit worked: its measure against a course's pass line, how
+ * it has moved since you started, and what to do to move it. The course is
+ * yours when it has the unit, else the first course that teaches it.
  */
-function UnitMeasure({ unit }: { unit: Extract<Unit, { kind: "pack" }> }) {
-  const aspectId = unit.pack.aspectId!;
-  const definition = getAspect(aspectId);
-  const { loaded, profile, snapshots } = useSolveProfile({
-    withSolves: definition.measuredBy === "timer",
-  });
-  const { progress } = usePackProgress(unit.pack);
-  if (!loaded || !profile) return <Skeleton className="h-28 rounded-2xl" />;
-  const aspect = profile.aspects.find((item) => item.id === aspectId)!;
-  const change = sinceStarted(aspect, progress.startedAt, snapshots);
-  const test = aspect.nextTest ?? definition.tests[0] ?? null;
+function UnitMeasure({ unit }: { unit: Unit }) {
+  const hub = useHub();
+  if (!hub.loaded || !hub.input) return <Skeleton className="h-28 rounded-2xl" />;
+  const inCourse = hub.current?.units.find((state) => state.unit.id === unit.id);
+  const course = inCourse ? hub.current!.course : coursesWithUnit(unit.id)[0];
+  const state =
+    inCourse ??
+    (course
+      ? courseState(course, hub.input).units.find((item) => item.unit.id === unit.id)
+      : undefined);
+  if (!state || !course) return null;
+  const { measure, passed } = state;
+
+  if (!measure) {
+    return (
+      <motion.section
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="rounded-2xl p-5 glass"
+        data-testid="unit-measure"
+      >
+        <p className="text-xs text-muted-foreground">How this unit is finished</p>
+        <p className="mt-0.5 font-semibold">
+          {state.done ? "Finished" : "Read it, then run each drill"}
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          There&apos;s no fair number for this unit, so it&apos;s finished once you&apos;ve read its
+          lessons and run each of its drills.
+        </p>
+      </motion.section>
+    );
+  }
+
+  const line = formatPassLine(measure);
+  const next = measure.next;
+  const started = state.status !== "open";
   return (
     <motion.section
       initial={{ opacity: 0, y: 10 }}
@@ -213,33 +237,58 @@ function UnitMeasure({ unit }: { unit: Extract<Unit, { kind: "pack" }> }) {
       data-testid="unit-measure"
     >
       <div className="min-w-0 flex-1">
-        <p className="text-xs text-muted-foreground">What this unit is meant to move</p>
+        <p className="text-xs text-muted-foreground">
+          What shows this unit worked{line ? ` · ${course.title} pass line: ${line}` : ""}
+        </p>
         <p className="mt-0.5 flex flex-wrap items-center gap-2 font-semibold">
-          {aspect.value === null
-            ? definition.label
-            : `${definition.label}: ${formatAspectValue(definition.kind, aspect.value)}`}
-          {aspect.tag ? <PaceBadge tag={aspect.tag} /> : null}
+          {measure.value === null
+            ? measure.label
+            : `${measure.label}: ${formatMeasureValue(measure, measure.value)}`}
+          {measure.tag ? <PaceBadge tag={measure.tag} /> : null}
+          {passed ? (
+            <span
+              className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground"
+              data-testid="unit-passed"
+            >
+              <Trophy className="size-3" /> Passed
+            </span>
+          ) : null}
         </p>
         <p className="mt-1 text-sm text-muted-foreground" data-testid="unit-since">
-          {aspect.value === null
-            ? "Not measured yet. Take the test to get a starting number."
-            : !change
-              ? "Start a lesson or drill, then retest to see it move."
-              : change.before === null
-                ? "Nothing measured from before you started. Your next retest is the one to beat."
-                : `${formatAspectValue(definition.kind, change.before)} when you started → ${formatAspectValue(definition.kind, change.now)} now${
-                    change.better === null
-                      ? ""
-                      : change.better
-                        ? ". Moving the right way."
-                        : ". Not moved yet: keep at the drills."
-                  }`}
+          {passed
+            ? `${passedHow(passed.via, course)}${
+                passed.passedAt
+                  ? ` Passed on ${new Date(passed.passedAt).toLocaleDateString()}.`
+                  : ""
+              }`
+            : (waitingOn(measure) ??
+              (measure.value === null
+                ? next?.kind === "timer"
+                  ? "Not enough timer solves yet to say."
+                  : "Not measured yet. Take the test to get a starting number."
+                : !started
+                  ? "Start a lesson or drill, then retest to see it move."
+                  : measure.before === null
+                    ? "Nothing measured from before you started. Meet the line, or beat this number clearly on a retest."
+                    : `${formatMeasureValue(measure, measure.before)} when you started → ${formatMeasureValue(measure, measure.value)} now. It passes at the line, or once it is clearly better than when you started.`))}
         </p>
       </div>
-      {test ? (
+      {next?.kind === "test" ? (
         <Button asChild className="rounded-full" data-testid="unit-retest">
-          <Link href={testHref(test)}>
-            {aspect.value === null ? "Take the test" : "Retest"} <ArrowRight />
+          <Link href={testHref(next.testId)}>
+            {measure.value === null ? "Take the test" : "Retest"} <ArrowRight />
+          </Link>
+        </Button>
+      ) : next?.kind === "timer" ? (
+        <Button asChild className="rounded-full" data-testid="unit-retest">
+          <Link href="/timer/">
+            Open the timer <ArrowRight />
+          </Link>
+        </Button>
+      ) : next?.kind === "recognition" ? (
+        <Button asChild className="rounded-full" data-testid="unit-retest">
+          <Link href={recognitionHref(next.set)}>
+            Run the drill <ArrowRight />
           </Link>
         </Button>
       ) : null}

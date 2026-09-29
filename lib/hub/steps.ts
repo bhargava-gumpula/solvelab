@@ -49,6 +49,22 @@ function hash(text: string): number {
 }
 
 /**
+ * The same question with its options in a new order, for another go after a
+ * wrong answer. The first go (attempt 0) keeps the order the lesson has on
+ * every visit.
+ */
+export function reshuffled(step: QuizStep, attempt: number): QuizStep {
+  if (attempt === 0) return step;
+  const right = step.options[step.answer]!;
+  let options = [...step.options].sort((a, b) => hash(`${attempt}|${a}`) - hash(`${attempt}|${b}`));
+  // The order must change, or the retry is the same picture again.
+  if (options.every((option, index) => option === step.options[index])) {
+    options = [...options.slice(1), options[0]!];
+  }
+  return { ...step, options, answer: options.indexOf(right) };
+}
+
+/**
  * "Which of these is this lesson's point?", with the other options taken from
  * other lessons. Telling your lesson's idea apart from neighbouring ones is a
  * real check that it went in, and it needs no extra writing per lesson.

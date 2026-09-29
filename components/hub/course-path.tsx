@@ -14,12 +14,12 @@ import {
   Trophy,
   type LucideIcon,
 } from "lucide-react";
-import { PaceBadge } from "@/components/coach/pace-badge";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { testHref, testTitle } from "@/data/exercises";
 import type { CourseState, UnitState } from "@/lib/hub/path";
 import { drillHref } from "@/lib/hub/drills";
+import { formatMeasureValue, formatPassLine } from "@/lib/hub/measure-format";
 import { RECOGNITION_LABEL, lessonHref, recognitionHref, unitHref } from "@/lib/hub/units";
 import { cn } from "@/lib/utils";
 
@@ -52,48 +52,67 @@ function nodesFor(state: UnitState, nextLessonId: string | null): PathNode[] {
       state: done ? "done" : lesson.id === nextLessonId ? "next" : "open",
     };
   });
+  const { measure } = state;
+  const passed = state.passed !== null;
   if (unit.recognition) {
+    // When the drill is the unit's measure, its node carries the pass.
+    const measured = measure?.spec.kind === "recognition" && measure.spec.set === unit.recognition;
+    const how =
+      unit.recognition === "f2l"
+        ? "pick the algorithm for the pair"
+        : unit.recognition.startsWith("two-look")
+          ? "name the case"
+          : "name the case from two sides";
     nodes.push({
       key: "recognise",
-      icon: Eye,
+      icon: measured && passed ? Trophy : Eye,
       title:
         unit.recognition === "f2l"
           ? "Recognise F2L cases"
           : `Recognise ${RECOGNITION_LABEL[unit.recognition]} cases`,
-      detail:
-        unit.recognition === "f2l"
-          ? "On-screen drill · pick the algorithm for the pair"
-          : unit.recognition.startsWith("two-look")
-            ? "On-screen drill · name the case"
-            : "On-screen drill · name the case from two sides",
+      detail: measured
+        ? `On-screen drill · ${formatMeasureValue(measure, measure.value)} known`
+        : `On-screen drill · ${how}`,
       href: recognitionHref(unit.recognition),
       action: "Start drill",
-      state: "open",
+      state: measured && passed ? "done" : "open",
     });
   }
   if (unit.kind === "pack") {
     for (const drill of unit.drills) {
+      const done = state.isDrillDone(drill.id);
       nodes.push({
         key: `drill-${drill.id}`,
         icon: Dumbbell,
         title: drill.title,
-        detail: `Drill · ${drill.dose}`,
+        detail: `Drill · ${drill.dose}${done ? " · done once" : ""}`,
         href: drillHref(unit.id, drill.id),
-        action: "Run a timed session",
-        state: "open",
+        action: done ? "Run another session" : "Run a session",
+        state: done ? "done" : "open",
       });
     }
   }
-  const test = state.aspect?.nextTest ?? state.aspect?.definition.tests[0] ?? null;
-  if (test) {
+  const next = measure?.next;
+  if (measure && next && next.kind !== "recognition") {
+    const line = formatPassLine(measure);
+    const what = next.kind === "test" ? testTitle(next.testId) : measure.label;
     nodes.push({
       key: "test",
       icon: Trophy,
-      title: state.testedOut ? "Passed" : "Unit test",
-      detail: testTitle(test),
-      href: testHref(test),
-      action: state.aspect?.tag ? "Retake the test" : "Take the test",
-      state: state.testedOut ? "done" : "open",
+      title: passed
+        ? `Passed · ${formatMeasureValue(measure, state.passed!.value ?? measure.value)}`
+        : next.kind === "test"
+          ? "Unit test"
+          : "Timer solves",
+      detail: line && !passed ? `${what} · pass line ${line}` : what,
+      href: next.kind === "test" ? testHref(next.testId) : "/timer/",
+      action:
+        next.kind === "timer"
+          ? "Open the timer"
+          : measure.value === null
+            ? "Take the test"
+            : "Retake the test",
+      state: passed ? "done" : "open",
     });
   }
   return nodes;
@@ -171,7 +190,7 @@ export function CoursePath({ state }: { state: CourseState }) {
 }
 
 function UnitBanner({ state, index, hue }: { state: UnitState; index: number; hue: number }) {
-  const { unit, pick, aspect } = state;
+  const { unit, pick, measure, status } = state;
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -231,9 +250,33 @@ function UnitBanner({ state, index, hue }: { state: UnitState; index: number; hu
         <span className="tabular text-xs opacity-90">
           {state.lessonsDone}/{state.lessonTotal}
         </span>
-        {aspect?.tag ? <PaceBadge tag={aspect.tag} /> : null}
-        {state.testedOut ? (
-          <span className="rounded-full bg-white/25 px-2 py-0.5 text-xs">Passed</span>
+        {/* How the number stands against the course's line; a pass says it all. */}
+        {measure?.tag && status !== "passed" ? (
+          <span
+            className="rounded-full bg-white/20 px-2 py-0.5 text-xs capitalize"
+            data-testid={`pace-${unit.id}`}
+          >
+            {measure.tag}
+          </span>
+        ) : null}
+        {status === "passed" ? (
+          <motion.span
+            className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-black"
+            initial={{ scale: 0.6 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ type: "spring", stiffness: 300, damping: 14 }}
+            data-testid={`status-${unit.id}`}
+          >
+            <Trophy className="size-3" /> Passed
+          </motion.span>
+        ) : status === "practised" || status === "read" ? (
+          <span
+            className="rounded-full border border-white/50 px-2 py-0.5 text-xs"
+            data-testid={`status-${unit.id}`}
+          >
+            {status === "practised" ? "Practised" : "Read"}
+          </span>
         ) : null}
       </div>
     </motion.div>

@@ -418,6 +418,30 @@ export interface DrillRun {
   updatedAt: string;
 }
 
+/**
+ * A unit passed on a measured result, in one course. Written once and never
+ * edited, so a pass stays whatever later numbers say, and two devices that
+ * both pass the same unit write the same record.
+ */
+export interface UnitPass {
+  /** `${courseId}:${unitId}`: a unit can be in several courses, each with its own line. */
+  id: string;
+  courseId: string;
+  unitId: string;
+  /** The kind of measure, and which one: an aspect id, a test id, a recognition set. */
+  measure: "aspect" | "test" | "timer" | "streak" | "recognition" | "profile";
+  measureId: string;
+  /** Met the course's line, or clearly improved on the number from before the unit. */
+  via: "target" | "improved" | "tested-out";
+  /** The number that passed, the one before the unit, and the line it was judged against. */
+  value: number | null;
+  before: number | null;
+  line: number | null;
+  passedAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface TrainingProgress {
   packId: string;
   /** Lesson ids read. */

@@ -166,6 +166,44 @@ describe("JSON backup", () => {
     ).toEqual([20100, 19800]);
   });
 
+  it("carries unit passes and recognition answers, and imports a backup without them", async () => {
+    await source.repos.passes.record({
+      id: "sub-20:lookahead",
+      courseId: "sub-20",
+      unitId: "lookahead",
+      measure: "aspect",
+      measureId: "lookahead",
+      via: "improved",
+      value: 1900,
+      before: 2600,
+      line: 1470,
+    });
+    await source.repos.algorithms.recordRecognition([
+      { caseId: "pll-t", variantId: "t-1", successful: true, recognitionMs: 1800 },
+    ]);
+    const backup = await createBackup(source.db);
+    expect(backup.data.unitPasses).toHaveLength(1);
+    const parsed = parseBackup(JSON.stringify(backup));
+    if (!parsed.ok) throw new Error(parsed.error);
+    const target = await freshDatabase();
+    await restoreBackup(target.db, parsed.document, "replace");
+    expect(await target.repos.passes.list()).toMatchObject([
+      { id: "sub-20:lookahead", via: "improved", value: 1900, before: 2600 },
+    ]);
+    expect(await target.repos.algorithms.recognitionAttempts()).toMatchObject([
+      { caseId: "pll-t", successful: true, recognitionMs: 1800 },
+    ]);
+
+    // A backup made before passes existed has no such list, and still imports.
+    const older = structuredClone(backup) as unknown as { data: Record<string, unknown> };
+    delete older.data.unitPasses;
+    const reparsed = parseBackup(JSON.stringify(older));
+    if (!reparsed.ok) throw new Error(reparsed.error);
+    const again = await freshDatabase();
+    await restoreBackup(again.db, reparsed.document, "replace");
+    expect(await again.repos.passes.list()).toEqual([]);
+  });
+
   it("carries training pack progress, and a replace clears what was there", async () => {
     await source.repos.training.setDone("lookahead", "lesson", "lookahead-slow-solves", true);
     await source.repos.training.setDone("lookahead", "drill", "lookahead-metronome", true);

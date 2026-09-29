@@ -38,6 +38,8 @@ cubing.js generates scrambles in a module worker that locates its own files rela
 | 1       | Sessions, solves, settings, skill profiles, algorithm progress/attempts, training plans, diagnostic runs                                            |
 | 2       | `sessions.sortOrder` index; timer preferences (hold time, hide time, inspection sounds, scramble preview) with defaults filled for existing records |
 
+Later versions each add one table and change nothing that exists: 3 lesson progress, 4 profile snapshots, 5 daily checks, 6 coach threads, 7 the local-only `meta` table, 8 training progress, 9 drill sessions, 10 unit passes.
+
 Rules: never edit a shipped version; add `.version(n).stores(...).upgrade(...)`; add a test that opens data written by the previous version (see `tests/unit/storage.test.ts`). Settings are also normalized on read, so a missing field can never break the app. No sample data is ever written to a user's database.
 
 Backups use the stable format id `speedcubing-local-backup`, version 1. Imports validate the whole document (types, duplicate ids, references), recompute final times, and write in one transaction.
@@ -55,3 +57,20 @@ A sub-path deployment (`SOLVELAB_BASE_PATH=/solvelab`) still works if it's ever 
 ## Phase boundaries
 
 Implemented through V1 plus Google sign-in and Firestore account sync. Not yet implemented: algorithm case data, diagrams and drills (V1.5), diagnostics, skill scoring and training plans (V2), local ML (V2.5), AI providers (V3), smart cubes (V4).
+
+## Measured completion (Learning Hub)
+
+Reading a unit and passing it are different things.
+
+- **Read**: every lesson the course shows has been read. A lesson counts as read only once its question is answered right (`components/hub/lesson-player.tsx`).
+- **Practised**: every drill the course shows has a saved session.
+- **Passed**: the unit's measure says so. `data/hub/measures.ts` names the measure of every unit: a part of the solve profile, a skill test, an average of timer solves, a streak of finished solves, the cases of a recognition drill, or the whole set of core tests. `lib/hub/measure.ts` grades it against the **course's** line (`aspectTargetsFor(course.targetId)`), not the goal in settings.
+- A unit with no measure is finished once it is read and practised.
+
+A measure passes three ways. **Target**: the number meets the line on a sample taken after the unit was started (a finished test run; daily checks don't count). **Improved**: it is clearly better than the last number saved before the unit was started; the bands are in `improvedEnough`. **Tested-out**: it already met the line before the unit was touched, and the coach hasn't picked the unit.
+
+Passes earned by work (target, improved) are saved in `unitPasses`, keyed `${courseId}:${unitId}`, written once and never edited, so a pass stays whatever later numbers say and syncs without conflicts. Tested-out is worked out each time and not saved, so it gives way if the number slips. `usePersistPasses` (`hooks/use-hub.ts`) saves new passes and celebrates them once; the first run in a browser saves quietly.
+
+Recognition answers are saved one row each in the existing `algorithmAttempts` table (`mode: "recognition"`), append-only. A case is known once its latest two answers were right; decks deal unseen, missed and slow cases more often (`lib/hub/recognition.ts`, `recognition-stats.ts`).
+
+`courseState` keeps the next lesson lesson-driven: a unit that is read and waits on its test doesn't hold the reading up. Waiting units are listed in `awaiting`, grouped by the test that would settle them in `retestsDue`.

@@ -1,13 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { toast } from "sonner";
+import { celebrate } from "@/components/hub/fx";
 import { useStorageStatus } from "@/components/layout/storage-provider";
 import { useCoachModel } from "@/hooks/use-coach-thread";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
 import { useTrainingProgress } from "@/hooks/use-training-progress";
-import { placeInCourse, courseState, type PathInput } from "@/lib/hub/path";
+import {
+  placeInCourse,
+  courseState,
+  passKey,
+  type CourseState,
+  type PathInput,
+} from "@/lib/hub/path";
 import { planTests } from "@/lib/hub/plan";
 import { getRepositories } from "@/lib/storage";
 import { levelContext } from "@/lib/training/level";
@@ -21,7 +28,7 @@ import type { HubIntro, UserSettings } from "@/types/domain";
  */
 export function useHub() {
   const ready = useStorageStatus().status === "ready";
-  const { loaded, profile, settings, runs, solves } = useSolveProfile();
+  const { loaded, profile, settings, runs, solves, snapshots } = useSolveProfile();
   const { loaded: progressLoaded, byPack } = useTrainingProgress();
   // Undefined while the weights load; null if they couldn't, and the rules stand in.
   const model = useCoachModel();
@@ -29,12 +36,22 @@ export function useHub() {
     async () => (ready ? await getRepositories().lessons.list() : undefined),
     [ready],
   );
+  const attempts = useLiveQuery(
+    async () => (ready ? await getRepositories().algorithms.recognitionAttempts() : undefined),
+    [ready],
+  );
+  const savedPasses = useLiveQuery(
+    async () => (ready ? await getRepositories().passes.list() : undefined),
+    [ready],
+  );
   const intro = settings?.hubIntro;
   const goalId = settings?.targetMilestone ?? null;
 
   // The diagnoser is a small neural net: run it once per change of data, not per render.
   const derived = useMemo(() => {
-    if (!profile || model === undefined || !methodLessons) return null;
+    if (!profile || model === undefined || !methodLessons || !attempts || !savedPasses) {
+      return null;
+    }
     const { average, band } = levelContext(profile, goalId);
     const recommendations = packRecommendations({ profile, model, runs, solves, band });
     const input: PathInput = {
@@ -43,6 +60,11 @@ export function useHub() {
       byPack,
       methodDone: new Set(methodLessons.map((lesson) => lesson.lessonId)),
       intro,
+      runs,
+      solves,
+      snapshots,
+      attempts,
+      passes: new Map(savedPasses.map((pass) => [pass.id, pass])),
     };
     const placement = placeInCourse({ averageMs: average, intro, goalId });
     return {
@@ -52,7 +74,21 @@ export function useHub() {
       current: placement ? courseState(placement.course, input) : null,
       testPlan: planTests({ model, runs, solves, goalId, taken: profile.testsTaken }),
     };
-  }, [profile, model, runs, solves, goalId, byPack, methodLessons, intro]);
+  }, [
+    profile,
+    model,
+    runs,
+    solves,
+    snapshots,
+    goalId,
+    byPack,
+    methodLessons,
+    intro,
+    attempts,
+    savedPasses,
+  ]);
+
+  usePersistPasses(derived?.current ?? null);
 
   return {
     loaded: loaded && progressLoaded && derived !== null,
@@ -61,12 +97,85 @@ export function useHub() {
     intro,
     solves,
     runs,
+    attempts: attempts ?? [],
     average: derived?.average ?? null,
     input: derived?.input ?? null,
     placement: derived?.placement ?? null,
     current: derived?.current ?? null,
     testPlan: derived?.testPlan ?? null,
   };
+}
+
+/** Set once this browser has worked out passes, so the first time stays quiet. */
+const MEASURED_SEEN_KEY = "measuredCompletionSeen";
+
+/**
+ * Saves the passes your course's numbers have earned, so they stay. A pass
+ * earned by work in a unit is celebrated once, when it is first saved. One
+ * that only says "already fast" isn't saved: nothing was earned, and it should
+ * give way if the number slips. The first time this runs in a browser it
+ * saves quietly, so numbers from before don't set off a burst of confetti.
+ */
+function usePersistPasses(state: CourseState | null) {
+  useEffect(() => {
+    if (!state) return;
+    const earned = state.units.filter(
+      ({ passed, measure }) =>
+        measure && passed && passed.passedAt === null && passed.via !== "tested-out",
+    );
+    void (async () => {
+      const { db, passes } = getRepositories();
+      const seen = await db.meta.get(MEASURED_SEEN_KEY);
+      const saved: string[] = [];
+      for (const { unit, passed, measure } of earned) {
+        const spec = measure!.spec;
+        if (spec.kind === "none") continue;
+        const wrote = await passes.record({
+          id: passKey(state.course.id, unit.id),
+          courseId: state.course.id,
+          unitId: unit.id,
+          measure: spec.kind,
+          measureId:
+            spec.kind === "aspect"
+              ? spec.aspectId
+              : spec.kind === "test"
+                ? spec.testId
+                : spec.kind === "recognition"
+                  ? spec.set
+                  : spec.kind === "timer"
+                    ? `ao${spec.size}`
+                    : spec.kind === "streak"
+                      ? `finish${spec.count}`
+                      : "core",
+          via: passed!.via,
+          value: passed!.value,
+          before: passed!.before,
+          line: passed!.line,
+        });
+        if (wrote) saved.push(unit.title);
+      }
+      if (!seen) {
+        await db.meta.put({
+          key: MEASURED_SEEN_KEY,
+          value: "1",
+          updatedAt: new Date().toISOString(),
+        });
+      }
+      if (!saved.length) return;
+      if (!seen) {
+        toast(
+          saved.length === 1
+            ? "1 unit passed on the numbers you already have."
+            : `${saved.length} units passed on the numbers you already have.`,
+        );
+        return;
+      }
+      celebrate("big");
+      toast.success(`Passed: ${saved.join(", ")} (${state.course.title})`);
+    })().catch(() => {
+      // Nothing is lost: the pass is worked out again on the next visit.
+    });
+  }, [state]);
 }
 
 /** Saves the questionnaire, and the goal and method it asked about. */

@@ -1,8 +1,10 @@
 /**
  * Where someone is in the Learning Hub and what to do next: which course they
  * belong in, the order of its units for them, and the next lesson to open.
- * Nothing is locked; the order is a recommendation, and a unit whose part of
- * the solve already measures fast counts as passed.
+ * Nothing is locked; the order is a recommendation. Reading a unit's lessons
+ * marks it read; it is passed when its measure says so (lib/hub/measure.ts),
+ * and a unit with nothing to measure is finished once it is read and each of
+ * its drills has been run.
  */
 import { courseForRung, type CourseDefinition } from "@/data/hub/courses";
 import { packForAspect } from "@/data/training";
@@ -11,9 +13,24 @@ import { levelForAverage, levelForGoal } from "@/data/training/levels";
 import type { AspectResult, SolveProfile } from "@/lib/coach/profile";
 import type { PackProgress } from "@/lib/training/progress";
 import type { PackRecommendation } from "@/lib/training/recommend";
-import type { HubIntro, ProfileSnapshot } from "@/types/domain";
+import type {
+  AlgorithmAttempt,
+  DiagnosticRun,
+  HubIntro,
+  ProfileSnapshot,
+  Solve,
+  UnitPass,
+} from "@/types/domain";
 import { rungForAnswer, saidSlowAspects } from "./intro";
+import { evaluateMeasure, type MeasureResult, type PassedBy } from "./measure";
 import { courseUnits, unitForPack, type Unit } from "./units";
+
+export { TEST_OUT_SAMPLES } from "./measure";
+
+/** The key a unit's pass is saved under: a unit can be in several courses, each with its own line. */
+export function passKey(courseId: string, unitId: string): string {
+  return `${courseId}:${unitId}`;
+}
 
 /** The time a course gets you under, in ms. */
 export function courseTargetMs(course: CourseDefinition): number | null {
@@ -59,17 +76,38 @@ export interface UnitPick {
   reason: string;
 }
 
+/** A unit's pass: one saved earlier, or one its numbers earn right now. */
+export interface UnitPassed {
+  via: PassedBy;
+  value: number | null;
+  before: number | null;
+  line: number | null;
+  /** When it was saved; null for a pass worked out just now. */
+  passedAt: string | null;
+}
+
+/**
+ * How far along a unit is. "practised" is the finish of a unit with nothing to
+ * measure; "passed" is the finish of one that has a measure.
+ */
+export type UnitStatus = "open" | "reading" | "read" | "practised" | "passed";
+
 export interface UnitState {
   unit: Unit;
   lessonsDone: number;
   lessonTotal: number;
   isLessonDone: (lessonId: string) => boolean;
-  /** Every lesson read. */
-  complete: boolean;
-  /** Its part of the solve already measures fast, so the unit counts as passed. */
-  testedOut: boolean;
+  isDrillDone: (drillId: string) => boolean;
+  /** Every lesson the course shows has been read. */
+  read: boolean;
+  /** Every drill the course shows has been run at least once. */
+  practised: boolean;
+  /** The unit's measure against this course's line; null when it has none. */
+  measure: MeasureResult | null;
+  passed: UnitPassed | null;
+  status: UnitStatus;
+  /** Passed; or, with nothing to measure, read and practised. */
   done: boolean;
-  aspect: AspectResult | null;
   /** Why it's near the top of your path, when it's been picked for you. */
   pick: UnitPick | null;
 }
@@ -78,12 +116,18 @@ export interface CourseState {
   course: CourseDefinition;
   /** Every unit, optional ones included, in the order to take them. */
   units: UnitState[];
-  /** The next lesson to open, or null when every main-line unit is done. */
+  /** The next lesson to open, or null when every main-line unit is read or done. */
   next: { unit: UnitState; lessonId: string } | null;
+  /** Main-line units that are read and wait on their measure or their drills. */
+  awaiting: UnitState[];
+  /** The tests that would settle waiting units, the one that settles most first. */
+  retestsDue: { testId: string; units: UnitState[] }[];
   /** Progress through the main line; optional units don't count against it. */
   lessonsDone: number;
   lessonTotal: number;
-  unitsDone: number;
+  unitTotal: number;
+  unitsRead: number;
+  unitsFinished: number;
 }
 
 export interface PathInput {
@@ -94,43 +138,84 @@ export interface PathInput {
   /** Method lessons finished, by id. */
   methodDone: ReadonlySet<string>;
   intro: HubIntro | undefined;
+  /** What the measures read. Left out, nothing has been measured. */
+  runs?: readonly DiagnosticRun[];
+  solves?: readonly Solve[];
+  snapshots?: readonly ProfileSnapshot[];
+  /** Saved answers of the recognition drills. */
+  attempts?: readonly AlgorithmAttempt[];
+  /** Saved passes, by `passKey`. A saved pass stays, whatever later numbers say. */
+  passes?: ReadonlyMap<string, UnitPass>;
 }
 
-/**
- * A last-layer algorithm set can look fast on a small test that happened to
- * deal its easy cases, so these units only test out once the test has dealt
- * enough attempts to have shown most of the set: 50 for PLL (16 of its 21
- * cases come up 1 time in 18) and 100 for OLL (51 of its 57 come up 1 time in
- * 54). By then about four cases in five have come up at least once.
- */
-export const TEST_OUT_SAMPLES: Readonly<Record<string, number>> = {
-  "pll-algorithms": 50,
-  "oll-algorithms": 100,
-};
-
-function unitState(unit: Unit, input: PathInput, pick: UnitPick | null): UnitState {
-  const aspect =
-    unit.kind === "pack" && unit.pack.aspectId
-      ? (input.profile?.aspects.find((item) => item.id === unit.pack.aspectId) ?? null)
-      : null;
+function unitState(
+  unit: Unit,
+  course: CourseDefinition,
+  input: PathInput,
+  pick: UnitPick | null,
+): UnitState {
   const progress = unit.kind === "pack" ? input.byPack[unit.id] : undefined;
   const isLessonDone =
     unit.kind === "pack"
       ? (id: string) => progress?.isLessonDone(id) ?? false
       : (id: string) => input.methodDone.has(id);
+  const isDrillDone = (id: string) => progress?.isDrillDone(id) ?? false;
   const lessonsDone = unit.lessons.filter((lesson) => isLessonDone(lesson.id)).length;
-  const complete = unit.lessons.length > 0 && lessonsDone >= unit.lessons.length;
-  const enough = (aspect?.samples ?? 0) >= (TEST_OUT_SAMPLES[unit.id] ?? 0);
-  const testedOut = !pick && aspect?.tag === "fast" && enough;
+  const read = unit.lessons.length > 0 && lessonsDone >= unit.lessons.length;
+  const drills = unit.kind === "pack" ? unit.drills : [];
+  const practised = drills.every((drill) => isDrillDone(drill.id));
+
+  const measure = evaluateMeasure(unit, {
+    course,
+    unitId: unit.id,
+    startedAt: progress?.startedAt ?? null,
+    picked: pick !== null,
+    profile: input.profile,
+    runs: input.runs ?? [],
+    solves: input.solves ?? [],
+    snapshots: input.snapshots ?? [],
+    attempts: input.attempts ?? [],
+  });
+  const saved = input.passes?.get(passKey(course.id, unit.id));
+  const passed: UnitPassed | null = saved
+    ? {
+        via: saved.via,
+        value: saved.value,
+        before: saved.before,
+        line: saved.line,
+        passedAt: saved.passedAt,
+      }
+    : measure?.passedBy
+      ? {
+          via: measure.passedBy,
+          value: measure.value,
+          before: measure.before,
+          line: measure.line,
+          passedAt: null,
+        }
+      : null;
+  const finished = measure === null && read && practised;
+  const started = lessonsDone > 0 || drills.some((drill) => isDrillDone(drill.id));
   return {
     unit,
     lessonsDone,
     lessonTotal: unit.lessons.length,
     isLessonDone,
-    complete,
-    testedOut,
-    done: complete || testedOut,
-    aspect,
+    isDrillDone,
+    read,
+    practised,
+    measure,
+    passed,
+    status: passed
+      ? "passed"
+      : finished
+        ? "practised"
+        : read
+          ? "read"
+          : started
+            ? "reading"
+            : "open",
+    done: passed !== null || finished,
     pick,
   };
 }
@@ -183,19 +268,34 @@ export function courseState(course: CourseDefinition, input: PathInput): CourseS
   const ordered = units
     .map((unit, index) => ({ unit, index }))
     .sort((a, b) => rank(a.unit) - rank(b.unit) || a.index - b.index)
-    .map(({ unit }) => unitState(unit, input, picks.get(unit.id) ?? null));
+    .map(({ unit }) => unitState(unit, course, input, picks.get(unit.id) ?? null));
 
   // An optional unit is on the main line only when something picked it for them.
   const mainLine = ordered.filter((state) => !state.unit.optional || state.pick);
-  const nextUnit = mainLine.find((state) => !state.done);
+  // The next lesson is the first unread one: a unit that is read and waits on
+  // its measure doesn't hold the reading up.
+  const nextUnit = mainLine.find((state) => !state.done && !state.read);
   const nextLesson = nextUnit?.unit.lessons.find((lesson) => !nextUnit.isLessonDone(lesson.id));
+  const awaiting = mainLine.filter((state) => state.read && !state.done);
+  const byTest = new Map<string, UnitState[]>();
+  for (const state of awaiting) {
+    const next = state.measure?.next;
+    if (next?.kind !== "test") continue;
+    byTest.set(next.testId, [...(byTest.get(next.testId) ?? []), state]);
+  }
   return {
     course,
     units: ordered,
     next: nextUnit && nextLesson ? { unit: nextUnit, lessonId: nextLesson.id } : null,
+    awaiting,
+    retestsDue: [...byTest.entries()]
+      .map(([testId, units]) => ({ testId, units }))
+      .sort((a, b) => b.units.length - a.units.length),
     lessonsDone: mainLine.reduce((total, state) => total + state.lessonsDone, 0),
     lessonTotal: mainLine.reduce((total, state) => total + state.lessonTotal, 0),
-    unitsDone: mainLine.filter((state) => state.done).length,
+    unitTotal: mainLine.length,
+    unitsRead: mainLine.filter((state) => state.read).length,
+    unitsFinished: mainLine.filter((state) => state.done).length,
   };
 }
 

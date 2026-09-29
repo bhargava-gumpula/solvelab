@@ -97,6 +97,66 @@ test.describe("the Learning Hub", () => {
     await expect(page.getByTestId("continue-lesson")).toContainText("Continue");
   });
 
+  test("a wrong answer gets another go, and the lesson isn't read until it's right", async ({
+    page,
+  }) => {
+    await findLevel(page);
+    await page.getByTestId("skip-solves").click();
+    await page.getByTestId("skip-tests").click();
+    await page.getByTestId("start-path").click();
+    await page.getByTestId("continue-lesson").click();
+    const toTheQuestion = async () => {
+      for (let step = 0; step < 20; step++) {
+        if (await page.getByTestId("lesson-continue").isDisabled()) break;
+        await page.getByTestId("lesson-continue").click();
+      }
+      await expect(page.getByTestId("lesson-step-quiz")).toBeVisible();
+    };
+    const toTheEnd = async () => {
+      for (let step = 0; step < 8; step++) {
+        if ((await page.getByTestId("lesson-continue").count()) === 0) break;
+        await page.getByTestId("lesson-continue").click();
+      }
+    };
+    await toTheQuestion();
+
+    // A wrong answer says why, keeps the right one hidden, and doesn't let you on.
+    await page.locator("[data-testid^=quiz-option-]:not([data-correct])").first().click();
+    await expect(page.getByTestId("quiz-feedback")).toContainText("Not quite.");
+    await expect(page.getByTestId("lesson-continue")).toBeDisabled();
+
+    // Skipping leaves the lesson unread.
+    await page.getByTestId("quiz-skip").click();
+    await toTheEnd();
+    await expect(page.getByTestId("lesson-unchecked")).toContainText("One question to go");
+
+    // Back to the question, right this time, and the lesson counts.
+    await page.getByTestId("back-to-question").click();
+    await page.locator("[data-correct=true]").click();
+    await expect(page.getByTestId("quiz-feedback")).toContainText("Exactly right.");
+    await toTheEnd();
+    await expect(page.getByTestId("lesson-step-done")).toContainText("Lesson complete");
+    await page.getByRole("link", { name: "Your path" }).click();
+    await expect(page.getByTestId("course-progress")).toHaveText(/^1\//);
+  });
+
+  test("units pass on numbers, and say so on the path", async ({ page }) => {
+    await importCoreTests(page);
+    await page.goto("/hub/");
+    await expect(page.getByTestId("course-title")).toHaveText("Sub-20");
+    // Every core test is taken, which is what "Where 20 seconds goes" asks for.
+    await expect(page.getByTestId("status-sub-20-budget")).toHaveText("Passed");
+    await expect(page.getByTestId("course-units")).toContainText(/\d+ of \d+ units finished/);
+    // Nothing has been read, so no unit says "Read".
+    await expect(page.locator("[data-testid^=status-]").filter({ hasText: /^Read$/ })).toHaveCount(
+      0,
+    );
+
+    await page.goto("/hub/unit/sub-20-budget/");
+    await expect(page.getByTestId("unit-measure")).toContainText("Core tests taken");
+    await expect(page.getByTestId("unit-passed")).toBeVisible();
+  });
+
   test("tests you've taken put the coach model's picks at the top", async ({ page }) => {
     await importCoreTests(page);
     await page.goto("/hub/");
@@ -128,6 +188,13 @@ test.describe("the Learning Hub", () => {
     // The next session sits beside the last one.
     await page.reload();
     await expect(page.getByTestId("drill-session")).toContainText("2 attempts");
+
+    // The drill now shows as done on the course's path.
+    await page.goto("/hub/course/sub-30/");
+    await page.getByTestId("unit-toggle-lookahead").click();
+    await expect(
+      page.locator("[data-testid^=path-node-lookahead-drill-][data-state=done]"),
+    ).toHaveCount(1);
   });
 
   test("the recognition drill times twelve cases and sums them up", async ({ page }) => {
@@ -139,6 +206,11 @@ test.describe("the Learning Hub", () => {
       await page.locator("[data-correct=true]").first().click();
     }
     await expect(page.getByTestId("recognition-summary")).toContainText("12 of 12 right");
+    await expect(page.getByTestId("recognition-known")).toContainText(/\d+ of 21 cases/);
+
+    // The answers are kept: the profile lists the set and what you know of it.
+    await page.goto("/hub/profile/");
+    await expect(page.getByTestId("known-pll")).toContainText(/PLL: \d+ of 21 known/);
   });
 
   test("the library holds every course and unit, searchable and filterable", async ({ page }) => {

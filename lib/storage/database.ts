@@ -13,6 +13,7 @@ import type {
   TrainingPlan,
   TrainingProgress,
   DrillRun,
+  UnitPass,
   UserSettings,
 } from "@/types/domain";
 import { DEFAULT_SETTINGS } from "./schemas";
@@ -84,7 +85,13 @@ export const SCHEMA_V9 = {
   drillRuns: "id, [packId+drillId], createdAt, updatedAt",
 } as const;
 
-export const DATABASE_VERSION = 9;
+/** V10 (measured completion): units passed on a measured result, per course. */
+export const SCHEMA_V10 = {
+  ...SCHEMA_V9,
+  unitPasses: "id, courseId, unitId, passedAt, updatedAt",
+} as const;
+
+export const DATABASE_VERSION = 10;
 
 /**
  * A local-only note. This table is deliberately absent from the sync registry:
@@ -130,6 +137,7 @@ export class LocalDatabase extends Dexie {
   coachThreads!: Table<CoachThread, string>;
   trainingProgress!: Table<TrainingProgress, string>;
   drillRuns!: Table<DrillRun, string>;
+  unitPasses!: Table<UnitPass, string>;
   meta!: Table<MetaRecord, string>;
 
   constructor(name = DATABASE_NAME) {
@@ -143,6 +151,7 @@ export class LocalDatabase extends Dexie {
     this.version(7).stores(SCHEMA_V7);
     this.version(8).stores(SCHEMA_V8);
     this.version(9).stores(SCHEMA_V9);
+    this.version(10).stores(SCHEMA_V10);
   }
 }
 

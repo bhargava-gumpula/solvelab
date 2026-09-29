@@ -1,7 +1,17 @@
-import type { AlgorithmProgress, AlgorithmVariant } from "@/types/domain";
+import type { AlgorithmAttempt, AlgorithmProgress, AlgorithmVariant } from "@/types/domain";
 import { stateForLabel, type CaseLabel } from "@/lib/algorithms/labels";
 import type { LocalDatabase } from "./database";
-import { algorithmProgressSchema } from "./schemas";
+import { createId } from "./ids";
+import { algorithmAttemptSchema, algorithmProgressSchema } from "./schemas";
+
+/** One answer in a recognition drill. */
+export interface RecognitionAnswer {
+  caseId: string;
+  /** The algorithm the case was shown with. */
+  variantId: string;
+  successful: boolean;
+  recognitionMs: number;
+}
 
 const blank = (caseId: string): AlgorithmProgress => ({
   caseId,
@@ -17,6 +27,36 @@ export class AlgorithmRepository {
 
   async list(): Promise<AlgorithmProgress[]> {
     return this.db.algorithmProgress.toArray();
+  }
+
+  /**
+   * Saves a recognition deck's answers, one row each. Rows are only ever
+   * added, so a deck answered on one device can't overwrite one from another.
+   */
+  async recordRecognition(
+    answers: readonly RecognitionAnswer[],
+    now = new Date().toISOString(),
+  ): Promise<void> {
+    // A millisecond apart, so two answers to one case in a deck keep their order.
+    const base = Date.parse(now);
+    const rows = answers.map((answer, index) =>
+      algorithmAttemptSchema.parse({
+        id: createId(),
+        caseId: answer.caseId,
+        variantId: answer.variantId,
+        createdAt: new Date(base + index).toISOString(),
+        mode: "recognition",
+        successful: answer.successful,
+        recognitionMs: Math.round(answer.recognitionMs),
+      }),
+    );
+    if (rows.length) await this.db.algorithmAttempts.bulkPut(rows);
+  }
+
+  /** Every saved recognition answer, oldest first. */
+  async recognitionAttempts(): Promise<AlgorithmAttempt[]> {
+    const rows = await this.db.algorithmAttempts.orderBy("createdAt").toArray();
+    return rows.filter((row) => row.mode === "recognition");
   }
 
   async get(caseId: string): Promise<AlgorithmProgress | undefined> {

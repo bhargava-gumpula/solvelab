@@ -17,6 +17,7 @@ import {
   Timer,
   TrendingDown,
   TrendingUp,
+  Trophy,
 } from "lucide-react";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { DailyCheckCard } from "@/components/tests/daily-check-card";
@@ -228,6 +229,8 @@ function CourseHero({
   const after = nextCourse(course);
   const share = state.lessonTotal ? state.lessonsDone / state.lessonTotal : 0;
   const nextLesson = next?.unit.unit.lessons.find((lesson) => lesson.id === next.lessonId);
+  // The test that would settle the most units that are read and waiting.
+  const retest = state.retestsDue[0] ?? null;
 
   return (
     <motion.section
@@ -293,6 +296,12 @@ function CourseHero({
           {state.lessonsDone}/{state.lessonTotal} lessons
         </span>
       </div>
+      <p className="mt-2 text-sm opacity-90" data-testid="course-units">
+        {state.unitsFinished} of {state.unitTotal} units finished
+        {state.awaiting.length
+          ? ` · ${state.awaiting.length} read and waiting on a test or a drill`
+          : ""}
+      </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         {next && nextLesson ? (
@@ -309,10 +318,27 @@ function CourseHero({
             </Button>
           </motion.div>
         ) : (
-          <p className="rounded-full bg-white/20 px-4 py-2 text-sm">
-            Every unit done. Keep the timer going until your average is under the target.
+          <p className="rounded-full bg-white/20 px-4 py-2 text-sm" data-testid="course-done">
+            {state.awaiting.length
+              ? `Every lesson read. ${state.awaiting.length} ${
+                  state.awaiting.length === 1 ? "unit waits" : "units wait"
+                } on a test or a drill.`
+              : "Every unit finished. Keep the timer going until your average is under the target."}
           </p>
         )}
+        {retest ? (
+          <Button
+            asChild
+            variant="outline"
+            className="rounded-full border-white/50 bg-white/15 text-white hover:bg-white/25 hover:text-white"
+            data-testid="course-retest"
+          >
+            <Link href={testHref(retest.testId)}>
+              <Trophy /> {testTitle(retest.testId)}
+              {retest.units.length > 1 ? ` (settles ${retest.units.length} units)` : ""}
+            </Link>
+          </Button>
+        ) : null}
         {beaten && after ? (
           <Button asChild variant="secondary" className="rounded-full" data-testid="move-on">
             <Link href={courseHref(after)}>

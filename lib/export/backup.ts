@@ -21,6 +21,7 @@ import type {
   TrainingPlan,
   TrainingProgress,
   DrillRun,
+  UnitPass,
   UserSettings,
 } from "@/types/domain";
 import { brand } from "@/lib/config/brand";
@@ -43,6 +44,7 @@ import {
   trainingPlanSchema,
   trainingProgressSchema,
   drillRunSchema,
+  unitPassSchema,
 } from "@/lib/storage/schemas";
 import { withFinalTime } from "@/lib/storage/solve-repository";
 
@@ -64,6 +66,7 @@ const EXTRA_TABLES = {
   coachThreads: "id",
   trainingProgress: "packId",
   drillRuns: "id",
+  unitPasses: "id",
 } as const;
 
 type ExtraTable = keyof typeof EXTRA_TABLES;
@@ -89,6 +92,7 @@ export interface BackupData {
   coachThreads: CoachThread[];
   trainingProgress: TrainingProgress[];
   drillRuns: DrillRun[];
+  unitPasses: UnitPass[];
 }
 
 export interface BackupDocument {
@@ -124,6 +128,7 @@ const backupSchema = z
       coachThreads: extraArray(coachThreadSchema),
       trainingProgress: extraArray(trainingProgressSchema),
       drillRuns: extraArray(drillRunSchema),
+      unitPasses: extraArray(unitPassSchema),
     }),
   })
   .superRefine((document, context) => {
@@ -182,6 +187,7 @@ export async function createBackup(db: LocalDatabase, now = new Date()): Promise
       coachThreads: await db.coachThreads.orderBy("createdAt").toArray(),
       trainingProgress: await db.trainingProgress.toArray(),
       drillRuns: await db.drillRuns.orderBy("createdAt").toArray(),
+      unitPasses: await db.unitPasses.orderBy("passedAt").toArray(),
     },
   }));
 }

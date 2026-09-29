@@ -11,6 +11,7 @@ import type {
   LessonProgress,
   TrainingProgress,
   DrillRun,
+  UnitPass,
   ProfileSnapshot,
   SkillId,
   SkillScore,
@@ -337,6 +338,21 @@ export const drillRunSchema: z.ZodType<DrillRun> = z.object({
   packId: z.string().min(1),
   drillId: z.string().min(1),
   timesMs: z.array(z.number().finite().nonnegative()).max(500),
+  createdAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+});
+
+export const unitPassSchema: z.ZodType<UnitPass> = z.object({
+  id: z.string().min(1),
+  courseId: z.string().min(1),
+  unitId: z.string().min(1),
+  measure: z.enum(["aspect", "test", "timer", "streak", "recognition", "profile"]),
+  measureId: z.string().min(1),
+  via: z.enum(["target", "improved", "tested-out"]),
+  value: z.number().finite().nullable(),
+  before: z.number().finite().nullable(),
+  line: z.number().finite().nullable(),
+  passedAt: z.string().min(1),
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 });

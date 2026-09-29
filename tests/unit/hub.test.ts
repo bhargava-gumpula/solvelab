@@ -437,12 +437,31 @@ describe("the path through a course", () => {
     expect(f2lDrill("sub-15")).toBe("f2l");
   });
 
-  it("counts a unit whose part measures fast as passed, and skips it for next", () => {
-    const state = courseState(course, emptyInput({ profile: profileWith({ lookahead: "fast" }) }));
-    const lookahead = state.units.find((unit) => unit.unit.id === "lookahead")!;
-    expect(lookahead.testedOut).toBe(true);
-    expect(lookahead.done).toBe(true);
-    expect(state.next?.unit.unit.id).not.toBe("lookahead");
+  it("counts a unit whose part already meets the course's line as passed, and skips it for next", () => {
+    // An OLL test at 1.8 s, under Sub-15's line, taken before the unit was touched.
+    const runs = [
+      {
+        id: "oll-1",
+        exerciseId: "oll_only",
+        createdAt: "2026-09-20T10:00:00.000Z",
+        completedAt: "2026-09-20T10:05:00.000Z",
+        solveIds: [],
+        sampleCount: 12,
+        timesMs: Array.from({ length: 12 }, () => 1800),
+      },
+    ];
+    const profile = buildSolveProfile({
+      runs,
+      solves: [],
+      goalMilestoneId: "sub12",
+      snapshots: [],
+    });
+    const state = courseState(course, emptyInput({ profile, runs }));
+    const oll = state.units.find((unit) => unit.unit.id === "oll-execution")!;
+    expect(oll.passed?.via).toBe("tested-out");
+    expect(oll.status).toBe("passed");
+    expect(oll.done).toBe(true);
+    expect(state.next?.unit.unit.id).not.toBe("oll-execution");
   });
 
   it("opens the first unread lesson of the first unfinished unit", () => {
@@ -468,7 +487,12 @@ describe("the path through a course", () => {
     const unit = getUnit("method-beginner")!;
     const done = new Set(unit.lessons.map((lesson) => lesson.id));
     const state = courseState(learn, emptyInput({ methodDone: done }));
-    expect(state.units.find((item) => item.unit.id === "method-beginner")?.complete).toBe(true);
+    const beginner = state.units.find((item) => item.unit.id === "method-beginner")!;
+    expect(beginner.read).toBe(true);
+    // Method lessons have nothing to measure and no drills, so reading finishes them.
+    expect(beginner.measure).toBeNull();
+    expect(beginner.status).toBe("practised");
+    expect(beginner.done).toBe(true);
   });
 });
 

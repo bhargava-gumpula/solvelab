@@ -1,14 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, Eye, RotateCcw, Timer, Trophy, Zap } from "lucide-react";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { Button } from "@/components/ui/button";
+import { useLiveQuery } from "dexie-react-hooks";
+import { toast } from "sonner";
+import { useStorageStatus } from "@/components/layout/storage-provider";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { recognitionDeck, seededRandom, type RecognitionCard } from "@/lib/hub/recognition";
+import { MAX_RECOGNITION_MS, recognitionStats } from "@/lib/hub/recognition-stats";
 import type { RecognitionSet } from "@/lib/hub/units";
+import { getRepositories } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import { celebrate, CountUp } from "./fx";
 
@@ -60,9 +65,18 @@ export function RecognitionDrill({
   const [chosen, setChosen] = useState<number | null>(null);
   // When the card on screen appeared; set wherever a new card is dealt.
   const [shownAt, setShownAt] = useState(0);
+  // The deck whose answers have been saved, so a deck is saved once.
+  const savedDeck = useRef<RecognitionCard[] | null>(null);
+  const ready = useStorageStatus().status === "ready";
+  const attempts = useLiveQuery(
+    async () => (ready ? await getRepositories().algorithms.recognitionAttempts() : undefined),
+    [ready],
+  );
+  // What earlier decks showed: which cases you know, and which need more goes.
+  const stats = useMemo(() => recognitionStats(attempts ?? [], set), [attempts, set]);
 
   const start = () => {
-    setDeck(recognitionDeck(set, DECK_SIZE, seededRandom(Date.now())));
+    setDeck(recognitionDeck(set, DECK_SIZE, seededRandom(Date.now()), stats));
     setPosition(0);
     setResults([]);
     setChosen(null);
@@ -73,10 +87,25 @@ export function RecognitionDrill({
   const finished = deck !== null && position >= deck.length;
 
   useEffect(() => {
-    if (!finished) return;
+    if (!finished || savedDeck.current === deck) return;
+    savedDeck.current = deck;
     const right = results.filter((result) => result.chosen === result.card.answer).length;
-    if (right / results.length >= 0.8) celebrate("big");
-  }, [finished, results]);
+    // The big celebration is kept for a unit passed on its measure.
+    if (right / results.length >= 0.8) celebrate("small");
+    void getRepositories()
+      .algorithms.recordRecognition(
+        results
+          // Over half a minute means the person walked away, not that the case is slow.
+          .filter((result) => result.ms <= MAX_RECOGNITION_MS)
+          .map((result) => ({
+            caseId: result.card.caseId,
+            variantId: result.card.variantId,
+            successful: result.chosen === result.card.answer,
+            recognitionMs: result.ms,
+          })),
+      )
+      .catch(() => toast.error("Couldn’t save this deck’s answers."));
+  }, [finished, results, deck]);
 
   const answer = useCallback(
     (choice: number) => {
@@ -163,6 +192,10 @@ export function RecognitionDrill({
               <CountUp value={Math.round(averageMs / 10) / 100} decimals={2} suffix=" s" />
             </Stat>
           </div>
+          <p className="text-center text-sm text-muted-foreground" data-testid="recognition-known">
+            You know {stats.known} of {stats.total} cases on sight. A case is known once you get it
+            right twice running.
+          </p>
           <CaseRow title="Slowest to spot" results={slowest} allSides={copy.allSides} />
           {missed.length ? (
             <CaseRow title="Missed" results={missed} allSides={copy.allSides} />

@@ -62,7 +62,8 @@ export function DrillSession({
       const run = await getRepositories().drills.save(packId, drill.id, times);
       setSaved(run);
       setPackItemDone(packId, "drill", drill.id, true);
-      celebrate("big");
+      // The big celebration is kept for a unit passed on its measure.
+      celebrate("small");
     } catch {
       toast.error("Couldn’t save this session.");
     }

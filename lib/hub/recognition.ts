@@ -10,8 +10,28 @@ import { applyAlgorithm } from "@/lib/cube/cube-state";
 import type { CaseEntry } from "@/data/algorithms/types";
 import type { RecognitionSet } from "./units";
 
+/** What is known about each case so far, for dealing the ones that need work more often. */
+export interface DeckHistory {
+  cases: ReadonlyMap<string, { seen: number; missed: boolean; medianMs: number | null }>;
+  medianMs: number | null;
+}
+
+/** How much more often a case is dealt than one that is known and quick. */
+function weight(caseId: string, history: DeckHistory): number {
+  const entry = history.cases.get(caseId);
+  if (!entry || entry.seen === 0) return 3;
+  if (entry.missed) return 4;
+  const slow =
+    entry.medianMs !== null &&
+    history.medianMs !== null &&
+    entry.medianMs > history.medianMs * 1.25;
+  return slow ? 2 : 1;
+}
+
 export interface RecognitionCard {
   caseId: string;
+  /** The algorithm the case is shown with: its first one. */
+  variantId: string;
   facelets: string;
   kind: CaseKind;
   options: string[];
@@ -58,15 +78,32 @@ export function drillCases(set: RecognitionSet): CaseEntry[] {
   );
 }
 
+/**
+ * A deck of cards. With the history of earlier answers, cases never seen,
+ * missed last time or slower than the rest are dealt more often, and no case
+ * comes up twice in a row; without it, every case is as likely as the next.
+ */
 export function recognitionDeck(
   set: RecognitionSet,
   count: number,
   random: () => number,
+  history?: DeckHistory,
 ): RecognitionCard[] {
   const data = getAlgorithmSet(set);
   const cases = drillCases(set);
   if (!data || cases.length < 4) return [];
   const pick = <T>(items: readonly T[]): T => items[Math.floor(random() * items.length)]!;
+  const weights = history ? cases.map((entry) => weight(entry.id, history)) : null;
+  const deal = (previous: string | null): CaseEntry => {
+    if (!weights) return pick(cases);
+    const open = cases.map((entry, index) => (entry.id === previous ? 0 : weights[index]!));
+    let left = random() * open.reduce((sum, value) => sum + value, 0);
+    for (let index = 0; index < cases.length; index++) {
+      left -= open[index]!;
+      if (left < 0) return cases[index]!;
+    }
+    return cases.at(-1)!;
+  };
   const shuffle = <T>(items: T[]): T[] => {
     const copy = [...items];
     for (let index = copy.length - 1; index > 0; index--) {
@@ -78,7 +115,7 @@ export function recognitionDeck(
 
   const deck: RecognitionCard[] = [];
   for (let index = 0; index < count; index++) {
-    const entry = pick(cases);
+    const entry = deal(deck.at(-1)?.caseId ?? null);
     const kind = kindFor(data, entry);
     // A pair case is shown exactly as its algorithm starts, so "which algorithm
     // solves this" needs no set-up turn; a last-layer case turns to any angle.
@@ -91,7 +128,14 @@ export function recognitionDeck(
     const answer = Math.floor(random() * 4);
     const options = [...wrong];
     options.splice(answer, 0, caseLabel(entry, set));
-    deck.push({ caseId: entry.id, facelets, kind, options, answer });
+    deck.push({
+      caseId: entry.id,
+      variantId: algorithmsFor(entry)[0]!.id,
+      facelets,
+      kind,
+      options,
+      answer,
+    });
   }
   return deck;
 }

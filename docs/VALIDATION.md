@@ -1,6 +1,30 @@
 # Validation report
 
-## Course content fixes, phase 5: walk-through backlog (awaiting review)
+## Measured completion, phase 6 (awaiting review)
+
+Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                          |
+| --------------- | --------------------------------- | ------------------------------- |
+| Full validation | `npm run validate`                | Pass (405 pages)                |
+| Unit tests      | `npm test`                        | 940 passed (63 files)           |
+| End-to-end      | `npx playwright test --workers=1` | 90 passed, 1 failed (see below) |
+
+The one failure is `timer.spec.ts` "does not start when space is released before the hold arms".
+The test has 300 ms to see the display holding; late in a long run the first look came after the
+hold had armed. The timer and the test are unchanged since 3.1, and the timer spec alone passed
+three times out of three (22 tests each). It is flagged as its own task.
+
+New unit coverage: every unit has a measure; grading against the course and not the settings
+goal; passing on the line, by clear improvement and "already there", each with its limits; test,
+timer-average, streak, profile and recognition measures; read, practised and passed on the path;
+saved passes staying; the version 10 upgrade leaving version 9 data untouched; passes and
+recognition answers in the backup; another go at a question keeping the right answer marked.
+New browser tests: quiz retry and skip, a drill done on the path, recognition answers on the
+profile, units passing on seeded numbers.
+
+## Course content fixes, phase 5: walk-through backlog
 
 Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
 blocked, dev server stopped first).

@@ -2,12 +2,26 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowRight, Bot, CircleHelp, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
+import { ArrowRight, Bot, CircleHelp, Eye, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
+import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { SolveProfileView } from "@/components/stats/solve-profile";
 import { Button } from "@/components/ui/button";
 import { useHub } from "@/hooks/use-hub";
+import { caseStateFor, getAlgorithmSet, kindFor } from "@/lib/algorithms/catalog";
 import { compareWithProfile } from "@/lib/hub/intro";
+import { caseLabel } from "@/lib/hub/recognition";
+import { recognitionStats, type RecognitionStats } from "@/lib/hub/recognition-stats";
+import { RECOGNITION_LABEL, recognitionHref, type RecognitionSet } from "@/lib/hub/units";
+import type { AlgorithmAttempt } from "@/types/domain";
+
+const RECOGNITION_SETS: readonly RecognitionSet[] = [
+  "two-look-oll",
+  "two-look-pll",
+  "pll",
+  "oll",
+  "f2l",
+];
 
 const WORDS = {
   agreed: "You said it's slow, and it is.",
@@ -76,6 +90,7 @@ export function HubProfile() {
           </ul>
         </section>
       ) : null}
+      <SlowestCases attempts={hub.attempts} />
       <Link
         href="/hub/ask/"
         className="group flex items-center gap-3 rounded-2xl p-4 glass transition-transform hover:-translate-y-0.5"
@@ -94,5 +109,79 @@ export function HubProfile() {
       </Link>
       <SolveProfileView />
     </div>
+  );
+}
+
+/**
+ * For every recognition drill you have answered: how many of its cases you
+ * know on sight, and the ones to work on, slowest and missed first.
+ */
+function SlowestCases({ attempts }: { attempts: readonly AlgorithmAttempt[] }) {
+  const drilled = RECOGNITION_SETS.map((set) => recognitionStats(attempts, set)).filter((stats) =>
+    [...stats.cases.values()].some((entry) => entry.seen > 0),
+  );
+  if (!drilled.length) return null;
+  return (
+    <section className="rounded-2xl p-5 glass" data-testid="slowest-cases">
+      <h2 className="text-sm font-semibold">Cases you know on sight</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        From the recognition drills. A case is known once you get it right twice running.
+      </p>
+      <ul className="mt-3 grid gap-3">
+        {drilled.map((stats) => (
+          <SetRow key={stats.set} stats={stats} />
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function SetRow({ stats }: { stats: RecognitionStats }) {
+  const data = getAlgorithmSet(stats.set);
+  // Missed cases first, then the slowest known ones; three is enough to act on.
+  const work = [...new Set([...stats.missed, ...stats.slowest])].slice(0, 3);
+  return (
+    <li className="rounded-xl border bg-background/40 p-3" data-testid={`known-${stats.set}`}>
+      <div className="flex flex-wrap items-center gap-2">
+        <Eye className="size-4 text-primary" />
+        <span className="flex-1 text-sm font-medium">
+          {RECOGNITION_LABEL[stats.set]}: {stats.known} of {stats.total} known
+        </span>
+        <Button asChild size="sm" variant="outline" className="rounded-full">
+          <Link href={recognitionHref(stats.set)}>
+            Drill <ArrowRight />
+          </Link>
+        </Button>
+      </div>
+      {data && work.length ? (
+        <ul className="mt-3 grid grid-cols-3 gap-2">
+          {work.map((caseId) => {
+            const entry = data.cases.find((item) => item.id === caseId);
+            if (!entry) return null;
+            const kind = kindFor(data, entry);
+            const timing = stats.cases.get(caseId);
+            return (
+              <li key={caseId} className="rounded-lg border p-2 text-center">
+                <CaseDiagram
+                  facelets={caseStateFor(entry, kind)}
+                  kind={kind}
+                  showArrows={false}
+                  className="mx-auto max-w-20"
+                  title={caseLabel(entry, stats.set)}
+                />
+                <p className="mt-1 truncate text-xs font-medium">{caseLabel(entry, stats.set)}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {timing?.missed
+                    ? "missed last time"
+                    : timing?.medianMs
+                      ? `${(timing.medianMs / 1000).toFixed(1)} s`
+                      : ""}
+                </p>
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
+    </li>
   );
 }

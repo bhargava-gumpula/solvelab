@@ -32,6 +32,12 @@ Four phases from `~/Projects/solvelab-ui-drafts/research/cubing-content-research
 
 What was left after phase 5 is listed in dev log 165: an "untimed" drill mode, a few small repeats between units, and the measured-completion proposal below.
 
+### Measured completion: built (dev log 166; awaiting review)
+
+The owner took the proposal with its defaults on 2026-09-29. Units now pass on a measured result, against their course's line; reading marks a unit read; drills count; a wrong quiz answer gets another go and the lesson is read only after a right one; recognition answers are saved and decks favour weak cases; big confetti is kept for a measured pass. How it works is in `docs/ARCHITECTURE.md` ("Measured completion"). Still open from the proposal: the pass lines for recognition and the improvement bands are first estimates to calibrate from real use, and the test summary page doesn't yet say which units a retest passed.
+
+The proposal as it was written, for the record:
+
 ### Proposed next phase: measured completion (owner decision needed)
 
 The council on 2026-09-28 found that an accurate course still can't show anyone getting faster, because progress measures reading. A unit is done when its lessons are read (`lib/hub/path.ts`, `complete`); a wrong quiz answer still saves the lesson with confetti (`components/hub/lesson-player.tsx`); drills never count and show as open (`components/hub/course-path.tsx`); the packs that make Sub-12 and Sub-10 different have no measure; and in 118 of 137 quizzes the longest option is the answer. The proposal, to run before the rest of 6.3:
