@@ -76,7 +76,7 @@ export const LEVELS: LevelGuide[] = [
     doNow: [
       "Switch to CFOP now, in one go: the cross on the bottom as before, then the first two layers as F2L pairs, then 2-look OLL and 2-look PLL. Expect to be slower for a week or two; F2L is worse than your beginner layers until it is better, and then it is better by a long way.",
       "Learn F2L intuitively, not as a list. Most pairs go in the same way: free the corner or edge if it is stuck in a slot, join the two in the top layer, then drop them into their slot together. Work each case out from that. Learning it as 41 algorithms is slower to learn and worse to use.",
-      "Learn 2-look OLL (ten algorithms) and 2-look PLL (six): for the corners, a T perm when one side shows headlights (hold them on the left) and a Y perm when no side does; for the edges, Ua, Ub, H and Z. Sixteen algorithms replace the whole beginner last layer.",
+      "Learn 2-look OLL (ten algorithms) and 2-look PLL (six): for the corners, a T perm when one side shows headlights (hold them on the left) and a Y perm when no side does; for the edges, Ua, Ub, H and Z. Sixteen algorithms replace the whole beginner last layer, and your first solves already used six of them: the line algorithm, the Sune, T, Y, Ua and Ub. The new ones are the other six corner cases and the H and Z perms, plus the one-step L if you used the two-step route before.",
       "Learn finger tricks for U, U', R, R' and F while these algorithms are new, so they set with the right grip: push the U layer with your index finger instead of turning your wrist. Smooth beats fast: an algorithm you run calmly at three turns a second beats one you fumble at five.",
       "Plan the cross during inspection: find all four white edges and work out at least the first two before you turn. Planning the whole cross is the Sub-30 step.",
       "Solve regularly rather than in long rare sessions. Twenty or thirty solves most days moves you faster than two hundred once a week.",
@@ -88,10 +88,10 @@ export const LEVELS: LevelGuide[] = [
       "Tracking pieces through your moves, and formal lookahead drills such as a metronome or eyes-closed pairs. For now the gentle version is enough: find the next piece while your hands run a trigger you know (Your first lookahead).",
     ],
     packs: [
+      "cross-efficiency",
       "switch-to-f2l",
       "two-look-oll",
       "two-look-pll",
-      "cross-efficiency",
       "turning-technique",
       "first-lookahead",
       "practice-plan",
@@ -126,6 +126,7 @@ export const LEVELS: LevelGuide[] = [
       "pair-recognition",
       "choosing-the-next-pair",
       "stuck-pieces",
+      "inspection",
       "pll-algorithms",
     ],
   },
@@ -140,7 +141,7 @@ export const LEVELS: LevelGuide[] = [
     doNow: [
       "Do slow solves. Turn at about half your normal speed with one rule: the cube never stops moving during F2L. If you have to pause, you were going too fast.",
       "Keep each search short. As a pair goes in, glance round for the next corner and edge, so you already have a rough idea where they are when the insert ends. Following them as they move is the Sub-20 step; here the job is spotting quickly and never stopping.",
-      "Plan the whole cross in inspection, every solve. No cross needs more than eight moves, so it always fits in one plan; close your eyes and solve it from memory as a check.",
+      "Plan the whole cross in inspection, every solve, by the end of this course. Get there one rung at a time: two edges planned properly beat four planned badly. No cross needs more than eight moves, so it always fits in one plan; close your eyes and solve it from memory as a check.",
       "Finish full PLL. It is the one new algorithm set in this course, 21 cases against full OLL's 57, and it comes before full OLL for good reason: it saves the second algorithm that 2-look PLL needs on most solves, and a typical PLL case comes up about three times as often as a typical OLL case (1 solve in 18 against 1 in 54). Keep to about two new cases a day, and learn to recognise each one without walking round the cube to check. A glance at a third side is fine for now; reading the case from two sides alone is the Sub-15 step.",
       "Learn keyhole: when one piece of a pair is already home and another slot is still empty (next to it or diagonally opposite), turn D to line that slot up, drop the other piece in on its own and turn D back, with no pairing at all. It turns several awkward cases into short ones.",
       "Don't rotate before every pair: when a top turn will do, use it instead of a y2. One or two rotations a solve are fine for now.",
@@ -152,12 +153,12 @@ export const LEVELS: LevelGuide[] = [
     ],
     packs: [
       "pll-algorithms",
+      "turning-technique",
       "cross-efficiency",
       "inspection",
       "lookahead",
       "f2l-efficiency",
       "oll-execution",
-      "turning-technique",
     ],
   },
   {
@@ -238,6 +239,7 @@ export const LEVELS: LevelGuide[] = [
     bottleneck:
       "The stages are all fine. What is left is the half-second of hesitation before each pair, four times a solve, plus the occasional algorithm you still have to think about.",
     doNow: [
+      "Track the next pair's corner and edge while the current pair goes in, with the cube held still, so each pair starts without a look.",
       "Get the cross and F2L together under about 10 seconds with no stops. That is the sub-15 shape: roughly 1.5-2 s of cross and 7.5-8 s of F2L, leaving 5-5.5 s for the last layer.",
       "Learn cross+1: in inspection, plan the cross, then find your first pair and follow its corner and edge through the cross moves, so F2L starts without a pause.",
       "Learn full OLL now if you have not. It is expected at this level: once the last layer is about five or six seconds, 2-look is the main leak. Keep 2-look as the fallback for the cases you have not learned yet.",
@@ -253,17 +255,17 @@ export const LEVELS: LevelGuide[] = [
     ],
     packs: [
       "stuck-at-fifteen",
-      "oll-algorithms",
       "oll-execution",
+      "oll-algorithms",
       "turning-technique",
       "lookahead",
-      "inspection",
       "cross-into-f2l",
+      "inspection",
+      "good-and-bad-edges",
       "f2l-from-the-front",
       "filler-moves",
       "oll-into-pll",
       "last-pair-into-oll",
-      "good-and-bad-edges",
       "pair-recognition",
       "practice-plan",
       "consistency",
@@ -323,7 +325,7 @@ export const LEVELS: LevelGuide[] = [
       "Learning ZBLL as a whole. It is about 470 cases, or 493 counting the PLLs; take the useful subsets first and see whether you want the rest.",
       "Changing method. CFOP goes well past sub-10; a method change now costs months.",
     ],
-    packs: ["past-the-first-pair", "multislotting"],
+    packs: ["past-the-first-pair", "multislotting", "pll-execution"],
   },
   {
     id: "sub10",
@@ -335,6 +337,7 @@ export const LEVELS: LevelGuide[] = [
       "There is no single bottleneck left. What remains is a small set of personal weaknesses — three PLLs you are slow on, one slot you avoid, a pause you make when the cross is on green.",
     doNow: [
       "Work from evidence, not feel. Split your solves, find the specific cases and situations that are slow, and drill exactly those.",
+      "In inspection, after the cross and first pair, track the second pair's corner, so the second pair starts without a search.",
       "Reconstruct to find out whether your next gain is fewer moves, fewer pauses or faster turning. Most sub-10 solves land around 53 to 60 moves, so a solve well above that has moves to cut.",
       "Widen recognition: know every last-layer case from every angle, so you never turn the cube to check.",
       "Take breaks seriously. Long plateaus are normal here, and time away often produces the jump that more solving does not.",
@@ -344,7 +347,7 @@ export const LEVELS: LevelGuide[] = [
       "Expecting steady progress. Improvement at this level arrives in steps with long flat stretches between them.",
       "New algorithm sets as the main plan. ZBLL is optional even here: Feliks Zemdegs and Max Park were already among the best in the world before they learned it, and the gain showed mostly in their singles. If you want it, begin with the ZBLL cases that differ only slightly from COLL cases you already know.",
     ],
-    packs: ["practising-near-ten"],
+    packs: ["practising-near-ten", "pll-execution"],
   },
 ];
 

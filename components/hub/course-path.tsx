@@ -63,7 +63,9 @@ function nodesFor(state: UnitState, nextLessonId: string | null): PathNode[] {
       detail:
         unit.recognition === "f2l"
           ? "On-screen drill · pick the algorithm for the pair"
-          : "On-screen drill · name the case from two sides",
+          : unit.recognition.startsWith("two-look")
+            ? "On-screen drill · name the case"
+            : "On-screen drill · name the case from two sides",
       href: recognitionHref(unit.recognition),
       action: "Start drill",
       state: "open",

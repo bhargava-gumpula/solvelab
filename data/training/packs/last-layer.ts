@@ -192,7 +192,7 @@ export const ollAlgorithms: AspectPack = {
 export const ollIntoPll: AspectPack = {
   id: "oll-into-pll",
   aspectId: "oll_to_pll",
-  title: "Reading PLL while OLL finishes",
+  title: "From OLL into PLL",
   summary: "The last pause in the solve, and the two-sided recognition that removes it.",
   levels: ["sub20", "sub15"],
   why: "OLL ends, you stop, you turn the cube to look at the sides, you find the PLL, you start. That stop is half a second or more, and it is entirely avoidable because the information appears before the algorithm ends.",
@@ -207,7 +207,7 @@ export const ollIntoPll: AspectPack = {
         "The decisive information for PLL is on the side stickers, not the top face. Headlights (two matching corner stickers with a different edge between them), blocks (a corner and edge that match) and bars (a whole row of three that matches) tell you almost everything.",
         "There are 21 cases and only two faces visible without moving, which sounds like it should not be enough. It is: every case is distinguishable from two adjacent sides, and lists of exactly which patterns mean which case are freely available. It takes a few weeks to internalise and it is permanent once it is there.",
         "The practical form is a decision tree rather than a lookup. Look at the two faces. How many pairs of headlights? Are there blocks? That narrows twenty-one cases to two or three, and one more sticker decides.",
-        "Once it is two-sided, the recognition can happen while your hands are still finishing OLL, because the side stickers you need are visible throughout.",
+        "Once it is two-sided, you can name the case the moment OLL ends, without turning the cube. Reading it while OLL is still finishing comes next, in the Sub-12 course.",
       ],
       checkpoint: "You can name any PLL from two adjacent faces without turning the cube.",
     },
@@ -219,7 +219,7 @@ export const ollIntoPll: AspectPack = {
       body: [
         "Once an OLL algorithm is running, your hands do not need supervision — that is what it means for it to be learned. So the last few moves are free attention, in exactly the same way the last F2L pair is.",
         "The habit: as you begin the last trigger of the OLL, move your eyes to the side stickers. You will not always get the full case, because the final moves change what is where, but you will usually get the family — adjacent corner swap, diagonal corner swap, edges only — and that is most of the work.",
-        "How early you can read it depends on how the algorithm ends. Once the last move that is not a U turn is done, the PLL is fixed: any U turns after it only change the angle, so read the case before them and allow for the turn. Algorithms that finish on R or F keep moving side stickers until the very last move, so on those the picture is still changing as you read it. Knowing which of your algorithms end which way is worth noticing.",
+        "How early you can read it depends on how the algorithm ends. Once the last move that is not a U turn is done, the PLL is fixed: any U turns after it only change the angle, so read the case before them and allow for the turn. Algorithms that finish on R or F keep moving some side stickers until the very last move. A final R leaves the left side alone, so read the left side while it finishes; a final F leaves only the back, which you can't see, so on those read after the last move. Knowing which of your algorithms end which way is worth noticing.",
       ],
     },
   ],
@@ -266,7 +266,7 @@ export const pllExecution: AspectPack = {
   aspectId: "pll",
   title: "Faster PLL",
   summary: "Getting your cases quick and even, and finding the ones that are not.",
-  levels: ["sub30", "sub25", "sub15"],
+  levels: ["sub30", "sub25", "sub15", "sub12", "sub10"],
   why: "PLL is the most repeated part of the solve — 21 cases, every solve, always the same job. Time here comes back at a better rate than almost anywhere else, and it is easy to measure.",
   lessons: [
     {
@@ -276,7 +276,7 @@ export const pllExecution: AspectPack = {
         "Most PLLs under a second is the sub-10 standard. At any level, the useful target is not the average but the worst few.",
       minutes: 3,
       body: [
-        "Around sub-10, fast solvers execute roughly eighty per cent of their PLLs in under a second; add recognition and most cases land somewhere between about 0.8 and 1.4 seconds. You do not need that yet. On the way down, having most cases under two seconds including recognition is a good mark for sub-15, and about one to one and a half seconds for sub-12. At every level, though, the number that matters is the spread rather than the mean.",
+        "Around sub-10, fast solvers execute roughly eighty per cent of their PLLs in under a second; add recognition and most cases land somewhere between about 0.8 and 1.4 seconds. You do not need that yet. On the way down, most cases in about two and a half to three seconds including recognition, with none much over four, is a good mark for sub-20; most under two seconds is a good mark for sub-15, and about one to one and a half seconds for sub-12. At every level, though, the number that matters is the spread rather than the mean.",
         "If nineteen of your cases take a second and two take three, your PLL average looks reasonable and your solves do not, because those two come up often enough to matter and they come with a pause as well as a slow execution.",
         "So the work is not 'get faster at PLL'. It is 'find the cases that are much slower than the rest, and fix those specifically'. Everything else is maintenance.",
       ],
@@ -329,7 +329,7 @@ export const pllExecution: AspectPack = {
       rules: [
         "Take the three slowest cases from your timed pass.",
         "For each: check whether a better algorithm exists, then drill it slowly and cleanly before speeding up.",
-        "Do not practise the other eighteen this session.",
+        "Do not practise the other eighteen this session. Once PLL is even, run the same list for your OLLs.",
       ],
       dose: "Fifteen minutes a session until they leave the list.",
       signal: "Your next timed pass has three different cases at the bottom.",
@@ -427,13 +427,14 @@ export const pllAlgorithms: AspectPack = {
       purpose:
         "Separates the two halves so the harder one gets its own practice, which sharing a drill never allows.",
       rules: [
-        "Set up a random case. Name it without turning the cube; a turn of the top is allowed. Do not solve it.",
+        "Apply a scramble from the PLL test, so you don't know the case. Name it without turning the cube; a turn of the top is allowed. Do not solve it.",
         "Reset and repeat. You are training the eyes only.",
         "Thirty cases takes about five minutes.",
       ],
       dose: "Five minutes at the start of a session.",
       signal:
         "Naming becomes instant, and your solve-time PLL drops without the algorithms changing.",
+      exerciseId: "pll_only",
     },
   ],
   mistakes: [

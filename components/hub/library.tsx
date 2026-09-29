@@ -137,7 +137,7 @@ export function Library() {
                       <span
                         key={course.id}
                         className="rounded-full px-2 py-0.5 text-[11px] font-medium text-white"
-                        style={{ background: `oklch(0.55 0.16 ${course.hue})` }}
+                        style={{ background: `oklch(0.47 0.14 ${course.hue})` }}
                       >
                         {course.title}
                       </span>
@@ -244,12 +244,12 @@ function FilterChip({
       className={cn(
         "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
         active
-          ? "border-transparent text-white"
+          ? cn("border-transparent", hue === undefined ? "text-primary-foreground" : "text-white")
           : "bg-background/40 text-muted-foreground hover:text-foreground",
       )}
       style={
         active
-          ? { background: hue === undefined ? "var(--primary)" : `oklch(0.58 0.18 ${hue})` }
+          ? { background: hue === undefined ? "var(--primary)" : `oklch(0.5 0.16 ${hue})` }
           : undefined
       }
     >

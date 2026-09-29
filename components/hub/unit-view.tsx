@@ -107,7 +107,9 @@ function RecognitionLink({ unitId, set }: { unitId: string; set: RecognitionSet 
         <span className="block text-sm text-muted-foreground">
           {set === "f2l"
             ? "Twelve pairs, timed. Finds the ones you’re slowest to spot."
-            : "Twelve cases from two sides, timed. Finds the ones you’re slowest to spot."}
+            : set.startsWith("two-look")
+              ? "Twelve cases, timed. Finds the ones you’re slowest to spot."
+              : "Twelve cases from two sides, timed. Finds the ones you’re slowest to spot."}
         </span>
       </span>
       <ArrowRight className="size-5 text-primary" />

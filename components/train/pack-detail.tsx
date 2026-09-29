@@ -62,7 +62,7 @@ export function PackDetail({ pack }: { pack: TrainingPack }) {
         <p className="mt-3 max-w-3xl leading-relaxed">{pack.why}</p>
         {loaded ? (
           <div className="mt-5 flex items-center gap-3">
-            <Progress value={readPercent} className="h-1.5 max-w-xs" />
+            <Progress value={readPercent} className="h-1.5 max-w-xs" aria-label="Lessons read" />
             <span className="text-xs text-muted-foreground" data-testid="pack-progress">
               {progress.lessonsDone}/{progress.lessonTotal} lessons read
             </span>

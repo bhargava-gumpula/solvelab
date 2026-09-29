@@ -60,6 +60,8 @@ export type Unit = PackUnit | MethodUnit;
 /** Packs whose cases are worth recognising on sight, drilled on screen. */
 const RECOGNITION: Partial<Record<string, RecognitionSet>> = {
   "pll-algorithms": "pll",
+  // Two-sided PLL reading is taught here, so its drill is offered here too.
+  "oll-into-pll": "pll",
   "oll-algorithms": "oll",
   "two-look-oll": "two-look-oll",
   "two-look-pll": "two-look-pll",

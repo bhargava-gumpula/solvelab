@@ -18,7 +18,7 @@ export const turningTechnique: AspectPack = {
       body: [
         "A finger trick is a way of turning a layer without letting go of the cube — pushing the U layer with the right index finger, turning R with a small twist of the right wrist while the thumb stays on the front, and so on. The cube stays in the same place in your hands the whole time.",
         "The saving is not that the finger is faster than the arm. It is that the cube does not move, so the next turn can start immediately and your eyes do not have to re-find anything. A solve done with finger tricks and a solve done by picking the cube up for every turn can have the same move count and differ by thirty seconds.",
-        "The ones to get first, in order of value: U as a push with the right index finger and U' as a push with the left index finger; R and R' as turns of the right wrist, with the thumb resting on the front face; and U2 as a double flick, index then middle finger, or one flick from each hand, rather than one big rotation. Between them those cover most of what a CFOP solve does.",
+        "The ones to get first, in order of value: U as a push with the right index finger and U' as a push with the left index finger; R and R' as turns of the right wrist, with the thumb resting on the front face; and U2 as a double flick, index then middle finger, or one flick from each hand, rather than one big rotation. Add F as a push with your right index finger or thumb rather than a turn of the wrist; F and F′ have several good fingertricks, so try a couple and keep the one that leads best into the next move. Between them those cover most of what a CFOP solve does.",
         "Hold the cube so it is supported rather than gripped. A common description is thumbs on the front, the other fingers around the back, with the cube resting rather than clamped — clamping makes every turn fight you.",
       ],
       checkpoint: "You can do R U R' U' six times without the cube moving in your hands.",
@@ -73,11 +73,11 @@ export const turningTechnique: AspectPack = {
         "Full PLL, and later full OLL, means dozens of new algorithms over a few months, each of which you will do thousands of times. Whatever your fingers happen to do in the first few days tends to stick, and changing it later costs a round of relearning, so a minute spent choosing how to turn each new case is cheap.",
         "Where a move can be done either way, try the push first. A push is a finger curling in and driving the layer with it; a pull hooks the layer and drags it back. Pushes are usually quicker and more comfortable, so settle for a pull only where the push would cost you a regrip.",
         "Many of these algorithms are built from triggers you already own: R U R' U', R U R', the sledgehammer R' F R F'. Keep each trigger as one movement in one grip, and learn a new algorithm as a short string of those chunks rather than a long list of turns. The T perm, R U R' U' R' F R2 U' R' U' R U R' F', opens with R U R' U' and is only a few chunks after that.",
-        "Your hands will not always arrive in the same place, so for the algorithms you use most, learn a second way to do the awkward moves: the closing F' of the T perm can come from the right thumb or from the left index finger. And practise the way in, not just the algorithm. In a solve the case turns up straight after the last pair, with your hands wherever that insert left them, so finish a pair and go into the algorithm in one motion. Wherever you have to stop and reposition, that regrip is part of the case.",
+        "Your hands will not always arrive in the same place, so for the algorithms you use most, learn a second way to do the awkward moves: the closing F' of the T perm can come from the right thumb or from the left index finger. And practise the way in, not just the algorithm. In a solve each case turns up straight after the step before it (OLL after the last pair, PLL after OLL), with your hands wherever that step left them, so finish it and go into the algorithm in one motion. Wherever you have to stop and reposition, that regrip is part of the case.",
         "Give the left-hand-heavy algorithms extra reps on purpose. The A perms, the E perm and the G perms usually give the left hand D or L turns to do, and people who only drill right-handed algorithms find those become the slowest cases in the set.",
       ],
       checkpoint:
-        "You can start your newest algorithms straight out of a last pair without stopping to move your hands.",
+        "You can go into your newest algorithms straight from the step before them without stopping to move your hands.",
     },
   ],
   drills: [
@@ -115,8 +115,8 @@ export const turningTechnique: AspectPack = {
       purpose:
         "Forces the weaker hand to do real work, which normal solving always lets you avoid.",
       rules: [
-        "Solve with a ban on R and R' for the whole session. Use L, F and U instead.",
-        "Untimed and frustrating by design.",
+        "For the whole session, solve F2L without R or R'; use L, F and U instead. Do the cross and the last layer as normal.",
+        "Frustrating by design. The timer only records the session; ignore the times.",
         "Note which cases you had no left-handed answer for.",
       ],
       dose: "One session a fortnight.",
@@ -308,8 +308,8 @@ export const consistency: AspectPack = {
       minutes: 3,
       body: [
         "Solving alone at a desk and solving with a judge watching and a stackmat in front of you are different activities. People routinely average five to twenty per cent slower at their first competition than at home, a second or two at twelve seconds, and the gap closes with exposure rather than with speed.",
-        "If competitions matter to you, practise in the format: full inspection every solve, a proper stop, averages of five rather than endless singles, and — where you can — with someone watching. Simple, repeatable movements matter more here too; unusual fingertricks are the first thing to fail when your hands are shaking.",
-        "If competitions do not matter to you, this lesson is optional. Consistency at home is still worth having, but the pressure part specifically is a competition skill.",
+        "If competitions matter to you, practise in the format: full inspection every solve, a proper stop, averages of five rather than endless singles, and — where you can — with someone watching. The last-layer lesson before this one covers keeping your fingertricks simple for the same reason.",
+        "The pressure part is a competition skill; consistency at home is worth having either way. For how a competition round works and how to prepare, the Competing unit is in the Library.",
       ],
     },
   ],
@@ -335,7 +335,7 @@ export const consistency: AspectPack = {
       rules: [
         "Do a session of averages of twelve and record only the average.",
         "Do not look at the individual times until the average is done.",
-        "Aim to reduce the gap between your average and your best solve, not to lower your best.",
+        "Aim to bring your average closer to your typical (middle) solve by cutting the slow ones, not to lower your best.",
       ],
       dose: "One session a week.",
       signal: "The gap between your typical solve and your average narrows.",
@@ -348,7 +348,6 @@ export const consistency: AspectPack = {
       rules: [
         "Solve normally. When something goes wrong, deliberately keep your pace the same to the end.",
         "Do not speed up to make the time back. Note afterwards whether you managed it.",
-        "Ten solves.",
       ],
       dose: "Ten solves a session for a week.",
       signal:

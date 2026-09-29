@@ -355,7 +355,7 @@ function CourseSwitcher({ currentId, activeId }: { currentId: string | null; act
                     ? "border-transparent text-white shadow-md"
                     : "bg-background/40 text-muted-foreground hover:text-foreground",
                 )}
-                style={isActive ? { background: `oklch(0.58 0.18 ${course.hue})` } : undefined}
+                style={isActive ? { background: `oklch(0.5 0.16 ${course.hue})` } : undefined}
               >
                 <span
                   className="size-2 rounded-full"

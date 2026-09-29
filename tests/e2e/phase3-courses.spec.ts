@@ -4,12 +4,12 @@ import { expect, test, type Page } from "./fixtures";
 const COURSE_UNITS = [
   { id: "learn-to-solve", title: "Learn to solve", units: 3, optional: 1 },
   { id: "sub-60", title: "Sub-60", units: 11, optional: 3 },
-  { id: "sub-45", title: "Sub-45", units: 5, optional: 1 },
+  { id: "sub-45", title: "Sub-45", units: 6, optional: 1 },
   { id: "sub-30", title: "Sub-30", units: 7, optional: 0 },
   { id: "sub-20", title: "Sub-20", units: 13, optional: 2 },
   { id: "sub-15", title: "Sub-15", units: 19, optional: 3 },
   { id: "sub-12", title: "Sub-12", units: 10, optional: 1 },
-  { id: "sub-10", title: "Sub-10", units: 5, optional: 1 },
+  { id: "sub-10", title: "Sub-10", units: 6, optional: 1 },
 ];
 
 const unitSections = (page: Page) =>
@@ -91,7 +91,7 @@ test.describe("recognition drills", () => {
       await expect(page.getByTestId("recognition-option-0")).toBeEnabled();
       await expect(options).toHaveCount(4);
       for (const option of await options.all()) {
-        await expect(option).toHaveText(/T perm|Y perm|Three edges|Two pairs swap|All four swap/);
+        await expect(option).toHaveText(/T perm|Y perm|Ua perm|Ub perm|Z perm|H perm/);
         // The A perms and the E perm solve the same corners, so they're never offered.
         await expect(option).not.toHaveText(/Three corners|Two corner pairs swap|A perm|E perm/);
       }

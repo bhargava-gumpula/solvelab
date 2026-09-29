@@ -26,6 +26,55 @@ export const f2lEfficiency: AspectPack = {
         "Across ten solves, every pair is joined in the top layer before it goes in: no corner placed first with its edge chased in after it.",
     },
     {
+      id: "f2l-families",
+      title: "Three families, and a mirror for each",
+      takeaway:
+        "Most pairs on top fall into three families. Learn why each one works and its mirror comes free.",
+      minutes: 5,
+      body: [
+        "The Sub-60 course taught the idea: free the pieces, join them on top, drop the pair in. This lesson turns it into short solutions for the cases you meet most, grouped so that one idea covers several cases. Every example is at the front-right slot, drawn exactly as the F2L algorithm bank draws it.",
+        "The first family goes in with one trigger. Either the pair is already joined one top turn from its slot (corner at the front left, edge beside it at the front: R U' R'), or it joins as it drops: with the corner above its slot, white facing right and the edge at the back, R U R' does both at once. Three moves.",
+        "The second family has both pieces on top but apart, with the corner's white sticker facing a side. A trigger moves one piece, a top turn brings the other alongside, and a second trigger drops the joined pair in. With the corner at the back right, white facing right, and the edge at the front, that is R U2 R' U' R U2 R': seven moves.",
+        "In the third family the corner's white sticker faces up, so the corner has to be turned before it can join. A trigger with a U2 in it turns it so white faces a side, and then a top turn and a first-family insert finish. With the corner above its slot and the edge on the right: R U2 R', then U', then R U R'. Seven moves again.",
+        "Every case has a mirror: the same position reflected across the slot, solved with F turns in place of R and every top turn reversed. R U R' becomes F' U' F, and R U2 R' U' R U R' becomes F' U2 F U F' U' F. Learn one side and the other is the same idea in the other hand.",
+        "When one of your pairs takes more than eight moves, look the case up in the F2L algorithm bank, then work out why its moves join the pair before you use them in solves.",
+      ],
+      examples: [
+        {
+          label: "First family: joins as it drops",
+          moves: "R U R'",
+          caseId: "f2l-1",
+          note: "Corner above its slot, white facing right, edge at the back.",
+        },
+        {
+          label: "First family: already joined",
+          moves: "R U' R'",
+          caseId: "f2l-3",
+          note: "Corner at the front left, edge beside it at the front: one top turn from the slot.",
+        },
+        {
+          label: "Second family: apart, then joined",
+          moves: "R U2 R' U' R U2 R'",
+          caseId: "f2l-17",
+          note: "Corner at the back right, white facing right; edge at the front. R U2 R' U' joins them, R U2 R' puts them in.",
+        },
+        {
+          label: "Third family: white facing up",
+          moves: "R U2 R' U' R U R'",
+          caseId: "f2l-8",
+          note: "R U2 R' turns the corner so white faces a side; U' R U R' finishes.",
+        },
+        {
+          label: "The third family's mirror",
+          moves: "F' U2 F U F' U' F",
+          caseId: "f2l-11",
+          note: "The same case reflected across the slot: F in place of R, every top turn reversed.",
+        },
+      ],
+      checkpoint:
+        "For ten pairs in a row, you name the family before you turn, and none takes more than eight moves.",
+    },
+    {
       id: "f2l-move-count",
       title: "Seven or eight moves, most of the time",
       takeaway:
@@ -62,7 +111,7 @@ export const f2lEfficiency: AspectPack = {
       body: [
         "While F2L is in progress there are unfilled slots, and anything you put in one can be taken back out without cost. That turns several long cases into short ones.",
         "Keyhole is the plainest version. Say the corner is already correct in its slot but its edge is still in the top layer, and another slot is empty. Turn D so the empty slot's corner spot comes under this one (a quarter turn for a neighbouring slot, a half turn for the one diagonally opposite), which carries the placed corner out of the way; put the edge in with a short insert; then turn D back. With the edge home and the corner on top it works the other way round: the D turn brings the corner's spot under the empty slot, the corner goes in there, and D comes back. Neither needs any pairing. With no free slot at all, use the standard solution for the case instead; the shortest ones are seven or eight moves.",
-        "The second use is avoiding rotations. A case that would need you to turn the cube to solve it at the front will often go in cleanly using the empty slot on the other side, at the same move count and with no rotation.",
+        "The second use is avoiding rotations. A case that would need you to turn the cube to solve it at the front will often go in cleanly using the empty slot on the other side, at the same move count and with no rotation. And when a top turn will bring the pieces round to a slot you can see, use it rather than turning the cube with a y2; one or two rotations a solve are fine for now.",
         "The third is move count outright. While a slot is empty you can turn its side freely, because nothing it moves into that slot was going to stay there. So a trigger on that side can do the pairing for another slot: with the front-right slot still empty, R U R' L U' L' puts in a back-left pair in six moves that would otherwise take eight, U2 L U L' U2 L U' L'. With the front-right slot already filled, the same R U R' would knock that pair out.",
         "Pseudo-slotting is the advanced version: with the bottom layer turned on purpose, a corner and an edge from two different pairs go into one slot together, and turning the bottom back puts each one home. Worth knowing it exists long before you use it.",
       ],
@@ -106,7 +155,7 @@ export const f2lEfficiency: AspectPack = {
         "Specifically look for the case where one piece of a pair is already correctly placed — that is the keyhole case.",
         "Take the empty-slot solution even when it is not obviously shorter, so the pattern becomes familiar.",
       ],
-      dose: "Fifteen untimed solves.",
+      dose: "Fifteen solves, at an easy pace.",
       signal: "You start spotting keyhole cases during normal solves without looking for them.",
     },
   ],
@@ -166,7 +215,7 @@ export const pairRecognition: AspectPack = {
       minutes: 3,
       body: [
         "Recognition is only useful if it produces a solution you can execute smoothly. Two solutions of the same length can differ by half a second because one of them needs you to change your grip halfway through.",
-        "The general preference: R and U moves are cheap, F and B moves cost a grip change, and anything that makes you regrip mid-sequence is worth avoiding unless it saves several moves.",
+        "The general preference: R and U moves are cheapest; F moves are a little slower, and B moves usually need a regrip; anything that makes you regrip mid-sequence is worth avoiding unless it saves several moves.",
         "This is worth applying to your existing repertoire. If you have a case you always fumble, it is often not that you are bad at it — it is that the solution you learned is awkward for the hands and a better one exists.",
       ],
     },
@@ -186,6 +235,19 @@ export const pairRecognition: AspectPack = {
       signal:
         "The pause between the scramble appearing and your hands moving shrinks towards nothing.",
       exerciseId: "last_slot",
+    },
+    {
+      id: "pair-read-four-slots",
+      title: "One case, four slots",
+      purpose:
+        "Teaches your eyes that a case at the back is the same case, before any work on solving it there.",
+      rules: [
+        "Set up a case you know at the front-right slot.",
+        "Turn the whole cube with y, y2 and y' so the same case sits in each of the other three slots in turn, and name it from where it sits without turning it back.",
+        "Only read it. Rotating to insert a back pair is fine at this stage.",
+      ],
+      dose: "Five cases a session.",
+      signal: "A case at the back reads as quickly as one at the front right.",
     },
     {
       id: "pair-four-slots",
@@ -226,7 +288,7 @@ export const lookahead: AspectPack = {
   id: "lookahead",
   aspectId: "lookahead",
   title: "Lookahead, properly",
-  summary: "The three stages of seeing ahead, and the one drill that actually builds them.",
+  summary: "Seeing the next pair before you need it, and the slow-solve drills that build it.",
   levels: ["sub45", "sub30", "sub25", "sub20", "sub15"],
   why: "You can solve each pair quickly and still have a slow F2L, because before each pair you stop to look. Four pauses of half a second is two seconds, and turning faster makes them longer, not shorter.",
   lessons: [
@@ -238,7 +300,7 @@ export const lookahead: AspectPack = {
       minutes: 5,
       body: [
         "The clearest description of lookahead splits it into three stages, and knowing which one you are on tells you what to practise.",
-        "Spotting is the beginner stage: you solve the pair you are looking at, then look around for the next one. There is a pause between every pair by construction. Nothing is wrong with you; this is where everyone starts.",
+        "Spotting is the first stage: you find the next pair's pieces with a quick look, during or just after the insert, but you don't follow them as they move. At full speed that leaves a pause between pairs, which slow solves hide. Nothing is wrong with you; this is where everyone starts.",
         "Tracking is the middle stage: while your hands solve the current pair, your eyes follow the pieces of the next one as the moves push them around. When the current pair finishes you already know where the next one is, so there is no pause.",
         "Knowing is the last stage: you do not watch the next pair, because you already know where your moves will leave it. You have done this case enough times to predict the result rather than observe it. Fast solvers use a mixture of knowing and tracking, not one or the other.",
         "The order matters. You cannot track while you are still working out how to solve the current pair, because the attention is already spent. Confidence with the pairs themselves is the prerequisite for everything here.",
@@ -253,11 +315,11 @@ export const lookahead: AspectPack = {
         "Turn at about half speed with one rule: the cube never stops. Slower turning with no pauses is faster than fast turning with pauses.",
       minutes: 5,
       body: [
-        "The drill that builds lookahead is the slow solve, and it is the most recommended and least popular practice in cubing, because it feels like going backwards.",
+        "You met the never-stop solve in the Sub-60 course. Here it becomes the main F2L drill: about half speed, F2L only, fifteen to twenty a session for two or three weeks. It is the most recommended and least popular practice in cubing, because it feels like going backwards.",
         "The method: turn at roughly half your normal speed — one to two turns per second during F2L — with a single non-negotiable rule. The cube never stops moving. If you have to pause, you were turning too fast; slow down further until you do not.",
         "That rule is the whole drill. Turning slowly is not the point; turning continuously is. A pause means your eyes did not get where they needed to be in time, and the fix is to give them more time, not to try harder.",
         "It works because it changes what your attention is doing. At full speed, all your attention goes to executing. At half speed, executing is easy and your eyes are free — and the rule makes you use them, because there is no other way to keep the cube moving.",
-        "Expect your timed solves to get worse for a session or two. Everyone reports this. People who keep it up for two or three weeks generally report a clear difference, and pause-free F2L in the range of two to three months. Add speed back only for as long as the no-pause rule survives.",
+        "Expect your timed solves to get worse for a week or two. Everyone reports this. People who keep it up for two or three weeks generally report a clear difference, and pause-free F2L in the range of two to three months. Add speed back only for as long as the no-pause rule survives.",
       ],
       checkpoint: "You can do a whole F2L at half speed without the cube ever stopping.",
     },
@@ -281,7 +343,7 @@ export const lookahead: AspectPack = {
       minutes: 4,
       body: [
         "In the Sub-20 course you followed the next pair's corner while the current pair went in. The step now is the whole pair: the corner and its edge, so that when the insert ends you already know the case, not just where one piece is.",
-        "Find both pieces before you start the current pair, then keep them in view as the moves carry them. A turn that doesn't touch a piece leaves it where it is, so you only have to update your picture on the turns that move it. It is the same rule you use to follow a pair through the cross in inspection.",
+        "Find both pieces before you start the current pair, then keep them in view as the moves carry them. A turn that doesn't touch a piece leaves it where it is, so you only have to update your picture on the turns that move it. It is the same rule you used to follow a corner through the cross in the Sub-20 course.",
         "This is where cutting rotations pays twice. A y turn costs its own time, and it also moves every piece you were following, so you start looking again. Solving a back slot from where you're already holding the cube keeps the thread unbroken.",
         "When you lose track, notice which move did it. It is usually one of a few: a regrip, a rotation, or a top turn you made without thinking.",
       ],
@@ -312,7 +374,7 @@ export const lookahead: AspectPack = {
       purpose:
         "This is the drill. Everything else on this list supports it. The rule forces your eyes to do work that full-speed solving lets them skip.",
       rules: [
-        "Untimed. Turn at about half speed through the whole solve.",
+        "Turn at about half speed through F2L (the scramble leaves the cross solved). The timer is only a record: never speed up to beat it.",
         "One rule: the cube never stops moving during F2L. If it stops, slow down.",
         "Do not watch the pair you are inserting: glance round for the next pair's corner and edge, so you know roughly where they are when the insert ends.",
         "If finding both is too hard, look for just the corner.",
@@ -422,7 +484,7 @@ export const lastPairIntoOll: AspectPack = {
       body: [
         "Through F2L your eyes are busy finding the next pair. On the last pair there is no next pair, so for the first time in the solve your attention has nothing to do — and by default, it does nothing.",
         "That is the pause. It is not a hard pause to remove, because the information you need is already in front of you: the top face is visible throughout the insertion, and with a plain R and U insert the edge pattern on top (a dot, a line or L, or all four up) is already decided before the pair goes in. Only the corners still change.",
-        "The habit to build is simply looking up. As the last pair goes in, read the top face. By the time the pair is seated you should know your OLL case, or at least which family it is in.",
+        "The habit to build is simply looking up. As the last pair goes in, read the top face. By the time the pair is seated you should know your OLL case, or at least which family it is in. On 2-look OLL, call the edge shape (a dot, an L, a line or the cross already made) and where it sits, so your first algorithm starts with no search turn.",
       ],
       checkpoint: "You know the OLL case before the last pair finishes, most solves.",
     },
@@ -474,7 +536,7 @@ export const lastPairIntoOll: AspectPack = {
       purpose:
         "Turns reading the top face into something you have to do, rather than something you might do if you remember.",
       rules: [
-        "Solve to the last pair. Before inserting it, say what OLL you expect — the exact case, or the family.",
+        "Solve to the last pair. Before inserting it, say what OLL you expect: the exact case or its family, or on 2-look OLL the edge shape and where it sits.",
         "Insert the pair and check.",
         "Being wrong is fine at first. Being silent is not.",
       ],

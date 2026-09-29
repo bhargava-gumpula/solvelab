@@ -96,7 +96,9 @@ describe("Reading PLL while OLL finishes (audit 6.2 item 10)", () => {
   });
 
   it("says algorithms ending on R or F keep changing the side stickers to the end", () => {
-    expect(text).toContain("finish on R or F keep moving side stickers until the very last move");
+    expect(text).toContain(
+      "finish on R or F keep moving some side stickers until the very last move",
+    );
     const endingOnRorF = ollAlgorithmsList.filter((moves) =>
       ["R", "F"].includes(movesOf(moves).at(-1)!.family),
     );

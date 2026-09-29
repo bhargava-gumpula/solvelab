@@ -55,7 +55,7 @@ export const COURSES: readonly CourseDefinition[] = [
       { id: "method-beginner" },
       {
         id: "beginner-method-cold",
-        lessons: ["cold-no-daisy", "cold-seven-steps", "cold-notation", "cold-triggers"],
+        lessons: ["cold-seven-steps", "cold-triggers", "cold-no-daisy"],
         drills: ["cold-ten-in-a-row", "cold-step-check", "cold-trigger-loops"],
       },
       { id: "set-up-your-cube", optional: true },
@@ -70,22 +70,17 @@ export const COURSES: readonly CourseDefinition[] = [
     tagline: "Stop thinking between steps and start CFOP.",
     units: [
       { id: "method-cfop" },
-      { id: "switch-to-f2l" },
-      { id: "two-look-oll" },
-      { id: "two-look-pll" },
       {
         id: "cross-efficiency",
         lessons: ["cross-bottom"],
         drills: [],
       },
+      { id: "switch-to-f2l" },
+      { id: "two-look-oll" },
+      { id: "two-look-pll" },
       {
         id: "turning-technique",
-        lessons: [
-          "turning-what-a-fingertrick-is",
-          "turning-regrips",
-          "turning-calm",
-          "turning-both-hands",
-        ],
+        lessons: ["turning-what-a-fingertrick-is", "turning-regrips", "turning-calm"],
         drills: ["turning-trigger-reps", "turning-film-yourself"],
       },
       { id: "first-lookahead" },
@@ -109,16 +104,17 @@ export const COURSES: readonly CourseDefinition[] = [
     units: [
       {
         id: "f2l-efficiency",
-        lessons: ["f2l-what-a-pair-is", "f2l-move-count"],
+        lessons: ["f2l-what-a-pair-is", "f2l-families", "f2l-move-count"],
         drills: ["f2l-case-audit"],
       },
       {
         id: "pair-recognition",
         lessons: ["pair-both-pieces", "pair-all-angles"],
-        drills: ["pair-single-slot", "pair-name-it"],
+        drills: ["pair-single-slot", "pair-name-it", "pair-read-four-slots"],
       },
       { id: "choosing-the-next-pair" },
       { id: "stuck-pieces" },
+      { id: "inspection", lessons: ["inspection-ladder"], drills: [] },
       {
         id: "pll-algorithms",
         lessons: ["pll-why-first", "pll-order"],
@@ -137,7 +133,16 @@ export const COURSES: readonly CourseDefinition[] = [
     rungs: ["sub45"],
     tagline: "Fewer moves, fewer pauses, full PLL.",
     units: [
-      { id: "pll-algorithms" },
+      {
+        id: "pll-algorithms",
+        // The on-screen drill reads each case from two sides alone, the Sub-15 skill.
+        recognition: false,
+      },
+      {
+        id: "turning-technique",
+        lessons: ["turning-full-sets", "turning-both-hands"],
+        drills: ["turning-two-gen", "turning-no-r-moves"],
+      },
       {
         id: "cross-efficiency",
         lessons: ["cross-move-count", "cross-pairing-edges"],
@@ -158,11 +163,6 @@ export const COURSES: readonly CourseDefinition[] = [
         id: "oll-execution",
         lessons: ["oll-angle", "oll-lockups"],
         drills: ["oll-isolated", "oll-slow-clean"],
-      },
-      {
-        id: "turning-technique",
-        lessons: ["turning-full-sets"],
-        drills: ["turning-two-gen", "turning-no-r-moves"],
       },
     ],
     hue: 95,
@@ -212,7 +212,7 @@ export const COURSES: readonly CourseDefinition[] = [
       { id: "auf-both-ends" },
       {
         id: "last-pair-into-oll",
-        lessons: ["lastpair-free-attention"],
+        lessons: ["lastpair-free-attention", "lastpair-partial-read"],
         drills: ["lastpair-call-it"],
       },
       {
@@ -237,20 +237,21 @@ export const COURSES: readonly CourseDefinition[] = [
     tagline: "Where most people get stuck, and how to get out.",
     units: [
       { id: "stuck-at-fifteen" },
-      { id: "oll-algorithms" },
       { id: "oll-execution", lessons: ["oll-by-shape"], drills: ["oll-four-angles"] },
-      { id: "turning-technique", lessons: ["turning-full-sets"], drills: ["turning-two-gen"] },
+      { id: "oll-algorithms" },
+      { id: "turning-technique", lessons: ["turning-full-sets"], drills: [] },
       {
         id: "lookahead",
         lessons: ["lookahead-both-pieces"],
         drills: ["lookahead-follow-the-pair"],
       },
+      { id: "cross-into-f2l", lessons: ["join-first-pair"], drills: ["join-cross-plus-one"] },
       {
         id: "inspection",
         lessons: ["inspection-cross-plus-one"],
         drills: ["inspection-cross-plus-one-blind", "inspection-unlimited"],
       },
-      { id: "cross-into-f2l", lessons: ["join-first-pair"], drills: ["join-cross-plus-one"] },
+      { id: "good-and-bad-edges" },
       { id: "f2l-from-the-front" },
       { id: "filler-moves" },
       {
@@ -261,10 +262,9 @@ export const COURSES: readonly CourseDefinition[] = [
       { id: "oll-into-pll", lessons: ["pll-two-sided"], drills: ["pll-two-face"] },
       {
         id: "last-pair-into-oll",
-        lessons: ["lastpair-partial-read", "lastpair-influence", "lastpair-edge-control"],
+        lessons: ["lastpair-influence", "lastpair-edge-control"],
         drills: ["lastpair-ls-oll"],
       },
-      { id: "good-and-bad-edges" },
       { id: "pair-recognition", lessons: ["pair-ergonomics"], drills: ["pair-four-slots"] },
       { id: "practice-plan", lessons: ["practice-measure"], drills: ["practice-worst-solves"] },
       {
@@ -334,6 +334,7 @@ export const COURSES: readonly CourseDefinition[] = [
       },
       { id: "practising-near-ten" },
       { id: "multislotting" },
+      { id: "pll-execution", lessons: ["pll-target"], drills: ["pll-worst-three"] },
       {
         id: "alg-sets-worth-it",
         lessons: ["sets-large"],

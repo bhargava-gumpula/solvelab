@@ -158,7 +158,7 @@ export const f2lFromTheFront: LevelPack = {
       minutes: 4,
       body: [
         "Some pairs are easy to solve if you're allowed to turn the front face, and awkward if you insist on R and U. F' U F puts a pair into the front-right slot from a position that would otherwise need a rotation; F U F' does the same on the front-left.",
-        "The sledgehammer, R' F R F', is another useful tool: it solves a pair into the front-right slot from a state that would take far more moves with R and U alone. Many solvers already know it from OLL.",
+        "The sledgehammer, R' F R F', is another useful tool. It puts in the same joined pair as U R U' R', in the same four moves, but it leaves the top layer differently, which the edge-control lesson in The last pair into OLL puts to use. Many solvers already know it from OLL.",
         "F moves are slightly harder to turn quickly than R and U, so don't reach for them by default. Use them where they replace a rotation or a long sequence, and practise them until they're as smooth as the rest.",
       ],
       examples: [
@@ -263,7 +263,7 @@ export const goodAndBadEdges: LevelPack = {
         "Prefer pairs with good edges, and fix a bad one with a single F move or a rotation.",
       minutes: 4,
       body: [
-        "When you have a choice between two pairs, the one with a good edge is usually the shorter, smoother solve. Checking the edge first is a quick way to choose, and it's the same check pseudoslotting relies on.",
+        "When you have a choice between two pairs, the one with a good edge is usually the shorter, smoother solve. Checking the edge first is a quick way to choose.",
         "When you must solve a pair with a bad edge, you have three honest options: an F or B move that flips it, such as F' U F into the front-right slot; a rotation that makes it good relative to your new front; or leaving it for later, when another pair's moves may flip it for you.",
         "Some solvers go further and control the last-layer edges too, choosing a last-pair insert that leaves more of them facing up so that OLL becomes easier. The pack on the last pair into OLL starts that with one common case; the full systems are a much bigger project. Seeing good and bad edges at a glance comes first, and it already makes your pair choices better.",
       ],
@@ -553,6 +553,7 @@ export const pastTheFirstPair: LevelPack = {
       title: "Call the second pair",
       purpose: "Makes looking past the first pair part of every inspection.",
       rules: [
+        "Until your calls are mostly right, plan before you start the clock: look as long as you like, then press Space to start inspection. After that, do it inside the fifteen seconds.",
         "In inspection, after the cross and first pair, pick the second pair's corner.",
         "Say where it will be once the first pair is in.",
         "Solve, and note whether the second pair started without a search.",
@@ -733,8 +734,8 @@ export const practisingNearTen: LevelPack = {
       title: "The weekly average of 100",
       purpose: "Gives you a measure steady enough to see tenths of improvement.",
       rules: [
-        "Once a week, warmed up, do 100 normal solves across the day.",
-        "Write down the average and the median.",
+        "Once a week, warmed up, do 100 normal solves on the main timer, across the day if you like. The timer keeps your average of 100; a drill session here shows only a plain mean.",
+        "Write down the average of 100 and the median.",
         "Compare with last week's only as part of a month-long trend.",
       ],
       dose: "Once a week.",

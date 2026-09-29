@@ -21,38 +21,11 @@ export const beginnerMethodCold: LevelPack = {
         "If you can say what the cube should look like after each step, you can check yourself instead of starting again.",
       minutes: 4,
       body: [
-        "Every layer-by-layer method is a short list of steps, and each one ends with something specific solved: the cross, then the first layer, then the second, then the last layer's cross, and so on. Knowing that list well is what lets you notice a mistake the moment it happens rather than three steps later.",
+        "Every layer-by-layer method is a short list of steps, and each one ends with something specific solved. This course's method has seven: the white cross (four white edges on the bottom, each matching its side centre), the white corners (the first layer), the middle edges (the first two layers), the yellow cross, the yellow face, the top corners (headlights on every side) and the top edges (solved). Knowing that list well is what lets you notice a mistake the moment it happens rather than three steps later.",
         "The habit to build is a quick check at the end of each step. After the first layer, keep white on the bottom and turn the cube round a side at a time with y turns, which leave the top and bottom where they are: does each side's bottom row match its centre? There is no need to flip it over to look. If one doesn't, you fix it now, which costs a few seconds, instead of discovering it during the last layer and losing the solve.",
         "This also makes it much easier to learn from mistakes. When a solve goes wrong you can say which step broke, which tells you exactly which algorithm or idea to go back and practise.",
       ],
       checkpoint: "You can name every step in order, and what is solved at the end of each.",
-    },
-    {
-      id: "cold-notation",
-      title: "Read notation properly",
-      takeaway:
-        "Face turns, primes and doubles, whole-cube rotations like the z2 after every scramble, and wide and slice moves — the language every algorithm and scramble is written in.",
-      minutes: 6,
-      body: [
-        "Each letter is a face: R right, L left, U up, D down, F front, B back. The letter alone means a quarter turn clockwise, as if you were looking straight at that face. A prime (R') is anticlockwise, and a 2 (R2) is a half turn, which goes the same place whichever way you turn it.",
-        "The part people get wrong is that clockwise is always judged looking at the face being turned. So R and L turn in opposite directions as seen from the front, and U and D do the same from above. If an algorithm keeps coming out wrong, this is the first thing to check.",
-        "The letters x, y and z turn the whole cube in your hands rather than one face: x turns it the way R does, y the way U does and z the way F does, and they take primes and 2s like any other move. The one you will use every solve is z2. Scrambles are applied with white on top and green in front; a z2 turns the cube over sideways, so white goes to the bottom, yellow comes to the top, green stays facing you, orange ends up on the right and red on the left. That is how you hold it for the whole solve.",
-        "A lowercase letter is a wide move: r turns the right face and the middle layer beside it together, in the same direction as R. It is also written Rw, and f (or Fw) does the same for the front. Slices turn only a middle layer: M sits between L and R and turns like L, E sits between U and D and turns like D, and S sits between F and B and turns like F. They turn up in last-layer algorithms, so it is worth knowing them before you get there.",
-        "It is worth being exact now, because everything later — two-look last layer, full OLL and PLL, every tutorial and trainer — is written in this notation. Guessing costs you every time you learn something new.",
-      ],
-      examples: [
-        {
-          label: "A trigger you will use constantly",
-          moves: "R U R' U'",
-          note: "Right face up, top left, right face down, top right. Six in a row brings the cube back to where it started, which makes it a good check that you are reading it correctly.",
-        },
-        {
-          label: "From the scramble hold to the solving hold",
-          moves: "z2",
-          note: "White starts on top and ends on the bottom. Green stays in front the whole time.",
-        },
-      ],
-      checkpoint: "You can follow a written algorithm without watching someone do it first.",
     },
     {
       id: "cold-triggers",
@@ -61,7 +34,7 @@ export const beginnerMethodCold: LevelPack = {
       minutes: 4,
       body: [
         "An algorithm written out as eleven letters looks impossible to remember. It is usually two or three short, repeated chunks — triggers — like R U R' U' or R' F R F'. Once you see the chunks, a long algorithm becomes three things to remember instead of eleven.",
-        "Learn the triggers until your hands do them without thinking, then learn each algorithm as a sequence of triggers. This is also where finger tricks start to matter: a trigger done with the same finger movement every time becomes fast very quickly.",
+        "Learn the triggers until your hands do them without thinking, then learn each algorithm as a sequence of triggers. A trigger done with the same hand movement every time becomes fast very quickly.",
         "Loop each new algorithm slowly until it feels boring, many times in a row. Recognising when to use it is then the only thing left to think about during a solve.",
       ],
     },
@@ -75,6 +48,7 @@ export const beginnerMethodCold: LevelPack = {
         `Start every solve in the same hold. Scrambles are applied with ${SCRAMBLE_HOLD}, so do a ${SOLVING_ROTATION} first: white is now on the bottom, yellow on top and green still in front. The cross is built there, and white stays on the bottom for the rest of the solve.`,
         "Many beginner methods start with a daisy — white edges around the yellow centre — and then turn each one down. It is easy to learn and it roughly doubles the moves the cross takes.",
         "Once you can solve reliably, start placing each white edge directly into its spot on the bottom, matched to its side centre. It will feel slow for a few days, because you have to look at the side of the cube rather than the top.",
+        "Three cases cover it. White facing up on top: turn the top until its other colour sits above its centre, then turn that side twice. White facing sideways on top: turn the cube so its home centre is in front, turn the top until the edge is on the right with white facing right, then do R′ F R. Anywhere else: turn a side it is on to bring it to the top, turn the top once to move it off that side, then turn that side back (R U R′ does it from the front-right slot), and use one of the first two cases.",
         "It is worth doing now rather than later: every method you move on to builds the cross on the bottom, and a two-minute solver who already does it has one fewer habit to unlearn.",
       ],
       checkpoint: "Your cross goes straight onto the bottom, without a daisy first.",
@@ -89,7 +63,7 @@ export const beginnerMethodCold: LevelPack = {
       rules: [
         "Solve ten times in a row without looking anything up.",
         "If you have to check an algorithm, start the count again from zero.",
-        "Untimed. The only goal is finishing every time.",
+        "The timer only counts your solves. Ignore the times: the only goal is finishing every time.",
       ],
       dose: "Once a day until you can do it.",
       signal: "You stop needing to check anything, and your mistakes become rare enough to notice.",
@@ -101,8 +75,8 @@ export const beginnerMethodCold: LevelPack = {
         "Builds the short chunks every algorithm is made of until your hands run them alone.",
       rules: [
         "Do R U R' U' six times in a row; the cube should come back solved.",
-        "Do the same with the other triggers in your algorithms.",
-        "Slow and even beats fast and uneven.",
+        "Loop the other triggers in your algorithms the same way. Most, like R′ F R F′, come back after six; R U R′ comes back after four.",
+        "Slow and even beats fast and uneven. Ignore the times: the timer only counts your loops.",
       ],
       dose: "Two minutes before each session.",
       signal: "The six-in-a-row loop comes back solved every time without you watching it.",
@@ -197,7 +171,7 @@ export const setUpYourCube: LevelPack = {
       purpose:
         "Stops endless fiddling, which is usually the cube being blamed for turning technique.",
       rules: [
-        "Make a single change: half a turn of tension, or one drop of lube.",
+        "Make a single change: half a turn on all six centres, or one drop of lube.",
         "Solve on it normally for a week.",
         "Keep it only if the cube is clearly better, then stop adjusting.",
       ],
@@ -254,7 +228,7 @@ export const switchToF2l: LevelPack = {
       purpose:
         "Takes the timer's pressure off while the new habit forms, so you learn it instead of rushing it.",
       rules: [
-        "For one week, no timed solves. Every solve uses F2L, however slow.",
+        "For one week, keep your F2L solves off the main timer. Every solve uses F2L, however slow. The timer here only counts your solves: ignore the times.",
         "Say out loud what you are doing with each pair: taking out, pairing, inserting.",
         "If you get stuck on a pair, work it out rather than falling back to the old method.",
       ],
@@ -266,9 +240,9 @@ export const switchToF2l: LevelPack = {
       title: "One pair at a time",
       purpose: "Isolates the new skill from everything else in the solve.",
       rules: [
-        "Solve the cross, then solve just one pair. Scramble and repeat.",
-        "Each time, try to see the pair before you move anything.",
-        "Once one pair is easy, go to two, then four.",
+        "Each scramble leaves one pair to solve. Before you move anything, find both of its pieces.",
+        "Solve the pair, then take the next scramble.",
+        "Once single pairs are easy, go back to full solves.",
       ],
       dose: "Fifteen pairs a session.",
       signal: "You stop searching for the second piece once you have found the first.",
@@ -288,7 +262,7 @@ export const twoLookOll: LevelPack = {
   id: "two-look-oll",
   title: "2-look OLL: ten algorithms",
   summary:
-    "Ten algorithms that replace the beginner last layer. Build your CFOP foundation teaches the two steps; this unit adds recognition cues and drills.",
+    "Ten algorithms that replace the beginner yellow cross and yellow corners. Build your CFOP foundation teaches the two steps; this unit adds recognition cues and drills.",
   levels: ["sub120"],
   why: "The beginner last layer takes several algorithms, some of them twice. Two-look OLL does the whole top face in two steps with ten algorithms, and most of the time you only need a few of them.",
   lessons: [
@@ -310,7 +284,7 @@ export const twoLookOll: LevelPack = {
       title: "Edges only",
       purpose: "Makes the first look instant, since it is the same four stickers every time.",
       rules: [
-        "Scramble, solve to the last layer, and name the edge case before doing anything.",
+        "Apply the scramble (F2L is already solved) and name the edge case before doing anything.",
         "Solve only the edge step, check it, and scramble again.",
         "Name it out loud; speed of the word is the speed of the recognition.",
       ],
@@ -324,7 +298,7 @@ export const twoLookOll: LevelPack = {
       purpose:
         "Makes Sune and Antisune fast enough that they stop costing anything; while you learn, they stand in for the other corner cases too.",
       rules: [
-        "Loop Sune slowly until it is smooth, then Antisune.",
+        "Loop Sune slowly until it is smooth, then Antisune. Ignore the scramble and the times: the timer only counts your loops, and a Sune then an Antisune brings the cube back to solved.",
         "Alternate them: set up a case, recognise it, solve it.",
         "Stop at the speed where every repetition is clean.",
       ],
@@ -345,7 +319,7 @@ export const twoLookPll: LevelPack = {
   id: "two-look-pll",
   title: "2-look PLL: corners, then edges",
   summary:
-    "Six cases that finish the solve. Build your CFOP foundation teaches the corner step; this unit adds the edges, the last turn and drills.",
+    "Six cases that finish the solve. Build your CFOP foundation teaches both steps; this unit adds recognition practice, the last turn as a habit, and what comes after 2-look.",
   levels: ["sub120"],
   why: "After two-look OLL the top face is one colour and the pieces are in the wrong places. Two-look PLL puts the corners home and then the edges, with six algorithms, and it teaches the pattern you will use for full PLL later.",
   lessons: [
@@ -379,7 +353,7 @@ export const twoLookPll: LevelPack = {
       title: "Spot the headlights",
       purpose: "Trains the recognition that both two-look and full PLL depend on.",
       rules: [
-        "Solve to PLL. Look at the front and right sides only, without turning anything.",
+        "Apply the scramble: only PLL is left. Look at the front and right sides only, without turning anything.",
         "Say whether either shows headlights, and what that means for the back and left. Headlights on both: all four sides have them. On one: the other three have none. On neither: there is one pair at the back or on the left, or none anywhere.",
         "Then turn the top twice (U2) to bring the back and left round, and check.",
         "Twenty in a row, untimed.",

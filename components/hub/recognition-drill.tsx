@@ -28,7 +28,15 @@ export interface RecognitionCopy {
   timeLabel: string;
   /** The question the case diagram asks. */
   prompt: string;
+  /**
+   * Show all four sides. The 2-look drills do, because their lessons read cases
+   * by turning the top to look; reading from two sides alone comes later.
+   */
+  allSides?: boolean;
 }
+
+/** What you see holding the cube: the back and left rows are out of view. */
+const OUT_OF_VIEW = ["B", "L"] as const;
 
 /**
  * Answer each case as fast as you can. You see the top and the front and right
@@ -105,8 +113,11 @@ export function RecognitionDrill({
           </motion.span>
           <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
           <p className="mx-auto max-w-md text-muted-foreground">
-            {DECK_SIZE} cases, one at a time. You see the top and the front and right sides — what
-            you see holding the cube. {copy.task}, with a tap or the keys 1–4.
+            {DECK_SIZE} cases, one at a time.{" "}
+            {copy.allSides
+              ? "You see the top and all four sides, as if you had turned the top to look."
+              : "You see the top and the front and right sides — what you see holding the cube."}{" "}
+            {copy.task}, with a tap or the keys 1–4.
           </p>
           <div>
             <Button
@@ -152,8 +163,10 @@ export function RecognitionDrill({
               <CountUp value={Math.round(averageMs / 10) / 100} decimals={2} suffix=" s" />
             </Stat>
           </div>
-          <CaseRow title="Slowest to spot" results={slowest} />
-          {missed.length ? <CaseRow title="Missed" results={missed} /> : null}
+          <CaseRow title="Slowest to spot" results={slowest} allSides={copy.allSides} />
+          {missed.length ? (
+            <CaseRow title="Missed" results={missed} allSides={copy.allSides} />
+          ) : null}
           <div className="flex justify-center gap-2">
             <Button asChild variant="outline" size="lg" className="rounded-full">
               <Link href={backHref}>Done</Link>
@@ -202,7 +215,7 @@ export function RecognitionDrill({
               facelets={card!.facelets}
               kind={card!.kind}
               showArrows={false}
-              hiddenSides={["B", "L"]}
+              hiddenSides={copy.allSides ? [] : OUT_OF_VIEW}
               title={copy.prompt}
             />
           </div>
@@ -279,7 +292,15 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-function CaseRow({ title, results }: { title: string; results: Result[] }) {
+function CaseRow({
+  title,
+  results,
+  allSides,
+}: {
+  title: string;
+  results: Result[];
+  allSides?: boolean;
+}) {
   return (
     <section>
       <h2 className="mb-2 text-sm font-semibold">{title}</h2>
@@ -292,7 +313,7 @@ function CaseRow({ title, results }: { title: string; results: Result[] }) {
             <CaseDiagram
               facelets={result.card.facelets}
               kind={result.card.kind}
-              hiddenSides={["B", "L"]}
+              hiddenSides={allSides ? [] : OUT_OF_VIEW}
             />
             <p className="mt-1 text-xs font-semibold">{result.card.options[result.card.answer]}</p>
             <p className="tabular text-[11px] text-muted-foreground">

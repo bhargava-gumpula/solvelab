@@ -1,6 +1,26 @@
 # Validation report
 
-## Course content fixes, phase 4: polish (awaiting review)
+## Course content fixes, phase 5: walk-through backlog (awaiting review)
+
+Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass (405 pages)      |
+| Unit tests      | `npm test`                        | 908 passed (62 files) |
+| End-to-end      | `npx playwright test --workers=1` | 89 passed (see below) |
+
+The full e2e run gave 88 passed and 1 failed: the new course-page spec still expected five units in
+Sub-45 and Sub-10, which phase 5 grew to six. With the counts updated, the spec passed (8 of 8).
+
+New unit coverage: the F2L families lesson (each example is the bank's algorithm for its case,
+the engine readings, the mirror rule); the daisy moves and the corner rescue in Learn to solve;
+the Ub demo; which side's top row a final R or F leaves alone; quiz balance (the right answer
+is rarely the longest option and never much longer than the rest). An axe scan (WCAG A and AA)
+of seven Hub pages is clean in the light theme and two dark themes after the contrast fixes.
+
+## Course content fixes, phase 4: polish
 
 Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
 blocked, dev server stopped first).

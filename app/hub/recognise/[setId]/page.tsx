@@ -11,17 +11,17 @@ const NAME_THE_CASE: RecognitionCopy = {
 };
 
 const DRILLS: Record<RecognitionSet, { title: string; unitId: string; copy: RecognitionCopy }> = {
-  pll: { title: "Recognise PLL cases", unitId: "pll-algorithms", copy: NAME_THE_CASE },
+  pll: { title: "Recognise PLL cases", unitId: "oll-into-pll", copy: NAME_THE_CASE },
   oll: { title: "Recognise OLL cases", unitId: "oll-algorithms", copy: NAME_THE_CASE },
   "two-look-oll": {
     title: "Recognise 2-look OLL cases",
     unitId: "two-look-oll",
-    copy: NAME_THE_CASE,
+    copy: { ...NAME_THE_CASE, allSides: true },
   },
   "two-look-pll": {
     title: "Recognise 2-look PLL cases",
     unitId: "two-look-pll",
-    copy: NAME_THE_CASE,
+    copy: { ...NAME_THE_CASE, allSides: true },
   },
   // The answers are algorithms, not names.
   f2l: {

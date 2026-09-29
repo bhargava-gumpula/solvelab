@@ -30,7 +30,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Centre pieces define the colours",
-        body: "Each face centre stays opposite the same centre forever. White opposite yellow, red opposite orange, blue opposite green on a standard Western colour scheme.",
+        body: "Turning a face spins its centre but never moves it, so each centre shows the colour its whole face will be when solved. Each face centre stays opposite the same centre forever. White opposite yellow, red opposite orange, blue opposite green on a standard Western colour scheme.",
       },
       {
         title: "Edges and corners",
@@ -38,7 +38,7 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Hold the cube the solving way",
-        body: `Apply every scramble with ${SCRAMBLE_HOLD}. Then turn the whole cube over sideways, as if turning the front face twice (written ${SOLVING_ROTATION}), so green stays in front. Solve with the ${SOLVING_HOLD}. White stays on the bottom and yellow on top for the whole solve (turning the cube around with white still down is fine) — every algorithm and inspection plan here assumes it. An x2 also gets white to the bottom, but it brings blue to the front.`,
+        body: `Apply every scramble with ${SCRAMBLE_HOLD}. Then turn the whole cube over sideways, as if turning the front face twice (written ${SOLVING_ROTATION}), so green stays in front. Solve with the ${SOLVING_HOLD}. White stays on the bottom and yellow on top for the whole solve (turning the cube around with white still down is fine) — every algorithm here assumes it.`,
       },
     ],
     practiceHint: "Scramble lightly and name five pieces out loud before solving.",
@@ -52,11 +52,11 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Faces",
-        body: "R = right, L = left, U = up, D = down, F = front, B = back. A letter alone means a 90° clockwise turn of that face.",
+        body: "R = right, L = left, U = up, D = down, F = front, B = back. A letter alone means a quarter turn clockwise, judged as if you were looking straight at that face. So R and L turn opposite ways as you see them from the front, and U and D turn opposite ways as seen from above.",
       },
       {
         title: "Primes and doubles",
-        body: "R′ (or R') is counter-clockwise. R2 is a 180° turn. Scrambles are just sequences of these moves.",
+        body: "R′ (or R') is anticlockwise. R2 is a half turn. Scrambles are just sequences of these moves.",
       },
       {
         title: "Relative to how you hold it",
@@ -71,7 +71,8 @@ export const lessons: Lesson[] = [
         body: "A lowercase letter turns a face together with the middle layer next to it: r is R plus the middle layer beside it, and f is F plus the middle layer behind it. You will also see these written Rw and Fw. Slice moves turn only a middle layer: M (between L and R) turns the same way as L, E (between U and D) turns like D, and S (between F and B) turns like F.",
       },
     ],
-    practiceHint: "Execute R U R′ U′ slowly three times and watch the cycle.",
+    practiceHint:
+      "Do R U R′ U′ slowly six times: the cube comes back to where it started, which shows you are reading the moves right.",
   },
   {
     id: "beginner-first-layer",
@@ -82,15 +83,27 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "White cross on the bottom",
-        body: "Hold white on the bottom and yellow on top (z2 after the scramble) and build the cross there, matching each white edge's other colour to its centre. A daisy is fine as a bridge while learning: gather the four white edges white side up around the yellow centre, turn the top until an edge's side colour sits above its matching centre, then turn that face twice to bring it down. From then on, white stays on the bottom and yellow on top.",
+        body: "Hold white on the bottom and yellow on top (z2 after the scramble) and build the cross there, matching each white edge's other colour to its centre. For your first solves, build a daisy first: the four white edges round the yellow centre on top, white side up. Before you turn a side, turn the top so the edge above that side isn't one you have already placed. A white edge in the middle layer: turn the side showing its other colour, the way that lifts it to the top, and white ends up facing up. On the bottom with white facing down: turn that side twice. White facing sideways anywhere else: turn that side once to move the edge into the middle layer, then lift it the same way. With all four in, turn the top until an edge's side colour sits above its matching centre, then turn that face twice to bring it down, and repeat for the other three. From then on, white stays on the bottom and yellow on top.",
       },
       {
         title: "Insert white corners",
-        body: "Turn the top until a white corner sits directly above the slot it belongs in (turn the whole cube, white still down, to bring that slot to the front). For the front-right slot, repeat R U R′ U′ until the corner drops in white side down: once if white points to the side, three times if it points up, five times if it points at you. For the front-left slot, use L′ U′ L U the same way. Each repeat leaves the cross as it was, and this is the same trigger F2L uses later.",
+        body: "A corner belongs in the slot between the two side centres that match its other two colours. Turn the top until a white corner sits directly above that slot (turn the whole cube, white still down, to bring the slot to the front). For the front-right slot, repeat R U R′ U′ until the corner drops in white side down: once if white points to the side, three times if it points up, five times if it points at you. For the front-left slot, use L′ U′ L U the same way. Each repeat leaves the cross as it was. R U R′ U′ is the most common short sequence in cubing, so it is worth getting smooth.",
       },
       {
         title: "Check the layer",
-        body: "When the white face is solved and the first-layer side colours match their centres, move on.",
+        body: "When the white face is solved and each side's bottom row matches its centre, move on. If a white corner is in the wrong slot or twisted, turn the cube (white still down) so it is at the front right and do R U R′ U′ once: it comes up to the top, and you place it as usual.",
+      },
+    ],
+    examples: [
+      {
+        label: "Corner with white facing right",
+        moves: "R U R' U'",
+        note: "Above its slot at the front right, white facing to the right: one go.",
+      },
+      {
+        label: "Corner with white facing up",
+        moves: "R U R' U' R U R' U' R U R' U'",
+        note: "White facing up: three goes of the same four moves.",
       },
     ],
     practiceHint: "Solve only the white layer ten times; ignore the rest of the cube.",
@@ -165,6 +178,12 @@ export const lessons: Lesson[] = [
         caseId: "pll-ua",
         note: "The finished side at the back; the front edge belongs on the right.",
       },
+      {
+        label: "Edges into place: Ub perm",
+        moves: "R2 U R U R' U' R' U' R' U R'",
+        caseId: "pll-ub",
+        note: "The finished side at the back; the front edge belongs on the left.",
+      },
     ],
     practiceHint: "Aim for a clean solve under five minutes before caring about averages.",
   },
@@ -186,7 +205,7 @@ export const lessons: Lesson[] = [
       },
     ],
     practiceHint:
-      "Start a Cross diagnostic on Train and see how it compares to the rest of your solve.",
+      "Scramble, do the z2 and give yourself fifteen seconds: find all four white edges and plan the first two, then solve those two without stopping. Do it five times.",
   },
   {
     id: "cfop-f2l",
@@ -201,7 +220,7 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Front slots first",
-        body: "Insert into the two front slots to begin with, turning the cube to bring a back slot round if you have to. Rotations hide the pieces you would otherwise see coming, so avoid a y2 and prefer a top turn when one will do; cutting them down properly comes later. Right now the point is understanding what the moves do to the pair.",
+        body: "Insert into the two front slots to begin with, turning the cube to bring a back slot round if you have to. Rotations hide the pieces you would otherwise see coming, so avoid a y2 and prefer a top turn when one will do; cutting them down properly comes later. Right now the point is understanding what the moves do to the pair. At the front left, use your left hand rather than turning the cube: L′ U′ L and L′ U L are the mirrors of R U R′ and R U′ R′.",
       },
       {
         title: "Slow is smooth",
@@ -222,7 +241,8 @@ export const lessons: Lesson[] = [
         note: "The pair isn't joined yet, but one R U R' joins it and drops it in at once. Most F2L solutions are built from three-move pieces like these two.",
       },
     ],
-    practiceHint: "Start F2L training on Train — turn a bit slower and look for the next pair.",
+    practiceHint:
+      "Solve the cross, then put in the four pairs slowly, saying for each one: take out, pair, insert.",
   },
   {
     id: "cfop-2look-oll",
@@ -241,7 +261,7 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Sune and Antisune first",
-        body: "Learn these two before the other five. Each is only seven moves, they mirror each other (each is also the other one run backwards), and both use only R and U turns, the same turns as your right-hand F2L inserts: the Sune opens with R U R′ and the Antisune with R U2 R′. Until you know the rest, the Sune hold rule from your first solve still finishes any of them in at most three Sunes. That is slower than the real algorithm, so replace it one case at a time.",
+        body: "Learn these two before the other five. Each is only seven moves, they mirror each other (each is also the other one run backwards), and both use only R and U turns, the same turns as your right-hand F2L inserts: the Sune opens with R U R′ and the Antisune with R U2 R′. Until you know the rest, the Sune hold rule from your first solve (one corner up: hold it at the front left; none up: the front-left corner's yellow facing left; two up: the front-left corner's yellow facing you) still finishes any of them in at most three Sunes. That is slower than the real algorithm, so replace it one case at a time.",
       },
       {
         title: "Stay on 2-look OLL for now",
@@ -295,7 +315,8 @@ export const lessons: Lesson[] = [
         body: "AUF means adjusting the top: a U, U′ or U2 before an algorithm to set the case up, or after it to line the layer up. Recognise the case first, then turn the top once to the angle the algorithm starts from. Don't turn it while you are still looking, and turn the top, not the whole cube. As the algorithm ends, already know which last turn lines the layer up.",
       },
     ],
-    practiceHint: "Start PLL training once you can set up cases reliably.",
+    practiceHint:
+      "Do the T perm on a solved cube, turn the top once, then solve it from there. Do the same with the Y perm.",
   },
   {
     id: "advanced-first-pair",

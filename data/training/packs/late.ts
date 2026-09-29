@@ -36,7 +36,7 @@ export const aufBothEnds: LevelPack = {
       minutes: 4,
       body: [
         "A case can show up turned four ways from the angle you learned it. People fall into one of two habits: turning the top until it looks familiar, then recognising; or recognising from wherever it is, then turning. The second is faster, and it is a learnable skill.",
-        "Aim to know each case from every angle, and to know the smallest turn that brings it to your starting angle. Some algorithms have alternatives that start from a different angle — the algorithm bank shows the turn each one needs from the picture — and choosing the one that needs no turn at all removes the step entirely.",
+        "Aim to know each case from every angle, and to know the smallest turn that brings it to your starting angle. Some algorithms have alternatives that start from a different angle — the algorithm bank shows the turn each one needs from the picture — and choosing the one that needs no turn at all removes the step entirely. For OLL the whole top face is always in view, so learning each case from every angle is the work now. For PLL, reading from any angle comes with two-sided recognition, the Sub-15 step; until then a turn of the top to check a PLL is fine.",
         "There is a further trick at a higher level: a second algorithm for the same case that starts or finishes a turn away from the one you know, so the extra top turn disappears. It is worth knowing it exists; only adopt it for a case after timing it against the plain version.",
       ],
     },
@@ -73,7 +73,7 @@ export const aufBothEnds: LevelPack = {
       title: "No turning to recognise",
       purpose: "Builds recognition from every angle, which removes the lining-up turn.",
       rules: [
-        "Solve to OLL or PLL. Name the case before touching the top layer.",
+        "Solve to OLL. Name the case before touching the top layer. Add PLL once you read PLLs from two sides.",
         "Then do the smallest turn and the algorithm.",
         "If you had to turn the top to recognise it, note the case.",
       ],
@@ -101,12 +101,13 @@ export const subTwentyBudget: LevelPack = {
     {
       id: "budget-shape",
       title: "The shape of a sub-20 solve",
-      takeaway: "Roughly two seconds of cross, ten or eleven of F2L, and six of last layer.",
+      takeaway:
+        "Roughly two to two and a half seconds of cross, ten or eleven of F2L, and six or seven of last layer.",
       minutes: 4,
       body: [
-        "A widely quoted breakdown of a sub-20 average is a cross of about two seconds, F2L of about ten or eleven, and a last layer of about six. The road on Learn shows the same split worked out from this app's own goals, including the pause in front of each part.",
+        "A widely quoted breakdown of a sub-20 average is a cross of about two seconds, F2L of about ten or eleven, and a last layer of about six. The road on Learn works the split out from this app's own goals, with the pause in front of each part included, and lands close to that: a little more on the cross and the last layer.",
         "Two things follow from that shape. F2L is more than half of it, so a small improvement there is worth more than a large one anywhere else. And six seconds of last layer is within reach on two-look OLL and full PLL, so you can get to sub-20 without full OLL. If your measured last layer is the part over budget, though, this is a good time to start full OLL, a group at a time, building out from the cases two-look OLL already taught you.",
-        "Four pairs in ten or eleven seconds is about two and a half seconds a pair including finding it. That is the number to hold in your head during slow solves.",
+        "Four pairs in ten or eleven seconds is about two and a half seconds a pair including finding it. That is the pace to work down towards. In slow solves, go slower than that, so the cube never stops.",
       ],
       checkpoint: "You know your own cross, F2L and last-layer times, not just your average.",
     },
@@ -142,7 +143,7 @@ export const subTwentyBudget: LevelPack = {
         "Turns a vague sense of 'slow F2L' into a number you can compare against the budget.",
       rules: [
         "Take the cross, F2L and last-layer tests on Coach.",
-        "Compare each with the sub-20 budget: about 2, 10–11 and 6 seconds.",
+        "Compare each with the sub-20 budget: about 2–2.5, 10–11 and 6–7 seconds.",
         "Pick the part furthest over as your focus for the next two weeks.",
       ],
       dose: "Once, then every two weeks.",
@@ -154,9 +155,9 @@ export const subTwentyBudget: LevelPack = {
       title: "Two and a half seconds a pair",
       purpose: "Gives F2L a concrete pace to practise at instead of 'as fast as possible'.",
       rules: [
-        "Do slow solves where each pair, including finding it, takes about two and a half seconds.",
-        "The cube should never stop; if it does, go slower.",
-        "Ten solves.",
+        "Start at the pace where the cube never stops, and time your F2L.",
+        "Each week, bring the pace down towards about two and a half seconds a pair, finding it included.",
+        "If the cube stops, you went faster than your eyes: ease off a little and hold that pace.",
       ],
       dose: "Ten solves, three times a week.",
       signal: "Your F2L test time settles around ten or eleven seconds.",
@@ -234,7 +235,7 @@ export const colourNeutralPlan: LevelPack = {
       title: "Best of two",
       purpose: "Builds the inspection habit that makes neutrality worth having.",
       rules: [
-        "In each inspection, find the white cross and the yellow cross, and count moves for each.",
+        "In each inspection, find the four white edges and the four yellow edges, and see which colour's first two edges go in more easily (or its whole cross, once you plan whole crosses).",
         "Solve the one with the better start: usually the shorter cross, or one a move longer if you can see it leaves an easy first pair.",
         "Plan as much of it as you can before you turn. Once you can plan the whole cross, check it blind: close your eyes and solve the cross.",
       ],
@@ -304,7 +305,7 @@ export const fillerMoves: LevelPack = {
       takeaway: "A y to reach a slot and a y' to come back is two rotations spent on one pair.",
       minutes: 3,
       body: [
-        "Rotations are expensive for a reason beyond their move count: they reset what your eyes are tracking. A rotation you later undo is the worst kind — two resets for one pair.",
+        "You have seen why a rotation costs more than its moves: it resets what your eyes are tracking. The worst kind is one you later undo, two resets for one pair.",
         "The fix is the back-slot and left-hand insertions from the F2L packs. When you see yourself rotating to a slot, ask whether the pair can go in from where you are.",
         "Data from top solvers backs this up: the overwhelming majority of their insertions are plain R-U or L-U inserts from the angle they are already holding.",
       ],
@@ -333,7 +334,8 @@ export const fillerMoves: LevelPack = {
         "Note how often you needed a second look or a second top turn.",
       ],
       dose: "Twenty last pairs.",
-      signal: "Your last-pair-plus-OLL test time drops towards the sum of its parts.",
+      signal:
+        "Most of the twenty go straight from the insert into the OLL's set-up turn, with no second look or second turn.",
       exerciseId: "ls_oll",
     },
   ],
@@ -537,7 +539,8 @@ export const xcrossProperly: LevelPack = {
 export const algSetsWorthIt: LevelPack = {
   id: "alg-sets-worth-it",
   title: "Which algorithm sets are worth it",
-  summary: "COLL, Winter Variation, ZBLL and the rest: what each does, and speed per algorithm.",
+  summary:
+    "What the bigger algorithm sets do, and how to judge each by the time it saves per algorithm.",
   levels: ["sub20"],
   why: "After full OLL and PLL there are dozens of algorithm sets, some with hundreds of cases. Some pay back quickly; others take a year to learn for a fraction of a second. The trick is picking by speed gained per algorithm, not by how impressive the set is.",
   lessons: [

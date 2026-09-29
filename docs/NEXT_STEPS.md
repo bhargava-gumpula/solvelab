@@ -27,9 +27,10 @@ Four phases from `~/Projects/solvelab-ui-drafts/research/cubing-content-research
 1. ✅ Orientation: white cross on the bottom everywhere teaching happens (dev log 157).
 2. ✅ Things that are wrong or teach bad habits: audit 6.2, plus item 22 (Learn to solve finishable) and item 44 (yellow-cross holds), in the order the council set (dev log 161).
 3. ✅ Course structure and missing content: audit 6.3 plus item 20 (dev log 162, follow-ups 163). Left open: per-algorithm credit (item 43) and the F2L recognition drill in all four slots (item 30).
-4. ✅ Polish: audit 6.4, items 44–61 (dev log 164; awaiting review).
+4. ✅ Polish: audit 6.4, items 44–61 (dev log 164).
+5. ✅ The walk-through backlog: every course reviewed as a learner, the confirmed findings fixed, quizzes rebalanced, accessibility and dark mode checked (dev log 165; awaiting review).
 
-A backlog of course gaps from the phase 4 learner walk-throughs (a Sub-45 family-by-family F2L lesson, a Sub-10 last-layer unit and others) is listed in dev log 164 for the owner to prioritise.
+What was left after phase 5 is listed in dev log 165: an "untimed" drill mode, a few small repeats between units, and the measured-completion proposal below.
 
 ### Proposed next phase: measured completion (owner decision needed)
 

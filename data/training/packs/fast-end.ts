@@ -162,7 +162,7 @@ export const advancedF2lCases: LevelPack = {
         "A corner with white facing up is the other place feel gets slow, even with both pieces in the top layer. By feel you turn the corner round with something like R U2 R', find the edge again, pair and insert. A few memorised cases skip all of that.",
         "The most useful one: the corner right above its slot with white up, and the edge beside it on the right, green facing right. F U R U' R' F' is the 2-look L-shape algorithm you may know from the back-left hold; here it pairs the pieces, and R U' R' puts the pair in. Nine moves, no rotation.",
         "While you're collecting shortcuts, one more is worth having: the pair joined the wrong way on top, with the corner above its slot, white facing you, and the edge beside it in front with green facing up. The R and U way to break it up and re-pair it, R U R' U2 R U' R' U R U' R', is eleven moves; M U r U' r' U' M' does it in seven. If M moves feel awkward, the R and U version is a fine choice.",
-        "Collect these slowly. One case a week, used in real solves until it fires on its own, is worth more than ten you have to stop and remember.",
+        "Collect these slowly. One case a week, used in real solves until it fires on its own, is worth more than ten you have to stop and remember. The on-screen F2L drill deals all 41 cases: the ones this course doesn't teach are there to pick up the same way, one a week, once these are automatic.",
       ],
       examples: [
         {
@@ -191,7 +191,7 @@ export const advancedF2lCases: LevelPack = {
         "With white on the bottom, the back slots are the ones that tempt you into a y or y2. Fast solvers answer that with back-slot versions of the cases they meet there: the same idea seen from another side, done without turning the cube. SpeedCubeDB lists back-slot versions for every case.",
         "Leave this until front-slot F2L is fluent. A back-slot algorithm you have to think about is slower than a rotation you don't, and a rotation only really costs you when it breaks your lookahead. Start with the cases you catch yourself rotating for, and learn them for the back-right slot, where your right hand can reach round.",
         "Sources disagree on how far to take it. Some solvers argue every case can be done without a rotation; others say one or two y turns a solve are fine if your lookahead doesn't suffer. Even the relaxed view draws the line at a y2.",
-        "Many back-slot versions reuse the front idea. The white-up case with its edge home is the front version's U R U' R' mirrored, U' R' U R, three times. The flipped-edge cases keep their wide-r shape. That's why they cost less to learn than they look.",
+        "Many back-slot versions reuse the front idea. The white-up case with its edge home is the front version's U R U' R' mirrored, U' R' U R, three times. The two cases with a twisted corner and a flipped edge keep their wide-r shape. The corner-home case is new at the back, so give it its own reps. That's why most of them cost less to learn than they look.",
       ],
       examples: [
         {

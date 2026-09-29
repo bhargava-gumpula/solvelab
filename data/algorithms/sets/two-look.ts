@@ -160,7 +160,7 @@ export const twoLookPll: AlgorithmSetData = {
     },
     {
       id: "2pll-ua",
-      name: "Three edges, anticlockwise",
+      name: "Three edges, anticlockwise (Ua perm)",
       group: "Step 2: put the edges home",
       sameAs: "pll-ua",
       recognition:
@@ -169,7 +169,7 @@ export const twoLookPll: AlgorithmSetData = {
     },
     {
       id: "2pll-ub",
-      name: "Three edges, clockwise",
+      name: "Three edges, clockwise (Ub perm)",
       group: "Step 2: put the edges home",
       sameAs: "pll-ub",
       recognition:
@@ -178,7 +178,7 @@ export const twoLookPll: AlgorithmSetData = {
     },
     {
       id: "2pll-z",
-      name: "Two pairs swap",
+      name: "Neighbouring edges swap (Z perm)",
       group: "Step 2: put the edges home",
       sameAs: "pll-z",
       recognition:
@@ -187,7 +187,7 @@ export const twoLookPll: AlgorithmSetData = {
     },
     {
       id: "2pll-h",
-      name: "All four swap",
+      name: "Opposite edges swap (H perm)",
       group: "Step 2: put the edges home",
       sameAs: "pll-h",
       recognition:
