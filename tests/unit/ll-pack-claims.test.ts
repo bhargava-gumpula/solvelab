@@ -291,10 +291,10 @@ describe("Keyhole (audit 6.2 item 15, f2l.ts)", () => {
     expect(refill(applyAlgorithm("D2 L U L' D2", edgeHome))).toBe(true);
   });
 
-  it("gives the standard solution without a free slot as seven or eight moves", () => {
+  it("gives the shortest standard solution without a free slot as seven or eight moves", () => {
     expect(text).toContain("With no free slot at all, use the standard solution");
     expect(text).not.toContain("neighbouring slot, use");
-    expect(text).toContain("seven or eight moves");
+    expect(text).toContain("the shortest ones are seven or eight moves");
     const onePieceHome = casesOf("f2l").filter(({ state }) => {
       const pair = readF2lPair(state);
       const cornerHome = pair.corner === "slot" && pair.white === "down" && pair.edge !== "slot";
@@ -302,12 +302,13 @@ describe("Keyhole (audit 6.2 item 15, f2l.ts)", () => {
       return cornerHome || edgeHome;
     });
     expect(onePieceHome.length).toBeGreaterThanOrEqual(4);
+    // The bank's defaults are chosen for how they turn, so some are longer
+    // (F2L 36's triple trigger is twelve); the shortest for each case is 7 or 8.
     for (const { entry } of onePieceHome) {
-      for (const algorithm of algorithmsFor(entry)) {
-        expect([7, 8], `${entry.id}: ${algorithm.moves}`).toContain(
-          movesOf(algorithm.moves).length,
-        );
-      }
+      const shortest = Math.min(
+        ...algorithmsFor(entry).map((algorithm) => movesOf(algorithm.moves).length),
+      );
+      expect([7, 8], entry.id).toContain(shortest);
     }
   });
 });

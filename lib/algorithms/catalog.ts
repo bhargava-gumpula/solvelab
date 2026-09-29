@@ -6,11 +6,12 @@ import { twoLookOll, twoLookPll } from "@/data/algorithms/sets/two-look";
 import { wv } from "@/data/algorithms/sets/wv";
 import type { AlgorithmSetData, CaseAlgorithm, CaseEntry } from "@/data/algorithms/types";
 import type { AlgorithmProgress } from "@/types/domain";
-import { caseStateOf, type CaseKind } from "@/lib/cube/case-check";
+import { AUF, caseStateOf, type CaseKind } from "@/lib/cube/case-check";
 import { f2lRecognition } from "@/lib/cube/describe";
 
 /** Every set with cases behind it. Others are still to come. */
-export const ALGORITHM_SETS: AlgorithmSetData[] = [twoLookOll, twoLookPll, pll, oll, f2l, coll, wv];
+/** In learning order: 2-look, F2L, full PLL before full OLL, then the optional sets. */
+export const ALGORITHM_SETS: AlgorithmSetData[] = [twoLookOll, twoLookPll, f2l, pll, oll, coll, wv];
 
 export function getAlgorithmSet(setId: string): AlgorithmSetData | null {
   return ALGORITHM_SETS.find((set) => set.id === setId) ?? null;
@@ -66,8 +67,14 @@ export function recognitionText(
   entry: CaseEntry,
   kind: CaseKind,
   facelets: string,
+  quarter: 0 | 1 | 2 | 3 = 0,
 ): string | undefined {
-  return kind === "f2l" ? f2lRecognition(facelets) : entry.recognition;
+  if (kind === "f2l") return f2lRecognition(facelets);
+  if (!entry.recognition || quarter === 0) return entry.recognition;
+  // Written recognition describes the case as its first algorithm holds it; a
+  // picture turned for another algorithm says how to get back to that hold.
+  const back = AUF[(4 - quarter) % 4];
+  return `${entry.recognition} (Held as for the first algorithm: turn this picture's top ${back} to match.)`;
 }
 
 /** The algorithm to show first: the person's pick, else the case's own first. */

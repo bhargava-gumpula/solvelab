@@ -220,9 +220,10 @@ describe("the road: colour neutrality", () => {
     expect(text).not.toContain("easier later");
   });
 
-  it("gives the sourced size of the gain and the cost (sub-15 rung)", () => {
-    // Research figures (notes 3.2, S13/S20/S71), not engine facts.
-    const text = levelFor("sub15")!.doNow.find((item) => item.startsWith("Colour neutrality"))!;
+  it("gives the sourced size of the gain and the cost (sub20 rung, the Sub-15 course)", () => {
+    // Research figures (notes 3.2, S13/S20/S71), not engine facts. It sits on the
+    // rung of the course that offers the optional colour-neutral unit.
+    const text = levelFor("sub20")!.doNow.find((item) => item.startsWith("Colour neutrality"))!;
     for (const phrase of [
       "optional",
       "about one move per cross",
@@ -240,7 +241,8 @@ describe("the road: colour neutrality", () => {
 });
 
 describe("the road: 2-look counts", () => {
-  const text = levelFor("sub60")!.doNow.find((item) => item.startsWith("Learn 2-look OLL"))!;
+  // 2-look is taught where CFOP starts, the Sub-60 course (rung sub120).
+  const text = levelFor("sub120")!.doNow.find((item) => item.startsWith("Learn 2-look OLL"))!;
 
   it("2-look OLL is ten algorithms: three edge shapes and seven corner cases", () => {
     const states = [SOLVED_FACELETS, ...ollStates()];
@@ -289,10 +291,11 @@ describe("the road: 2-look counts", () => {
 });
 
 describe("the road: COLL and Winter Variation (sub-12 rung)", () => {
-  const text = levelFor("sub12")!.doNow.find((item) => item.includes("COLL"))!;
+  // The optional COLL / WV note sits on the Sub-12 course's rung (sub15).
+  const text = levelFor("sub15")!.doNow.find((item) => item.includes("COLL"))!;
 
   it("is an optional note after the F2L items", () => {
-    const doNow = levelFor("sub12")!.doNow;
+    const doNow = levelFor("sub15")!.doNow;
     expect(text.startsWith("Optional, once F2L is pause-free")).toBe(true);
     expect(doNow.indexOf(text)).toBeGreaterThan(
       doNow.findIndex((item) => item.includes("F2L case")),

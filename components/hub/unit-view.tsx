@@ -12,16 +12,18 @@ import { useHub } from "@/hooks/use-hub";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
 import { getAspect } from "@/lib/coach/aspects";
 import { formatAspectValue } from "@/lib/coach/profile-format";
-import { sinceStarted } from "@/lib/hub/path";
+import { sinceStarted, type CourseState } from "@/lib/hub/path";
 import { usePackProgress } from "@/hooks/use-training-progress";
 import { COURSES } from "@/data/hub/courses";
 import {
+  RECOGNITION_LABEL,
   courseHref,
   coursesWithUnit,
   getUnit,
   lessonHref,
   recognitionHref,
   type Unit,
+  type UnitLesson,
 } from "@/lib/hub/units";
 import { cn } from "@/lib/utils";
 
@@ -82,10 +84,14 @@ export function UnitView({ unitId }: { unitId: string }) {
           </span>
           <span className="flex-1">
             <span className="block font-semibold">
-              Recognition drill: name {unit.recognition.toUpperCase()} cases on sight
+              {unit.recognition === "f2l"
+                ? "Recognition drill: pick the algorithm for each F2L pair"
+                : `Recognition drill: name ${RECOGNITION_LABEL[unit.recognition]} cases on sight`}
             </span>
             <span className="block text-sm text-muted-foreground">
-              Twelve cases from two sides, timed. Finds the ones you&apos;re slowest to spot.
+              {unit.recognition === "f2l"
+                ? "Twelve pairs, timed. Finds the ones you’re slowest to spot."
+                : "Twelve cases from two sides, timed. Finds the ones you’re slowest to spot."}
             </span>
           </span>
           <ArrowRight className="size-5 text-primary" />
@@ -100,8 +106,23 @@ export function UnitView({ unitId }: { unitId: string }) {
   );
 }
 
-function LessonList({ unit, isDone }: { unit: Unit; isDone: (lessonId: string) => boolean }) {
-  const firstOpen = unit.lessons.find((lesson) => !isDone(lesson.id));
+/** Your course's cut of this unit's lessons, when the unit is in your course. */
+function lessonsInCourse(current: CourseState | null, unitId: string): UnitLesson[] | undefined {
+  return current?.units.find((state) => state.unit.id === unitId)?.unit.lessons;
+}
+
+function LessonList({
+  unit,
+  isDone,
+  courseLessons,
+}: {
+  unit: Unit;
+  isDone: (lessonId: string) => boolean;
+  /** Where "Start" and "Continue" look first; the rest of the unit stays listed. */
+  courseLessons: UnitLesson[] | undefined;
+}) {
+  const open = (lesson: UnitLesson) => !isDone(lesson.id);
+  const firstOpen = courseLessons?.find(open) ?? unit.lessons.find(open);
   return (
     <section aria-labelledby="unit-lessons">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -217,11 +238,24 @@ function UnitMeasure({ unit }: { unit: Extract<Unit, { kind: "pack" }> }) {
 
 function PackLessons({ unit }: { unit: Extract<Unit, { kind: "pack" }> }) {
   const { progress } = usePackProgress(unit.pack);
-  return <LessonList unit={unit} isDone={progress.isLessonDone} />;
+  const { current } = useHub();
+  return (
+    <LessonList
+      unit={unit}
+      isDone={progress.isLessonDone}
+      courseLessons={lessonsInCourse(current, unit.id)}
+    />
+  );
 }
 
 function MethodLessons({ unit }: { unit: Unit }) {
   const hub = useHub();
   const done = hub.input?.methodDone;
-  return <LessonList unit={unit} isDone={(id) => done?.has(id) ?? false} />;
+  return (
+    <LessonList
+      unit={unit}
+      isDone={(id) => done?.has(id) ?? false}
+      courseLessons={lessonsInCourse(hub.current, unit.id)}
+    />
+  );
 }

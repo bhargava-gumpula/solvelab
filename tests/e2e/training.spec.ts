@@ -30,7 +30,7 @@ test.describe("packs on Learn, practice on Train", () => {
 
     // Filter the rest by stretch of the road.
     await all.getByTestId("filter-band-sub10").click();
-    await expect(all.getByTestId("all-reconstruct-your-solves")).toBeVisible();
+    await expect(all.getByTestId("all-practising-near-ten")).toBeVisible();
     await expect(all.getByTestId("all-beginner-method-cold")).toHaveCount(0);
     await all.getByTestId("filter-band-2m-1m").click();
     await expect(all.getByTestId("all-beginner-method-cold")).toBeVisible();
@@ -58,7 +58,7 @@ test.describe("packs on Learn, practice on Train", () => {
     await page.goto("/learn/lookahead/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Lookahead, properly");
     // Only shown once the saved progress has loaded, so this is a real reading.
-    await expect(page.getByTestId("pack-progress")).toContainText("0/3");
+    await expect(page.getByTestId("pack-progress")).toContainText("0/4");
 
     await page.getByTestId("lesson-lookahead-slow-solves").getByRole("button").first().click();
     const lesson = page.getByTestId("lesson-lookahead-slow-solves");
@@ -66,10 +66,10 @@ test.describe("packs on Learn, practice on Train", () => {
     await expect(lesson).toContainText("You have it when:");
 
     await page.getByTestId("lesson-done-lookahead-slow-solves").click();
-    await expect(page.getByTestId("pack-progress")).toContainText("1/3");
+    await expect(page.getByTestId("pack-progress")).toContainText("1/4");
 
     await page.reload();
-    await expect(page.getByTestId("pack-progress")).toContainText("1/3");
+    await expect(page.getByTestId("pack-progress")).toContainText("1/4");
   });
 
   test("a drill you choose to practise lands on Train, and leaves when you untick it", async ({

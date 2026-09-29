@@ -47,8 +47,11 @@ export function Library() {
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {COURSES.map((course, index) => {
+            // Count the main line; optional units are off it, so they're shown apart.
             const courseUnitList = courseUnits(course);
-            const lessons = courseUnitList.reduce((total, unit) => total + unit.lessons.length, 0);
+            const mainLine = courseUnitList.filter((unit) => !unit.optional);
+            const optional = courseUnitList.length - mainLine.length;
+            const lessons = mainLine.reduce((total, unit) => total + unit.lessons.length, 0);
             return (
               <motion.div
                 key={course.id}
@@ -68,7 +71,8 @@ export function Library() {
                   <span className="text-2xl font-bold tracking-tight">{course.title}</span>
                   <span className="mt-1 text-sm opacity-90">{course.tagline}</span>
                   <span className="mt-auto pt-4 text-xs opacity-80">
-                    {courseUnitList.length} units · {lessons} lessons
+                    {mainLine.length} units · {lessons} lessons
+                    {optional ? ` · +${optional} optional` : null}
                   </span>
                 </Link>
               </motion.div>
@@ -139,7 +143,7 @@ export function Library() {
                       </span>
                     ))}
                     <span className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
-                      {unit.lessons.length} lessons
+                      {unit.lessons.length} {unit.lessons.length === 1 ? "lesson" : "lessons"}
                     </span>
                   </span>
                 </Link>

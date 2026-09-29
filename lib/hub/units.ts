@@ -2,16 +2,29 @@
  * Units are what a course is made of: a training pack, or one of the method
  * lesson paths for people still learning to solve. They wrap existing content
  * rather than copying it, so a pack reads the same wherever it appears.
+ *
+ * A course names its units in order (`CourseDefinition.units`) and can show
+ * only some of a pack's lessons and drills, so a pack that matters at several
+ * levels teaches each level its own part instead of repeating itself.
  */
-import { COURSES, type CourseDefinition } from "@/data/hub/courses";
+import { COURSES, type CourseDefinition, type CourseUnitRef } from "@/data/hub/courses";
 import { getLesson, lessonsForPath, type Lesson } from "@/data/learning/lessons";
 import { learningPaths } from "@/data/learning/paths";
 import { TRAINING_PACKS, getPack } from "@/data/training";
-import { levelFor } from "@/data/training/levels";
-import type { PackLesson, TrainingPack } from "@/data/training/types";
+import type { PackDrill, PackLesson, TrainingPack } from "@/data/training/types";
 
 export type MethodPathId = (typeof learningPaths)[number]["id"];
-export type RecognitionSet = "pll" | "oll";
+/** The algorithm sets with an on-screen recognition drill. */
+export type RecognitionSet = "pll" | "oll" | "two-look-oll" | "two-look-pll" | "f2l";
+
+/** What each recognition drill is called on the path. */
+export const RECOGNITION_LABEL: Record<RecognitionSet, string> = {
+  pll: "PLL",
+  oll: "OLL",
+  "two-look-oll": "2-look OLL",
+  "two-look-pll": "2-look PLL",
+  f2l: "F2L",
+};
 
 export interface UnitLesson {
   id: string;
@@ -26,11 +39,15 @@ interface UnitBase {
   lessons: UnitLesson[];
   /** An on-screen recognition drill for this unit's algorithm set. */
   recognition: RecognitionSet | null;
+  /** Worth doing, but not part of the course's main line. */
+  optional: boolean;
 }
 
 export interface PackUnit extends UnitBase {
   kind: "pack";
   pack: TrainingPack;
+  /** The drills this unit offers: all of the pack's, or the ones its course picks. */
+  drills: PackDrill[];
 }
 
 export interface MethodUnit extends UnitBase {
@@ -44,23 +61,53 @@ export type Unit = PackUnit | MethodUnit;
 const RECOGNITION: Partial<Record<string, RecognitionSet>> = {
   "pll-algorithms": "pll",
   "oll-algorithms": "oll",
+  "two-look-oll": "two-look-oll",
+  "two-look-pll": "two-look-pll",
+  "advanced-f2l-cases": "f2l",
 };
 
 const METHOD_PREFIX = "method-";
 
-function packUnit(pack: TrainingPack): PackUnit {
+/** Method paths no course teaches any more; they stay in the Library. */
+export const RETIRED_METHOD_PATHS: readonly MethodPathId[] = ["advanced"];
+
+/**
+ * The items a course picks, in its order; all of them when it picks none.
+ * Naming one the unit doesn't have is a mistake in the course map.
+ */
+function pick<T extends { id: string }>(
+  items: readonly T[],
+  ids: readonly string[] | undefined,
+  where: string,
+): T[] {
+  if (!ids) return [...items];
+  return ids.map((id) => {
+    const found = items.find((item) => item.id === id);
+    if (!found) throw new Error(`${where} names ${id}, which it doesn't have`);
+    return found;
+  });
+}
+
+function packUnit(pack: TrainingPack, ref?: CourseUnitRef): PackUnit {
+  const where = `The unit ${pack.id}`;
   return {
     kind: "pack",
     id: pack.id,
     title: pack.title,
     summary: pack.summary,
     pack,
-    lessons: pack.lessons.map(({ id, title, minutes }) => ({ id, title, minutes })),
-    recognition: RECOGNITION[pack.id] ?? null,
+    lessons: pick(pack.lessons, ref?.lessons, where).map(({ id, title, minutes }) => ({
+      id,
+      title,
+      minutes,
+    })),
+    drills: pick(pack.drills, ref?.drills, where),
+    recognition: ref?.recognition === false ? null : (RECOGNITION[pack.id] ?? null),
+    optional: ref?.optional ?? false,
   };
 }
 
-function methodUnit(pathId: MethodPathId): MethodUnit {
+function methodUnit(pathId: MethodPathId, ref?: CourseUnitRef): MethodUnit {
   const path = learningPaths.find((item) => item.id === pathId)!;
   return {
     kind: "method",
@@ -68,14 +115,17 @@ function methodUnit(pathId: MethodPathId): MethodUnit {
     title: path.name,
     summary: path.description,
     path: pathId,
-    lessons: lessonsForPath(pathId).map(({ id, title, minutes }) => ({ id, title, minutes })),
+    lessons: pick(lessonsForPath(pathId), ref?.lessons, `The unit ${METHOD_PREFIX}${pathId}`).map(
+      ({ id, title, minutes }) => ({ id, title, minutes }),
+    ),
     recognition: null,
+    optional: ref?.optional ?? false,
   };
 }
 
 /** Every unit there is: every pack, then the method paths. */
 export const ALL_UNITS: readonly Unit[] = [
-  ...TRAINING_PACKS.map(packUnit),
+  ...TRAINING_PACKS.map((pack) => packUnit(pack)),
   ...learningPaths.map((path) => methodUnit(path.id)),
 ];
 
@@ -83,29 +133,40 @@ export function getUnit(id: string): Unit | undefined {
   return ALL_UNITS.find((unit) => unit.id === id);
 }
 
-export function unitForPack(packId: string): PackUnit | undefined {
+/**
+ * A pack brought into a course that doesn't list it, cut the way the nearest
+ * earlier course cuts it, so it keeps the lessons staged for a level this
+ * person has passed. None when no earlier course has it: a later course's
+ * part would be material they aren't ready for.
+ */
+export function unitForPack(packId: string, course: CourseDefinition): PackUnit | undefined {
   const pack = getPack(packId);
-  return pack ? packUnit(pack) : undefined;
+  const at = COURSES.findIndex((item) => item.id === course.id);
+  if (!pack || at < 0) return undefined;
+  for (let index = at - 1; index >= 0; index--) {
+    const ref = COURSES[index]!.units.find((item) => item.id === packId);
+    if (ref) return packUnit(pack, { ...ref, optional: false });
+  }
+  return undefined;
 }
 
 /**
- * A course's units, in teaching order: the method lessons it teaches, the
- * packs its rungs name (most useful first), then any other pack written for
- * those rungs.
+ * A course's units, in the order the course lists them, each showing only the
+ * lessons and drills the course picks for its level.
  */
 export function courseUnits(course: CourseDefinition): Unit[] {
-  const named = course.rungs.flatMap((rung) => levelFor(rung)?.packs ?? []);
-  const written = TRAINING_PACKS.filter((pack) =>
-    pack.levels.some((level) => course.rungs.includes(level)),
-  ).map((pack) => pack.id);
-  const packIds = [...new Set([...named, ...written])];
-  return [
-    ...(course.methodPaths ?? []).map(methodUnit),
-    ...packIds.flatMap((id) => {
-      const pack = getPack(id);
-      return pack ? [packUnit(pack)] : [];
-    }),
-  ];
+  return course.units.map((ref) => {
+    if (ref.id.startsWith(METHOD_PREFIX)) {
+      const pathId = ref.id.slice(METHOD_PREFIX.length) as MethodPathId;
+      if (!learningPaths.some((path) => path.id === pathId)) {
+        throw new Error(`The course ${course.id} names an unknown unit ${ref.id}`);
+      }
+      return methodUnit(pathId, ref);
+    }
+    const pack = getPack(ref.id);
+    if (!pack) throw new Error(`The course ${course.id} names an unknown unit ${ref.id}`);
+    return packUnit(pack, ref);
+  });
 }
 
 /** The courses a unit appears in. */

@@ -1,3 +1,4 @@
+import { COURSES } from "@/data/hub/courses";
 import { LEVEL_PACKS, bandLabel, isMadeFor, packForAspect, type LevelBand } from "@/data/training";
 import type { TrainingPack } from "@/data/training/types";
 import { observationFromRuns } from "@/lib/coach/ai/features";
@@ -5,6 +6,7 @@ import { diagnose, type CoachModel, type Diagnosis } from "@/lib/coach/ai/model"
 import type { AspectId } from "@/lib/coach/aspects";
 import type { AspectResult, SolveProfile } from "@/lib/coach/profile";
 import type { DiagnosticRun, Solve } from "@/types/domain";
+import { courseUnits } from "@/lib/hub/units";
 
 /** Who put a pack on the list: the coach model, the plain rules standing in for it, or your level. */
 type RecommendationSource = "model" | "rules" | "level";
@@ -127,12 +129,35 @@ export function rulesRecommendations(aspects: AspectResult[]): PackRecommendatio
 /** The packs written for your stretch of the road. */
 export function levelRecommendations(band: LevelBand | null): PackRecommendation[] {
   if (!band) return [];
-  return LEVEL_PACKS.filter((pack) => isMadeFor(pack, band)).map((pack) => ({
-    pack,
-    source: "level",
-    aspect: null,
-    reason: `Written for your level, ${bandLabel(band)}.`,
-  }));
+  const written: PackRecommendation[] = LEVEL_PACKS.filter((pack) => isMadeFor(pack, band)).map(
+    (pack) => ({
+      pack,
+      source: "level",
+      aspect: null,
+      reason: `Written for your level, ${bandLabel(band)}.`,
+    }),
+  );
+  if (written.length >= 2) return written;
+  // Some stretches are taught by staged skill packs rather than packs written
+  // only for them; then the level's own course says what to read.
+  const seen = new Set(written.map((entry) => entry.pack.id));
+  const fromCourses = COURSES.filter((course) =>
+    course.rungs.some((rung) => band.rungs.includes(rung)),
+  ).flatMap((course) =>
+    courseUnits(course).flatMap((unit): PackRecommendation[] => {
+      if (unit.kind !== "pack" || unit.optional || seen.has(unit.id)) return [];
+      seen.add(unit.id);
+      return [
+        {
+          pack: unit.pack,
+          source: "level",
+          aspect: null,
+          reason: `In your course, ${course.title}.`,
+        },
+      ];
+    }),
+  );
+  return [...written, ...fromCourses];
 }
 
 /**
@@ -158,7 +183,8 @@ export function packRecommendations({
     : diagnosis
       ? modelRecommendations(diagnosis, profile)
       : [];
-  // No dedupe needed: aspect packs map one-to-one onto parts, and level packs
-  // have no part (a unit test holds both of those true).
-  return [...parts, ...levelRecommendations(band)];
+  // The level list can fall back to a course's aspect packs, which a part may
+  // already have picked; keep the part's entry, since it carries the reason.
+  const picked = new Set(parts.map((entry) => entry.pack.id));
+  return [...parts, ...levelRecommendations(band).filter((entry) => !picked.has(entry.pack.id))];
 }

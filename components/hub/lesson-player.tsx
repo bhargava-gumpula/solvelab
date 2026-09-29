@@ -18,9 +18,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { setPackItemDone } from "@/hooks/use-training-progress";
-import { completeMethodLesson } from "@/hooks/use-hub";
+import { completeMethodLesson, useHub } from "@/hooks/use-hub";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import type { LessonStep, QuizStep } from "@/lib/hub/steps";
+import { lessonHref } from "@/lib/hub/units";
 import { cn } from "@/lib/utils";
 import { CubePlayer } from "./cube-player";
 import { celebrate } from "./fx";
@@ -33,6 +34,10 @@ interface LessonPlayerProps {
   packId: string | null;
   steps: LessonStep[];
   backHref: string;
+  /**
+   * The next lesson in the unit's full order. When your course teaches only
+   * part of the unit and holds this lesson, its order takes over.
+   */
   next: { href: string; title: string } | null;
   /** Where "Back to your path" goes. */
   pathHref: string;
@@ -65,6 +70,7 @@ export function LessonPlayer({
   const step = steps[index]!;
   const last = index === steps.length - 1;
   const blocked = step.kind === "quiz" && answers[index] === undefined;
+  const following = useCourseNext(unitId, lessonId, next);
 
   const go = (delta: number) => {
     const target = Math.min(steps.length - 1, Math.max(0, index + delta));
@@ -157,9 +163,9 @@ export function LessonPlayer({
             <Button asChild variant="outline" size="lg" className="rounded-full">
               <Link href={pathHref}>Your path</Link>
             </Button>
-            {next ? (
+            {following ? (
               <Button asChild size="lg" className="rounded-full" data-testid="next-lesson">
-                <Link href={next.href}>
+                <Link href={following.href}>
                   Next lesson <ArrowRight />
                 </Link>
               </Button>
@@ -190,6 +196,23 @@ export function LessonPlayer({
       </p>
     </div>
   );
+}
+
+/**
+ * The lesson after this one. A course can teach only part of a unit, so when
+ * your course holds this lesson its order decides; otherwise the unit's own.
+ */
+function useCourseNext(
+  unitId: string,
+  lessonId: string,
+  fallback: LessonPlayerProps["next"],
+): LessonPlayerProps["next"] {
+  const { current } = useHub();
+  const lessons = current?.units.find((state) => state.unit.id === unitId)?.unit.lessons;
+  const position = lessons?.findIndex((lesson) => lesson.id === lessonId) ?? -1;
+  if (!lessons || position < 0) return fallback;
+  const next = lessons[position + 1];
+  return next ? { href: lessonHref(unitId, next.id), title: next.title } : null;
 }
 
 function StepBody({

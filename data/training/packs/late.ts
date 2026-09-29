@@ -104,7 +104,7 @@ export const subTwentyBudget: LevelPack = {
       minutes: 4,
       body: [
         "A widely quoted breakdown of a sub-20 average is a cross of about two seconds, F2L of about ten or eleven, and a last layer of about six. The road on Learn shows the same split worked out from this app's own goals, including the pause in front of each part.",
-        "Two things follow from that shape. F2L is more than half of it, so a small improvement there is worth more than a large one anywhere else. And six seconds of last layer is achievable with two-look OLL and full PLL — you don't need full OLL to get here.",
+        "Two things follow from that shape. F2L is more than half of it, so a small improvement there is worth more than a large one anywhere else. And six seconds of last layer is within reach on two-look OLL and full PLL, so you can get to sub-20 without full OLL. If your measured last layer is the part over budget, though, this is a good time to start full OLL, a group at a time, building out from the cases two-look OLL already taught you.",
         "Four pairs in ten or eleven seconds is about two and a half seconds a pair including finding it. That is the number to hold in your head during slow solves.",
       ],
       checkpoint: "You know your own cross, F2L and last-layer times, not just your average.",
@@ -174,7 +174,7 @@ export const colourNeutralPlan: LevelPack = {
   id: "colour-neutral-plan",
   title: "Going colour neutral",
   summary: "A plan for solving on more than one colour, and an honest look at when it's worth it.",
-  levels: ["sub20"],
+  levels: ["sub120"],
   why: "With one cross colour you take whatever cross the scramble gives you. With two you take the better of two, and with six the best of six. The saving averages about one move on the cross, with many more short, easy crosses. It is optional, and staying on the white cross is a sound choice.",
   lessons: [
     {
@@ -186,7 +186,7 @@ export const colourNeutralPlan: LevelPack = {
       body: [
         "Colour neutrality means having no preference between cross colours and no speed difference between them. Its benefit is choice: in inspection you can pick the cross that is shortest, or the one that leaves an easy first pair.",
         "The numbers are modest. The average cross falls from roughly 5.8 moves on one colour to about 4.8 on six, and dual neutrality, white and yellow, gets about half of that. The bigger difference is easy starts: crosses of four moves or fewer come up about five times as often. Feliks Zemdegs tested it on his own solves and estimated the long-run saving at about 0.25 seconds a solve.",
-        "The cost is not small. A full switch can take months, with slower times while you adjust and an extra decision in every inspection. Switching is easiest soon after you can solve and gets harder the faster you are, because you have more solves built on one colour. At this level that means months of work for about a quarter of a second, so if you want some of the benefit, dual neutrality is the cheaper route.",
+        "The cost is not small. A full switch can take months, with slower times while you adjust and an extra decision in every inspection. Switching is easiest soon after you can solve and gets harder the faster you are, because you have more solves built on one colour. For someone who is already fast, that means months of work for about a quarter of a second; soon after you can solve, the switch costs far less. If you want some of the benefit later on, dual neutrality is the cheaper route.",
       ],
     },
     {
@@ -339,8 +339,8 @@ export const multislotting: LevelPack = {
   id: "multislotting",
   title: "Solving two pairs at once",
   summary:
-    "Keyhole, pseudo-slotting and multislotting — and when the advanced version isn't worth it.",
-  levels: ["sub15", "sub12"],
+    "Pseudo-slotting and multislotting, built on the keyhole you already know — and when the advanced version isn't worth it.",
+  levels: ["sub12"],
   why: "Past about fifteen seconds, pairs one at a time with good lookahead is most of what F2L can be. The next gains come from solutions that do a little work on a second pair while solving the first.",
   lessons: [
     {
@@ -349,10 +349,25 @@ export const multislotting: LevelPack = {
       takeaway: "All of these use a slot you aren't filling right now as temporary space.",
       minutes: 4,
       body: [
-        "Keyhole, pseudo-slotting and multislotting are one idea at increasing ambition. Keyhole uses an empty slot to place one piece of a pair while the other is already in. Pseudo-slotting inserts a pair into the wrong slot on purpose, knowing a later bottom-layer turn puts it right. Multislotting sets up a second pair while inserting the first.",
-        "All three depend on seeing more of the cube than the pair in front of you, which is why they come after lookahead rather than before. Without it they become pauses to think.",
+        "Keyhole is the simplest member of the family, and you should already be using it from the Sub-30 course: an empty slot lets you place one piece of a pair while the other is already in. This pack adds the two more ambitious ones. Pseudo-slotting puts a corner and an edge from two different pairs in together, with the bottom layer turned on purpose so that turning it back finishes both. Multislotting sets up a second pair while inserting the first.",
+        "Pseudo-slotting and multislotting both depend on seeing more of the cube than the pair in front of you, which is why they come after lookahead rather than before. Without it they become pauses to think. Keyhole is different: it only needs the pair you're solving and one empty slot, which is why it belongs much earlier.",
         "Advanced solvers tend to use them opportunistically: they notice the chance and take it. Very few plan them from scratch every solve.",
       ],
+    },
+    {
+      id: "multi-pseudo",
+      title: "Pseudo-slotting: a pair that isn't one",
+      takeaway:
+        "With the bottom layer turned, a corner and an edge from different pairs can go in together; turning the bottom back finishes both.",
+      minutes: 4,
+      body: [
+        "A turn of the bottom layer carries its corners round with it, but the middle-layer edges stay where they are. Pseudo-slotting is built on that. Turn the bottom a quarter with D and the front-left corner's home moves round to sit under the front-right slot, while the front-right edge's home stays put. So the front-left corner and the front-right edge can go into the front-right slot together, as if they were a pair. Turn the bottom back with D' and the corner rides home to the front-left, while the edge is already where it belongs.",
+        "It pays when the pieces already sit that way: a corner and an edge from two different pairs that one short insert would place together, or a bottom layer already turned by an earlier step. One pseudo insert does the work of two separate keyholes in fewer moves, and it needs only two open slots. Tymon Kolasiński, known for it, uses one about once a solve.",
+        "It is also easy to get wrong. Side by side, the two pieces' colours don't match on either face, so the check you use on every real pair, matching stickers, tells you nothing. You have to work out which way the corner must face to land correctly once the bottom turns back, and a pseudo-pair is easily put in with its edge flipped.",
+        "So don't wait for it to appear by itself; drill it on purpose. In untimed solves, look for a corner and an edge from different pairs that would go in together with the bottom turned a quarter either way, or a half, and check the corner's twist before you insert. Keep a tally of how often you find one and how often it comes out right.",
+      ],
+      checkpoint:
+        "In slow solves you spot a pseudo-pair now and then, and it comes out solved when the bottom turns back.",
     },
     {
       id: "multi-example",
@@ -380,7 +395,7 @@ export const multislotting: LevelPack = {
       minutes: 3,
       body: [
         "Be honest about the limits. Full multislotting — deliberately controlling a second pair on most inserts — is widely called the hardest F2L technique there is, and a common view is that for most people the time spent seeing the opportunity costs more than the moves it saves.",
-        "The reasonable version is: learn keyhole well, learn to recognise the simplest multislot cases like the one above, and take them when they appear. Don't hunt for them.",
+        "The reasonable version is: keep keyhole automatic, learn to recognise the simplest multislot cases like the one above, and take them when they appear. Don't hunt for them.",
         "Data from top solvers supports keeping things simple: most of their insertions are plain inserts, and keyhole inserts, while fastest on average, are rare. The fast part is the flow, not the trick.",
       ],
       checkpoint:
@@ -393,7 +408,7 @@ export const multislotting: LevelPack = {
       title: "Spot, don't solve",
       purpose: "Builds recognition of the opportunity without the pressure of executing it.",
       rules: [
-        "During slow solves, before each insert, ask: would turning another face now pair something up?",
+        "During slow solves, before each insert, ask: would turning another face now pair something up, or would turning the bottom let a corner and an edge from different pairs go in together?",
         "Say yes or no, then solve normally.",
         "Check afterwards whether you were right.",
       ],
@@ -417,6 +432,7 @@ export const multislotting: LevelPack = {
   mistakes: [
     "Trying multislotting before lookahead is pause-free.",
     "Hunting for multislots every insert and pausing to do it.",
+    "Checking a pseudo-pair by matching its stickers, which never match, instead of working out where the corner will land.",
     "Skipping keyhole, the simple version that pays off most often.",
   ],
   sources: [SOURCES.multislotting, SOURCES.keyhole, SOURCES.pseudoslotting, SOURCES.reconStats],
@@ -426,7 +442,7 @@ export const xcrossProperly: LevelPack = {
   id: "xcross-properly",
   title: "X-cross, properly",
   summary: "Solving the cross and a pair together, built up one piece at a time.",
-  levels: ["sub15", "sub12"],
+  levels: ["sub15"],
   why: "An x-cross takes a pair out of F2L entirely and makes the rest easier to read, because there are fewer pieces to search. It is also a genuinely hard planning skill, and trying it too early makes the ordinary cross worse.",
   lessons: [
     {
@@ -460,7 +476,7 @@ export const xcrossProperly: LevelPack = {
       minutes: 3,
       body: [
         "Some scrambles hand you an x-cross. The most common are a pair already joined somewhere on the cube, and a corner already sitting in the bottom layer near its slot, which the cross moves can carry home.",
-        "Pseudo x-cross is a related idea: a pair placed in the wrong slot during the cross, fixed later by a bottom-layer turn. It widens the set of scrambles where something useful is possible.",
+        "Pseudo x-cross is a related idea: the cross is built with the bottom layer turned a quarter or a half, so a corner and an edge from different pairs can go in with it, and turning the bottom back finishes both. It widens the set of scrambles where something useful is possible.",
         "Trainers exist that give you a scramble and hide an optimal x-cross solution until you ask for it. Studying those solutions is one of the quickest ways to learn the shapes.",
       ],
     },
@@ -510,7 +526,7 @@ export const algSetsWorthIt: LevelPack = {
   id: "alg-sets-worth-it",
   title: "Which algorithm sets are worth it",
   summary: "COLL, Winter Variation, ZBLL and the rest: what each does, and speed per algorithm.",
-  levels: ["sub10"],
+  levels: ["sub20"],
   why: "After full OLL and PLL there are dozens of algorithm sets, some with hundreds of cases. Some pay back quickly; others take a year to learn for a fraction of a second. The trick is picking by speed gained per algorithm, not by how impressive the set is.",
   lessons: [
     {
@@ -531,9 +547,9 @@ export const algSetsWorthIt: LevelPack = {
       takeaway: "Winter Variation and COLL: tens of cases each, both with a clear use.",
       minutes: 4,
       body: [
-        "Winter Variation is 27 cases. It solves the last pair while orienting the last-layer corners, when the pair is ready to insert and the edges are already oriented, so you go straight into PLL. Recognition is simple, and some guides suggest it much earlier than others; this ladder puts it around twelve seconds.",
+        "Winter Variation is 27 cases. It inserts the last pair and turns the last-layer corners yellow side up in the same algorithm, so PLL comes next. It only applies in one situation: the last pair already joined in the top layer, ready for a U R U' R' insert, with the last layer's edges already facing up. Recognition is simple, and the short R and U cases are the ones to learn first.",
         "COLL is 40 cases, and it only applies when the last-layer edges are already oriented after F2L, which happens about one solve in eight. It orients and places the corners together, so the PLL left is always an edges-only one (U, H or Z), skipped about one time in twelve. Recognition is harder than OLL's.",
-        "Both are in the algorithm bank in this app, checked on a cube. They make sense once full OLL and PLL are fast; learn the cases you meet most first.",
+        "Both are in the algorithm bank in this app, checked on a cube. They make sense once full OLL and PLL are solid, around fifteen seconds. For COLL, start with the H and Pi groups and leave Sune and Antisune for last, since an OLL and a PLL are already quick there.",
       ],
     },
     {
@@ -586,7 +602,7 @@ export const reconstructYourSolves: LevelPack = {
   id: "reconstruct-your-solves",
   title: "Reconstructing your own solves",
   summary: "Write down what you actually did, count it, and compare it with the best.",
-  levels: ["sub10"],
+  levels: ["sub15"],
   why: "At this level the remaining time is in details you can't feel during a solve: a few extra moves in one pair, a slow stretch in another. Reconstructing a solve — writing out every move you made — is how fast solvers find them.",
   lessons: [
     {
@@ -624,6 +640,20 @@ export const reconstructYourSolves: LevelPack = {
         "Finally, look at the time between steps in the video. Pauses show up clearly on film that you'd never notice while solving, and they are usually the cheapest thing on the list to fix.",
       ],
     },
+    {
+      id: "recon-fast-solvers",
+      title: "Learn from fast solvers' reconstructions",
+      takeaway:
+        "Compare your solves with faster solvers' step by step, then review your own the way they review theirs.",
+      minutes: 4,
+      body: [
+        "Fast solvers' reconstructions are easy to find. The SpeedSolving forum has a long-running reconstruction thread, and reco.nz is a large archive of them. Read the very best, but also solvers a little faster than you: their solutions are closer to what your own hands can copy next month.",
+        "Compare like with like, one step at a time. How many moves does each of their pairs take, against yours? Where do they pause, if anywhere? How often do they rotate? When did they take an x-cross, and when did they leave the cross plain? Which insert did they choose for the last pair, and did it set up an easier last layer? A difference that turns up in solve after solve is worth far more than one clever move.",
+        "Then turn the same eye on your own solves. Fast solvers talking through their reconstructions are blunt about their flaws: the start that could have been cleaner, the small pause before a pair, the regrip that cost a tenth. Write that kind of comment beside each step of yours. It turns a list of moves into a list of things to fix.",
+      ],
+      checkpoint:
+        "You've compared one of your solves with a faster solver's and written down one habit to copy.",
+    },
   ],
   drills: [
     {
@@ -657,14 +687,20 @@ export const reconstructYourSolves: LevelPack = {
     "Counting moves inconsistently, so solves can't be compared.",
     "Reconstructing only your best solves, which show what went right.",
   ],
-  sources: [SOURCES.reconstructionWiki, SOURCES.metricWiki, SOURCES.reconStats, SOURCES.limits],
+  sources: [
+    SOURCES.reconstructionWiki,
+    SOURCES.metricWiki,
+    SOURCES.reconStats,
+    SOURCES.limits,
+    SOURCES.feliksCommentary,
+  ],
 };
 
 export const competing: LevelPack = {
   id: "competing",
   title: "Competing well",
   summary: "How a WCA round works, how to prepare for it, and how to stop nerves costing you.",
-  levels: ["sub20"],
+  levels: ["sub120"],
   why: "Competition times are routinely slower than home times, especially at first. Very little of that is speed: it is an unfamiliar procedure, a stackmat, a judge, and nerves. All of those can be practised.",
   lessons: [
     {
@@ -674,7 +710,7 @@ export const competing: LevelPack = {
       minutes: 4,
       body: [
         `At a WCA competition each attempt runs the same way. A judge uncovers your cube and starts timing inspection. You have fifteen seconds; the judge calls out at eight and twelve. The cube was scrambled with ${SCRAMBLE_HOLD}, so the ${SOLVING_ROTATION} into your solving hold comes out of those fifteen seconds. Starting between fifteen and seventeen seconds costs two seconds; after seventeen, the attempt is a DNF.`,
-        "You start by placing both hands flat on the stackmat and lifting them, and stop by placing both hands flat again. Pressing the timer's face instead is the classic first-timer mistake. A cube left one move from solved costs a two-second penalty; further off than that and the attempt doesn't count. The regulations have the exact wording.",
+        "You start by resting both hands flat on the stackmat's pads and lifting them. To finish, let go of the cube, then stop the timer with both palms. Stopping it while your hand is still on the cube is the classic first-timer mistake. A cube left one move from solved costs a two-second penalty; further off than that and the attempt doesn't count. The regulations have the exact wording.",
         "Most rounds of 3x3 are an average of five: your best and worst attempts are dropped, and your result is the mean of the middle three. That rewards consistency far more than a single fast solve.",
       ],
       checkpoint: "You could run an attempt from start to signing without being told what to do.",
@@ -731,7 +767,7 @@ export const competing: LevelPack = {
     },
   ],
   mistakes: [
-    "Pressing the stackmat's face to stop the timer.",
+    "Stopping the timer while still touching the cube.",
     "Practising with unlimited inspection, then running out of time at the competition.",
     "Expecting home times at a first competition.",
     "Chasing one fast single when the result is the average of five.",

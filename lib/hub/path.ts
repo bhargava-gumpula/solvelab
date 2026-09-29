@@ -5,6 +5,7 @@
  * the solve already measures fast counts as passed.
  */
 import { courseForRung, type CourseDefinition } from "@/data/hub/courses";
+import { packForAspect } from "@/data/training";
 import { milestones } from "@/data/milestones";
 import { levelForAverage, levelForGoal } from "@/data/training/levels";
 import type { AspectResult, SolveProfile } from "@/lib/coach/profile";
@@ -12,7 +13,7 @@ import type { PackProgress } from "@/lib/training/progress";
 import type { PackRecommendation } from "@/lib/training/recommend";
 import type { HubIntro, ProfileSnapshot } from "@/types/domain";
 import { rungForAnswer, saidSlowAspects } from "./intro";
-import { courseUnits, type Unit } from "./units";
+import { courseUnits, unitForPack, type Unit } from "./units";
 
 /** The time a course gets you under, in ms. */
 export function courseTargetMs(course: CourseDefinition): number | null {
@@ -75,9 +76,11 @@ export interface UnitState {
 
 export interface CourseState {
   course: CourseDefinition;
+  /** Every unit, optional ones included, in the order to take them. */
   units: UnitState[];
-  /** The next lesson to open, or null when every unit is done. */
+  /** The next lesson to open, or null when every main-line unit is done. */
   next: { unit: UnitState; lessonId: string } | null;
+  /** Progress through the main line; optional units don't count against it. */
   lessonsDone: number;
   lessonTotal: number;
   unitsDone: number;
@@ -122,10 +125,13 @@ function unitState(unit: Unit, input: PathInput, pick: UnitPick | null): UnitSta
 /**
  * A course laid out for one person: what the model picked first, most
  * confident first; then what they said feels slow and nothing has measured
- * yet; then the rest in teaching order.
+ * yet; then the rest in teaching order. A course stages its packs by level, so
+ * the pack for a part that was picked may not be in it; then it joins the
+ * course for this person, cut as the nearest earlier course cuts it, and
+ * stays out when only later courses teach it.
  */
 export function courseState(course: CourseDefinition, input: PathInput): CourseState {
-  const units = courseUnits(course);
+  const courseList = courseUnits(course);
   const picks = new Map<string, UnitPick>();
   for (const recommendation of input.recommendations) {
     if (recommendation.source === "level") continue;
@@ -136,14 +142,25 @@ export function courseState(course: CourseDefinition, input: PathInput): CourseS
       });
     }
   }
-  const said = saidSlowAspects(input.intro);
-  for (const unit of units) {
-    if (unit.kind !== "pack" || !unit.pack.aspectId || picks.has(unit.id)) continue;
-    const aspect = input.profile?.aspects.find((item) => item.id === unit.pack.aspectId);
-    if (said.has(unit.pack.aspectId) && (aspect?.tag ?? null) === null) {
-      picks.set(unit.id, { source: "said", reason: "You said this feels slow." });
+  // What they said feels slow counts until something has measured it, whether
+  // or not this course lists that part's pack.
+  for (const aspectId of saidSlowAspects(input.intro)) {
+    const pack = packForAspect(aspectId);
+    if (!pack || picks.has(pack.id)) continue;
+    const aspect = input.profile?.aspects.find((item) => item.id === aspectId);
+    if ((aspect?.tag ?? null) === null) {
+      picks.set(pack.id, { source: "said", reason: "You said this feels slow." });
     }
   }
+
+  const present = new Set(courseList.map((unit) => unit.id));
+  const pulledIn = [...picks.keys()]
+    .filter((id) => !present.has(id))
+    .flatMap((id) => {
+      const unit = unitForPack(id, course);
+      return unit ? [unit] : [];
+    });
+  const units = [...courseList, ...pulledIn];
 
   const recommendedOrder = [...picks.keys()];
   const rank = (unit: Unit) => {
@@ -155,15 +172,17 @@ export function courseState(course: CourseDefinition, input: PathInput): CourseS
     .sort((a, b) => rank(a.unit) - rank(b.unit) || a.index - b.index)
     .map(({ unit }) => unitState(unit, input, picks.get(unit.id) ?? null));
 
-  const nextUnit = ordered.find((state) => !state.done);
+  // An optional unit is on the main line only when something picked it for them.
+  const mainLine = ordered.filter((state) => !state.unit.optional || state.pick);
+  const nextUnit = mainLine.find((state) => !state.done);
   const nextLesson = nextUnit?.unit.lessons.find((lesson) => !nextUnit.isLessonDone(lesson.id));
   return {
     course,
     units: ordered,
     next: nextUnit && nextLesson ? { unit: nextUnit, lessonId: nextLesson.id } : null,
-    lessonsDone: ordered.reduce((total, state) => total + state.lessonsDone, 0),
-    lessonTotal: ordered.reduce((total, state) => total + state.lessonTotal, 0),
-    unitsDone: ordered.filter((state) => state.done).length,
+    lessonsDone: mainLine.reduce((total, state) => total + state.lessonsDone, 0),
+    lessonTotal: mainLine.reduce((total, state) => total + state.lessonTotal, 0),
+    unitsDone: mainLine.filter((state) => state.done).length,
   };
 }
 

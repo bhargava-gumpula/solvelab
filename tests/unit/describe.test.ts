@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { algorithmsFor, getAlgorithmSet, recognitionText } from "@/lib/algorithms/catalog";
+import {
+  algorithmsFor,
+  caseStateFor,
+  getAlgorithmSet,
+  recognitionText,
+} from "@/lib/algorithms/catalog";
 import { casePicture } from "@/lib/algorithms/orientation";
 import { caseStateOf } from "@/lib/cube/case-check";
+import { applyAlgorithm } from "@/lib/cube/cube-state";
 import {
   cornersFacingUp,
   edgesFacingUp,
@@ -141,5 +147,27 @@ describe("F2L recognition in the algorithm bank", () => {
     expect(recognitionText(pllT, "pll", caseStateOf(pllT.algorithms[0]!.moves, "pll"))).toBe(
       pllT.recognition,
     );
+  });
+});
+
+describe("written recognition when the picture is turned", () => {
+  it("says how to turn back to the hold the text describes", () => {
+    const pllSet = getAlgorithmSet("pll")!;
+    const turned = pllSet.cases
+      .flatMap((entry) =>
+        algorithmsFor(entry).map((algorithm) => ({
+          entry,
+          picture: casePicture(entry, "pll", algorithm.moves),
+        })),
+      )
+      .filter(({ entry, picture }) => entry.recognition && picture.quarter !== 0);
+    expect(turned.length).toBeGreaterThan(0);
+    for (const { entry, picture } of turned) {
+      const text = recognitionText(entry, "pll", picture.facelets, picture.quarter)!;
+      const back = ["", "U", "U2", "U'"][(4 - picture.quarter) % 4]!;
+      expect(text, entry.id).toContain(`turn this picture's top ${back} to match`);
+      // Turning the picture's top that way gives back the case the text describes.
+      expect(applyAlgorithm(back, picture.facelets), entry.id).toBe(caseStateFor(entry, "pll"));
+    }
   });
 });

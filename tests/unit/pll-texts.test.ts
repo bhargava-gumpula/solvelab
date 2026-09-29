@@ -166,7 +166,7 @@ describe("PLL recognition texts", () => {
     expect(corners).toHaveLength(1);
     expect(turnOf(CORNER_CW, corners[0]!)).toBe("anticlockwise");
     const text = textOf("pll-ab");
-    expect(text).toContain("headlights on one side and every edge home");
+    expect(text).toContain("Headlights on one side and every edge home");
     expect(text).toContain("anticlockwise");
     expect(text).toContain("Hold the headlights at the back");
   });
@@ -279,7 +279,10 @@ describe("PLL recognition texts", () => {
     expect(text).toContain("A bar of three on one side");
     expect(text).toContain("a block of two round the corner from its right-hand end");
     expect(text).toContain("two neighbouring corners swap, and so do two neighbouring edges");
-    expect(textOf("pll-jb")).toBe("The mirror of Ja.");
+    const jb = textOf("pll-jb");
+    expect(jb).toContain("A bar of three on one side");
+    expect(jb).toContain("a block of two round the corner from its left-hand end");
+    expect(jb).toContain("two neighbouring corners swap, and so do two neighbouring edges");
   });
 
   it("Na and Nb: a block on every side, diagonal corners and opposite edges swap", () => {
@@ -373,13 +376,10 @@ describe("PLL recognition texts", () => {
 
   it("says a hold is for the first algorithm when another one starts elsewhere", () => {
     const holds = pll.cases.filter((entry) => entry.recognition?.includes("Hold "));
-    expect(holds.map((entry) => entry.id).sort()).toEqual([
-      "pll-aa",
-      "pll-ab",
-      "pll-f",
-      "pll-t",
-      "pll-y",
-    ]);
+    // Phase 3 gave the G, R and other perms their own holds too; these five had them first.
+    expect(holds.map((entry) => entry.id)).toEqual(
+      expect.arrayContaining(["pll-aa", "pll-ab", "pll-f", "pll-t", "pll-y"]),
+    );
     for (const entry of holds) {
       const state = stateOf(entry.id);
       const needsSetUp = algorithmsFor(entry).some(
@@ -396,13 +396,20 @@ describe("PLL recognition texts", () => {
       "pll-e",
       "pll-f",
       "pll-ga",
+      "pll-gb",
+      "pll-gc",
+      "pll-gd",
       "pll-h",
       "pll-ja",
       "pll-jb",
       "pll-na",
+      "pll-nb",
+      "pll-ra",
+      "pll-rb",
       "pll-t",
       "pll-ua",
       "pll-ub",
+      "pll-v",
       "pll-y",
       "pll-z",
     ];

@@ -9,15 +9,18 @@ import {
   firstTwoLayersSolved,
   lastLayerOriented,
   orientationSignature,
+  solvesFromHere,
 } from "@/lib/cube/case-check";
 import {
   edgesFacingUp,
+  hasBar,
   headlightSides,
   readF2lPair,
   sideRow,
   type Side,
 } from "@/lib/cube/describe";
-import { EDGE_SPOTS } from "@/lib/cube/pieces";
+import { CORNER_SPOTS, EDGE_SPOTS } from "@/lib/cube/pieces";
+import { caseStateFor, getAlgorithmSet, getCase } from "@/lib/algorithms/catalog";
 
 /**
  * The quiz answers that make a claim about the cube, checked on the engine.
@@ -25,9 +28,9 @@ import { EDGE_SPOTS } from "@/lib/cube/pieces";
  * white cross side, F green, R orange.
  */
 
-function quiz(id: string) {
-  const first = LESSON_QUIZZES[id]![0]!;
-  return { ...first, right: first.options[first.answer]! };
+function quiz(id: string, index = 0) {
+  const question = LESSON_QUIZZES[id]![index]!;
+  return { ...question, right: question.options[question.answer]! };
 }
 
 const after = (algorithm: string, state = SOLVED_FACELETS) =>
@@ -134,7 +137,7 @@ describe("mirror", () => {
 });
 
 describe("2-look OLL: why Sune and Antisune first", () => {
-  const sune = quiz("oll2-sune-first");
+  const sune = quiz("cfop-2look-oll", 2);
 
   it("finds every orientation", () => {
     expect(ORIENTATIONS).toHaveLength(216);
@@ -208,7 +211,7 @@ describe("full OLL: where to start", () => {
 });
 
 describe("2-look PLL corners", () => {
-  const corners = quiz("pll2-headlights");
+  const corners = quiz("cfop-2look-pll", 1);
 
   /** Every last layer that is oriented but not permuted (288 of them, turns of the top included). */
   const permutations = (() => {
@@ -469,11 +472,9 @@ describe("crosses", () => {
 
   it("every cross takes eight moves or fewer", () => {
     expect(tables.D!.longest).toBe(8);
-    const cfop = quiz("cfop-cross");
-    expect(cfop.why).toContain("eight moves or fewer");
-    expect(cfop.right).toContain("untimed");
-    expect(cfop.right).toContain("15 s of inspection");
-    expect(cfop.right).not.toMatch(/stop|rewrite/i);
+    const count = quiz("cross-move-count");
+    expect(count.right).toContain("eight or fewer");
+    expect(count.why).toContain("eight moves or fewer");
   });
 
   it("colour neutrality saves about a move a cross, dual about half that", () => {
@@ -553,5 +554,260 @@ describe("rotations in F2L", () => {
     expect(rotations.question).toContain("whole F2L");
     expect(rotations.right).toBe("More than two");
     expect(rotations.why).toContain("never a y2");
+  });
+});
+
+/** Where the piece with exactly these colours sits, as a spot from `spots`. */
+function spotOf(
+  state: string,
+  spots: readonly (readonly number[])[],
+  colours: string,
+): readonly number[] {
+  const want = [...colours].sort().join("");
+  return spots.find(
+    (spot) =>
+      spot
+        .map((index) => state[index])
+        .sort()
+        .join("") === want,
+  )!;
+}
+
+describe("course order in the quizzes (phase 3 audit)", () => {
+  it("sends 2-look solvers to full PLL before full OLL (item 26)", () => {
+    const twoLook = quiz("cfop-2look-oll");
+    expect(twoLook.right).toMatch(/^Full PLL/);
+    expect(twoLook.right).toContain("2-look OLL");
+    expect(twoLook.why).toContain("Sub-45");
+    expect(twoLook.why).toContain("Sub-30");
+    expect(twoLook.why).toContain("expected by Sub-15");
+    const when = quiz("oll-when");
+    expect(when.right).toContain("once full PLL is done");
+    expect(when.why).toContain("full PLL, which comes first");
+    expect(quiz("fifteen-whats-left").why).toContain("full OLL");
+  });
+
+  it("asks Sub-60 cross learners for the white edges, not the first pair or an x-cross (item 27)", () => {
+    const cross = quiz("cfop-cross");
+    expect(cross.right).toContain("all four white edges");
+    expect(cross.right).toContain("first two");
+    expect(cross.right).not.toMatch(/first pair|x-cross/i);
+    const wrong = cross.options.filter((option) => option !== cross.right);
+    expect(wrong.some((option) => option.includes("first pair"))).toBe(true);
+    expect(wrong.some((option) => option.includes("x-cross"))).toBe(true);
+    expect(cross.why).toContain("Sub-30");
+  });
+
+  it("doesn't call a second-pair plan impossible in inspection (item 29)", () => {
+    const track = quiz("past-track");
+    expect(track.right).toContain("the corner");
+    expect(track.why).toContain("rarely fits");
+    expect(track.why).toContain("friendly scrambles");
+    expect(track.why).not.toMatch(/doesn't fit in fifteen seconds/);
+  });
+
+  it("puts last-slot systems at about fifteen seconds, with Winter Variation's conditions (item 35)", () => {
+    const influence = quiz("lastpair-influence");
+    expect(influence.right).toBe("Once full OLL and PLL are solid, around fifteen seconds");
+    expect(influence.why).not.toMatch(/twelve/);
+    expect(influence.why).toContain("ready for a U R U' R' insert");
+    expect(influence.why).toContain("top edges already facing up");
+    // Every Winter Variation case: the pair joined on the right with its corner
+    // above the slot, the last layer's edges up, and U R U' R' puts the pair in.
+    const wv = getAlgorithmSet("winter-variation")!;
+    expect(wv.cases.length).toBeGreaterThan(20);
+    for (const entry of wv.cases) {
+      const state = caseStateFor(entry, "wv");
+      expect(readF2lPair(state), entry.id).toMatchObject({ corner: "front-right", edge: "right" });
+      // The fourth last-layer edge waits in the slot, so three are on top, all up.
+      expect(edgesFacingUp(state).sort(), entry.id).toEqual(["back", "front", "left"]);
+      const inserted = after("U R U' R'", state);
+      expect(firstTwoLayersSolved(inserted), entry.id).toBe(true);
+      expect(allEdgesUp(inserted), entry.id).toBe(true);
+    }
+  });
+
+  it("asks only about pseudo-slotting and multislotting as the later tricks (item 37)", () => {
+    const family = quiz("multi-family");
+    expect(family.question).not.toMatch(/keyhole/i);
+    expect(family.question).toContain("pseudo-slotting and multislotting");
+    expect(family.right).not.toMatch(/keyhole/i);
+    expect(family.why).toContain("already be using it from the Sub-30 course");
+    expect(quiz("multi-limits").right).toContain("Keep keyhole automatic");
+  });
+
+  it("keeps COLL and ZBLL for the one solve in eight whose edges face up", () => {
+    expect(EDGE_STATES).toHaveLength(8);
+    expect(EDGE_STATES.filter(allEdgesUp)).toHaveLength(1);
+    const advanced = quiz("advanced-last-layer");
+    expect(advanced.why).toContain("1 solve in 8");
+    expect(advanced.right).toContain("After full OLL and PLL");
+  });
+});
+
+describe("new lessons' quizzes, checked on the cube", () => {
+  it("R U R' takes the back top edge into the front-right slot", () => {
+    const knowing = quiz("lookahead-knowing");
+    const frontRightSlot = EDGE_SPOTS[8]!;
+    const topRight = EDGE_SPOTS[0]!;
+    expect(spotOf(after("R U R'"), EDGE_SPOTS, "UB")).toEqual(frontRightSlot);
+    expect(spotOf(after("R U"), EDGE_SPOTS, "UB")).toEqual(topRight);
+    expect(spotOf(after("R"), EDGE_SPOTS, "UB")).toEqual(EDGE_SPOTS[3]);
+    expect(knowing.right).toBe("In the front-right slot");
+    expect(knowing.why).toContain("After just R U it would still be on the right of the top layer");
+  });
+
+  it("chooses the last insert by the front edge, never leaving a dot (edge control)", () => {
+    const control = quiz("lastpair-edge-control");
+    expect(control.right).toContain("R' F R F'");
+    let frontDown = 0;
+    for (const lastLayer of EDGE_STATES) {
+      const state = after("R U R' U'", lastLayer);
+      expect(readF2lPair(state)).toEqual({
+        corner: "front-right",
+        white: "front",
+        edge: "right",
+        green: "up",
+      });
+      const plain = after("U R U' R'", state);
+      const sledge = after("R' F R F'", state);
+      expect(firstTwoLayersSolved(plain)).toBe(true);
+      expect(firstTwoLayersSolved(sledge)).toBe(true);
+      // Piece by piece: is each last-layer edge's yellow on top?
+      const yellowUp = (cube: string, colour: string) =>
+        spotOf(cube, EDGE_SPOTS, `U${colour}`).some((index) => index < 9 && cube[index] === "U");
+      const flipped = ["F", "R", "B", "L"].filter(
+        (colour) => yellowUp(plain, colour) !== yellowUp(sledge, colour),
+      );
+      expect(flipped).toHaveLength(2);
+      const frontUp = edgesFacingUp(state).includes("front");
+      if (!frontUp) frontDown++;
+      const chosen = frontUp ? plain : sledge;
+      expect(noEdgesUp(chosen)).toBe(false);
+      if (allEdgesUp(plain) || allEdgesUp(sledge)) expect(allEdgesUp(chosen)).toBe(true);
+    }
+    expect(frontDown).toBeGreaterThan(0);
+    expect(control.why).toContain("never leaves a dot OLL");
+    expect(control.why).toContain("two flipped top edges");
+  });
+
+  it("reads a stuck pair with green facing you as a twisted corner", () => {
+    const stuck = quiz("adv-stuck-in-slot");
+    const readings = ["f2l-37", "f2l-38", "f2l-39", "f2l-40", "f2l-41"].map((id) =>
+      readF2lPair(caseStateFor(getCase("f2l", id)!, "f2l")),
+    );
+    for (const reading of readings) expect(reading).toMatchObject({ corner: "slot", edge: "slot" });
+    const edgeRight = readings.filter((reading) => reading.green === "front");
+    expect(edgeRight.map((reading) => reading.white).sort()).toEqual(["front", "right"]);
+    expect(stuck.right).toBe("The edge is right, so the corner must be twisted");
+    expect(stuck.why).toContain("white faces you or faces right");
+  });
+
+  const TRIPLE = "U R U' R' U R U' R' U R U' R'";
+
+  it("takes a flipped edge out of the slot with U' and the sledgehammer", () => {
+    const edgeInSlot = quiz("adv-edge-in-slot");
+    const solution = "U' R' F R F' R U' R'";
+    const state = caseStateOf(solution, "f2l");
+    expect(readF2lPair(state)).toEqual({
+      corner: "front-right",
+      white: "up",
+      edge: "slot",
+      green: "right",
+    });
+    expect(solvesFromHere(state, solution, "f2l")).toBe(true);
+    expect(solvesFromHere(state, TRIPLE, "f2l")).toBe(false);
+    expect(readF2lPair(caseStateOf(TRIPLE, "f2l"))).toEqual({
+      corner: "front-right",
+      white: "up",
+      edge: "slot",
+      green: "front",
+    });
+    expect(edgeInSlot.right).toBe("U', the sledgehammer, then R U' R'");
+    expect(edgeInSlot.why).toContain("U R U' R' three times is for an edge that's already right");
+  });
+
+  it("solves the white-up corner with its edge on the right by F sexy F' and an insert", () => {
+    const whiteUp = quiz("adv-white-up");
+    const solution = "F U R U' R' F' R U' R'";
+    const state = caseStateOf(solution, "f2l");
+    expect(readF2lPair(state)).toEqual({
+      corner: "front-right",
+      white: "up",
+      edge: "right",
+      green: "right",
+    });
+    expect(solvesFromHere(state, solution, "f2l")).toBe(true);
+    expect(solvesFromHere(state, TRIPLE, "f2l")).toBe(false);
+    expect(solvesFromHere(state, "M U r U' r' U' M'", "f2l")).toBe(false);
+    expect(solution.split(" ")).toHaveLength(9);
+    expect(whiteUp.right).toBe("F U R U' R' F', then R U' R'");
+    expect(whiteUp.why).toContain("nine moves");
+  });
+
+  it("finds a bar in only five PLLs, and headlights in all but eight", () => {
+    const block = quiz("ppll-one-block");
+    const everyView = (state: string) => AUF.map((turn) => after(turn, state));
+    const cases = getAlgorithmSet("pll")!.cases;
+    expect(cases).toHaveLength(21);
+    const withBar = cases.filter((entry) =>
+      everyView(caseStateFor(entry, "pll")).some((view) => hasBar(view, "left")),
+    );
+    expect(withBar.map((entry) => entry.id).sort()).toEqual([
+      "pll-f",
+      "pll-ja",
+      "pll-jb",
+      "pll-ua",
+      "pll-ub",
+    ]);
+    const noHeadlights = cases.filter((entry) =>
+      everyView(caseStateFor(entry, "pll")).every((view) => headlightSides(view).length === 0),
+    );
+    expect(noHeadlights).toHaveLength(8);
+    expect(block.right).toBe("U, J or F perms: five in all");
+    expect(block.why).toContain("Ua, Ub, Ja, Jb and F");
+    expect(block.why).toContain("rule out eight");
+  });
+
+  it("finishes a T perm by where its headlights' colour belongs", () => {
+    const postAuf = quiz("ppll-post-auf");
+    for (const [finish, centre] of [
+      ["", "L"],
+      ["U'", "F"],
+      ["U", "B"],
+      ["U2", "R"],
+    ] as const) {
+      const state = caseStateOf(`${T_PERM} ${finish}`.trim(), "pll");
+      expect(headlightSides(state)).toContain("left");
+      const row = sideRow(state, "left");
+      expect([row[0], row[2]]).toEqual([centre, centre]);
+      expect(isSolved(after(`${T_PERM} ${finish}`, state))).toBe(true);
+    }
+    expect(postAuf.right).toBe("U'");
+    expect(postAuf.question).toContain("front centre");
+  });
+
+  it("does the usual U perms with the bar at the back, so a bar in front costs a U2", () => {
+    const angles = quiz("ppll-second-angles");
+    for (const id of ["pll-ua", "pll-ub"]) {
+      const state = caseStateFor(getCase("pll", id)!, "pll");
+      expect(hasBar(state, "back"), id).toBe(true);
+      expect(hasBar(state, "front"), id).toBe(false);
+    }
+    expect(hasBar(caseStateOf("R U R' U R' U' R2 U' R' U R' U R", "pll"), "front")).toBe(true);
+    expect(angles.why).toContain("U perm with the solved bar in front");
+  });
+
+  it("pseudo-slots because a bottom turn moves corners but leaves the middle-layer edges", () => {
+    const pseudo = quiz("multi-pseudo");
+    const turned = after("D");
+    // The front-left corner now sits under the front-right slot.
+    expect(spotOf(turned, CORNER_SPOTS, "DFL")).toEqual(CORNER_SPOTS[4]);
+    for (const edge of EDGE_SPOTS.slice(8)) {
+      expect(edge.map((index) => turned[index])).toEqual(
+        edge.map((index) => SOLVED_FACELETS[index]),
+      );
+    }
+    expect(pseudo.right).toContain("not the middle-layer edges");
   });
 });

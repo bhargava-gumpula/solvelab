@@ -38,7 +38,7 @@ export const pll: AlgorithmSetData = {
       name: "Ab",
       group: "Corners only",
       recognition:
-        "The mirror of Aa: headlights on one side and every edge home, with three corners cycling anticlockwise. Hold the headlights at the back for the first algorithm.",
+        "Headlights on one side and every edge home; three corners cycle anticlockwise. Hold the headlights at the back for the first algorithm: blocks of two on the front and right meet at the front-right corner, and the left side shows three different colours. Held the same way, Aa's blocks meet at the front-left corner.",
       algorithms: [
         { id: "ab-1", moves: "x L U' L D2 L' U L D2 L2 x'" },
         { id: "ab-2", moves: "x R2 D2 R U R' D2 R U' R x'" },
@@ -75,7 +75,7 @@ export const pll: AlgorithmSetData = {
       name: "Ga",
       group: "Corners and edges",
       recognition:
-        "A G perm: headlights on one side and a single block of two that doesn't touch them, with a corner cycle and an edge cycle together.",
+        "A G perm: headlights on one side and a single block of two that doesn't touch them, with a corner cycle and an edge cycle together. Hold the headlights on the left: the block is on the front, at the front-right corner.",
       algorithms: [
         { id: "ga-1", moves: "R2 U R' U R' U' R U' R2 U' D R' U R D'" },
         { id: "ga-2", moves: "R2 u R' U R' U' R u' R2 y' R' U R" },
@@ -87,6 +87,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-gb",
       name: "Gb",
       group: "Corners and edges",
+      recognition:
+        "A G perm: headlights on one side and a single block of two that doesn't touch them, with a corner cycle and an edge cycle together. Hold the headlights on the left for the first algorithm: the block is on the right side, at the back-right corner.",
       algorithms: [
         { id: "gb-1", moves: "R' U' R U D' R2 U R' U R U' R U' R2 D" },
         { id: "gb-2", moves: "F' U' F R2 u R' U R U' R u' R2" },
@@ -98,6 +100,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-gc",
       name: "Gc",
       group: "Corners and edges",
+      recognition:
+        "A G perm: headlights on one side and a single block of two that doesn't touch them, with a corner cycle and an edge cycle together. Hold the headlights on the left: the block is on the back, at the back-right corner.",
       algorithms: [
         { id: "gc-1", moves: "R2 U' R U' R U R' U R2 U D' R U' R' D" },
         { id: "gc-2", moves: "R2 u' R U' R U R' u R2 y R U' R'" },
@@ -109,6 +113,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-gd",
       name: "Gd",
       group: "Corners and edges",
+      recognition:
+        "A G perm: headlights on one side and a single block of two that doesn't touch them, with a corner cycle and an edge cycle together. Hold the headlights on the left: the block is on the right side, at the front-right corner.",
       algorithms: [
         { id: "gd-1", moves: "R U R' U' D R2 U' R U' R' U R' U R2 D'" },
         { id: "gd-3", moves: "R U R' y' R2 u' R U' R' U R' u R2" },
@@ -148,7 +154,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-jb",
       name: "Jb",
       group: "Corners and edges",
-      recognition: "The mirror of Ja.",
+      recognition:
+        "A bar of three on one side, and a block of two round the corner from its left-hand end as you face it; two neighbouring corners swap, and so do two neighbouring edges.",
       algorithms: [
         {
           id: "jb-1",
@@ -176,6 +183,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-nb",
       name: "Nb",
       group: "Corners and edges",
+      recognition:
+        "A block of two on every side and no headlights; two diagonal corners swap, and so do two opposite edges. Facing any side, Nb's block is on the left and Na's on the right.",
       algorithms: [
         { id: "nb-1", moves: "R' U R U' R' F' U' F R U R' F R' F' R U' R" },
         { id: "nb-2", moves: "z U' R D' R2 U R' D U' R D' R2 U R' D z'" },
@@ -187,6 +196,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-ra",
       name: "Ra",
       group: "Corners and edges",
+      recognition:
+        "Headlights on one side and a block of two touching them on one neighbouring side only; the other two sides each show three different colours. Hold the headlights on the left for the first algorithm: the block is on the front, at the front-left corner.",
       algorithms: [
         { id: "ra-1", moves: "R U' R' U' R U R D R' U' R D' R' U2 R'" },
         { id: "ra-2", moves: "L U2 L' U2 L F' L' U' L U L F L2" },
@@ -199,6 +210,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-rb",
       name: "Rb",
       group: "Corners and edges",
+      recognition:
+        "Headlights on one side and a block of two touching them on one neighbouring side only; the other two sides each show three different colours. Hold the headlights on the left for the first algorithm: the block is on the back, at the back-left corner.",
       algorithms: [
         { id: "rb-1", moves: "R2 F R U R U' R' F' R U2 R' U2 R" },
         { id: "rb-2", moves: "R' U2 R U2 R' F R U R' U' R' F' R2" },
@@ -253,6 +266,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-v",
       name: "V",
       group: "Corners and edges",
+      recognition:
+        "No bar or headlights anywhere; blocks of two on two neighbouring sides meet at the corner between them, and the other two sides each show three different colours. In a Y perm the two blocks don't share a corner.",
       algorithms: [
         { id: "v-1", moves: "R' U R' U' y R' F' R2 U' R' U R' F R F" },
         { id: "v-2", moves: "R U' R U R' D R D' R U' D R2 U R2 D' R2" },
@@ -266,7 +281,7 @@ export const pll: AlgorithmSetData = {
       name: "Y",
       group: "Corners and edges",
       recognition:
-        "No bar or headlights anywhere, but blocks of two on two neighbouring sides. Hold the blocks on the front and right: the front-right and back-left corners swap, and so do the back and left edges.",
+        "No bar or headlights anywhere, but blocks of two on two neighbouring sides that don't share a corner. Hold the blocks on the front and right: the front-right and back-left corners swap, and so do the back and left edges.",
       algorithms: [
         { id: "y-1", moves: "F R U' R' U' R U R' F' R U R' U' R' F R F'" },
         { id: "y-2", moves: "F R' F R2 U' R' U' R U R' F' R U R' U' F'" },

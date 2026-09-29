@@ -11,7 +11,7 @@ export const beginnerMethodCold: LevelPack = {
   id: "beginner-method-cold",
   title: "Know the beginner method cold",
   summary: "Every step without looking anything up, and the one change to make before speed.",
-  levels: ["beginner", "sub120"],
+  levels: ["beginner"],
   why: "Around two minutes, most of the time is not turning. It is remembering which step comes next, looking an algorithm up, or undoing a move that went the wrong way. Speed arrives on its own once the method is automatic; before that, trying to go faster only produces more mistakes to undo.",
   lessons: [
     {
@@ -135,7 +135,7 @@ export const setUpYourCube: LevelPack = {
   id: "set-up-your-cube",
   title: "Setting up your cube",
   summary: "Tension, magnets and lube: what each does, and how to tell when yours is wrong.",
-  levels: ["beginner", "sub120"],
+  levels: ["beginner"],
   why: "A stiff or loose cube costs you in ways that feel like your own fault: layers that catch, pieces that pop, turns that overshoot. Below about a minute a modern magnetic speedcube really is the difference, and once you have one, a few minutes of setup makes it behave the same way every day.",
   lessons: [
     {
@@ -218,7 +218,7 @@ export const switchToF2l: LevelPack = {
   id: "switch-to-f2l",
   title: "Making the switch to F2L",
   summary: "Why your times get worse first, and how to get through the two slow weeks.",
-  levels: ["sub60"],
+  levels: ["sub120"],
   why: "Solving the first layer and then the second takes about twenty moves more than solving them together. F2L is the fix, and it is also the step that makes almost everyone slower for a while — which is when most people give up on it.",
   lessons: [
     {
@@ -234,26 +234,6 @@ export const switchToF2l: LevelPack = {
       ],
     },
     {
-      id: "switch-three-ideas",
-      title: "Three ideas cover almost every case",
-      takeaway: "Take a piece out of the wrong slot, line the pair up with top turns, drop it in.",
-      minutes: 5,
-      body: [
-        "Intuitive F2L sounds like a lot of cases and is really three ideas. First, if a corner or edge is stuck in a slot where it doesn't belong, take it out — usually with the same three-move trigger you insert with. Second, use turns of the top layer to bring the corner and edge together into a pair. Third, drop the pair into its slot.",
-        "The first real success is the easiest case: the pair already joined above its slot, which goes in with three moves. Learn to spot that, then learn to create it: move one piece out of the way, turn the top so the other lines up, bring the first back.",
-        "Start by inserting into the two front slots only, rotating the cube if you have to. Back slots and fewer rotations come later. Right now the point is understanding what the moves do to the pair.",
-      ],
-      examples: [
-        {
-          label: "The three-move case",
-          moves: "R U R'",
-          caseId: "f2l-1",
-          note: "Pair not joined yet, but one R U R' joins it and drops it in at once. Most F2L solutions are built from this and its mirror.",
-        },
-      ],
-      checkpoint: "You can solve a pair you have never seen, slowly, without looking anything up.",
-    },
-    {
       id: "switch-when-algorithms",
       title: "When to learn cases as algorithms",
       takeaway: "Only after intuitive F2L works, and only for the cases that stay slow.",
@@ -261,7 +241,7 @@ export const switchToF2l: LevelPack = {
       body: [
         "It is tempting to go straight to a list of 41 algorithms. It is slower to learn, and it leaves you stuck on any case you haven't memorised. Worse, you never learn what the moves do, which is exactly what later lets you see a better solution or look ahead.",
         "Once you can solve every pair intuitively, some cases will still be slow — usually the ones with a piece stuck in the slot, or the corner's white sticker facing up. Those are worth learning as algorithms, one or two at a time, and using in real solves before adding more.",
-        "The algorithm bank in this app has every F2L case with its shortest solutions, checked on a cube. Look up the case you keep getting stuck on rather than working through the whole list.",
+        "The algorithm bank in this app has every F2L case, led by the version most solvers use and with shorter ones alongside, all checked on a cube. Look up the case you keep getting stuck on rather than working through the whole list.",
       ],
     },
   ],
@@ -306,62 +286,9 @@ export const twoLookOll: LevelPack = {
   id: "two-look-oll",
   title: "2-look OLL: ten algorithms",
   summary: "Edges first, then corners — the step that replaces the beginner last layer.",
-  levels: ["sub60"],
+  levels: ["sub120"],
   why: "The beginner last layer takes several algorithms, some of them twice. Two-look OLL does the whole top face in two steps with ten algorithms, and most of the time you only need a few of them.",
   lessons: [
-    {
-      id: "oll2-two-looks",
-      title: "Two looks: edges, then corners",
-      takeaway:
-        "First make the top cross, then turn the corners up. Where pieces go doesn't matter yet.",
-      minutes: 4,
-      body: [
-        "Two-look OLL splits orienting the last layer into two steps. In the first, you only care about the four edges on top and whether their top colour is facing up. In the second, you only care about the corners. Neither step cares whether pieces are in the right place — that is PLL's job.",
-        "For the edges, ignore the corners completely and look at the four edge stickers. You will see a dot (none up), an L (two next to each other), a line (two opposite), or a cross (already done). That is three algorithms, and the dot is just the line and the L done one after the other.",
-        "For the corners, there are seven cases, recognised by how many corners already face up and where the others point. That is the other seven algorithms.",
-      ],
-      examples: [
-        {
-          label: "Line, held horizontally",
-          moves: "F R U R' U' F'",
-          caseId: "2oll-line",
-          note: "Turns a line of two edges into the cross.",
-        },
-        {
-          label: "L shape, held at the front right",
-          moves: "f R U R' U' f'",
-          caseId: "2oll-l",
-          note: "The same idea with a wide front turn.",
-        },
-      ],
-      checkpoint: "You can glance at the top and name dot, L, line or cross without thinking.",
-    },
-    {
-      id: "oll2-sune-first",
-      title: "Sune and Antisune first",
-      takeaway:
-        "Two short mirror-image algorithms that can stand in for every other corner case until you learn it.",
-      minutes: 4,
-      body: [
-        "Sune and its mirror, Antisune, are not more common than the other corner cases: six of the seven come up equally often, and H only half as often as each of those. They come first because they are short (seven moves each), easy on the fingers, and built from R U R'-style triggers you will meet all through F2L and OLL. Each is the other one run backwards, so learning one nearly gives you the other.",
-        "Both have exactly one corner already facing up. Recognition is about where that corner is and which way the others point: learn them from the angle the algorithm starts at, and turn the top layer until the case matches. For Sune the up corner goes at the front left; for Antisune, at the back right.",
-        "Until you know the other five, Sune and Antisune can solve them: two goes at most, with the right top turn before each. That is a fine bridge — it is slower than knowing each case, so learn them properly one at a time.",
-      ],
-      examples: [
-        {
-          label: "Sune",
-          moves: "R U R' U R U2 R'",
-          caseId: "2oll-sune",
-          note: "One corner up. Four triggers you already half-know.",
-        },
-        {
-          label: "Antisune",
-          moves: "R U2 R' U' R U' R'",
-          caseId: "2oll-antisune",
-          note: "The mirror of Sune: the same shape, done in reverse.",
-        },
-      ],
-    },
     {
       id: "oll2-one-cue",
       title: "One cue per case",
@@ -415,21 +342,9 @@ export const twoLookPll: LevelPack = {
   id: "two-look-pll",
   title: "2-look PLL: corners, then edges",
   summary: "Six cases that finish the solve, and the one pattern that tells them apart.",
-  levels: ["sub60"],
+  levels: ["sub120"],
   why: "After two-look OLL the top face is one colour and the pieces are in the wrong places. Two-look PLL puts the corners home and then the edges, with six algorithms, and it teaches the pattern you will use for full PLL later.",
   lessons: [
-    {
-      id: "pll2-headlights",
-      title: "Corners: look for headlights",
-      takeaway: "Two matching corner stickers on one side are the whole of step one's recognition.",
-      minutes: 4,
-      body: [
-        "Look at the side stickers of the corners. When the two corners on one side show the same colour, that pair is called headlights. It means those two corners are already in the right place relative to each other.",
-        "Headlights on exactly one side means two neighbouring corners need to swap: hold the headlights on the left and do the T perm. No headlights on any side means two diagonal corners need to swap: do the Y perm, which works from any angle. Headlights on every side means the corners are already done: skip straight to the edges. The A perms and E perm also do it: either A perm can stand in for the T (Aa with the headlights on the left, Ab with them at the back), and the E perm for the Y, from any angle. That is still two algorithms, but the E perm is harder to turn quickly than the Y, which is why most beginner guides start with T and Y.",
-        "This is the single most useful recognition skill in the last layer. Full PLL is read the same way, just with more cases, so time spent getting fast at spotting headlights is time spent on full PLL too.",
-      ],
-      checkpoint: "You can tell one-side, no-side and every-side headlights at a glance.",
-    },
     {
       id: "pll2-edges",
       title: "Edges: look for the solved bar",
@@ -449,7 +364,7 @@ export const twoLookPll: LevelPack = {
       minutes: 3,
       body: [
         "After the edges, the last layer is solved but may be rotated. One turn of the top — U, U' or U2 — finishes the cube. It is part of the step, not an extra: start noticing which one you will need before the algorithm ends.",
-        "Two-look PLL is where to stay for a while, but not forever. Full PLL is 21 cases and saves an algorithm on most solves. The first ones to add are the common ones that two-look handles worst, starting with the J perms.",
+        "Two-look PLL is where to stay for a while, but not forever. Full PLL is 21 cases and saves an algorithm on most solves. The first ones to add are the common ones that two-look handles worst, starting with the A perms and the J perms.",
         "Keep the two-look algorithms as a fallback while you learn. A full-PLL case you half-know is slower than two algorithms you know well.",
       ],
     },
@@ -494,7 +409,7 @@ export const choosingTheNextPair: LevelPack = {
   id: "choosing-the-next-pair",
   title: "Choosing the next pair",
   summary: "Not every pair is worth solving next. How to pick, without it becoming a pause.",
-  levels: ["sub45"],
+  levels: ["sub60"],
   why: "At this level most people solve whichever pair they see first. That often means a pair with a piece stuck in a slot, when an easy one was sitting on top — and the awkward one costs twice as many moves.",
   lessons: [
     {
@@ -580,9 +495,10 @@ export const choosingTheNextPair: LevelPack = {
 export const stuckPieces: LevelPack = {
   id: "stuck-pieces",
   title: "When a piece is stuck in a slot",
-  summary: "The F2L cases intuition handles worst, and the algorithms worth knowing for them.",
-  levels: ["sub45"],
-  why: "Intuitive F2L handles pairs on top well and pieces stuck in slots badly: taking a piece out, pairing and reinserting often takes eleven or twelve moves. These are the cases where learning an algorithm pays off most.",
+  summary:
+    "The F2L cases intuition handles worst, and how to free a stuck piece without wasting moves.",
+  levels: ["sub60"],
+  why: "Intuitive F2L handles pairs on top well and pieces stuck in slots badly: taking a piece out, pairing and reinserting often takes eleven or twelve moves. Freeing the piece so that it comes out already next to its partner saves most of that.",
   lessons: [
     {
       id: "stuck-three-kinds",
@@ -592,34 +508,8 @@ export const stuckPieces: LevelPack = {
       body: [
         "A stuck piece is part of the pair you want, sitting in a slot — its own or another — in the wrong way. There are three situations. The corner is in the slot with the edge on top. The edge is in the slot with the corner on top. Or both are in the slot.",
         "With one piece stuck, the usual approach is to take it out in a way that already sets up the pair: the move that lifts the stuck piece should leave it next to its partner. That turns an eleven-move case into a seven- or eight-move one.",
-        "With both stuck, taking them out and starting again is slow. These five cases are where memorised algorithms are clearly better, and the algorithm bank has all five with every solution checked.",
+        "With both stuck, there are five cases, and taking them out and starting again is slow. For now, look for another pair to solve first, since that can free them for you. Memorised algorithms for these five come in the Sub-20 course, where they are the first F2L cases worth learning by heart.",
       ],
-    },
-    {
-      id: "stuck-both",
-      title: "Both in the slot",
-      takeaway: "Five cases. Learn the two that come up in your solves most, then the rest.",
-      minutes: 4,
-      body: [
-        "When both pieces are already in their slot but wrong — the corner twisted, the edge flipped, or both — the case is one of five. The ones with the edge flipped are widely considered the worst F2L cases there are.",
-        "Algorithms exist for all five and they are nine or ten moves: not short, but far better than improvising. The shortest one in the bank for the corner-twisted case uses only R and U moves, which makes it easy to learn.",
-        "Before learning these, remember the cheaper option from the previous pack: if another pair is available, solve that first. The stuck pair may get freed along the way, and even if not, you have not made anything worse.",
-      ],
-      examples: [
-        {
-          label: "Both in the slot, corner twisted towards you",
-          moves: "R2 U2 R' U' R U' R' U2 R'",
-          caseId: "f2l-38",
-          note: "Only R and U moves, which makes it one of the easier ones to learn.",
-        },
-        {
-          label: "Both in the slot, corner twisted to the right",
-          moves: "R U2 R U R' U R U2 R2",
-          caseId: "f2l-40",
-          note: "Also only R and U moves: the same family of turns, finishing the other way.",
-        },
-      ],
-      checkpoint: "You recognise the five both-in-slot cases and know at least two of them.",
     },
     {
       id: "stuck-other-slots",
@@ -628,8 +518,8 @@ export const stuckPieces: LevelPack = {
       minutes: 3,
       body: [
         "Sometimes a piece you need is in a different slot, not its own. Before extracting it, check whether that slot's own pair is nearly ready: solving that pair first will bring your piece out for free.",
-        "If not, extract with a move that joins it to its partner, as with a piece in its own slot. The difference is that you now have two slots to think about, so the empty-slot ideas from the F2L efficiency pack apply.",
-        "The four-slot version of every case matters here. The CubeSkills sheet of F2L algorithms from all four slot angles is the standard reference if a case keeps catching you out from the back.",
+        "If not, extract with a move that joins it to its partner, as with a piece in its own slot. The difference is that you now have two slots to think about, and an empty one can help: the keyhole lesson in the Sub-30 course shows how.",
+        "Practise reading these from every slot, not only the front right. A piece stuck at the back is the same case turned round, and it is the one people most often pull out blind.",
       ],
     },
   ],
@@ -637,32 +527,34 @@ export const stuckPieces: LevelPack = {
     {
       id: "stuck-list",
       title: "Your stuck-case list",
-      purpose: "Finds which stuck cases actually appear in your solves, so you learn those first.",
+      purpose:
+        "Finds which stuck cases actually appear in your solves, so you work on those first.",
       rules: [
         "For twenty solves, note every pair that started with a piece in a slot.",
         "Group them: corner stuck, edge stuck, both.",
-        "Look up the algorithm for the most common one and use it for a week.",
+        "Work out one way to lift the most common one out that also joins it to its partner, and use it for a week.",
       ],
       dose: "Once, then again a month later.",
       signal: "The list gets shorter, and a different case is at the top.",
     },
     {
-      id: "stuck-set-up",
-      title: "Set up and solve",
-      purpose: "Drills one stuck case in isolation until recognising it triggers the algorithm.",
+      id: "stuck-lift-and-join",
+      title: "Lift and join",
+      purpose:
+        "Replaces pulling a stuck piece out blind with one move that frees it next to its partner.",
       rules: [
-        "Pick a both-in-slot case. Set it up by doing its algorithm backwards on a solved cube.",
-        "Solve it. Repeat until it is automatic.",
-        "Then set it up in a different slot and solve without rotating.",
+        "Solve the cross, then look for a pair with one piece stuck in a slot.",
+        "Before turning, find where its partner is and choose the way to lift the stuck piece that leaves the two together, or one top turn away.",
+        "Lift it, pair, insert. If the pieces ended up apart, redo the case and try the other way out.",
       ],
-      dose: "One case a session.",
-      signal: "You stop hesitating when the case appears in a real solve.",
+      dose: "Ten stuck pairs a session.",
+      signal: "Stuck pairs take you about as many moves as ordinary ones.",
       exerciseId: "last_slot",
     },
   ],
   mistakes: [
     "Taking a stuck piece out without setting up the pair at the same time.",
-    "Learning all 41 F2L algorithms when five cases cause most of the trouble.",
+    "Pulling a stuck piece out blind and then searching for its partner.",
     "Solving a stuck pair first when a free pair was on top.",
     "Only learning cases from the front-right slot.",
   ],

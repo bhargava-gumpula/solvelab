@@ -172,20 +172,17 @@ export const lessons: Lesson[] = [
     id: "cfop-cross",
     pathId: "cfop",
     title: "Plan your cross",
-    summary: "Use inspection to finish the cross in eight moves or fewer.",
+    summary:
+      "Use inspection to find all four white edges and plan as much of the cross as you can before the first turn.",
     minutes: 10,
     steps: [
       {
         title: "Inspection goal",
-        body: `${HOLD_RULE} Do the ${SOLVING_ROTATION} as inspection starts, then in 15 seconds plan the full cross on the bottom and track at least the first F2L pair. Never solve the cross on top; color neutrality is an optional extra for later, not part of this lesson.`,
+        body: `${HOLD_RULE} Do the ${SOLVING_ROTATION} as inspection starts, then use the 15 seconds to find all four white edges and plan as much of the cross on the bottom as you can before your first turn: at least the first two edges. Planning the whole cross is the goal of the Sub-30 course, so don't worry yet if the last edges are still a search. Never solve the cross on top; color neutrality is an optional extra for later, not part of this lesson.`,
       },
       {
         title: "Efficient crosses",
-        body: "Most good crosses are ≤8 moves. If yours often take 10+, practice the cross on its own, untimed: find a solution, look for a shorter one, then redo the same scramble with 15 seconds of inspection until the whole plan fits in 8 moves or fewer.",
-      },
-      {
-        title: "X-cross when ready",
-        body: "Once standard crosses are automatic, look for a free first pair during inspection (x-cross).",
+        body: "Every cross can be solved in 8 moves or fewer. If yours often take 10+, practice the cross on its own, untimed: find a solution, look for a shorter one, then redo the same scramble with 15 seconds of inspection and see how much more of it you can plan before turning.",
       },
     ],
     practiceHint:
@@ -200,15 +197,23 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Pair then insert",
-        body: "Every F2L case is: bring the corner and edge together into a pair, then insert into the slot. Learn the motion, not thirty names.",
+        body: "Intuitive F2L sounds like dozens of cases and is really three ideas. If the corner or edge you need is stuck in a slot where it doesn't belong, take it out, usually with the same three-move trigger you insert with. Turn the top layer to bring the corner and edge together into a pair. Then drop the pair into its slot. The easiest case is a joined pair waiting in the top layer one turn from its slot: with the corner at the front left and its edge beside it at the front, R U' R' drops it in with three moves. Learn to spot pairs like that, then learn to make them by moving one piece out of the way, turning the top so the other lines up, and bringing the first back. Learn the motion, not forty-one names.",
       },
       {
-        title: "Avoid unnecessary rotations",
-        body: "Cube rotations hide lookahead. Prefer U moves and empty slots facing you when you can.",
+        title: "Front slots first",
+        body: "Insert into the two front slots to begin with, turning the cube to bring a back slot round if you have to. Rotations hide the pieces you would otherwise see coming, so avoid a y2 and prefer a top turn when one will do; cutting them down properly comes later. Right now the point is understanding what the moves do to the pair.",
       },
       {
         title: "Slow is smooth",
-        body: "Turning slower while tracking the next pair beats frantic turning that forces pauses.",
+        body: "Turning slower so you can look for the next pair while this one goes in beats frantic turning that forces pauses.",
+      },
+    ],
+    examples: [
+      {
+        label: "The three-move case",
+        moves: "R U R'",
+        caseId: "f2l-1",
+        note: "The pair isn't joined yet, but one R U R' joins it and drops it in at once. Most F2L solutions are built from this and its mirror.",
       },
     ],
     practiceHint: "Start F2L training on Train — turn a bit slower and look for the next pair.",
@@ -217,20 +222,50 @@ export const lessons: Lesson[] = [
     id: "cfop-2look-oll",
     pathId: "cfop",
     title: "Learn 2-look OLL",
-    summary: "Edge orientation, then a small set of corner algorithms.",
+    summary: "Edge orientation, then seven corner cases, starting with Sune and Antisune.",
     minutes: 14,
     steps: [
       {
         title: "Edges first",
-        body: "Make a yellow cross with the same beginner-friendly algs, then learn to recognize dot / line / L / cross quickly.",
+        body: "Orienting the last layer takes two looks. In the first, look only at the four edges on top and whether their yellow faces up. Ignore the corners, and ignore where anything belongs: that is PLL's job. You will see a dot (none up), an L (two next to each other), a line (two opposite) or the cross already made. That is three algorithms, and the dot is just the line and the L done one after the other. Get to where you name the shape the moment you look.",
       },
       {
         title: "Seven corner cases",
-        body: "2-look OLL finishes with a short list of corner-orientation algorithms. Drill recognition before speed.",
+        body: "With the yellow cross made, count how many corners show yellow on top. None up means H or Pi: H shows a pair of yellow stickers on two opposite sides, Pi on one side only. One up means Sune or Antisune: put that corner at the front left and look at the front-right corner's side sticker. Yellow facing you is a Sune, ready to go; yellow facing right is an Antisune, whose algorithm starts with the up corner at the back right, so turn the top twice first. Two up means Headlights (U), T (Chameleon) or Bowtie (L): if the two up corners sit side by side, look at the other two. Yellow on the same side is Headlights; yellow pointing opposite ways is T. If the up corners are diagonal, it's the Bowtie. None of them is rare: six of the seven come up equally often and H only half as often, so each is worth learning. Drill recognition before speed.",
       },
       {
-        title: "Toward full OLL",
-        body: "When 2-look is automatic, add full OLL cases a few at a time, starting with short ones built from triggers you already know.",
+        title: "Sune and Antisune first",
+        body: "Learn these two before the other five. Each is only seven moves, they mirror each other (each is also the other one run backwards), and both use only R and U turns, the same turns as your right-hand F2L inserts: the Sune opens with R U R′ and the Antisune with R U2 R′. Until you know the rest, the Sune hold rule from your first solve still finishes any of them in at most three Sunes. That is slower than the real algorithm, so replace it one case at a time.",
+      },
+      {
+        title: "Stay on 2-look OLL for now",
+        body: "Keep 2-look OLL while you learn full PLL, which comes first: start it in the Sub-45 course if you like and finish it in Sub-30. Full OLL comes around sub-20, as an option in the Sub-20 course and expected by Sub-15, learned in groups starting from the seven corner cases you already know.",
+      },
+    ],
+    examples: [
+      {
+        label: "Line, held horizontally",
+        moves: "F R U R' U' F'",
+        caseId: "2oll-line",
+        note: "Turns a line of two edges into the cross.",
+      },
+      {
+        label: "L shape, held at the front right",
+        moves: "f R U R' U' f'",
+        caseId: "2oll-l",
+        note: "The same idea with a wide front turn.",
+      },
+      {
+        label: "Sune",
+        moves: "R U R' U R U2 R'",
+        caseId: "2oll-sune",
+        note: "One corner up, at the front left.",
+      },
+      {
+        label: "Antisune",
+        moves: "R U2 R' U' R U' R'",
+        caseId: "2oll-antisune",
+        note: "The Sune run backwards: its up corner starts at the back right.",
       },
     ],
   },
@@ -243,7 +278,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Corner permutation",
-        body: "Look for headlights: two matching corner colors on one side. Headlights on one side: hold them on the left and do the T perm, which swaps the two right-hand corners. No headlights: do the Y perm, which swaps two corners diagonally across the top. Some guides use an A perm instead (a three-corner cycle, for headlights on one side) plus the E perm (no headlights, corners swapped in two pairs). That is also two algorithms, but the E perm is harder to spot and to turn quickly than the Y, which is why most guides start with T and Y.",
+        body: "Look for headlights: two matching corner colors on one side. Headlights on one side: hold them on the left and do the T perm, which swaps the two right-hand corners. No headlights: do the Y perm, which swaps two corners diagonally across the top and works from any angle. Headlights on every side: the corners are done, so go straight to the edges. Some guides use an A perm instead (a three-corner cycle, for headlights on one side: Aa with the headlights on the left, Ab with them at the back) plus the E perm (no headlights, corners swapped in two pairs), which works from any angle. That is also two algorithms, but the E perm is harder to spot and to turn quickly than the Y, which is why most guides start with T and Y. Spotting headlights is the most useful recognition skill in the last layer: full PLL is read the same way, just with more cases.",
       },
       {
         title: "Edge permutation",
@@ -313,16 +348,25 @@ export const lessons: Lesson[] = [
     id: "advanced-last-layer",
     pathId: "advanced",
     title: "Explore advanced last-layer systems",
-    summary: "Full OLL/PLL, then COLL / ZBLL only when the rest is ready.",
-    minutes: 8,
+    summary:
+      "After full OLL and PLL: predict the PLL, control edges, and use COLL or ZBLL only where they fit.",
+    minutes: 10,
     steps: [
       {
         title: "Earn full OLL/PLL",
-        body: "Add cases by frequency. Recognition quality matters more than alg count.",
+        body: "Full PLL first: start it in the Sub-45 course if you like and finish it in Sub-30. Full OLL follows around sub-20, optional there and expected by Sub-15, learned in groups starting from the 2-look cases. Take a couple of new cases a day; clean recognition matters more than how many you know.",
       },
       {
-        title: "COLL and beyond",
-        body: "Advanced sets help only when F2L is already smooth. Coach will keep pointing at F2L if that is still the leak.",
+        title: "Predict the PLL",
+        body: "With both sets solid, the next gain is the join between them. Watch the sides as OLL finishes: a bar, block or headlights narrows down which PLL is coming, and a bar on one side leaves only five (F, Ja, Jb, Ua and Ub). The more of the case you know before the top stops moving, the sooner you can pick the turn before PLL (the pre-AUF) instead of turning it to look.",
+      },
+      {
+        title: "Edge control, then a few WV cases",
+        body: "When two inserts would both solve the last pair, pick the one that leaves more of the yellow edges up. Dodging a dot OLL, one of the longest groups, is most of the gain. Then add a few short Winter Variation (WV) cases: when the yellow edges already face up and the last pair is built and waiting above its slot, a WV algorithm inserts the pair and brings the corners up in one go, so PLL is next.",
+      },
+      {
+        title: "COLL and ZBLL only where they apply",
+        body: "COLL and ZBLL start from a last layer whose edges already face up after F2L, which happens on about 1 solve in 8 without edge control. On the other solves they can't be used, so keep them as optional extras for the fast end, after F2L is smooth. Coach will keep pointing at F2L while that is still the leak.",
       },
     ],
   },

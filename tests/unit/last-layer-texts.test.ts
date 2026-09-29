@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { oll } from "@/data/algorithms/sets/oll";
 import { twoLookOll, twoLookPll } from "@/data/algorithms/sets/two-look";
 import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
+import { getLesson } from "@/data/learning/lessons";
 import {
   twoLookOll as twoLookOllPack,
   twoLookPll as twoLookPllPack,
@@ -39,6 +40,10 @@ import {
  */
 
 const SIDES: Side[] = ["front", "right", "back", "left"];
+const twoLookOllLessonText = () =>
+  getLesson("cfop-2look-oll")!
+    .steps.map((step) => step.body)
+    .join(" ");
 const CORNERS: TopCorner[] = ["back-right", "front-right", "front-left", "back-left"];
 const OPPOSITE: Record<Side, Side> = {
   front: "back",
@@ -361,9 +366,9 @@ describe("2-look OLL lessons", () => {
   const ANTISUNE = "R U2 R' U' R U' R'";
 
   it("hold the L example where its algorithm wants it", () => {
-    const example = twoLookOllPack.lessons
-      .flatMap((lesson) => lesson.examples ?? [])
-      .find((item) => item.caseId === "2oll-l")!;
+    const example = getLesson("cfop-2look-oll")!.examples!.find(
+      (item) => item.caseId === "2oll-l",
+    )!;
     expect(example.label).toContain("front right");
     expect(same(edgesFacingUp(caseStateOf(example.moves!, "eoll")), ["front", "right"])).toBe(true);
   });
@@ -410,8 +415,7 @@ describe("2-look OLL lessons", () => {
       "oll-26": 4,
       "oll-27": 4,
     });
-    const lesson = twoLookOllPack.lessons.find((item) => item.id === "oll2-sune-first")!;
-    const text = [lesson.takeaway, ...lesson.body].join(" ");
+    const text = twoLookOllLessonText();
     expect(text).toContain("six of the seven come up equally often");
     expect(text).toContain("H only half as often");
     expect(text).not.toMatch(/more often than|most common/);
@@ -420,36 +424,21 @@ describe("2-look OLL lessons", () => {
   });
 
   it("give the real reasons to learn Sune and Antisune first", () => {
-    const lesson = twoLookOllPack.lessons.find((item) => item.id === "oll2-sune-first")!;
-    const text = lesson.body.join(" ");
+    const text = twoLookOllLessonText();
     // Seven moves each, and each is the other run backwards.
-    expect(text).toContain("seven moves each");
+    expect(text).toContain("seven moves");
     expect(SUNE.split(" ")).toHaveLength(7);
     expect(ANTISUNE.split(" ")).toHaveLength(7);
     expect(text).toContain("the other one run backwards");
     expect(isSolved(applyAlgorithm(`${SUNE} ${ANTISUNE}`))).toBe(true);
     // Their holds, as the bank's cases draw them.
-    expect(text).toContain("For Sune the up corner goes at the front left");
-    expect(text).toContain("for Antisune, at the back right");
+    expect(text).toContain("put that corner at the front left");
+    expect(text).toContain("starts with the up corner at the back right");
     expect(cornersFacingUp(caseStateOf(SUNE, "oll"))).toEqual(["front-left"]);
     expect(cornersFacingUp(caseStateOf(ANTISUNE, "oll"))).toEqual(["back-right"]);
-    // Two goes at most, with a top turn before each, orient any corner case.
-    expect(text).toContain("two goes at most");
-    for (const number of [21, 22, 23, 24, 25, 26, 27]) {
-      let reach = [stateOf(oll, `oll-${number}`)];
-      let goes = 0;
-      const done = () =>
-        reach.some((view) => AUF.some((angle) => lastLayerOriented(turn(view, angle))));
-      while (!done() && goes < 3) {
-        reach = reach.flatMap((view) =>
-          AUF.flatMap((angle) =>
-            [SUNE, ANTISUNE].map((moves) => applyAlgorithm(moves, turn(view, angle))),
-          ),
-        );
-        goes++;
-      }
-      expect(goes, `OLL ${number}`).toBeLessThanOrEqual(2);
-    }
+    const examples = getLesson("cfop-2look-oll")!.examples!;
+    expect(examples.find((item) => item.caseId === "2oll-sune")!.moves).toBe(SUNE);
+    expect(examples.find((item) => item.caseId === "2oll-antisune")!.moves).toBe(ANTISUNE);
   });
 });
 
@@ -628,13 +617,17 @@ describe("2-look PLL lessons", () => {
     expect(twoLookPllPack.why).toContain("six algorithms");
     const defaults = twoLookPll.cases.filter((entry) => /^Step \d:/.test(entry.group));
     expect(defaults).toHaveLength(6);
-    const text = twoLookPllPack.lessons.flatMap((lesson) => lesson.body).join(" ");
-    expect(text).toContain("hold the headlights on the left and do the T perm");
-    expect(text).toContain("do the Y perm, which works from any angle");
-    expect(text).toContain("The A perms and E perm also do it");
+    const text = getLesson("cfop-2look-pll")!.steps.find(
+      (step) => step.title === "Corner permutation",
+    )!.body;
+    expect(text).toContain("hold them on the left and do the T perm");
+    expect(text).toContain(
+      "do the Y perm, which swaps two corners diagonally across the top and works from any angle",
+    );
+    expect(text).toContain("Some guides use an A perm instead");
     expect(text).toContain("Aa with the headlights on the left, Ab with them at the back");
-    expect(text).toContain("the E perm for the Y, from any angle");
-    expect(text).toContain("That is still two algorithms");
+    expect(text).toContain("corners swapped in two pairs), which works from any angle");
+    expect(text).toContain("That is also two algorithms");
     expect(text).not.toContain("three algorithms");
     expect(text).not.toContain("one of the two A perms");
     expect(text).not.toContain("with the headlights held at the back");

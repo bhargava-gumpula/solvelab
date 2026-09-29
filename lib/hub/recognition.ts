@@ -4,7 +4,7 @@
  * names to choose from. The wrong names come from the same group where they
  * can, because telling look-alikes apart is the hard part.
  */
-import { caseStateFor, getAlgorithmSet, kindFor } from "@/lib/algorithms/catalog";
+import { algorithmsFor, caseStateFor, getAlgorithmSet, kindFor } from "@/lib/algorithms/catalog";
 import { AUF, type CaseKind } from "@/lib/cube/case-check";
 import { applyAlgorithm } from "@/lib/cube/cube-state";
 import type { CaseEntry } from "@/data/algorithms/types";
@@ -30,15 +30,32 @@ export function seededRandom(seed: number): () => number {
   };
 }
 
-/** How a case is named in the drill: its name, and its nickname when it has one. */
-export function caseLabel(entry: CaseEntry): string {
+/**
+ * How a case is named in the drill: its name, and its nickname when it has one.
+ * F2L cases have only numbers, which nobody recognises, so a pair case is
+ * named by its first algorithm and the drill asks which one solves it.
+ */
+export function caseLabel(entry: CaseEntry, set?: RecognitionSet): string {
+  if (set === "f2l") return algorithmsFor(entry)[0]!.moves;
   const alias = entry.aliases?.[0];
   return alias ? `${entry.name} (${alias})` : entry.name;
 }
 
-/** The cases a drill draws from. */
+/**
+ * The cases a drill draws from. A two-look case borrows its algorithms from
+ * the full set it points at, so it counts as having them. The 2-look PLL drill
+ * keeps to the default route (T and Y, then the edges): the A and E route
+ * solves the same corner states, so offering it as a wrong answer would mark
+ * a right one wrong.
+ */
 export function drillCases(set: RecognitionSet): CaseEntry[] {
-  return getAlgorithmSet(set)?.cases.filter((entry) => entry.algorithms.length > 0) ?? [];
+  return (
+    getAlgorithmSet(set)?.cases.filter(
+      (entry) =>
+        algorithmsFor(entry).length > 0 &&
+        (set !== "two-look-pll" || /^Step \d:/.test(entry.group)),
+    ) ?? []
+  );
 }
 
 export function recognitionDeck(
@@ -63,15 +80,17 @@ export function recognitionDeck(
   for (let index = 0; index < count; index++) {
     const entry = pick(cases);
     const kind = kindFor(data, entry);
-    const turn = pick(AUF);
+    // A pair case is shown exactly as its algorithm starts, so "which algorithm
+    // solves this" needs no set-up turn; a last-layer case turns to any angle.
+    const turn = set === "f2l" ? "" : pick(AUF);
     const state = caseStateFor(entry, kind);
     const facelets = turn ? applyAlgorithm(turn, state) : state;
     const sameGroup = shuffle(cases.filter((item) => item !== entry && item.group === entry.group));
     const rest = shuffle(cases.filter((item) => item !== entry && item.group !== entry.group));
-    const wrong = [...sameGroup, ...rest].slice(0, 3).map(caseLabel);
+    const wrong = [...sameGroup, ...rest].slice(0, 3).map((item) => caseLabel(item, set));
     const answer = Math.floor(random() * 4);
     const options = [...wrong];
-    options.splice(answer, 0, caseLabel(entry));
+    options.splice(answer, 0, caseLabel(entry, set));
     deck.push({ caseId: entry.id, facelets, kind, options, answer });
   }
   return deck;

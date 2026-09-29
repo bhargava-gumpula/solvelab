@@ -7,7 +7,7 @@ export const crossEfficiency: AspectPack = {
   aspectId: "cross",
   title: "A cross worth eight moves",
   summary: "Why a short cross is a different skill from a fast cross, and how to find one.",
-  levels: ["sub120", "sub60", "sub45", "sub30"],
+  levels: ["sub120", "sub45"],
   why: "A slow cross is almost never slow hands. It is a long solution — twelve or fourteen moves where seven would do — found one edge at a time while the timer runs, usually with a cube rotation thrown in to see the piece you lost.",
   lessons: [
     {
@@ -144,7 +144,7 @@ export const inspection: AspectPack = {
   aspectId: "cross_planning",
   title: "Using all fifteen seconds",
   summary: "Planning is a trainable ladder, not a talent. Here are its rungs.",
-  levels: ["sub60", "sub45", "sub30", "sub25", "sub20", "sub15", "sub12"],
+  levels: ["sub45", "sub30", "sub25", "sub20"],
   why: "If your cross is slower with fifteen seconds of inspection than it is with unlimited inspection, you are finishing your planning while the timer runs. Every move you plan on the clock costs you roughly the time it takes to make it, twice.",
   lessons: [
     {
@@ -154,7 +154,7 @@ export const inspection: AspectPack = {
         "Fifteen seconds of thinking is free. Any planning you push into the solve is paid for at full price.",
       minutes: 3,
       body: [
-        "Competition rules give you up to fifteen seconds to look at the cube before the timer starts, during which you may hold and turn the puzzle over in your hands but not turn any layer. That time is free: nothing you work out in it costs you anything.",
+        "Competition rules give you up to fifteen seconds to look at the cube before the timer starts, during which you may hold and turn the puzzle over in your hands but not turn any layer. That time is free: nothing you work out in it costs you anything. Only the limit is strict. Start the solve after fifteen seconds and two seconds are added to your time (+2); start it after seventeen and the solve is a DNF, as if you had not finished it. SolveLab's timer counts inspection the same way when you turn it on.",
         `Spend the first second of it getting into your solving hold. Scrambles are applied with ${SCRAMBLE_HOLD}, so turn the cube over with ${SOLVING_ROTATION}, which keeps ${SOLVING_VIEW.F} in front (x2 does the same job but brings blue round to the front). Then plan the cross where you will solve it, with ${SOLVING_VIEW.D} on the bottom and ${SOLVING_VIEW.U} on top, rather than planning it on top and turning over afterwards.`,
         "The moment the timer starts, thinking is expensive. A pause to work out the next cross edge costs you a second that a plan would have cost nothing. This is why the gap between your timed cross and your unlimited-inspection cross is a real measurement of something: it is exactly the planning you did not finish in time.",
         "So the goal of inspection is not to look at the cube. It is to arrive at the start of the solve with nothing left to decide about the cross.",
@@ -197,9 +197,25 @@ export const inspection: AspectPack = {
       minutes: 3,
       body: [
         "Once the cross reliably takes eight or nine seconds of your inspection, the remaining seconds have a better use than double-checking: find the pair you will do first.",
-        "You do not need to plan its moves. Simply knowing which corner and which edge you are going for removes the pause at the start of F2L, which is one of the more expensive pauses in the solve because it happens while your hands are already moving.",
+        "You do not need to plan its moves. Simply knowing which corner and which edge you are going for shortens the pause at the start of F2L, which is one of the more expensive pauses in the solve because it happens while your hands are already moving. The next step is following that pair's corner through your cross moves, so it is still where you expect when the cross is done; the Sub-15 course adds its edge.",
         "The step after that is the extended cross, or x-cross: noticing during inspection that one pair will be nearly made by your cross solution anyway, and choosing a cross that finishes it. It is genuinely advanced and needs the rest to be automatic first, but the payoff is real: one fewer pair to find, and the ones that remain are easier to read because more of the cube is solved.",
       ],
+    },
+    {
+      id: "inspection-cross-plus-one",
+      title: "Cross plus one: follow the pair through the cross",
+      takeaway:
+        "Knowing which pair comes first is half the job. The other half is knowing where its two pieces will be once your cross moves have pushed them around.",
+      minutes: 4,
+      body: [
+        "Picking your first pair in inspection only helps if it is still where you expect when the cross is done. Your cross moves turn the side layers, and any that pass through the pair's corner or edge carry it somewhere else. A pair you picked but did not follow is a pair you have to find again.",
+        "So once the cross is planned, go through it a second time in your head, this time watching the pair. Pick up the corner and the edge before the first move and move them with every turn that touches them. A cross move that misses both pieces leaves them where they are, so you only have to think on the moves that hit them. At the end you want a picture of where each piece sits and which way it faces, enough to start the pair the moment the cross is in.",
+        "It is the tracking skill from earlier, with two pieces instead of one and a cross solution instead of a practice sequence. The honest test is to do it blind: plan the cross and the pair, close your eyes for the cross, then open them and start the pair straight away. If you have to search, the tracking slipped, and you can usually say at which move.",
+        "Sometimes the tracking shows you something better: the cross moves nearly join the pair on their own, and a cross plus pair of about nine or ten moves is sitting there. Take it when you see it. That is an x-cross offered by the scramble, and it is worth having.",
+        "What is not worth it is forcing one. Hunting for an x-cross on every scramble eats the inspection you need for the plain cross and the pair, and usually ends with a longer cross, a rushed plan, or both. Plan the cross and track the first pair on every solve; take the x-cross only on the solves that hand you one.",
+      ],
+      checkpoint:
+        "On most solves you start the first pair without looking for it, because you already know where its corner and edge ended up.",
     },
   ],
   drills: [
@@ -215,7 +231,7 @@ export const inspection: AspectPack = {
       ],
       dose: "Ten a session, three sessions a week.",
       signal:
-        "Your hit rate goes from a third to most of them. When it is reliable, add the first pair and do the same thing.",
+        "Your hit rate goes from a third to most of them. Later, from about sub-15, add the first pair and do the same thing.",
       exerciseId: "cross_only",
     },
     {
@@ -245,6 +261,36 @@ export const inspection: AspectPack = {
       dose: "Five minutes, most days. It is a warm-up, not a session.",
       signal: "You stop losing the piece at move three.",
     },
+    {
+      id: "inspection-follow-one-corner",
+      title: "Follow one corner through the cross",
+      purpose:
+        "The first step past planning the cross alone: you know where one piece of your first pair will be when the cross is done.",
+      rules: [
+        "In inspection, plan the cross, then pick the pair you want to solve first.",
+        "Go through the cross plan again in your head, following only that pair's corner, and say where it will end up.",
+        "Solve the cross without looking for the corner, then check. When the corner is reliable, the Sub-15 course adds its edge.",
+      ],
+      dose: "Ten scrambles a session.",
+      signal:
+        "The corner is where you said most of the time, and F2L starts without a search for it.",
+    },
+    {
+      id: "inspection-cross-plus-one-blind",
+      title: "Cross plus one, eyes closed",
+      purpose:
+        "Proves you followed the first pair through the cross rather than just picking it. With your eyes shut there is nothing to re-find it with.",
+      rules: [
+        "In inspection, plan the cross and choose your first pair, then run through the cross again in your head, following the pair's corner and edge.",
+        "Close your eyes and solve the cross.",
+        "Open them and start the pair at once, without searching. If your eyes had to look for either piece, the rep does not count.",
+        "When a rep fails, work out which cross move took the piece somewhere you did not expect.",
+      ],
+      dose: "Ten scrambles a session, two or three sessions a week.",
+      signal:
+        "Most reps go straight from the cross into the pair with no search, and your Cross + first pair times with your eyes open start to show the same clean join.",
+      exerciseId: "cross_first_pair",
+    },
   ],
   mistakes: [
     "Spending inspection looking at the cube rather than deciding on moves.",
@@ -257,6 +303,7 @@ export const inspection: AspectPack = {
     SOURCES.wcaRegulations,
     SOURCES.crossPlusPair,
     SOURCES.extendedCross,
+    SOURCES.subTen,
   ],
 };
 
@@ -266,7 +313,7 @@ export const crossIntoF2l: AspectPack = {
   title: "The join after the cross",
   summary:
     "Why there is a pause between a finished cross and a started pair, and how to remove it.",
-  levels: ["sub45", "sub30", "sub25", "sub20", "sub15", "sub12"],
+  levels: ["sub30", "sub25", "sub20"],
   why: "Your cross is fine and your F2L is fine, but doing them one after the other takes longer than doing them separately. The extra time is a pause: the cross finished and your eyes started looking, from scratch, for a pair.",
   lessons: [
     {
@@ -291,6 +338,7 @@ export const crossIntoF2l: AspectPack = {
         "After the cross is planned, the cheapest next thing is to pick your first pair. Not to plan it — just to decide which corner and which edge, and roughly where they will be once the cross is done.",
         "Which pair to pick matters less than picking one. That said, there are useful preferences: a pair whose pieces are both in the top layer is easiest to track, and a pair that goes into a slot you can reach without rotating is worth more than a marginally shorter one somewhere awkward.",
         "If you cannot find a pair in the inspection you have left, look for just the corner. Half the information removes most of the pause, and the edge is easier to find once you know which slot you are heading for.",
+        "To see whether the join is where your time goes, measure it. Do a set of the Cross + first pair test alongside the Cross test and the Single pair test. Your cross plus first pair, minus your cross and minus one ordinary pair, is roughly the pause after the cross. The coach does that sum for you and shows it as Cross → F2L; a set of the Cross + F2L test, next to the Cross and F2L tests, gives it a better read. Check it again after a few weeks of choosing your pair in inspection.",
       ],
       checkpoint: "You start F2L with your hands moving, not with your eyes searching.",
     },
@@ -298,13 +346,14 @@ export const crossIntoF2l: AspectPack = {
       id: "join-xcross",
       title: "The extended cross",
       takeaway:
-        "Sometimes the cross solution is one or two moves away from also solving a pair. Taking it removes a quarter of F2L.",
+        "Sometimes the cross solution is one or two moves away from also solving a pair. When a scramble offers that, take it: it removes a quarter of F2L. Don't force one when it isn't there.",
       minutes: 4,
       body: [
         "An x-cross is a cross solution that finishes one F2L pair at the same time. It is not a separate technique so much as a choice: among the several cross solutions a scramble allows, one of them may leave a corner and edge already paired, or nearly so.",
         "The benefit is bigger than one pair of time. You start F2L with three slots instead of four, which means fewer pieces to search among and an easier read for everything that follows.",
         "It is genuinely advanced, and worth being honest about the prerequisite: you need to plan a plain cross reliably first, because an x-cross is planning a cross while tracking two extra pieces. Trying it before then produces crosses that are worse in the normal case in exchange for an x-cross you rarely spot.",
         "The way in is to practise noticing rather than forcing. During inspection, once your cross is planned, ask whether any corner-edge pair will happen to be solved or adjacent afterwards. Say yes or no and move on. After a few hundred solves of just noticing, the cases start suggesting themselves.",
+        "Keep it that way round even once you are good at it. An x-cross is something the scramble hands you, not something you make happen: take it when it is there, and on every other solve do your normal cross. Forcing one each time spends the inspection you need for the cross and the first pair, and tends to leave a longer, shakier cross.",
       ],
     },
   ],
@@ -354,6 +403,7 @@ export const crossIntoF2l: AspectPack = {
   mistakes: [
     "Watching the cross finish, so the search starts from nothing.",
     "Planning an x-cross before a plain cross is automatic, which makes the average cross worse.",
+    "Forcing an x-cross on a scramble that does not offer one.",
     "Picking the theoretically shortest first pair rather than the one you can start without a rotation.",
   ],
   sources: [

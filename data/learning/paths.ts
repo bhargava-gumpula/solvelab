@@ -15,14 +15,16 @@ export const learningPaths = [
     id: "cfop",
     name: "Build your CFOP foundation",
     level: "Intermediate",
-    description: "Connect cross, F2L, and the last layer into a smoother solve.",
+    description:
+      "The Sub-60 switch to CFOP: cross on the bottom, intuitive F2L, then 2-look OLL and 2-look PLL.",
     topics: ["Plan your cross", "Understand intuitive F2L", "Learn 2-look OLL", "Learn 2-look PLL"],
   },
   {
     id: "advanced",
     name: "Refine the details",
     level: "Advanced",
-    description: "Work on transitions, lookahead, and efficient execution.",
+    description:
+      "Reference notes to read alongside the courses, not the next step: first pair, rotations, lookahead and last-layer extras.",
     topics: [
       "Track your first pair",
       "Reduce F2L rotations",

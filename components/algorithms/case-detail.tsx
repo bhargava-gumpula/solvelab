@@ -50,7 +50,7 @@ export function CaseDetail({
     ]),
   );
   const anyTurn = [...turns.values()].some(Boolean);
-  const recognition = recognitionText(entry, kind, picture.facelets);
+  const recognition = recognitionText(entry, kind, picture.facelets, picture.quarter);
 
   return (
     <div className="grid gap-5">

@@ -115,6 +115,20 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       why: "Once the cross is dependable, the next best use of inspection is knowing your first pair. It removes the pause at the start of F2L, one of the costliest in the solve.",
     },
   ],
+  "inspection-cross-plus-one": [
+    {
+      question:
+        "Once your cross is planned in inspection, what does this lesson have you work out about your first pair?",
+      options: [
+        "A full plan for the second pair's moves too",
+        "An x-cross, found by searching until one appears",
+        "Where its corner and edge end up after the cross",
+        "Nothing more: the pair is easy to find later",
+      ],
+      answer: 2,
+      why: "Cross moves that turn through the pair's corner or edge carry them somewhere else. Following both through the cross lets you start the pair without searching. Take an x-cross only when the scramble offers one.",
+    },
+  ],
   // The join after the cross
   "join-why-it-exists": [
     {
@@ -227,15 +241,15 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   "pair-all-angles": [
     {
       question:
-        "You can solve a case at the front right, but rotate whenever it appears at the back left. What's the fix?",
+        "You know a case at the front right, but at the back left you have to turn the cube before you can even tell what it is. What's the fix?",
       options: [
-        "Keep rotating, it's only two moves",
-        "Practise the same case in each of the four slots until it reads the same",
+        "Keep turning the cube to look, it's only two moves",
+        "Practise reading the same case in each of the four slots until it looks the same",
         "Learn a new algorithm for it",
         "Avoid that slot",
       ],
       answer: 1,
-      why: "The case is defined by where the pieces are relative to each other and their slot, not by how you hold the cube. Reps in all four positions make it read the same.",
+      why: "The case is defined by where the pieces are relative to each other and their slot, not by how you hold the cube. Reps in all four positions make it read the same. Turning the cube to insert at a back slot is fine at this stage; turning it just to see the case is the habit to lose.",
     },
   ],
   "pair-ergonomics": [
@@ -288,6 +302,20 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       why: "You already know what the current pair is doing. Watching it tells you nothing; looking for the next one is what removes the pause.",
     },
   ],
+  "lookahead-knowing": [
+    {
+      question:
+        "On a solved cube you do R U R'. Where does the edge that started at the back of the top layer end up?",
+      options: [
+        "On the right of the top layer",
+        "In the back-right slot",
+        "Still at the back of the top layer",
+        "In the front-right slot",
+      ],
+      answer: 3,
+      why: "The first R doesn't touch it, the U turn carries it round to the right, and the R' pulls it down into the front-right slot. After just R U it would still be on the right of the top layer.",
+    },
+  ],
   // The last pair into OLL
   "lastpair-free-attention": [
     {
@@ -316,18 +344,32 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       why: "The family narrows 57 cases to a handful, so after the insertion one glance decides it. That captures most of the benefit.",
     },
   ],
+  "lastpair-edge-control": [
+    {
+      question:
+        "Your last pair is joined on the right of the top layer: the corner above its slot with white facing you, the edge on its right with green up. The top edge at the front does not show yellow on top. Which insert should you choose?",
+      options: [
+        "U R U' R', the plain insert",
+        "The sledgehammer, R' F R F'",
+        "Either: the front edge doesn't decide it",
+        "Neither: split the pair and re-pair it",
+      ],
+      answer: 1,
+      why: "Both inserts are four moves and leave the first two layers solved, but they differ by two flipped top edges. When the front edge isn't facing up, the sledgehammer never leaves a dot OLL, and it gives all four edges up whenever either insert could.",
+    },
+  ],
   "lastpair-influence": [
     {
       question:
         "When do systems that control your last layer from the last pair (like Winter Variation) start to make sense?",
       options: [
-        "As soon as you learn F2L",
-        "Around twelve seconds and below, once the normal last pair and last layer are quick",
-        "Never",
-        "Before learning full PLL",
+        "As soon as intuitive F2L works",
+        "Once full OLL and PLL are solid, around fifteen seconds",
+        "Only at sub-10, once everything else is done",
+        "Before you learn full PLL",
       ],
       answer: 1,
-      why: "They add recognition work and only pay once the ordinary last pair and last layer are fast — around twelve seconds and below.",
+      why: "They add recognition work and only pay once your ordinary last pair and last layer are quick, which for most people means full OLL and PLL are solid, around fifteen seconds. Winter Variation also needs its own situation: the last pair joined in the top layer, ready for a U R U' R' insert, with the top edges already facing up.",
     },
   ],
   // Faster OLL
@@ -349,13 +391,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question:
         "You rotate the cube during OLL until the case looks like its picture. What's the better habit?",
       options: [
-        "Learn each case from all four angles",
-        "Turn faster while rotating",
-        "Learn more algorithms",
-        "Only practise the easy cases",
+        "Read the case from any side, then turn the top layer to line it up",
+        "Turn faster while you rotate, so it costs less",
+        "Learn a separate algorithm for every angle",
+        "Only practise the cases you find easy",
       ],
       answer: 0,
-      why: "Every OLL can be recognised and executed from any angle. Drilling your slower cases from all four removes the rotation.",
+      why: "Both 2-look reads work from any side: the edge shape first, then how many corners face up. The angle only decides which way to turn the top before you start, and a top turn is a flick where a rotation is a regrip.",
     },
   ],
   "oll-lockups": [
@@ -375,9 +417,14 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   "oll-when": [
     {
       question: "Around what average does full OLL usually become worth learning?",
-      options: ["45 seconds", "Around 20 seconds", "Sub-10", "Before full PLL"],
+      options: [
+        "Around 45 seconds, alongside full PLL",
+        "Around 20 seconds, once full PLL is done",
+        "Only once you average sub-10",
+        "Before full PLL, since OLL comes first",
+      ],
       answer: 1,
-      why: "Before about 20 seconds, cheaper time is available elsewhere — full PLL, pause-free F2L, a shorter cross. Around 20 and on the way to 15, OLL becomes the thing holding the last layer back.",
+      why: "Until you're close to 20 seconds there's a cheaper second elsewhere, above all full PLL, which comes first. Around 20 it's an option, learned in small groups from the 2-look cases; in the Sub-15 course it's expected, once the second look is the biggest leak in your last layer.",
     },
   ],
   "oll-groups": [
@@ -426,19 +473,6 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "A learned algorithm doesn't need watching. Moving your eyes to the side stickers during its last trigger usually gets you the PLL family early.",
-    },
-  ],
-  "pll-auf": [
-    {
-      question: "When should you know the final U turn of a PLL?",
-      options: [
-        "After the algorithm ends",
-        "Before the algorithm ends",
-        "It doesn't matter",
-        "Only at competitions",
-      ],
-      answer: 1,
-      why: "The final turn is fixed by the case and the angle you started from, so it can be known in advance. Deciding at the end adds a pause at the worst moment.",
     },
   ],
   // Faster PLL
@@ -666,6 +700,20 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       why: "You don't need perfect ambidexterity — just enough left hand that awkward cases stop costing a rotation.",
     },
   ],
+  "turning-full-sets": [
+    {
+      question:
+        "When a move in a new algorithm can be done as a push or a pull, which should you try first?",
+      options: [
+        "The pull: it keeps your thumb free for the next move",
+        "Whichever one your fingers happened to do first",
+        "Neither: rotate so the move becomes an R turn",
+        "The push: it is usually quicker and more comfortable",
+      ],
+      answer: 3,
+      why: "A push is a finger curling in and driving the layer. Pushes are usually quicker and more comfortable than pulls, so try the push first and use a pull only where the push would cost a regrip. Leaving it to whatever your fingers happened to do is the habit the lesson warns against, because it sticks.",
+    },
+  ],
   // Know the beginner method cold
   "cold-seven-steps": [
     {
@@ -780,19 +828,6 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       why: "Almost everyone gets slower first. The move saving is large and the old method has nowhere left to go.",
     },
   ],
-  "switch-three-ideas": [
-    {
-      question: "Which three ideas cover almost every intuitive F2L case?",
-      options: [
-        "Cross, OLL, PLL",
-        "Take a stuck piece out, line the pair up with top turns, drop it in",
-        "Rotate, rotate, insert",
-        "Corner first, then edge, then check",
-      ],
-      answer: 1,
-      why: "Free the pieces, pair them in the top layer, insert the pair. Every case is a version of those three.",
-    },
-  ],
   "switch-when-algorithms": [
     {
       question: "When should you start learning F2L cases as algorithms?",
@@ -807,32 +842,6 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     },
   ],
   // 2-look OLL
-  "oll2-two-looks": [
-    {
-      question: "In the first step of 2-look OLL, what do you look at?",
-      options: [
-        "The corners",
-        "Only the four edges, and whether their top colour faces up",
-        "Where the pieces belong",
-        "The side stickers",
-      ],
-      answer: 1,
-      why: "Step one makes the top cross from the edges alone: dot, L, line or cross. Corners come in step two, and positions are PLL's job.",
-    },
-  ],
-  "oll2-sune-first": [
-    {
-      question: "Why learn Sune and Antisune before the other corner cases?",
-      options: [
-        "They come up far more often than the other five cases",
-        "You need them before you can learn any PLL algorithms",
-        "They mirror each other, and repeating them solves any corner case",
-        "They're the hardest corner cases, so they need the most time",
-      ],
-      answer: 2,
-      why: "It isn't how often they turn up: six of the seven corner cases are equally likely (4 in 27 each) and H is half as likely. Sune and Antisune are short, seven moves on one easy R U R' rhythm, and each is the other's mirror image. Until you know a case's own algorithm, repeating Sune, with the right turn of the top before each go, finishes any corner case in three goes or fewer.",
-    },
-  ],
   "oll2-one-cue": [
     {
       question: "What's the fastest way to recognise a 2-look corner case?",
@@ -847,19 +856,6 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     },
   ],
   // 2-look PLL
-  "pll2-headlights": [
-    {
-      question: "There are no headlights on any side. What does that mean for the corners?",
-      options: [
-        "Two neighbouring corners swap: do a T perm",
-        "They're already solved, so go straight to the edges",
-        "Three corners cycle: do an A perm",
-        "Two diagonal corners swap: do a Y perm",
-      ],
-      answer: 3,
-      why: "Headlights on one side mean two neighbouring corners swap: hold them on the left for the T perm. None anywhere means a diagonal swap, which the Y perm fixes, and matching corners on every side mean the corners are done. With four edge algorithms that's six for 2-look PLL, sixteen with 2-look OLL. Some guides use A perms and an E perm here instead.",
-    },
-  ],
   "pll2-edges": [
     {
       question: "The corners are done and one side is completely one colour. What case is it?",
@@ -941,19 +937,6 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "Extracting in a way that already sets up the pair turns an eleven-move case into a seven- or eight-move one.",
-    },
-  ],
-  "stuck-both": [
-    {
-      question: "Both pieces are in the slot, wrong. Improvise or use an algorithm?",
-      options: [
-        "Improvise — it's more intuitive",
-        "Use an algorithm: these five cases are where memorised solutions clearly win",
-        "Take both out and start again",
-        "Always rotate first",
-      ],
-      answer: 1,
-      why: "The both-in-slot cases are the worst in F2L; nine- or ten-move algorithms beat improvising. And if another pair is available, solving it first may free them.",
     },
   ],
   "stuck-other-slots": [
@@ -1114,15 +1097,29 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   // Solving two pairs at once
   "multi-family": [
     {
-      question: "Why do keyhole, pseudo-slotting and multislotting come after lookahead?",
+      question: "Why do pseudo-slotting and multislotting come after lookahead?",
       options: [
-        "They're banned below sub-15",
-        "They depend on seeing more of the cube than the pair in front of you; without lookahead they become pauses",
-        "They need special cubes",
-        "They're only for one-handed",
+        "They're only allowed once you average sub-15",
+        "They use pieces beyond the pair you're solving; without lookahead, finding them becomes a pause",
+        "They build on keyhole, which also needs full lookahead",
+        "They need a cube with stronger magnets",
       ],
       answer: 1,
-      why: "Each trick uses information about other pieces. Without lookahead, finding that information costs more than the trick saves.",
+      why: "Both use information about pieces outside the current pair, and without lookahead finding it costs more than the trick saves. Keyhole is different: it needs only the pair you're solving and one empty slot, so you should already be using it from the Sub-30 course.",
+    },
+  ],
+  "multi-pseudo": [
+    {
+      question:
+        "Why can a corner and an edge from two different pairs go into one slot together when pseudo-slotting?",
+      options: [
+        "A bottom turn moves the corners' homes but not the middle-layer edges",
+        "The corner and edge share a colour, so they join like a normal pair",
+        "Any corner fits any slot as long as its white sticker faces down",
+        "The middle layer turns with the bottom, so both homes line up together",
+      ],
+      answer: 0,
+      why: "Turning the bottom carries its corners round while the middle-layer edges stay put, so one pair's corner home can sit under another pair's slot. One insert places both, and turning the bottom back sends the corner home.",
     },
   ],
   "multi-example": [
@@ -1143,7 +1140,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "What's the sensible way to use multislotting?",
       options: [
         "Plan it on every insert",
-        "Learn keyhole well, take easy multislots when you notice them, and don't hunt",
+        "Keep keyhole automatic, take easy multislots when you notice them, and don't hunt",
         "Never use it",
         "Only in inspection",
       ],
@@ -1260,6 +1257,20 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "Most good pairs take seven or eight moves. A twelve-move pair is worth looking up.",
+    },
+  ],
+  "recon-fast-solvers": [
+    {
+      question:
+        "When you compare your solves with a faster solver's reconstructions, which difference is worth the most?",
+      options: [
+        "One clever move of theirs you've never seen before",
+        "How much faster their hands turn in every step",
+        "Which scrambles they happened to be given that day",
+        "A gap that repeats in solve after solve, like extra moves per pair",
+      ],
+      answer: 3,
+      why: "Compare step by step: moves per pair, pauses, rotations, cross choice and last-pair insert. A difference that turns up in solve after solve is worth far more than one clever move.",
     },
   ],
   // Competing well
@@ -1407,13 +1418,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     {
       question: "At 15 seconds, what usually breaks a plateau?",
       options: [
-        "A big new algorithm set",
+        "A big new set, like ZBLL or full edge control",
         "Fixing small leaks: F2L pauses, the cross-to-pair join, slow last-layer cases, lockups",
         "A new cube",
         "More solves at full speed",
       ],
       answer: 1,
-      why: "By 15 the big lessons are learned. What's left is several small leaks, and experienced advice points at F2L lookahead and efficiency before new sets.",
+      why: "By 15 the big lessons are learned. What's left is several small leaks, and experienced advice points at F2L lookahead and efficiency before new sets. The one set that does belong here is full OLL: if your last layer still takes about six seconds because OLL is two-look, it's the standard fix.",
     },
   ],
   "fifteen-find-the-leak": [
@@ -1541,15 +1552,15 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   // Method lessons: CFOP foundation
   "cfop-cross": [
     {
-      question: "Your crosses often take 10 or more moves. What's the best way to practise?",
+      question: "You've just switched to CFOP. What should your 15 seconds of inspection aim for?",
       options: [
-        "Stop after inspection and rewrite the plan before you start",
-        "Accept it and turn faster so the extra moves cost less",
-        "Build a daisy on top, then bring each edge down",
-        "Plan crosses untimed, then redo them with 15 s of inspection",
+        "Plan the whole cross and track your first pair",
+        "Look for an x-cross before planning anything else",
+        "Find all four white edges and plan at least the first two",
+        "Plan the cross on top, then turn the cube over",
       ],
-      answer: 3,
-      why: "Every cross can be done in eight moves or fewer. In untimed cross-only sessions, find a solution, look for a shorter one, then redo the scramble with 15 seconds of inspection until the plan fits in eight moves or fewer. Stopping to re-plan once the solve has started trains a pause you'd have to unlearn.",
+      answer: 2,
+      why: "After the z2, find all four white edges and plan as much of the cross on the bottom as you can, at least the first two edges. Planning the whole cross is the Sub-30 course's goal; tracking the first pair and x-crosses come later still, and the cross never goes on top.",
     },
   ],
   "cfop-f2l": [
@@ -1564,18 +1575,52 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       answer: 1,
       why: "Pair, then insert. Learning the motion lets you solve cases you've never seen.",
     },
+    {
+      question: "Which three ideas cover almost every intuitive F2L case?",
+      options: [
+        "Cross, OLL, PLL",
+        "Take a stuck piece out, line the pair up with top turns, drop it in",
+        "Rotate, rotate, insert",
+        "Corner first, then edge, then check",
+      ],
+      answer: 1,
+      why: "Free the pieces, pair them in the top layer, insert the pair. Every case is a version of those three.",
+    },
   ],
   "cfop-2look-oll": [
     {
-      question: "When should you start adding full OLL cases?",
+      question:
+        "You're in the Sub-45 course, using 2-look OLL and 2-look PLL. Which full set should you learn next?",
       options: [
-        "Before 2-look",
-        "When 2-look is automatic, a few short cases at a time",
-        "All 57 at once",
-        "Never",
+        "Full OLL, then full PLL",
+        "Full PLL, staying on 2-look OLL",
+        "COLL, before either full set",
+        "ZBLL, before either full set",
       ],
       answer: 1,
-      why: "Build on an automatic 2-look and add cases a few at a time, starting with short ones built from triggers you already know. Most OLL cases come up equally often, 1 in 54, so frequency is a poor guide to order.",
+      why: "Full PLL comes first: start it in the Sub-45 course if you like and have it finished by the end of Sub-30, staying on 2-look OLL meanwhile. Full OLL follows around sub-20, optional there and expected by Sub-15.",
+    },
+    {
+      question: "In the first step of 2-look OLL, what do you look at?",
+      options: [
+        "The corners",
+        "Only the four edges, and whether their top colour faces up",
+        "Where the pieces belong",
+        "The side stickers",
+      ],
+      answer: 1,
+      why: "Step one makes the top cross from the edges alone: dot, L, line or cross. Corners come in step two, and positions are PLL's job.",
+    },
+    {
+      question: "Why learn Sune and Antisune before the other corner cases?",
+      options: [
+        "They come up far more often than the other five cases",
+        "You need them before you can learn any PLL algorithms",
+        "They mirror each other, and repeating them solves any corner case",
+        "They're the hardest corner cases, so they need the most time",
+      ],
+      answer: 2,
+      why: "It isn't how often they turn up: six of the seven corner cases are equally likely (4 in 27 each) and H is half as likely. Sune and Antisune are short, seven moves on one easy R U R' rhythm, and each is the other's mirror image. Until you know a case's own algorithm, repeating Sune, with the right turn of the top before each go, finishes any corner case in three goes or fewer.",
     },
   ],
   "cfop-2look-pll": [
@@ -1584,6 +1629,17 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       options: ["Edges", "Corners", "Either", "The final U turn"],
       answer: 1,
       why: "Corners first (headlights or not), then edges with U, H or Z perms, then the final turn.",
+    },
+    {
+      question: "There are no headlights on any side. What does that mean for the corners?",
+      options: [
+        "Two neighbouring corners swap: do a T perm",
+        "They're already solved, so go straight to the edges",
+        "Three corners cycle: do an A perm",
+        "Two diagonal corners swap: do a Y perm",
+      ],
+      answer: 3,
+      why: "Headlights on one side mean two neighbouring corners swap: hold them on the left for the T perm. None anywhere means a diagonal swap, which the Y perm fixes, and matching corners on every side mean the corners are done. With four edge algorithms that's six for 2-look PLL, sixteen with 2-look OLL. Some guides use A perms and an E perm here instead.",
     },
   ],
   // Method lessons: refine the details
@@ -1626,12 +1682,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "When do sets like COLL and ZBLL start to help?",
       options: [
         "Right after the beginner method",
-        "Only once F2L is already smooth",
-        "Before full PLL",
-        "Never",
+        "As soon as full PLL is learned",
+        "After full OLL and PLL, once F2L is smooth",
+        "Before full PLL, to save learning it",
       ],
-      answer: 1,
-      why: "Advanced last-layer sets add little while F2L is still the leak.",
+      answer: 2,
+      why: "They start from a last layer whose edges already face up after F2L, which happens about 1 solve in 8 without edge control, so they're optional extras for the fast end. Full PLL, then full OLL, come first, and while F2L is still the leak they add little.",
     },
   ],
   // Seeing past the first pair
@@ -1658,7 +1714,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "Solve it as part of the cross",
       ],
       answer: 1,
-      why: "Planning a second pair's moves doesn't fit in fifteen seconds; knowing where its corner will be removes the search anyway.",
+      why: "Fully planning a second pair rarely fits in inspection for most solvers, and knowing where its corner will be removes the search anyway. Fuller second-pair plans come later, and only on friendly scrambles.",
     },
   ],
   "past-practise": [
@@ -1712,6 +1768,33 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     },
   ],
   // Practising near ten
+  "near-targets": [
+    {
+      question: "In the commonly quoted shape of a sub-10 solve, what takes about six seconds?",
+      options: [
+        "The cross and F2L together",
+        "The last layer, OLL and PLL together",
+        "F2L alone, not counting the cross",
+        "Everything in the solve apart from the final AUF",
+      ],
+      answer: 0,
+      why: "The quoted shape is about six seconds for the cross and F2L together and under four for the last layer. These are examples from people who got there, not rules, and they show which part of your solve is furthest off.",
+    },
+  ],
+  "near-efficiency-or-tps": [
+    {
+      question:
+        "According to the lesson, when is raising your turning speed the right thing to train?",
+      options: [
+        "Straight away, since the fastest solvers turn over twelve times a second",
+        "As soon as your pairs start taking more moves than they should",
+        "Once you know your next moves and the pauses are gone",
+        "Only after switching to the efficiency-first style of the top solvers",
+      ],
+      answer: 2,
+      why: "Faster hands on a solve you are still working out only reach the next pause sooner. Check a reconstruction first: too many moves means work on efficiency, long gaps mean lookahead. Train raw speed only when both look clean.",
+    },
+  ],
   "near-measure": [
     {
       question:
@@ -1751,6 +1834,167 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "A few warm-up minutes make your averages comparable from day to day, which is the whole point of measuring.",
+    },
+  ],
+  // Advanced F2L cases
+  "adv-why-algorithms": [
+    {
+      question: "You average about 20 seconds. Which memorised F2L cases are worth learning first?",
+      options: [
+        "The ones with both pieces stuck in the slot",
+        "All 41 cases, working down the list",
+        "Back-slot versions of cases you rotate for",
+        "None until you average sub-12",
+      ],
+      answer: 0,
+      why: "Stuck pieces are where feel wastes the most: often more than ten moves, sometimes with a rotation. Their algorithms are nine to eleven moves with no rotation, so they're worth learning around sub-20, well before the rest.",
+    },
+  ],
+  "adv-stuck-in-slot": [
+    {
+      question:
+        "Both pieces are stuck in the front-right slot, and the edge's green sticker faces you. What does that tell you?",
+      options: [
+        "The edge is flipped, and the corner may be home",
+        "The edge is right, so the corner must be twisted",
+        "The corner is home, and the edge is flipped",
+        "The pair can only come out with a rotation",
+      ],
+      answer: 1,
+      why: "Green facing you means the edge is right. The corner can't also be home, or the pair would already be solved, so white faces you or faces right: one of the two R and U cases to learn first.",
+    },
+  ],
+  "adv-edge-in-slot": [
+    {
+      question:
+        "A corner sits right above its slot with white facing up. Its edge is in the slot with green facing right. What do you do?",
+      options: [
+        "U R U' R' three times in a row",
+        "Pull the edge out and pair by feel",
+        "U', the sledgehammer, then R U' R'",
+        "Rotate with y' and insert from the left",
+      ],
+      answer: 2,
+      why: "Green facing right means the edge is flipped. After a U', the sledgehammer brings the edge out with the corner attached, and a plain R U' R' puts the pair in. U R U' R' three times is for an edge that's already right.",
+    },
+  ],
+  "adv-corner-in-slot": [
+    {
+      question: "Which move keeps coming up in the memorised corner-in-slot cases?",
+      options: [
+        "R U2 R' to turn the corner round first",
+        "M U M', breaking the pair on top",
+        "A y' rotation and a left-hand insert",
+        "The sledgehammer, R' F R F', or its reverse",
+      ],
+      answer: 3,
+      why: "The sledgehammer, which you may know from OLL, lifts the corner out of the slot and sets it up with the edge in one motion. A short insert finishes, with no rotation.",
+    },
+  ],
+  "adv-white-up": [
+    {
+      question:
+        "The corner is right above its slot with white facing up, and its edge is beside it on the right, green facing right. What's the quick solution?",
+      options: [
+        "R U2 R' to turn it, then pair by feel",
+        "F U R U' R' F', then R U' R'",
+        "M U r U' r' U' M'",
+        "U R U' R' three times",
+      ],
+      answer: 1,
+      why: "F U R U' R' F' pairs the pieces and R U' R' puts the pair in: nine moves, no rotation, and no turning the corner round first. The others are for different cases: U R U' R' three times for an edge waiting in the slot, M U r U' r' U' M' for a pair joined the wrong way.",
+    },
+  ],
+  "adv-back-slots": [
+    {
+      question: "When should you start learning back-slot F2L versions?",
+      options: [
+        "Straight after learning intuitive F2L",
+        "Once front slots are fluent, for cases you rotate for",
+        "Only once you've learned full ZBLL",
+        "Never, because a y2 costs nothing",
+      ],
+      answer: 1,
+      why: "A back-slot algorithm you have to think about is slower than a rotation you don't. Wait until front-slot F2L is fluent, then learn the cases you catch yourself rotating for, into the back-right slot.",
+    },
+  ],
+  // A cross built for F2L
+  "cf2l-choose-by-pairs": [
+    {
+      question:
+        "You've found two six-move crosses and have time to compare them. How do you choose?",
+      options: [
+        "Take the first one you found",
+        "Take the one with more D turns",
+        "Take the one that leaves the easier first pair",
+        "Look for a third cross before deciding",
+      ],
+      answer: 2,
+      why: "They tie on move count but rarely leave the same F2L. Check where your likely first pair's corner ends up under each, and take the cross that leaves it on top and easy to reach.",
+    },
+  ],
+  "cf2l-fingertricks": [
+    {
+      question:
+        "One cross is six moves with a B2 and two D turns; another is seven moves of R, F and U turns. Which is likely faster?",
+      options: [
+        "The six-move one, since it's shorter",
+        "The seven-move one, since it flows",
+        "Both equal: one move is nothing",
+        "Neither: rotate so B becomes F",
+      ],
+      answer: 1,
+      why: "Move count isn't time. A B turn and a run of D turns make you regrip, and every regrip is a small stop, so a seven-move cross of easy turns often beats the six-move one.",
+    },
+  ],
+  "cf2l-cross-and-pair": [
+    {
+      question: "On a friendly scramble, how much should you plan in inspection?",
+      options: [
+        "The cross only, and look for the pair after",
+        "The cross and all four pairs, move by move",
+        "As far as you can, even if you're unsure of it",
+        "The cross and first pair, plus the second pair's corner",
+      ],
+      answer: 3,
+      why: "Plan the cross and first pair fully and the second pair only as a location. Planning further backfires: a plan you're unsure of makes you slow down to check it.",
+    },
+  ],
+  // Predict the PLL
+  "ppll-one-block": [
+    {
+      question:
+        "During the OLL's last moves, you see a bar on the left side. Which PLLs are still possible?",
+      options: [
+        "Any of the 21: one side isn't enough",
+        "T and A perms: three in all",
+        "U, J or F perms: five in all",
+        "N, V or Y perms: four in all",
+      ],
+      answer: 2,
+      why: "Only five PLLs show a bar: Ua, Ub, Ja, Jb and F. That makes a bar the strongest clue one side can give. Headlights, by comparison, rule out eight PLLs.",
+    },
+  ],
+  "ppll-post-auf": [
+    {
+      question:
+        "You're about to do a T perm with the headlights on the left, and they match the front centre. What's the final turn?",
+      options: ["No final turn", "U", "U'", "U2"],
+      answer: 2,
+      why: "The T perm leaves the headlight corners alone and ends with the whole left side in their colour. When that colour belongs to the front centre, a U' brings it round to the front.",
+    },
+  ],
+  "ppll-second-angles": [
+    {
+      question: "Which PLL angles are worth a second algorithm?",
+      options: [
+        "Every angle of every PLL, all 84 of them",
+        "Only angles that cost a U2 or an avoidable turn",
+        "Only the E perm, since it's the longest",
+        "None: turn the cube with a y2 instead",
+      ],
+      answer: 1,
+      why: "Learning all 84 angles is a poor trade. The ones worth it are the angles where your usual algorithm needs a U2 first or an avoidable last turn, such as a U perm with the solved bar in front.",
     },
   ],
 };

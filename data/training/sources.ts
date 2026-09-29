@@ -243,8 +243,31 @@ export const SOURCES = {
     label: "SpeedSolving wiki: VHLS",
     url: "https://www.speedsolving.com/wiki/index.php/VHLS",
   },
+  partialEdgeControl: {
+    label: "SpeedSolving wiki: Partial Edge Control",
+    url: "https://www.speedsolving.com/wiki/index.php/Partial_Edge_Control",
+  },
   edgeControlThread: {
     label: "SpeedSolving: Edge control vs. full OLL",
     url: "https://www.speedsolving.com/threads/edge-control-vs-full-oll.77167/",
+  },
+  f2lAlgs: { label: "SpeedCubeDB: F2L algorithms", url: "https://speedcubedb.com/a/3x3/F2L" },
+  f2lSheet: {
+    label: "CubeSkills: F2L algorithms (PDF)",
+    url: "https://www.cubeskills.com/uploads/pdf/tutorials/f2l.pdf",
+  },
+  usefulF2l: {
+    label: "CubeSkills: Some useful F2L cases (PDF)",
+    url: "https://www.cubeskills.com/uploads/pdf/tutorials/useful-f2l-algorithms.pdf",
+  },
+  f2lTrainer: { label: "f2l.app: F2L trainer", url: "https://f2l.app/" },
+  pllAlgs: { label: "SpeedCubeDB: PLL algorithms", url: "https://speedcubedb.com/a/3x3/PLL" },
+  pllAngles: {
+    label: "SpeedSolving: PLL guide for all 84 angles",
+    url: "https://www.speedsolving.com/threads/new-pll-guide-with-algorithms-and-performance-notes-for-all-84-angles.54081/",
+  },
+  feliksCommentary: {
+    label: "CubeSkills: 5.80 reconstructions and commentary",
+    url: "https://www.cubeskills.com/blog/580-reconstructions-commentary",
   },
 } as const satisfies Record<string, TrainingSource>;

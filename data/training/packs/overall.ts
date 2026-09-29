@@ -6,7 +6,7 @@ export const turningTechnique: AspectPack = {
   aspectId: "turning_speed",
   title: "Hands that do not get in the way",
   summary: "Finger tricks, regrips and why calm turning is faster than hard turning.",
-  levels: ["beginner", "sub120", "sub60", "sub45", "sub15", "sub12", "sub10"],
+  levels: ["sub120", "sub45", "sub20"],
   why: "Below about a minute, the hands are usually the bottleneck: every turn is a whole hand movement and there is a regrip between most of them. Higher up it flips, and the problem becomes lockups from turning harder than you can control.",
   lessons: [
     {
@@ -63,6 +63,22 @@ export const turningTechnique: AspectPack = {
         "You do not need perfect ambidexterity. You need enough left hand that you stop rotating to avoid it, which is a much lower bar and takes a few weeks of occasional practice.",
       ],
     },
+    {
+      id: "turning-full-sets",
+      title: "Fingertricks for the full sets",
+      takeaway:
+        "Fingertricks settle in fast and are slow to retrain, so choose them on purpose while a new algorithm is still slow.",
+      minutes: 4,
+      body: [
+        "Full PLL, and later full OLL, means dozens of new algorithms over a few months, each of which you will do thousands of times. Whatever your fingers happen to do in the first few days tends to stick, and changing it later costs a round of relearning, so a minute spent choosing how to turn each new case is cheap.",
+        "Where a move can be done either way, try the push first. A push is a finger curling in and driving the layer with it; a pull hooks the layer and drags it back. Pushes are usually quicker and more comfortable, so settle for a pull only where the push would cost you a regrip.",
+        "Many of these algorithms are built from triggers you already own: R U R' U', R U R', the sledgehammer R' F R F'. Keep each trigger as one movement in one grip, and learn a new algorithm as a short string of those chunks rather than a long list of turns. The T perm, R U R' U' R' F R2 U' R' U' R U R' F', opens with R U R' U' and is only a few chunks after that.",
+        "Your hands will not always arrive in the same place, so for the algorithms you use most, learn a second way to do the awkward moves: the closing F' of the T perm can come from the right thumb or from the left index finger. And practise the way in, not just the algorithm. In a solve the case turns up straight after the last pair, with your hands wherever that insert left them, so finish a pair and go into the algorithm in one motion. Wherever you have to stop and reposition, that regrip is part of the case.",
+        "Give the left-hand-heavy algorithms extra reps on purpose. The A perms, the E perm and the G perms usually give the left hand D or L turns to do, and people who only drill right-handed algorithms find those become the slowest cases in the set.",
+      ],
+      checkpoint:
+        "You can start your newest algorithms straight out of a last pair without stopping to move your hands.",
+    },
   ],
   drills: [
     {
@@ -106,12 +122,29 @@ export const turningTechnique: AspectPack = {
       dose: "One session a fortnight.",
       signal: "You stop rotating the cube to bring cases to your right hand.",
     },
+    {
+      id: "turning-two-gen",
+      title: "Two-gen and last-pair runs",
+      purpose:
+        "Two-gen means turning only two faces, R and U. Looping those, then running the last pair into OLL, builds clean turning where most of it happens, without the thinking of a full solve in the way.",
+      rules: [
+        "Loop an algorithm made only of R and U turns until the cube is back where it started: Sune (R U R' U R U2 R') six times, or the Ua perm (R U' R U R U R U' R' U' R2) three times.",
+        "Turn at the fastest speed that stays clean. If a loop locks up, start it again a little slower.",
+        "Then use the Last pair + OLL test's scrambles: put the last pair in and go straight into OLL in one movement, with no stop to regrip between them.",
+        "Note each join where your hands have to move, and try a different insert or fingertrick there next time.",
+      ],
+      dose: "Five minutes of loops and ten last-pair runs, three sessions a week.",
+      signal:
+        "The loops feel like one motion, and your Last pair + OLL test time gets closer to your Single pair and OLL test times added together.",
+      exerciseId: "ls_oll",
+    },
   ],
   mistakes: [
     "Turning harder to go faster, which produces lockups that cost more.",
     "Practising at a speed above the one you can control.",
     "Blaming the cube for lockups on ordinary triggers.",
     "Rotating to avoid the left hand, every solve, forever.",
+    "Drilling algorithms from a comfortable grip and never from the way they arrive in a solve.",
   ],
   sources: [SOURCES.fingerTricks, SOURCES.turningSpeed, SOURCES.subMinute, SOURCES.getFaster],
 };
@@ -122,18 +155,7 @@ export const practicePlan: AspectPack = {
   title: "Practice that actually moves the average",
   summary:
     "How to structure a session, why half of it should not be timed, and what to do on a plateau.",
-  levels: [
-    "beginner",
-    "sub120",
-    "sub60",
-    "sub45",
-    "sub30",
-    "sub25",
-    "sub20",
-    "sub15",
-    "sub12",
-    "sub10",
-  ],
+  levels: ["sub120", "sub30", "sub25", "sub20"],
   why: "Most practice is doing timed solves and hoping. That maintains what you have; it rarely builds anything new, because full-speed solving lets you avoid exactly the things you are worst at.",
   lessons: [
     {
@@ -251,7 +273,7 @@ export const consistency: AspectPack = {
   aspectId: "consistency",
   title: "Fewer disasters",
   summary: "Why your average is worse than your typical solve, and what to do about the tail.",
-  levels: ["sub45", "sub30", "sub25", "sub20", "sub15", "sub12", "sub10"],
+  levels: ["sub30", "sub25", "sub20", "sub15"],
   why: "Most people's average is dragged up by a handful of solves that went wrong, not by the ordinary ones being slow. Removing the bad tail is usually easier than making the good solves faster.",
   lessons: [
     {

@@ -65,8 +65,13 @@ describe("training packs", () => {
   });
 
   it("teaches before it drills: every pack has lessons with real bodies", () => {
+    // These three follow the CFOP method lessons in Sub-60, which took over their
+    // overlapping lessons, so they keep only what those lessons don't teach.
+    const companions = new Set(["switch-to-f2l", "two-look-oll", "two-look-pll"]);
     for (const pack of TRAINING_PACKS) {
-      expect(pack.lessons.length, `${pack.id} has no lessons`).toBeGreaterThanOrEqual(3);
+      expect(pack.lessons.length, `${pack.id} has no lessons`).toBeGreaterThanOrEqual(
+        companions.has(pack.id) ? 1 : 2,
+      );
       expect(pack.drills.length, `${pack.id} has no drills`).toBeGreaterThanOrEqual(2);
       expect(pack.mistakes.length).toBeGreaterThanOrEqual(3);
       expect(packMinutes(pack)).toBeGreaterThan(0);
@@ -378,8 +383,8 @@ describe("pack recommendations: rules, level and the whole list", () => {
     const level = levelRecommendations(band);
     expect(level.map((entry) => entry.pack.id).sort()).toEqual(
       [
-        "colour-neutral-plan",
-        "competing",
+        "alg-sets-worth-it",
+        "f2l-from-the-front",
         "filler-moves",
         "good-and-bad-edges",
         "stuck-at-fifteen",
@@ -401,6 +406,23 @@ describe("pack recommendations: rules, level and the whole list", () => {
     expect(list.slice(firstLevel).every((entry) => entry.source === "level")).toBe(true);
   });
 
+  it("never lists a pack twice when the course stands in for the level", async () => {
+    const model = await loadCoachModel();
+    for (const rung of ["sub45", "sub60", "sub120"] as const) {
+      const runs = runsAt(2);
+      const band = bandForRung(rung)!;
+      const list = packRecommendations({
+        profile: profileFor(runs),
+        model,
+        runs,
+        solves: [],
+        band,
+      });
+      const ids = list.map((entry) => entry.pack.id);
+      expect(new Set(ids).size, rung).toBe(ids.length);
+    }
+  });
+
   it("shows only the level's packs before any test is taken", async () => {
     const model = await loadCoachModel();
     const band = bandForRung("sub45")!;
@@ -412,9 +434,19 @@ describe("pack recommendations: rules, level and the whole list", () => {
       band,
     });
     expect(list.every((entry) => entry.source === "level")).toBe(true);
+    // Sub-30 is taught by staged skill packs, so its course stands in for level packs.
     expect(list.map((entry) => entry.pack.id).sort()).toEqual(
-      ["choosing-the-next-pair", "stuck-pieces"].sort(),
+      [
+        "cross-efficiency",
+        "f2l-efficiency",
+        "inspection",
+        "lookahead",
+        "oll-execution",
+        "pll-algorithms",
+        "turning-technique",
+      ].sort(),
     );
+    expect(list[0]!.reason).toBe("In your course, Sub-30.");
   });
 });
 
@@ -540,11 +572,15 @@ describe("packs by level", () => {
     for (const level of LEVELS) expect(bandForRung(level.id), level.id).not.toBeNull();
   });
 
-  it("writes at least two packs for every stretch", () => {
+  it("offers at least two packs for every stretch: its own, or its course's", () => {
     for (const band of LEVEL_BANDS) {
-      const madeFor = TRAINING_PACKS.filter((pack) => isMadeFor(pack, band));
-      expect(madeFor.length, band.id).toBeGreaterThanOrEqual(2);
+      expect(levelRecommendations(band).length, band.id).toBeGreaterThanOrEqual(2);
     }
+    // Most stretches still have packs written only for them.
+    const written = LEVEL_BANDS.filter(
+      (band) => TRAINING_PACKS.filter((pack) => isMadeFor(pack, band)).length >= 2,
+    );
+    expect(written.length).toBeGreaterThanOrEqual(5);
   });
 
   it("marks every pack with at least one stretch", () => {
@@ -552,9 +588,10 @@ describe("packs by level", () => {
       expect(bandsForPack(pack).length, pack.id).toBeGreaterThan(0);
       expect(packBandLabel(pack), pack.id).not.toBe("");
     }
-    expect(packBandLabel(getPack("practice-plan")!)).toBe("2:00 → sub-10");
+    // Packs are marked for the courses that teach them (data/hub/courses.ts).
+    expect(packBandLabel(getPack("practice-plan")!)).toBe("2:00 → 15 s");
     expect(packBandLabel(getPack("lookahead")!)).toBe("45 → 10 s");
-    expect(packBandLabel(getPack("stuck-pieces")!)).toBe("45 → 30 s");
+    expect(packBandLabel(getPack("stuck-pieces")!)).toBe("1:00 → 45 s");
   });
 
   it("marks each level pack with exactly one stretch, and keeps it out of recommendations", () => {

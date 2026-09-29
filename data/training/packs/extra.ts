@@ -12,10 +12,9 @@ import type { LevelPack } from "../types";
 export const firstLookahead: LevelPack = {
   id: "first-lookahead",
   title: "Your first lookahead",
-  summary:
-    "Finding the next piece while your hands finish this one, on the method you already know.",
+  summary: "Finding the next pair while your hands finish this one, from your first F2L solves.",
   levels: ["sub120"],
-  why: "At around two minutes, most of a solve is spent stopped: finish a step, look around the cube, find the next piece, start again. Nobody fixes that by turning faster. It shrinks when your eyes start work on the next piece before your hands have finished the current one, and that habit can start on the beginner method, long before F2L.",
+  why: "At around two minutes, most of a solve is spent stopped: finish a step, look around the cube, find the next piece, start again. Nobody fixes that by turning faster. It shrinks when your eyes start work on the next piece before your hands have finished the current one, and that habit is worth building from your very first F2L solves.",
   lessons: [
     {
       id: "first-look-while-turning",
@@ -24,11 +23,11 @@ export const firstLookahead: LevelPack = {
       minutes: 4,
       body: [
         "Watch a two-minute solve and you'll see the same rhythm over and over: a burst of turning, then the cube held still while the solver hunts for the next piece. The hunts add up to most of the time. The turning is not the slow part.",
-        "The fix is to start the hunt early. When you know the moves for the piece you're placing — a corner going in with R U R' U', say — your hands can do them without being watched. Use that second to look at the top layer for the next piece you'll need.",
+        "The fix is to start the hunt early. When you know the moves for the pair you're placing — a pair going in with R U R', say — your hands can do them without being watched. Use that second to look at the top layer for the next pair's corner.",
         "It feels wrong at first, because it seems safer to watch your hands. But the moves you know by heart don't need watching, and every piece you find during a trigger is a stop you don't have to make.",
       ],
       checkpoint:
-        "While inserting a first-layer corner, you can name where the next corner is before the insert finishes.",
+        "While inserting an F2L pair, you can name where the next pair's corner is before the insert finishes.",
     },
     {
       id: "first-look-slow-down",
@@ -48,9 +47,9 @@ export const firstLookahead: LevelPack = {
       takeaway: "The pieces you need next are nearly always in the top layer, so scan the top.",
       minutes: 3,
       body: [
-        "When you solve the first layer and then the middle layer, the piece you need next is almost always in the top layer, because that's where pieces go when they're not yet solved. So you don't have to search the whole cube. Scan the top face and its side stickers.",
+        "During F2L, the pieces you need next are almost always in the top layer, because that's where pieces go when they're not yet solved. So you don't have to search the whole cube. Scan the top face and its side stickers.",
         "Look for colours, not positions. If the next corner you want is white, green and red, scan the top for those three colours together. It's quicker to spot a colour you're hunting for than to check each piece in turn.",
-        "When the piece is stuck lower down, in the wrong slot, you'll need a move to bring it up first. That's fine, but it's the exception. Train your eyes to go to the top layer first.",
+        "When a piece is stuck lower down, in a slot, you'll need a move to bring it up first. That's fine, but it's the exception. Train your eyes to go to the top layer first.",
       ],
     },
   ],
@@ -60,9 +59,9 @@ export const firstLookahead: LevelPack = {
       title: "Call the next piece",
       purpose: "Makes your eyes move on before your hands finish, which is the whole skill.",
       rules: [
-        "Solve the first layer. As you insert each corner, say out loud where the next corner is.",
+        "Solve the cross. As you insert each pair, say out loud where the next pair's corner is.",
         "If you have to stop and search, say 'stop' and count it.",
-        "Do the same for the middle-layer edges.",
+        "Once the corner is easy, name where its edge is as well.",
       ],
       dose: "Five solves a day for a week.",
       signal:
@@ -94,7 +93,7 @@ export const f2lFromTheFront: LevelPack = {
   id: "f2l-from-the-front",
   title: "F2L from the front",
   summary: "Every slot solved without rotating the cube, and when a rotation is still fine.",
-  levels: ["sub30", "sub25"],
+  levels: ["sub20"],
   why: "A rotation is only two moves' worth of turning, but it moves every piece you were tracking to a new place. Your eyes have to find everything again, and that pause is what costs time. Solving back slots and awkward pairs from where you're already holding the cube keeps your lookahead intact.",
   lessons: [
     {
@@ -106,9 +105,10 @@ export const f2lFromTheFront: LevelPack = {
         "Turning the whole cube takes a fraction of a second. The expensive part comes after: every piece you were watching is now somewhere else, and you have to find the next pair again. That's why a solve with a few rotations often feels choppy even when the moves are fast.",
         "Data from reconstructions of top solvers bears this out for the cross, where crosses with rotations were several times slower than crosses of the same length without. In F2L the picture is more mixed: the fastest solvers do rotate, but mostly at moments where it doesn't interrupt what they're looking at.",
         "So the goal isn't to ban rotations. It's to stop rotating in the middle of looking: to know the moves for back slots and awkward pairs from the front, and to rotate only when it's genuinely the shorter, calmer option.",
+        "Start by finding out how many you actually do, because it's hard to feel. Film a few ordinary solves and count every y, y' and y2 during F2L, marking the ones that came while you were following a pair. One or two in the whole of F2L is a common aim, and a y2 is the first to cut.",
       ],
       checkpoint:
-        "You can say which of your last five solves had a rotation that broke your lookahead.",
+        "You've filmed a few solves, counted your y rotations, and can say which ones broke your lookahead.",
     },
     {
       id: "front-back-slots",
@@ -331,9 +331,9 @@ export const stuckAtFifteen: LevelPack = {
       takeaway: "At 15 seconds the big lessons are learned; what's left is several small leaks.",
       minutes: 4,
       body: [
-        "Below about 20 seconds, most people improve by adding knowledge: full PLL, intuitive F2L, a planned cross. By 15, those are done, and it can feel as if nothing else will help. Solves get faster in the good sessions and slower in the bad ones, and the average stays put.",
+        "On the way down to about 20 seconds, most people improve by adding knowledge: intuitive F2L, full PLL, a planned cross. By 15, those are done, and it can feel as if nothing else will help. Solves get faster in the good sessions and slower in the bad ones, and the average stays put.",
         "What's usually left is a handful of small leaks. Pauses between F2L pairs. A cross that stops at the cross, so the first pair starts with a search. A few last-layer cases that take twice as long as the others. Lockups and regrips in the middle of algorithms. Each one is worth a few tenths of a second.",
-        "The experienced advice on this is remarkably consistent: at this level, it's F2L lookahead and efficiency, planning the cross and first pair, and the last-layer cases you're slow at, rather than new algorithm sets. Full OLL helps, but it rarely breaks a plateau on its own.",
+        "The experienced advice on this is remarkably consistent: at this level, it's F2L lookahead and efficiency, planning the cross and first pair, and the last-layer cases you're slow at, rather than new algorithm sets. The one set that does belong here is full OLL. If you're at 15 or 16 seconds and your last layer still takes about six seconds, usually because OLL is still two-look, full OLL is the standard fix, together with R and U turning drills and practice on the last slot.",
       ],
       checkpoint: "You can name the three biggest places your own solves lose time.",
     },
@@ -407,7 +407,7 @@ export const lastLayerAtTheTop: LevelPack = {
   id: "last-layer-at-the-top",
   title: "The last layer at the top",
   summary: "Skips, oriented edges and COLL: what's worth chasing when every tenth counts.",
-  levels: ["sub12"],
+  levels: ["sub15"],
   why: "Below 12 seconds the last layer is around a quarter of the solve, and small gains there are real. But it's also where a lot of effort goes into things that barely move the average. Knowing the actual odds and costs keeps that effort pointed at what pays.",
   lessons: [
     {
@@ -430,7 +430,7 @@ export const lastLayerAtTheTop: LevelPack = {
       body: [
         "When all four last-layer edges are already oriented after F2L, you're in one of the seven corner-orientation cases of OLL, the ones like Sune and Antisune. You can solve them with OLL and then PLL as usual. Or you can use COLL, which orients and places the corners together in one algorithm.",
         "After COLL, only the edges can be out of place, so the PLL is always a U perm, an H perm, a Z perm or nothing. The chance of nothing is 1 in 12, and the rest are the fastest PLLs there are. COLL is 40 cases, which is why it's often the first set people learn after full OLL and PLL.",
-        "The algorithm bank in this app has COLL with verified algorithms and pictures. Learn it by corner case: the Sune family first, since it comes up most.",
+        "The algorithm bank in this app has COLL with verified algorithms and pictures. Learn it a group at a time, starting with H and Pi: you already know one case of each, because the H and Pi OLL algorithms each solve one COLL case. Then add U, T and L. Leave Sune and Antisune for last and treat them as optional, since an OLL and a PLL are already quick there. Don't choose by how often a group comes up: with the edges oriented, every corner group except H is equally likely, and H comes up half as often.",
       ],
       checkpoint: "You can explain why a COLL always leaves an edge-only PLL.",
     },
@@ -463,15 +463,16 @@ export const lastLayerAtTheTop: LevelPack = {
     },
     {
       id: "top-coll-sune",
-      title: "Sune family COLL",
-      purpose: "Starts COLL where it comes up most.",
+      title: "Your first COLL groups",
+      purpose:
+        "Starts COLL where it pays back soonest, with the groups you already know a case from.",
       rules: [
-        "Learn the Sune and Antisune COLL cases from the algorithm bank, a few at a time.",
-        "Drill recognition from the bank's pictures before execution.",
-        "Use them in solves only once recognition is instant.",
+        "Learn the H and Pi COLL cases from the algorithm bank first, a few at a time, starting from the one your OLL algorithm already solves.",
+        "Then add U, T and L. Leave Sune and Antisune for last, if you learn them at all.",
+        "Drill recognition from the bank's pictures before execution, and use a case in solves only once recognition is instant.",
       ],
       dose: "Three new cases a week.",
-      signal: "Sune-family last layers become one algorithm plus a U perm or a skip.",
+      signal: "H and Pi last layers become one algorithm plus a U, H or Z perm, or a skip.",
       exerciseId: "oll_pll_only",
     },
   ],
@@ -479,6 +480,7 @@ export const lastLayerAtTheTop: LevelPack = {
     "Structuring practice around getting skips.",
     "Learning a large last-slot system before OLL and PLL are fast.",
     "Learning COLL without the recognition to use it at speed.",
+    "Starting COLL with Sune and Antisune, where an OLL and a PLL are already quick.",
     "Judging a new algorithm set on a few lucky solves.",
   ],
   sources: [SOURCES.llHierarchy, SOURCES.algSets, SOURCES.vhlsWiki, SOURCES.edgeControlThread],
@@ -498,8 +500,8 @@ export const pastTheFirstPair: LevelPack = {
       minutes: 4,
       body: [
         "At twenty seconds, a half-second pause is a small fraction of the solve. At ten, the same pause is five per cent of it. That's why the faster you get, the more of your improvement comes from removing pauses rather than turning faster.",
-        "The standard advice for going sub-10 already includes planning the cross in eight moves or fewer and knowing your first pair. After that, the earliest pause left in most solves is the moment the first pair goes in and you look for the second.",
-        "Inspection can remove that pause too. Not by planning the second pair's moves — that's too much for fifteen seconds — but by knowing where its pieces are and where your first moves will leave them.",
+        "The standard advice for going sub-10 already includes an efficient cross, usually about six moves, planned together with your first pair, taking an x-cross when the scramble offers one. Eight moves isn't the bar, since every cross can be solved in eight or fewer. After that, the earliest pause left in most solves is the moment the first pair goes in and you look for the second.",
+        "Inspection can remove that pause too. Usually not by planning the second pair's moves, which for most solvers rarely fits in fifteen seconds (full second-pair plans come later, on friendly scrambles), but by knowing where its pieces are and where your first moves will leave them.",
       ],
       checkpoint: "You can say which pair you'll solve second in at least some of your solves.",
     },
@@ -510,7 +512,7 @@ export const pastTheFirstPair: LevelPack = {
         "Follow the second pair's corner through your plan; that's enough to start it without a search.",
       minutes: 5,
       body: [
-        "Planning a second pair in full is unrealistic in inspection. Tracking one piece of it isn't. Pick the second pair's corner and follow it through the cross and first-pair moves you've planned, the same way you track pieces while planning a cross.",
+        "Planning a second pair in full rarely fits in inspection. Tracking one piece of it does. Pick the second pair's corner and follow it through the cross and first-pair moves you've planned, the same way you track pieces while planning a cross.",
         "Choose a corner your plan barely touches if you can: one in the top layer on the side away from your first pair. A piece your moves don't disturb is free to track, because it will still be where you saw it.",
         "When the first pair goes in, your eyes go straight to where that corner is, and its edge is usually found in the same glance. The search that used to take half a second becomes a look.",
       ],
@@ -653,10 +655,37 @@ export const practisingNearTen: LevelPack = {
   id: "practising-near-ten",
   title: "Practising near ten",
   summary:
-    "Measuring progress when the gains are tenths, and structuring practice around one skill at a time.",
+    "The shape of a sub-10 solve, fewer moves against faster hands, and practice that still works when the gains are tenths.",
   levels: ["sub10"],
   why: "Close to ten seconds, the improvements that are left are small, and your times vary by more than they improve from week to week. Practice that worked at twenty — lots of solves, judged by how they feel — can go on for months without moving anything. How you measure and how you structure practice matter more than how much you do.",
   lessons: [
+    {
+      id: "near-targets",
+      title: "The shape of a sub-10 solve",
+      takeaway:
+        "About six seconds of cross and F2L, under four of last layer: figures to compare against, not rules.",
+      minutes: 4,
+      body: [
+        "A commonly quoted shape for sub-10 is about six seconds for the cross and F2L together, and under four for the last layer. Inside that, the cross is planned fully in inspection and done in about a second; most F2L pairs take eight moves or fewer, turned as short bursts of two or three moves rather than one long string; and about four in five OLLs and PLLs take under a second each.",
+        "Treat these as examples from people who got there, not as rules. Some sub-10 solvers have a slower cross and a quicker F2L, or a last layer that makes up for a weaker start. What the figures are for is showing which part of your own solve sits furthest from the shape, the way the budgets did at earlier levels.",
+        "Near the bottom of this range the parts start to blur. Below about eight seconds, x-crosses and last-slot tricks mean the cross, F2L and last layer no longer have clean edges, so split times stop being a fair comparison. That's where reconstructions take over: moves and pauses step by step, instead of three numbers.",
+      ],
+      checkpoint: "You know which part of your solve sits furthest from the sub-10 shape.",
+    },
+    {
+      id: "near-efficiency-or-tps",
+      title: "Fewer moves or faster hands",
+      takeaway:
+        "The top splits into fast turners and efficient solvers; either way, raise your speed only once you know your next moves.",
+      minutes: 4,
+      body: [
+        "At the very top there are two recognisable styles. Some solvers turn extremely fast with ordinary solutions, around 12.8 turns a second over roughly 59 moves. Others turn slower, around 9.6 turns a second, and find shorter solutions, roughly 53 or 54 moves. These are examples from a few players' reconstructions, not targets, and both styles land in the same band of about 53 to 59 moves. The argument is still open: fast-turning Max Park beat the efficiency-first Tymon Kolasiński in a well-known head-to-head final, but a handful of solves settles very little.",
+        "Within one solver's solves the picture is clearer. In the reconstructions of a 5.80 average by Feliks Zemdegs, which he talked through himself, his two fastest solves were also his two shortest, under forty moves each, while the slow one ran to about sixty moves, full of pauses and turned far slower than the rest. Move count and stops made the difference, not how fast his hands could go.",
+        "So the practical rule is his: raise your turning speed only once you already know your next moves. Faster hands on a solve you are still working out only reach the next pause sooner. Check a reconstruction first. If your pairs take too many moves, work on efficiency; if the moves are fine but the gaps between them are long, work on lookahead. Only when both look clean is raw speed the thing to train.",
+      ],
+      checkpoint:
+        "From one reconstruction, you can say whether your next gain is fewer moves, fewer pauses or faster turning.",
+    },
     {
       id: "near-measure",
       title: "Measure over hundreds",
@@ -733,5 +762,8 @@ export const practisingNearTen: LevelPack = {
     SOURCES.deliberatePractice,
     SOURCES.practiceSession,
     SOURCES.sub10Thread,
+    SOURCES.subTen,
+    SOURCES.reconStats,
+    SOURCES.feliksCommentary,
   ],
 };

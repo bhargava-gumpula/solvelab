@@ -39,6 +39,7 @@ import {
   speedYouCanUse,
   stuckAtFifteen,
 } from "./packs/extra";
+import { advancedF2lCases, crossForF2l, predictPll } from "./packs/fast-end";
 import type { AspectPack, LevelPack, TrainingPack } from "./types";
 
 /** Packs about one part of the solve profile, in the order a solve happens. */
@@ -69,12 +70,14 @@ export const LEVEL_PACKS: LevelPack[] = [
   twoLookPll,
   choosingTheNextPair,
   stuckPieces,
+  advancedF2lCases,
   aufBothEnds,
   subTwentyBudget,
   colourNeutralPlan,
   fillerMoves,
   multislotting,
   xcrossProperly,
+  crossForF2l,
   algSetsWorthIt,
   reconstructYourSolves,
   competing,
@@ -83,6 +86,7 @@ export const LEVEL_PACKS: LevelPack[] = [
   goodAndBadEdges,
   stuckAtFifteen,
   lastLayerAtTheTop,
+  predictPll,
   pastTheFirstPair,
   speedYouCanUse,
   practisingNearTen,

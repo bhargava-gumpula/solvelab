@@ -142,12 +142,12 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
   oll_algorithms: {
     why: "Some OLL cases take much longer than others, which usually means algorithms you don't know yet (two-look) or know only slowly.",
     tips: [
-      "If you use two-look OLL, learn full OLL one group at a time, starting with the most common cases.",
+      "Once full PLL is done and you are near sub-20, learn full OLL a few cases at a time, in groups that look alike, starting from the seven corner cases you already know from 2-look.",
       "Write down which cases feel slow during practice and drill those first.",
       "Learning cases by their shape makes the next group easier to recognise.",
     ],
     drill:
-      "Each day, learn two new OLL cases and review the last few days' cases until they're as fast as your others.",
+      "Once full PLL is done: each day, learn two new OLL cases and review the last few days' cases until they're as fast as your others. Until then, drill your slowest 2-look cases.",
     keep: "Your OLL cases take about the same time. You know your algorithms well.",
     sources: [SOURCES.ollAlgs],
   },
@@ -177,7 +177,7 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
   pll_algorithms: {
     why: "Some PLL cases take much longer than others, which usually means two-look PLL or a few cases you don't know well.",
     tips: [
-      "If you use two-look PLL, learn full PLL: 21 cases, and the most common ones first.",
+      "If you use two-look PLL, learn full PLL at about two new cases a day: the A and J perms first, the four G perms together, and E, V and the N perms last.",
       "Find better algorithms for the slow cases: many people swap their G or N perms for ones that suit their hands.",
       "Practise recognition separately from execution.",
     ],

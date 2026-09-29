@@ -1,5 +1,7 @@
 import type { AlgorithmSetDefinition } from "@/types/domain";
 // Catalog metadata stays small. Case datasets will be lazy imports in V1.5+.
+// In learning order: the 2-look sets, F2L as a reference for intuitive F2L,
+// full PLL before full OLL, then the optional sets.
 export const algorithmSets: AlgorithmSetDefinition[] = [
   {
     id: "fundamentals",
@@ -26,6 +28,15 @@ export const algorithmSets: AlgorithmSetDefinition[] = [
     phase: "V1.5",
   },
   {
+    id: "f2l",
+    name: "F2L",
+    description:
+      "A reference for after intuitive F2L: every case at the front-right slot, led by the algorithm most solvers use. At the front-left, mirror it; for a back slot, turn the cube to bring the slot to the front, or learn a back-slot version later.",
+    difficulty: "intermediate",
+    category: "f2l",
+    phase: "V1.75",
+  },
+  {
     id: "pll",
     name: "Full PLL",
     description: "Recognize and permute the last layer in one step.",
@@ -40,14 +51,6 @@ export const algorithmSets: AlgorithmSetDefinition[] = [
     difficulty: "intermediate",
     category: "oll",
     phase: "V1.5",
-  },
-  {
-    id: "f2l",
-    name: "F2L",
-    description: "Explore efficient solutions for your first two layers.",
-    difficulty: "intermediate",
-    category: "f2l",
-    phase: "V1.75",
   },
   {
     id: "coll",

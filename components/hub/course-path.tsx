@@ -20,7 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { testHref, testTitle } from "@/data/exercises";
 import type { CourseState, UnitState } from "@/lib/hub/path";
 import { drillHref } from "@/lib/hub/drills";
-import { lessonHref, recognitionHref, unitHref } from "@/lib/hub/units";
+import { RECOGNITION_LABEL, lessonHref, recognitionHref, unitHref } from "@/lib/hub/units";
 import { cn } from "@/lib/utils";
 
 /** The sideways swing of the path, in px, so it winds down the page. */
@@ -56,15 +56,21 @@ function nodesFor(state: UnitState, nextLessonId: string | null): PathNode[] {
     nodes.push({
       key: "recognise",
       icon: Eye,
-      title: `Recognise ${unit.recognition.toUpperCase()} cases`,
-      detail: "On-screen drill · name the case from two sides",
+      title:
+        unit.recognition === "f2l"
+          ? "Recognise F2L cases"
+          : `Recognise ${RECOGNITION_LABEL[unit.recognition]} cases`,
+      detail:
+        unit.recognition === "f2l"
+          ? "On-screen drill · pick the algorithm for the pair"
+          : "On-screen drill · name the case from two sides",
       href: recognitionHref(unit.recognition),
       action: "Start drill",
       state: "open",
     });
   }
   if (unit.kind === "pack") {
-    for (const drill of unit.pack.drills) {
+    for (const drill of unit.drills) {
       nodes.push({
         key: `drill-${drill.id}`,
         icon: Dumbbell,
@@ -179,6 +185,14 @@ function UnitBanner({ state, index, hue }: { state: UnitState; index: number; hu
         <div className="min-w-0">
           <p className="text-[11px] font-semibold tracking-[0.16em] uppercase opacity-80">
             Unit {index + 1}
+            {unit.optional ? (
+              <span
+                className="ml-2 inline-flex items-center rounded-full bg-white/20 px-2 py-0.5 tracking-normal normal-case"
+                data-testid={`optional-${unit.id}`}
+              >
+                Optional
+              </span>
+            ) : null}
             {pick ? (
               <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 tracking-normal normal-case">
                 <Sparkles className="size-3" />

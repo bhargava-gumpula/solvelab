@@ -20,18 +20,30 @@ interface Result {
   ms: number;
 }
 
+/** The words that depend on what the answers are: case names or algorithms. */
+export interface RecognitionCopy {
+  /** What to do with each case, finished by "with a tap or the keys 1–4". */
+  task: string;
+  /** The summary's average-time label. */
+  timeLabel: string;
+  /** The question the case diagram asks. */
+  prompt: string;
+}
+
 /**
- * Name the case as fast as you can. You see the top and the front and right
+ * Answer each case as fast as you can. You see the top and the front and right
  * sides, as you would holding the cube, and each answer is timed from the
  * moment the case appears.
  */
 export function RecognitionDrill({
   set,
   title,
+  copy,
   backHref,
 }: {
   set: RecognitionSet;
   title: string;
+  copy: RecognitionCopy;
   backHref: string;
 }) {
   const [deck, setDeck] = useState<RecognitionCard[] | null>(null);
@@ -94,7 +106,7 @@ export function RecognitionDrill({
           <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
           <p className="mx-auto max-w-md text-muted-foreground">
             {DECK_SIZE} cases, one at a time. You see the top and the front and right sides — what
-            you see holding the cube. Name each one as fast as you can, with a tap or the keys 1–4.
+            you see holding the cube. {copy.task}, with a tap or the keys 1–4.
           </p>
           <div>
             <Button
@@ -136,7 +148,7 @@ export function RecognitionDrill({
             <Stat label="Accuracy">
               <CountUp value={Math.round((right.length / results.length) * 100)} suffix="%" />
             </Stat>
-            <Stat label="Average time to name">
+            <Stat label={copy.timeLabel}>
               <CountUp value={Math.round(averageMs / 10) / 100} decimals={2} suffix=" s" />
             </Stat>
           </div>
@@ -191,7 +203,7 @@ export function RecognitionDrill({
               kind={card!.kind}
               showArrows={false}
               hiddenSides={["B", "L"]}
-              title="Which case is this?"
+              title={copy.prompt}
             />
           </div>
           <div className="grid grid-cols-2 gap-2.5">

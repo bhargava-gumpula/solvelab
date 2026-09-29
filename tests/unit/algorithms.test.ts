@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { algorithmSets } from "@/data/algorithms/sets";
+import { SET_SOURCES } from "@/data/algorithms/sources";
 import {
   ALGORITHM_SETS,
   algorithmsFor,
@@ -148,5 +150,30 @@ describe("what you know", () => {
       unknown: 1,
       total: 3,
     });
+  });
+});
+
+describe("the algorithm catalogue", () => {
+  it("lists the sets in learning order: 2-look, F2L, full PLL before full OLL, then the rest", () => {
+    expect(ALGORITHM_SETS.map((set) => set.id)).toEqual([
+      "two-look-oll",
+      "two-look-pll",
+      "f2l",
+      "pll",
+      "oll",
+      "coll",
+      "winter-variation",
+    ]);
+    const listed = algorithmSets.map((set) => set.id);
+    expect(listed.indexOf("f2l")).toBeLessThan(listed.indexOf("pll"));
+    expect(listed.indexOf("pll")).toBeLessThan(listed.indexOf("oll"));
+  });
+
+  it("credits where every set's algorithms are published", () => {
+    for (const set of ALGORITHM_SETS) {
+      const sources = SET_SOURCES[set.id] ?? [];
+      expect(sources.length, set.id).toBeGreaterThan(0);
+      for (const source of sources) expect(source.url, set.id).toMatch(/^https:\/\//);
+    }
   });
 });

@@ -6,7 +6,7 @@ export const f2lEfficiency: AspectPack = {
   aspectId: "f2l",
   title: "F2L in fewer moves",
   summary: "What a good pair solution looks like, and the three ideas that shorten the bad ones.",
-  levels: ["sub60", "sub45", "sub30", "sub25", "sub20", "sub15", "sub12", "sub10"],
+  levels: ["sub60", "sub45", "sub30", "sub25"],
   why: "F2L is about half of every solve, and most people's F2L is long rather than slow. A pair solved in eleven moves with a rotation, when seven would have done, costs about a second — and it happens four times a solve.",
   lessons: [
     {
@@ -18,7 +18,7 @@ export const f2lEfficiency: AspectPack = {
       body: [
         "This pack describes the cube held the way you solve it: white cross on the bottom, yellow on top. The top layer is the yellow one, and the four slots are the corner-and-edge gaps around the white cross. The z2 or x2 you did in inspection to get there is not an F2L rotation; the rotations worth cutting are the ones you make once F2L has started.",
         "F2L looks like a list of cases and is really one idea repeated: get the corner and its edge next to each other in the top layer so the pair is formed, then turn the pair into its slot. Everything else is a variation on getting them next to each other.",
-        "There are three shapes worth knowing by name. The pair is already joined and above its slot, so one trigger inserts it. The corner and edge are both in the top layer but not joined, so a move takes one out of the way, a U turn lines them up, and the same move brings it back joined. Or one of them is already in the slot wrong, so you take it out first — which turns the case into one of the other two.",
+        "There are three shapes worth knowing by name. The pair is already joined in the top layer, one top turn from its slot, so one trigger drops it in. The corner and edge are both in the top layer but not joined, so a move takes one out of the way, a U turn lines them up, and the same move brings it back joined. Or one of them is already in the slot wrong, so you take it out first — which turns the case into one of the other two.",
         "Learn it this way round and you get two things you do not get from memorising: you can solve a case you have never seen, and you can see partway through a solution that a shorter one exists. Learn it as algorithms and you get neither, and you learn it more slowly.",
         "It is normal for your times to get worse for a week or two when you switch from a beginner second layer to F2L. Everyone's do. The move-count saving is roughly twenty moves a solve, so it pays back quickly.",
       ],
@@ -49,7 +49,8 @@ export const f2lEfficiency: AspectPack = {
         "The fix is learning to solve pairs into slots other than the front-right one. The back slots feel foreign at first and then stop being foreign. Left-hand insertions are worth the same effort: if every awkward case makes you rotate to bring it to the right, you are paying twice.",
         "Count your rotations for a session. More than one or two in an F2L is a habit rather than a necessity. When you find yourself rotating, ask what you would do if you were not allowed to, and you will usually find the answer exists.",
       ],
-      checkpoint: "You can insert a pair into the back-left slot without turning the cube round.",
+      checkpoint:
+        "Your F2L has one or two rotations at most, never a y2, and the front-left slot never needs one.",
     },
     {
       id: "f2l-empty-slots",
@@ -59,10 +60,10 @@ export const f2lEfficiency: AspectPack = {
       minutes: 5,
       body: [
         "While F2L is in progress there are unfilled slots, and anything you put in one can be taken back out without cost. That turns several long cases into short ones.",
-        "Keyhole is the plainest version. Say the corner is already correct in its slot but its edge is still in the top layer, and another slot is empty. Turn D so the empty slot's corner spot comes under this one (a quarter turn for a neighbouring slot, a half turn for the one diagonally opposite), which carries the placed corner out of the way; put the edge in with a short insert; then turn D back. With the edge home and the corner on top it works the other way round: the D turn brings the corner's spot under the empty slot, the corner goes in there, and D comes back. Neither needs any pairing. With no free slot at all, use the standard solution for the case instead, which is seven or eight moves.",
+        "Keyhole is the plainest version. Say the corner is already correct in its slot but its edge is still in the top layer, and another slot is empty. Turn D so the empty slot's corner spot comes under this one (a quarter turn for a neighbouring slot, a half turn for the one diagonally opposite), which carries the placed corner out of the way; put the edge in with a short insert; then turn D back. With the edge home and the corner on top it works the other way round: the D turn brings the corner's spot under the empty slot, the corner goes in there, and D comes back. Neither needs any pairing. With no free slot at all, use the standard solution for the case instead; the shortest ones are seven or eight moves.",
         "The second use is avoiding rotations. A case that would need you to turn the cube to solve it at the front will often go in cleanly using the empty slot on the other side, at the same move count and with no rotation.",
         "The third is move count outright: solving a pair by routing it through the empty slot can replace a nine-move solution with a six-move one. A commonly cited example is doing R U R' L U' L' in place of the longer U2 L U L' U2 L U' L'.",
-        "Pseudoslotting is the advanced version, where you deliberately place a pair in the wrong slot knowing that a later D turn fixes it. Worth knowing it exists long before you use it.",
+        "Pseudo-slotting is the advanced version: with the bottom layer turned on purpose, a corner and an edge from two different pairs go into one slot together, and turning the bottom back finishes both. Worth knowing it exists long before you use it.",
       ],
       checkpoint: "You notice which slots are empty before choosing how to solve a pair.",
     },
@@ -83,16 +84,16 @@ export const f2lEfficiency: AspectPack = {
     },
     {
       id: "f2l-no-rotations",
-      title: "Rotation ban",
+      title: "Rotation limit",
       purpose:
-        "You cannot learn the back slots while the front slot is available. Removing the escape route is the whole drill.",
+        "Breaks the habit of turning the cube before every pair. Taking most of the escape routes away is the whole drill.",
       rules: [
-        "Solve F2L with one rule: no y, x or z rotations once F2L has started.",
-        "Untimed. Some cases will take you a long time to work out, which is the point.",
-        "If you genuinely cannot see a rotationless solution, note the case and look it up afterwards.",
+        "Solve F2L with no y2 at all and at most one y or y' per solve.",
+        "Untimed. Some cases will take a while to work out from where they sit, which is the point.",
+        "If you cannot see a way without the extra rotation, note the case and look it up afterwards.",
       ],
       dose: "Ten solves a session, twice a week, for two or three weeks.",
-      signal: "Your ordinary solves drop to one rotation or none without you trying.",
+      signal: "Your ordinary solves settle at one rotation or none without you trying.",
     },
     {
       id: "f2l-keyhole-hunt",
@@ -128,7 +129,7 @@ export const pairRecognition: AspectPack = {
   aspectId: "pair_speed",
   title: "Seeing a pair instantly",
   summary: "Recognising a case from any angle, so the solution arrives with the sighting.",
-  levels: ["sub60", "sub45", "sub30", "sub25", "sub20", "sub15"],
+  levels: ["sub60", "sub20"],
   why: "If a single pair takes you a long time even when there is nothing else to look for, the delay is recognition, not hands. You are working out the case each time instead of recognising it.",
   lessons: [
     {
@@ -154,7 +155,8 @@ export const pairRecognition: AspectPack = {
         "The fix is dull and effective: practise the same case in each of the four slots until it reads the same. The underlying case is defined by where the corner and edge are relative to each other and to their slot, not by which way you are holding the cube.",
         "This is one of the clearest differences between a twenty-second solver and a twelve-second one. It is not talent, it is having done the reps in all four positions.",
       ],
-      checkpoint: "You solve a case in the back-left slot without a rotation and without thinking.",
+      checkpoint:
+        "You can name a case in the back-left slot as quickly as one at the front right, without turning the cube to look.",
     },
     {
       id: "pair-ergonomics",
@@ -224,7 +226,7 @@ export const lookahead: AspectPack = {
   aspectId: "lookahead",
   title: "Lookahead, properly",
   summary: "The three stages of seeing ahead, and the one drill that actually builds them.",
-  levels: ["sub45", "sub30", "sub25", "sub20", "sub15", "sub12"],
+  levels: ["sub45", "sub30", "sub25", "sub20", "sub15"],
   why: "You can solve each pair quickly and still have a slow F2L, because between the pairs you stop. Four pauses of half a second is two seconds, and turning faster makes them longer, not shorter.",
   lessons: [
     {
@@ -239,6 +241,7 @@ export const lookahead: AspectPack = {
         "Tracking is the middle stage: while your hands solve the current pair, your eyes follow the pieces of the next one as the moves push them around. When the current pair finishes you already know where the next one is, so there is no pause.",
         "Knowing is the last stage: you do not watch the next pair, because you already know where your moves will leave it. You have done this case enough times to predict the result rather than observe it. Fast solvers use a mixture of knowing and tracking, not one or the other.",
         "The order matters. You cannot track while you are still working out how to solve the current pair, because the attention is already spent. Confidence with the pairs themselves is the prerequisite for everything here.",
+        "The courses spread the stages out on purpose. Sub-30 works on spotting: finding the next pair quickly, with slow solves where the cube never stops. Sub-20 works on tracking, and Sub-15 keeps it going while you cut rotations. Knowing starts in Sub-12, once the pairs themselves take no thought.",
       ],
       checkpoint: "You can say which of the three stages you are on right now.",
     },
@@ -249,7 +252,7 @@ export const lookahead: AspectPack = {
         "Turn at about half speed with one rule: the cube never stops. Slower turning with no pauses is faster than fast turning with pauses.",
       minutes: 5,
       body: [
-        "The drill that builds tracking is the slow solve, and it is the most recommended and least popular practice in cubing, because it feels like going backwards.",
+        "The drill that builds lookahead is the slow solve, and it is the most recommended and least popular practice in cubing, because it feels like going backwards.",
         "The method: turn at roughly half your normal speed — one to two turns per second during F2L — with a single non-negotiable rule. The cube never stops moving. If you have to pause, you were turning too fast; slow down further until you do not.",
         "That rule is the whole drill. Turning slowly is not the point; turning continuously is. A pause means your eyes did not get where they needed to be in time, and the fix is to give them more time, not to try harder.",
         "It works because it changes what your attention is doing. At full speed, all your attention goes to executing. At half speed, executing is easy and your eyes are free — and the rule makes you use them, because there is no other way to keep the cube moving.",
@@ -269,6 +272,22 @@ export const lookahead: AspectPack = {
         "Rotations are the enemy of this. Every y turn moves everything relative to you and your tracking resets. This is the practical reason rotationless F2L matters so much: not the two moves, but the two moves plus the lost thread.",
       ],
     },
+    {
+      id: "lookahead-knowing",
+      title: "Knowing where the next pair will be",
+      takeaway:
+        "At the last stage you do not watch the next pair move. Before you turn, you already know where your moves will leave it.",
+      minutes: 5,
+      body: [
+        "Tracking still needs your eyes on the next pair while your hands work. Knowing removes that: before you start the current pair, you can say where its moves will leave the next pair's corner and edge. Your eyes are then free for the pair after that, or for the last layer. This is the stage to work on once you are under about fifteen seconds and heading for twelve.",
+        "It is less mysterious than it sounds, because F2L is built from the same few triggers and a trigger always does the same thing to the pieces it touches. On a solved cube, R U R' takes the edge at the back of the top layer down into the front-right slot: the U turn carries it round to the right and the R' pulls it down. The corner at the top front-left ends up at the top back-left, moved by the U turn alone, because neither R move reaches the left side. Know a handful of facts like these and most of the prediction is recall.",
+        "Build them away from solving first. Hold a solved cube, pick a piece, and say where it will be after R U R' before you turn; then turn and check. Lengthen the sequence a move or two at a time until you can follow a piece through seven or eight moves, which is a whole pair solution. It is the one-piece tracking exercise from cross planning, carried on until it covers an F2L pair.",
+        "Then use it on real pairs. At the start of F2L, plan two pairs, the second from where the first pair's moves will leave its pieces, and do both without looking. The drill below sets this up. When the second pair comes out wrong, one of your predictions was off, and you can usually find the move.",
+        "Keep it in proportion. Fast solvers mix knowing and tracking, and nobody knows the result of every case. In a real solve, knowing one pair ahead is the aim; planning further than that tends to cost more than it saves when a prediction turns out wrong.",
+      ],
+      checkpoint:
+        "Before you insert a pair, you can say where the next pair's corner will be once it is in.",
+    },
   ],
   drills: [
     {
@@ -279,13 +298,26 @@ export const lookahead: AspectPack = {
       rules: [
         "Untimed. Turn at about half speed through the whole solve.",
         "One rule: the cube never stops moving during F2L. If it stops, slow down.",
-        "Do not watch the pair you are inserting. Eyes on the next pieces.",
-        "If tracking both pieces is too hard, track just the corner.",
+        "Do not watch the pair you are inserting: glance round for the next pair's corner and edge, so you know roughly where they are when the insert ends.",
+        "If finding both is too hard, look for just the corner.",
       ],
       dose: "Fifteen to twenty slow solves a session, for two to three weeks.",
       signal:
         "You can hold the no-pause rule at gradually higher speeds. Your F2L test time falls while your single-pair time stays the same — that difference is the pauses.",
       exerciseId: "slow_turning_f2l",
+    },
+    {
+      id: "lookahead-follow-the-corner",
+      title: "Follow the next corner",
+      purpose:
+        "Turns spotting into tracking: you keep the next pair's corner in sight while the moves carry it, so you know where it lands.",
+      rules: [
+        "Turn at a pace where the cube never stops moving during F2L.",
+        "As each pair goes in, pick the next pair's corner and keep your eyes on it while the insert moves it. Say where it ends up before the insert finishes.",
+        "Once the corner is easy, follow its edge as well.",
+      ],
+      dose: "Fifteen solves a session, for two weeks.",
+      signal: "You name where the corner landed before you would have had to look for it.",
     },
     {
       id: "lookahead-metronome",
@@ -313,6 +345,21 @@ export const lookahead: AspectPack = {
       dose: "Five solves a session. It is tiring; a small dose is fine.",
       signal: "Your predictions go from vague to specific, and then to correct.",
     },
+    {
+      id: "lookahead-two-pairs-blind",
+      title: "Two pairs, eyes closed",
+      purpose:
+        "Tests knowing directly. The second pair has to be planned from where the first pair's moves will leave it, because there is nothing to look at.",
+      rules: [
+        "Solve the cross. Pick two pairs and plan both solutions, the second from where the first pair's moves will put its pieces.",
+        "Close your eyes and solve both pairs.",
+        "Open them and check both slots. If the second one is wrong, find the move in the first pair that you mispredicted.",
+        "Start with two pairs whose pieces are all in the top layer, and move to harder ones as the easy ones come out right.",
+      ],
+      dose: "Five to ten attempts a session. It is tiring, so stop when the planning gets sloppy.",
+      signal:
+        "Both slots come out right most of the time, and in normal solves the next pair is where you expected when you look for it.",
+    },
   ],
   mistakes: [
     "Doing slow solves without the no-pause rule, which is just solving slowly.",
@@ -334,7 +381,7 @@ export const lastPairIntoOll: AspectPack = {
   aspectId: "f2l_to_oll",
   title: "The last pair into OLL",
   summary: "The easiest pause in the solve to remove, and the one most people never notice.",
-  levels: ["sub30", "sub25", "sub20", "sub15", "sub12"],
+  levels: ["sub30", "sub25", "sub20"],
   why: "The last pair is the one where you relax: F2L is nearly done, there is nothing left to find, and the eyes idle. Then the pair finishes and you look at the top face for the first time, which costs you most of a second.",
   lessons: [
     {
@@ -363,14 +410,30 @@ export const lastPairIntoOll: AspectPack = {
       ],
     },
     {
+      id: "lastpair-edge-control",
+      title: "Pick the insert that fixes edges",
+      takeaway:
+        "Some last pairs go in two ways at the same length. Choosing the one that leaves more top edges facing up keeps you out of the dot OLLs at no cost.",
+      minutes: 4,
+      body: [
+        "Some last-pair cases have two good inserts of the same length. Both put the pair in its slot, but they leave the top layer differently, and one of the differences is how many top edges end up with yellow facing up. Choosing between them for that reason is called edge control. At this level the aim is small and worth having: mostly, not getting a dot OLL, where no edge faces up and the algorithms are among the longest.",
+        "The case to start with: the last pair already joined on the right of the top layer, the corner right above its slot with white facing you, and the edge beside it on the right with green on top. U R U' R' puts it in. So does the sledgehammer, R' F R F'. Both are four moves and leave the first two layers solved, but they differ by two flipped top edges: when one would leave a dot, the other leaves two edges up, and when one would leave all four up, the other leaves two.",
+        "For this case there is a one-glance rule. Look at the top edge at the front. If it shows yellow on top, do U R U' R'; if it does not, do the sledgehammer. That never leaves a dot, and it gives you all four edges up whenever either insert could. The front edge is the only one you need to look at to choose.",
+        "Learn it on this case, and perhaps one or two others you meet often, and stop there. This is partial edge control. The full versions are VHLS, which orients all four top edges while inserting a last pair that is already joined, and ZBLS, which does the same from any last-pair case. Both are large algorithm sets and not where your time should go yet.",
+        "It pays off later as well. COLL and ZBLL only apply when all four top edges face up after F2L, and Winter Variation only when the three top edges you can see already face up before the last insert. Left to chance, the edges come out facing up after F2L about one solve in eight. On the case above, choosing by the front edge doubles that to one in four, which is why edge control comes before COLL and ZBLL rather than after.",
+      ],
+      checkpoint:
+        "On the joined case above, you choose between U R U' R' and the sledgehammer from the front edge without slowing down.",
+    },
+    {
       id: "lastpair-influence",
       title: "Influencing the last layer, later",
       takeaway:
-        "There are systems that choose your last pair's solution to control the OLL you get. Know they exist; save them for sub-12.",
+        "There are systems that choose your last pair's solution to control the OLL you get. Know they exist; they start to pay once full OLL and PLL are solid, around fifteen seconds.",
       minutes: 3,
       body: [
-        "Beyond simply reading the case, there are methods that make the case you get better. Winter Variation is one, but it only applies in one situation: the last pair already joined in the top layer, ready for a U R U' R' insert, with the top edges already oriented. Then it orients the corners during the insert, so PLL comes next. Other systems do similar things for edges.",
-        "These are real and worth learning eventually, but they are big: the payoff only exists once your ordinary last pair and last layer are already quick, and they add recognition work in a place where you currently have spare attention. At around twelve seconds and below, that trade starts to make sense.",
+        "Beyond simply reading the case, there are methods that make the case you get better. Winter Variation is one, but it only applies in one situation: the last pair already joined in the top layer, ready for a U R U' R' insert, with the top edges already oriented. Then it orients the corners during the insert, so PLL comes next. VHLS and ZBLS do a similar job for the edges, and edge control is the small, free version of those.",
+        "These are real and worth learning eventually, but they are big: the payoff only exists once your ordinary last pair and last layer are already quick, and they add recognition work in a place where you currently have spare attention. Once full OLL and PLL are solid, around fifteen seconds for most people, that trade starts to make sense.",
         "The reason to mention it now is that it changes what 'good' looks like. The end point is not reading the case quickly; it is choosing the case. Reading it quickly is the step on the way.",
       ],
     },
@@ -409,5 +472,12 @@ export const lastPairIntoOll: AspectPack = {
     "Trying to read the exact OLL case before the pair is in, giving up, and reading nothing.",
     "Learning Winter Variation or similar before the plain version of this is smooth.",
   ],
-  sources: [SOURCES.getFaster, SOURCES.subTen, SOURCES.ollAlgs],
+  sources: [
+    SOURCES.getFaster,
+    SOURCES.subTen,
+    SOURCES.ollAlgs,
+    SOURCES.edgeControlThread,
+    SOURCES.partialEdgeControl,
+    SOURCES.vhlsWiki,
+  ],
 };

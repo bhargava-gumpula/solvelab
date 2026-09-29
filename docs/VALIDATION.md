@@ -1,6 +1,28 @@
 # Validation report
 
-## Course content fixes, phase 2: wrong or bad-habit content (awaiting review)
+## Course content fixes, phase 3: course structure (awaiting review)
+
+Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass (404 pages)      |
+| Unit tests      | `npm test`                        | 789 passed (51 files) |
+| End-to-end      | `npx playwright test --workers=1` | 81 passed             |
+
+New unit coverage for the course map and staging:
+
+- Every lesson and drill appears in some course, no unit cut repeats unchanged in more than two
+  courses, CFOP is taught only in Sub-60, and pack levels and ladder rungs match the map.
+- Placement of full PLL, full OLL, cross planning, cross+1, the lookahead stages, COLL/WV and ZBLL.
+- Picked and "said slow" packs join a course only with an earlier course's cut.
+- Recognition decks: 2-look OLL, 2-look PLL (T/Y route only) and F2L, with the F2L drill only from
+  Sub-15.
+- Recommendations never list a pack twice.
+- The merged CFOP lessons' holds and claims on the cube engine; recognition text for every case.
+
+## Course content fixes, phase 2: wrong or bad-habit content
 
 Run on 2026-09-28 against the static export (headless Chromium, one Playwright worker, Firebase
 blocked, dev server stopped first).
