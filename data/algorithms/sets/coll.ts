@@ -78,7 +78,6 @@ export const coll: AlgorithmSetData = {
       algorithms: [
         { id: "coll-h4-1", moves: "F R U R' U' R U R' U' R U R' U' F'" },
         { id: "coll-h4-2", moves: "F U R U' R' U R U' R' U R U' R' F'" },
-        { id: "coll-h4-3", moves: "U F R U R' U' R U R' U' R U R' U' F'" },
       ],
     },
     {
@@ -386,7 +385,6 @@ export const coll: AlgorithmSetData = {
       algorithms: [
         { id: "coll-l6-1", moves: "r U2 R2 F R F' R U2 r'" },
         { id: "coll-l6-2", moves: "R' U' R U R' F' R U R' U' R' F R2" },
-        { id: "coll-l6-3", moves: "U' R' U' R U R' F' R U R' U' R' F R2" },
         { id: "coll-l6-4", moves: "F R U R2 F R F' R U' R' F'" },
       ],
     },
@@ -490,7 +488,6 @@ export const coll: AlgorithmSetData = {
       algorithms: [
         { id: "coll-as2-1", moves: "R2 D R' U R D' R' U R' U' R U' R'" },
         { id: "coll-as2-2", moves: "R' U' R U' R' U R' D' R U R' D R2" },
-        { id: "coll-as2-3", moves: "U2 R2 D R' U R D' R' U R' U' R U' R'" },
         { id: "coll-as2-4", moves: "R U R' f' U' R U2 R' U' R U' R' f R U' R'" },
       ],
     },

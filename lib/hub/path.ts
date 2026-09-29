@@ -96,6 +96,18 @@ export interface PathInput {
   intro: HubIntro | undefined;
 }
 
+/**
+ * A last-layer algorithm set can look fast on a small test that happened to
+ * deal its easy cases, so these units only test out once the test has dealt
+ * enough attempts to have shown most of the set: 50 for PLL (16 of its 21
+ * cases come up 1 time in 18) and 100 for OLL (51 of its 57 come up 1 time in
+ * 54). By then about four cases in five have come up at least once.
+ */
+export const TEST_OUT_SAMPLES: Readonly<Record<string, number>> = {
+  "pll-algorithms": 50,
+  "oll-algorithms": 100,
+};
+
 function unitState(unit: Unit, input: PathInput, pick: UnitPick | null): UnitState {
   const aspect =
     unit.kind === "pack" && unit.pack.aspectId
@@ -108,7 +120,8 @@ function unitState(unit: Unit, input: PathInput, pick: UnitPick | null): UnitSta
       : (id: string) => input.methodDone.has(id);
   const lessonsDone = unit.lessons.filter((lesson) => isLessonDone(lesson.id)).length;
   const complete = unit.lessons.length > 0 && lessonsDone >= unit.lessons.length;
-  const testedOut = !pick && aspect?.tag === "fast";
+  const enough = (aspect?.samples ?? 0) >= (TEST_OUT_SAMPLES[unit.id] ?? 0);
+  const testedOut = !pick && aspect?.tag === "fast" && enough;
   return {
     unit,
     lessonsDone,

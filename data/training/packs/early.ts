@@ -4,7 +4,7 @@ import type { LevelPack } from "../types";
 
 /*
  * Packs written for one stretch of the road rather than one part of the
- * profile: 2:00 → 1:00, 1:00 → 45 s and 45 → 30 s.
+ * profile: first solves → 2:00, 2:00 → 1:00 and 1:00 → 45 s.
  */
 
 export const beginnerMethodCold: LevelPack = {
@@ -136,7 +136,7 @@ export const setUpYourCube: LevelPack = {
   title: "Setting up your cube",
   summary: "Tension, magnets and lube: what each does, and how to tell when yours is wrong.",
   levels: ["beginner"],
-  why: "A stiff or loose cube costs you in ways that feel like your own fault: layers that catch, pieces that pop, turns that overshoot. Below about a minute a modern magnetic speedcube really is the difference, and once you have one, a few minutes of setup makes it behave the same way every day.",
+  why: "A stiff or loose cube costs you in ways that feel like your own fault: layers that catch, pieces that pop, turns that overshoot. A decent magnetic speedcube is worth having by the time you solve in a minute or two. After that, a cube that feels the same every day matters more than which model it is, and most lockups come from the turning, not the cube. A few minutes of setup is what keeps it the same.",
   lessons: [
     {
       id: "setup-tension",
@@ -158,7 +158,7 @@ export const setUpYourCube: LevelPack = {
       minutes: 4,
       body: [
         "Lubricant changes how the cube feels to turn. Thin, silicone-based lubes make it faster and smoother; thick ones slow it down and make it quieter and more controlled. Many people use both: a heavier lube towards the core and a lighter one further out.",
-        "The common mistake is using too much. One or two small drops is usually enough for the whole cube; more just makes it sluggish until it wears off. Pop an edge out by turning a face about 45 degrees, apply inside, reassemble, and turn it a few hundred times so the lube spreads.",
+        "The common mistake is using too much. One or two small drops is usually enough for the whole cube; more just makes it sluggish until it wears off. There is no need to take pieces out: turn one layer about 45 degrees, let a drop fall onto the pieces you can see inside, and turn the layer back. On cubes whose centre caps come off, lube for the core can go in through the centre instead. Then turn the cube a few hundred times so the lube spreads.",
         "A freshly lubed cube often feels slower for a short while before it settles. Judge it after a proper session, not after a minute. And never use WD-40, cooking oil or petroleum jelly: they damage the plastic.",
       ],
     },
@@ -220,7 +220,7 @@ export const switchToF2l: LevelPack = {
   summary:
     "Why your times get worse first, and how to get through the two slow weeks. The F2L method itself is in Build your CFOP foundation.",
   levels: ["sub120"],
-  why: "Solving the first layer and then the second takes about twenty moves more than solving them together. F2L is the fix, and it is also the step that makes almost everyone slower for a while — which is when most people give up on it.",
+  why: "Solving the first layer and then the second costs thirty or more extra moves compared with solving them together. F2L is the fix, and it is also the step that makes almost everyone slower for a while — which is when most people give up on it.",
   lessons: [
     {
       id: "switch-expect-slower",
@@ -237,12 +237,13 @@ export const switchToF2l: LevelPack = {
     {
       id: "switch-when-algorithms",
       title: "When to learn cases as algorithms",
-      takeaway: "Only after intuitive F2L works, and only for the cases that stay slow.",
+      takeaway:
+        "Not yet. Only once intuitive F2L is fluent, from the Sub-20 course, and only for the cases that stay slow.",
       minutes: 3,
       body: [
         "It is tempting to go straight to a list of 41 algorithms. It is slower to learn, and it leaves you stuck on any case you haven't memorised. Worse, you never learn what the moves do, which is exactly what later lets you see a better solution or look ahead.",
-        "Once you can solve every pair intuitively, some cases will still be slow — usually the ones with a piece stuck in the slot, or the corner's white sticker facing up. Those are worth learning as algorithms, one or two at a time, and using in real solves before adding more.",
-        "The algorithm bank in this app has every F2L case, led by the version most solvers use and with shorter ones alongside, all checked on a cube. Look up the case you keep getting stuck on rather than working through the whole list.",
+        "Once you can solve every pair intuitively, some cases will still be slow — usually the ones with a piece stuck in the slot, or the corner's white sticker facing up. Don't memorise them yet. The Sub-45 course finds a short way through every case by understanding it, and the first cases worth learning by heart, the five with both pieces stuck in the slot, come in the Sub-20 course.",
+        "The algorithm bank in this app has every F2L case, led by the version most solvers use and with shorter ones alongside, all checked on a cube. If one case keeps beating you, look it up there, then work out why the moves join the pair rather than just copying them.",
       ],
     },
   ],
@@ -367,7 +368,7 @@ export const twoLookPll: LevelPack = {
       minutes: 3,
       body: [
         "After the edges, the last layer is solved but may be rotated. One turn of the top — U, U' or U2 — finishes the cube. It is part of the step, not an extra: start noticing which one you will need before the algorithm ends.",
-        "Two-look PLL is where to stay for a while, but not forever. Full PLL is 21 cases and saves an algorithm on most solves. The first ones to add are the common ones that two-look handles worst, starting with the A perms and the J perms.",
+        "Two-look PLL is where to stay for now, but not forever. Full PLL is 21 cases and saves an algorithm on most solves. You can make a start on it in the Sub-45 course, with the A perms and then the J perms.",
         "Keep the two-look algorithms as a fallback while you learn. A full-PLL case you half-know is slower than two algorithms you know well.",
       ],
     },
@@ -378,12 +379,13 @@ export const twoLookPll: LevelPack = {
       title: "Spot the headlights",
       purpose: "Trains the recognition that both two-look and full PLL depend on.",
       rules: [
-        "Solve to PLL. Without turning the cube, say how many sides have headlights.",
-        "Then check by turning the top once round.",
+        "Solve to PLL. Look at the front and right sides only, without turning anything.",
+        "Say whether either shows headlights, and what that means for the back and left. Headlights on both: all four sides have them. On one: the other three have none. On neither: there is one pair at the back or on the left, or none anywhere.",
+        "Then turn the top twice (U2) to bring the back and left round, and check.",
         "Twenty in a row, untimed.",
       ],
       dose: "Five minutes a session.",
-      signal: "You stop needing to turn the top to count them.",
+      signal: "You make the call the moment you look, and the check agrees with it.",
       exerciseId: "pll_only",
     },
     {
@@ -400,7 +402,7 @@ export const twoLookPll: LevelPack = {
     },
   ],
   mistakes: [
-    "Turning the cube to look at three or four sides, when the two you can see already tell you the case.",
+    "Turning the whole cube round to look at the other sides, when a turn of the top brings them to you.",
     "Guessing between the two U perms instead of asking one question each time.",
     "Treating the final turn as separate from the step.",
     "Dropping the two-look fallback before full PLL cases are reliable.",
@@ -422,7 +424,7 @@ export const choosingTheNextPair: LevelPack = {
         "If both pieces of a pair are stuck in slots, there is almost always a better pair available.",
       minutes: 4,
       body: [
-        "Some F2L cases are simply worse than others. The worst are pairs with both pieces already in a slot, particularly with the edge flipped: they need nine or ten moves where a pair on top needs three to seven.",
+        "Some F2L cases are simply worse than others. The worst are pairs with both pieces already in a slot: they need nine to eleven moves where an easy pair on top needs three to seven.",
         "The useful habit is noticing when you are about to start one of these and asking whether another pair is available. There very often is, and solving it first may even free the stuck pieces as a side effect.",
         "This is called pair choice, and it is one of the simplest efficiency gains at this level. You are not learning new solutions, just declining to start the expensive ones.",
       ],
@@ -472,7 +474,7 @@ export const choosingTheNextPair: LevelPack = {
       title: "No stuck pairs first",
       purpose: "Removes the most expensive cases from your solves by habit.",
       rules: [
-        "Rule for the session: never start a pair with a piece in a slot if another pair is on top.",
+        "Rule for the session: never start a pair with both pieces stuck in slots if another pair is available.",
         "Note how often you had to break the rule.",
         "Twenty solves.",
       ],
@@ -501,7 +503,7 @@ export const stuckPieces: LevelPack = {
   summary:
     "The F2L cases intuition handles worst, and how to free a stuck piece without wasting moves.",
   levels: ["sub60"],
-  why: "Intuitive F2L handles pairs on top well and pieces stuck in slots badly: taking a piece out, pairing and reinserting often takes eleven or twelve moves. Freeing the piece so that it comes out already next to its partner saves most of that.",
+  why: "Intuitive F2L handles pairs on top well and pieces stuck in slots badly: taking a piece out, pairing and reinserting often takes eleven or twelve moves. Freeing the piece so that it comes out already next to its partner saves three or four of them.",
   lessons: [
     {
       id: "stuck-three-kinds",
@@ -511,7 +513,7 @@ export const stuckPieces: LevelPack = {
       body: [
         "A stuck piece is part of the pair you want, sitting in a slot — its own or another — in the wrong way. There are three situations. The corner is in the slot with the edge on top. The edge is in the slot with the corner on top. Or both are in the slot.",
         "With one piece stuck, the usual approach is to take it out in a way that already sets up the pair: the move that lifts the stuck piece should leave it next to its partner. That turns an eleven-move case into a seven- or eight-move one.",
-        "With both stuck, there are five cases, and taking them out and starting again is slow. For now, look for another pair to solve first, since that can free them for you. Memorised algorithms for these five come in the Sub-20 course, where they are the first F2L cases worth learning by heart.",
+        "With both stuck, taking them out and starting again is slow. For now, solve another pair first if one is available. If the two pieces sit in that other pair's slot, solving it brings them out. If they sit in their own slot, they are one of five cases, and you have lost nothing by leaving them until later. Memorised algorithms for these five come in the Sub-20 course, where they are the first F2L cases worth learning by heart.",
       ],
     },
     {
@@ -546,7 +548,7 @@ export const stuckPieces: LevelPack = {
       purpose:
         "Replaces pulling a stuck piece out blind with one move that frees it next to its partner.",
       rules: [
-        "Solve the cross, then look for a pair with one piece stuck in a slot.",
+        "Use the single-pair scrambles: the cross and three pairs are solved, and one pair is left. When neither of its pieces starts in the slot, solve it normally and move on.",
         "Before turning, find where its partner is and choose the way to lift the stuck piece that leaves the two together, or one top turn away.",
         "Lift it, pair, insert. If the pieces ended up apart, redo the case and try the other way out.",
       ],

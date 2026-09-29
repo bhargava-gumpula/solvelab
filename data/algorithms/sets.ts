@@ -31,7 +31,7 @@ export const algorithmSets: AlgorithmSetDefinition[] = [
     id: "f2l",
     name: "F2L",
     description:
-      "A reference for after intuitive F2L: every case at the front-right slot, led by the algorithm most solvers use. At the front-left, mirror it; for a back slot, turn the cube to bring the slot to the front, or learn a back-slot version later.",
+      "A reference for after intuitive F2L. The same cases come up for every pair and every slot; each is shown at the front-right slot, led by the algorithm most solvers use. At the front-left, mirror it; for a back slot, turn the cube to bring the slot to the front, or learn a back-slot version later. SolveLab numbers the cases its own way, so each also shows its SpeedCubeDB number.",
     difficulty: "intermediate",
     category: "f2l",
     phase: "V1.75",
@@ -39,7 +39,7 @@ export const algorithmSets: AlgorithmSetDefinition[] = [
   {
     id: "pll",
     name: "Full PLL",
-    description: "Recognize and permute the last layer in one step.",
+    description: "Recognise and permute the last layer in one step.",
     difficulty: "intermediate",
     category: "pll",
     phase: "V1.5",
@@ -71,7 +71,7 @@ export const algorithmSets: AlgorithmSetDefinition[] = [
   {
     id: "zbll",
     name: "ZBLL",
-    description: "A deeper last-layer system, organized into focused subsets.",
+    description: "A deeper last-layer system, organised into focused subsets.",
     difficulty: "expert",
     category: "advanced",
     phase: "V1.75",

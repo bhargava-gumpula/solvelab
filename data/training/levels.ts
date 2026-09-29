@@ -50,7 +50,7 @@ export const LEVELS: LevelGuide[] = [
       "Learn to read notation properly. R, U, F, primes and doubles are the language everything else is written in, and guessing at them will cost you later.",
       `Hold the cube the same way every solve: ${SOLVING_HOLD}. Scrambles are applied with ${SCRAMBLE_HOLD}, so turn the cube over with ${SOLVING_ROTATION} before you start. Consistency is what lets recognition become automatic.`,
       "Solve the cross on the bottom, not the top. Solving it on top means turning the whole cube over before you can go on, and the habit is much harder to drop later than to skip now.",
-      "Get a modern magnetic speedcube if you are still on a hardware-store cube. Below about a minute this genuinely is the equipment, not you.",
+      "Get a modern magnetic speedcube if you are still on a hardware-store cube. At this stage a stiff cube that catches on every turn really is holding you back.",
     ],
     notYet: [
       "Algorithms beyond the beginner set. You cannot use what you cannot recognise yet.",
@@ -72,10 +72,10 @@ export const LEVELS: LevelGuide[] = [
     goalId: "sub60",
     headline: "This is where you leave the beginner method behind and switch to CFOP.",
     bottleneck:
-      "The beginner method is long. Every first-layer corner and every middle edge goes in on its own, and the last layer takes a string of algorithms, some of them repeated. Faster hands cannot rescue a method that needs this many moves, especially when nearly every one of them still comes with a regrip.",
+      "The beginner method is long: around a hundred moves a solve, where CFOP done well needs about sixty. Every first-layer corner and every middle edge goes in on its own, and the last layer takes a string of algorithms, some of them repeated. Faster hands cannot rescue a method that needs this many moves, especially when nearly every one of them still comes with a regrip.",
     doNow: [
       "Switch to CFOP now, in one go: the cross on the bottom as before, then the first two layers as F2L pairs, then 2-look OLL and 2-look PLL. Expect to be slower for a week or two; F2L is worse than your beginner layers until it is better, and then it is better by a long way.",
-      "Learn F2L intuitively, not as a list. A pair is a corner and its edge joined in the top layer and then dropped into their slot together; work each case out from that. Learning it as 41 algorithms is slower to learn and worse to use.",
+      "Learn F2L intuitively, not as a list. Most pairs go in the same way: free the corner or edge if it is stuck in a slot, join the two in the top layer, then drop them into their slot together. Work each case out from that. Learning it as 41 algorithms is slower to learn and worse to use.",
       "Learn 2-look OLL (ten algorithms) and 2-look PLL (six): for the corners, a T perm when one side shows headlights (hold them on the left) and a Y perm when no side does; for the edges, Ua, Ub, H and Z. Sixteen algorithms replace the whole beginner last layer.",
       "Learn finger tricks for U, U', R, R' and F while these algorithms are new, so they set with the right grip: push the U layer with your index finger instead of turning your wrist. Smooth beats fast: an algorithm you run calmly at three turns a second beats one you fumble at five.",
       "Plan the cross during inspection: find all four white edges and work out at least the first two before you turn. Planning the whole cross is the Sub-30 step.",
@@ -85,7 +85,7 @@ export const LEVELS: LevelGuide[] = [
     notYet: [
       "Full OLL and PLL. Learn the 2-look versions here; the first full PLLs come in Sub-45, and the full sets after that.",
       "F2L algorithms and x-crosses. Work the pairs out for yourself first; memorised cases only pay off once intuitive F2L is fluent.",
-      "Tracking pieces through your moves. For now, just use the moment while your hands run a trigger you know to find the next piece.",
+      "Tracking pieces through your moves, and formal lookahead drills such as a metronome or eyes-closed pairs. For now the gentle version is enough: find the next piece while your hands run a trigger you know (Your first lookahead).",
     ],
     packs: [
       "switch-to-f2l",
@@ -141,7 +141,7 @@ export const LEVELS: LevelGuide[] = [
       "Do slow solves. Turn at about half your normal speed with one rule: the cube never stops moving during F2L. If you have to pause, you were going too fast.",
       "Keep each search short. As a pair goes in, glance round for the next corner and edge, so you already have a rough idea where they are when the insert ends. Following them as they move is the Sub-20 step; here the job is spotting quickly and never stopping.",
       "Plan the whole cross in inspection, every solve. No cross needs more than eight moves, so it always fits in one plan; close your eyes and solve it from memory as a check.",
-      "Finish full PLL. It is the one new algorithm set in this course, 21 cases against full OLL's 57, and it comes before full OLL in any sensible order. Keep to about two new cases a day, and learn to recognise each one without walking round the cube to check.",
+      "Finish full PLL. It is the one new algorithm set in this course, 21 cases against full OLL's 57, and it comes before full OLL for good reason: it saves the second algorithm that 2-look PLL needs on most solves, and a typical PLL case comes up about three times as often as a typical OLL case (1 solve in 18 against 1 in 54). Keep to about two new cases a day, and learn to recognise each one without walking round the cube to check. A glance at a third side is fine for now; reading the case from two sides alone is the Sub-15 step.",
       "Learn keyhole: when one piece of a pair is already home and another slot is still empty (next to it or diagonally opposite), turn D to line that slot up, drop the other piece in on its own and turn D back, with no pairing at all. It turns several awkward cases into short ones.",
       "Don't rotate before every pair: when a top turn will do, use it instead of a y2. One or two rotations a solve are fine for now.",
     ],
@@ -178,7 +178,7 @@ export const LEVELS: LevelGuide[] = [
     notYet: [
       "Chasing a higher TPS. At 30 seconds, ten wasted moves cost more than a slow hand.",
       "Full OLL, for now. 2-look OLL is enough to reach sub-20; start the full set only once the last layer is clearly your biggest leak.",
-      "Full colour neutrality if you have not started. Dual (white and yellow) is a cheaper first step.",
+      "Full colour neutrality if you have not started. Dual (white or yellow) is a cheaper first step.",
     ],
     packs: [
       "lookahead",
@@ -202,13 +202,13 @@ export const LEVELS: LevelGuide[] = [
     goalId: "sub20",
     headline: "The joins between stages start to show.",
     bottleneck:
-      "Each stage is reasonable on its own, but there is a gap at every seam: after the cross, before OLL, before PLL. Four small pauses is two or three seconds.",
+      "Each stage is reasonable on its own, but there is a gap at every seam: after the cross, before OLL, before PLL. Those three small pauses can add up to two or three seconds.",
     doNow: [
       "Track one piece through your cross plan in inspection: pick the corner of a likely first pair and follow where the cross moves take it. Knowing even that shortens the pause at the start of F2L; planning the whole first pair is the Sub-15 step.",
       "Read the OLL case while you finish your last pair, not after it. The top face is visible for the whole insertion.",
       "Call the last turn of the top before the PLL algorithm ends, from one reference sticker per case. Reading the PLL from the two sides you can see is the Sub-15 step, and reading it while OLL finishes is Sub-12's.",
       "Full PLL should be finished by now. Full OLL is optional in this course: if the last layer is your leak, learn it in groups you recognise together, starting from the cases your 2-look algorithms already solve. It becomes expected in Sub-15.",
-      "Measure the seams rather than guessing: the cross + F2L and last-slot + OLL tests exist to show exactly which join is leaking.",
+      "Measure the seams rather than guessing: the cross + F2L, last pair + OLL and OLL + PLL tests exist to show exactly which join is leaking.",
     ],
     notYet: [
       "COLL, Winter Variation, ZBLL and the other big subsets. COLL and the short Winter Variation cases are optional from about Sub-15; ZBLL belongs to sub-10 solvers who want it.",
@@ -236,7 +236,7 @@ export const LEVELS: LevelGuide[] = [
     goalId: "sub15",
     headline: "Pause-free F2L is worth more than everything else combined.",
     bottleneck:
-      "The stages are all fine. What is left is the half-second of hesitation between pairs, four times a solve, plus the occasional algorithm you still have to think about.",
+      "The stages are all fine. What is left is the half-second of hesitation before each pair, four times a solve, plus the occasional algorithm you still have to think about.",
     doNow: [
       "Get the cross and F2L together under about 10 seconds with no stops. That is the sub-15 shape: roughly 1.5-2 s of cross and 7.5-8 s of F2L, leaving 5-5.5 s for the last layer.",
       "Learn cross+1: in inspection, plan the cross, then find your first pair and follow its corner and edge through the cross moves, so F2L starts without a pause.",
@@ -294,13 +294,13 @@ export const LEVELS: LevelGuide[] = [
     packs: [
       "cross-for-f2l",
       "lookahead",
-      "predict-pll",
       "oll-into-pll",
+      "predict-pll",
       "xcross-properly",
+      "reconstruct-your-solves",
       "speed-you-can-use",
       "pll-execution",
       "consistency",
-      "reconstruct-your-solves",
       "last-layer-at-the-top",
     ],
   },
@@ -311,16 +311,16 @@ export const LEVELS: LevelGuide[] = [
     goalId: "sub10",
     headline: "Efficiency and execution both have to be good. Neither carries the other any more.",
     bottleneck:
-      "A 55-move solve at 6 turns per second and a 45-move solve at 5 both take about nine seconds. At this level you need the low move count and the clean execution, and most people have one.",
+      "A 60-move solve at 6.5 turns per second and a 52-move solve at 5.6 both take about nine and a quarter seconds. At this level you need the low move count and the clean execution, and most people have one.",
     doNow: [
       "Solve every F2L case in two or three triggers, with essentially no rotations and no regrips you did not choose.",
       "Make spotting free x-crosses routine: when a pair is nearly made during the cross, take it, and plan a plain cross when none is on offer. It takes one pair out of F2L and makes the rest easier to read.",
-      "Squeeze the end of F2L: pseudo-slot a pair when it saves moves, pick the last insert that leaves more top edges facing up (partial edge control), and during OLL spot a block or headlights so the PLL is half-known before it starts.",
+      "Squeeze F2L: on the second or third pair, while two slots are open, pseudo-slot when it saves moves; on the last pair, pick the insert that leaves more top edges facing up (partial edge control); and during OLL spot a block or headlights so the PLL is half-known before it starts.",
       "Reconstruct your own solves. Write out the moves you actually made and count them. Anything over about 55 moves has a reason worth finding. Then compare them with reconstructions of much faster solvers.",
       "Practise with a metronome at a fixed turn rate so pauses become audible rather than invisible.",
     ],
     notYet: [
-      "Learning ZBLL as a whole. It is 493 cases; take the useful subsets first and see whether you want the rest.",
+      "Learning ZBLL as a whole. It is about 470 cases, or 493 counting the PLLs; take the useful subsets first and see whether you want the rest.",
       "Changing method. CFOP goes well past sub-10; a method change now costs months.",
     ],
     packs: ["past-the-first-pair", "multislotting"],
@@ -335,7 +335,7 @@ export const LEVELS: LevelGuide[] = [
       "There is no single bottleneck left. What remains is a small set of personal weaknesses — three PLLs you are slow on, one slot you avoid, a pause you make when the cross is on green.",
     doNow: [
       "Work from evidence, not feel. Split your solves, find the specific cases and situations that are slow, and drill exactly those.",
-      "Push efficiency below 55 moves. At this level move count is the thing that still has room in it.",
+      "Reconstruct to find out whether your next gain is fewer moves, fewer pauses or faster turning. Most sub-10 solves land around 53 to 60 moves, so a solve well above that has moves to cut.",
       "Widen recognition: know every last-layer case from every angle, so you never turn the cube to check.",
       "Take breaks seriously. Long plateaus are normal here, and time away often produces the jump that more solving does not.",
       "Practise under pressure if you compete. Solving alone and solving with a judge watching are different skills.",

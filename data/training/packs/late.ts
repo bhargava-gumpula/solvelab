@@ -22,10 +22,11 @@ export const aufBothEnds: LevelPack = {
       minutes: 4,
       body: [
         "The final top turn is decided the moment you recognise the case and choose the angle to do it from. Waiting until the algorithm ends to look is where the pause comes from.",
-        "The standard trick is a reference sticker: for each PLL, one sticker on the front or right face that tells you where the layer will end up. If it matches the front centre now, there will be no final turn; if it matches the back, it will be a U2; and so on. Find one for each of your algorithms and use the same one every time.",
+        "The standard trick is a reference sticker: for each PLL, one sticker on the front or right face that the algorithm leaves where it is, so it tells you where the layer will end up. If it matches the centre below it now, there will be no final turn; if it matches the opposite centre, it will be a U2; and so on. Find one for each of your algorithms and use the same one every time.",
         "It takes some upfront work per case, and then it is free forever. This is widely described as the single most useful AUF skill to have.",
       ],
-      checkpoint: "For your five most common PLLs, you know the final turn before starting.",
+      checkpoint:
+        "For five PLLs you use a lot (the T, the two U perms and the two J perms, say), you know the final turn before starting.",
     },
     {
       id: "auf-before",
@@ -36,7 +37,7 @@ export const aufBothEnds: LevelPack = {
       body: [
         "A case can show up turned four ways from the angle you learned it. People fall into one of two habits: turning the top until it looks familiar, then recognising; or recognising from wherever it is, then turning. The second is faster, and it is a learnable skill.",
         "Aim to know each case from every angle, and to know the smallest turn that brings it to your starting angle. Some algorithms have alternatives that start from a different angle — the algorithm bank shows the turn each one needs from the picture — and choosing the one that needs no turn at all removes the step entirely.",
-        "There is a further trick at a higher level: starting the algorithm with a slightly different move so that the last turn cancels. It is worth knowing it exists; only adopt it for a case after timing it against the plain version.",
+        "There is a further trick at a higher level: a second algorithm for the same case that starts or finishes a turn away from the one you know, so the extra top turn disappears. It is worth knowing it exists; only adopt it for a case after timing it against the plain version.",
       ],
     },
     {
@@ -234,8 +235,8 @@ export const colourNeutralPlan: LevelPack = {
       purpose: "Builds the inspection habit that makes neutrality worth having.",
       rules: [
         "In each inspection, find the white cross and the yellow cross, and count moves for each.",
-        "Solve the shorter one.",
-        "Blind-check it: plan, close your eyes, solve the cross.",
+        "Solve the one with the better start: usually the shorter cross, or one a move longer if you can see it leaves an easy first pair.",
+        "Plan as much of it as you can before you turn. Once you can plan the whole cross, check it blind: close your eyes and solve the cross.",
       ],
       dose: "Twenty solves.",
       signal: "Deciding between the two fits comfortably inside fifteen seconds.",
@@ -264,7 +265,7 @@ export const fillerMoves: LevelPack = {
       minutes: 3,
       body: [
         "The plainest filler is two turns of the same layer back to back: U then U2 is really U', and U then U' is nothing. It happens when you set up a pair with one turn, change your mind, and adjust with another.",
-        "It also happens across steps. The last move of an F2L pair is often a top turn, and the first move of the next is often a top turn as well. If you had planned the second while doing the first, those would have been one.",
+        "It also happens between pairs. An insert ends on a side turn, like the R' of R U R', and the next pair usually starts with a top turn to set it up. Decide that turn late and it comes in pieces: a U, a look, then a U2 to fix it. Plan the next pair's set-up while the current one goes in, and it is one turn.",
         "People aiming for sub-10 are advised to watch for exactly this: extra U turns and rotations are listed alongside lookahead as things to eliminate.",
       ],
       examples: [
@@ -278,12 +279,21 @@ export const fillerMoves: LevelPack = {
     {
       id: "filler-merge",
       title: "Merging into the next algorithm",
-      takeaway: "Line up the next step with the turn you are already making.",
+      takeaway:
+        "When one step ends with a top turn and the next starts with one, make them a single turn; where nothing can merge, have the next turn ready.",
       minutes: 4,
       body: [
-        "The more useful skill is merging. Many F2L solutions and last-layer algorithms begin or end with a top turn. If you know the next step while finishing this one, the adjusting turn and the finishing turn can be the same turn.",
-        "The best-known example is between the last pair and OLL: if your last insert ends with a top turn and your OLL needs a top turn to line up, choose the insert's direction so the case comes out already aligned.",
-        "This is lookahead applied to moves rather than pieces. It is also why reading the OLL during the last pair pays off twice: once for the pause, once for the turn.",
+        "The more useful skill is merging. Most steps start with a top turn, the set-up for a pair or the turn that lines up an OLL or PLL, and some algorithms end with one. When one step ends with a top turn and the next starts with one, knowing the next step while finishing this one makes them a single turn.",
+        "The plainest example is at the end of the solve. SolveLab's default Jb, R U R' F' R U R' U' R' F R2 U' R' U', ends with a U'. If the layer would then need a U2 to finish, do a U instead of the U': the algorithm's last turn and the finishing turn become one.",
+        "Between the last pair and OLL there is nothing to merge, because an insert ends on a side turn. The saving there is deciding early. The insert's last move, an R' say, moves only the right-hand column of the top, so the rest of the top is already set before it. Read it while the pair goes in, and the OLL's set-up turn follows the R' with no look in between. If you know two inserts for the pair, you can also choose the one that leaves the better OLL; the edge-control lesson in The last pair into OLL has the case to start with.",
+        "This is lookahead applied to moves rather than pieces. It is also why reading the OLL during the last pair pays off twice: once for the pause, and once for the set-up turn, which you make at once instead of finding it by trial.",
+      ],
+      examples: [
+        {
+          label: "A last turn folded in",
+          moves: "R U R' F' R U R' U' R' F R2 U' R' U",
+          note: "SolveLab's default Jb with its closing U' changed to a U, for the angle where the layer would otherwise need U' and then U2.",
+        },
       ],
       checkpoint:
         "You catch yourself about to make a top turn you could have folded into the last one.",
@@ -316,11 +326,11 @@ export const fillerMoves: LevelPack = {
     {
       id: "filler-plan-the-merge",
       title: "Plan the merge",
-      purpose: "Builds the habit of choosing a finishing turn with the next step in mind.",
+      purpose: "Builds the habit of deciding the next top turn before the current step ends.",
       rules: [
-        "Solve to the last pair. Before inserting, look at the top and decide the OLL's angle.",
-        "Choose the insertion so the case comes out lined up.",
-        "Note how often you managed no extra turn.",
+        "Solve to the last pair. While it goes in, read the top and decide the OLL's set-up turn.",
+        "Make that turn straight after the insert, with no look in between. If you know two inserts for the pair, pick the one that leaves the better OLL.",
+        "Note how often you needed a second look or a second top turn.",
       ],
       dose: "Twenty last pairs.",
       signal: "Your last-pair-plus-OLL test time drops towards the sum of its parts.",
@@ -341,7 +351,7 @@ export const multislotting: LevelPack = {
   summary:
     "Pseudo-slotting and multislotting, built on the keyhole you already know — and when the advanced version isn't worth it.",
   levels: ["sub12"],
-  why: "Past about fifteen seconds, pairs one at a time with good lookahead is most of what F2L can be. The next gains come from solutions that do a little work on a second pair while solving the first.",
+  why: "Down to about fifteen seconds, pairs one at a time with good lookahead is most of what F2L can be. Faster than that, the next gains come from solutions that do a little work on a second pair while solving the first.",
   lessons: [
     {
       id: "multi-family",
@@ -358,7 +368,7 @@ export const multislotting: LevelPack = {
       id: "multi-pseudo",
       title: "Pseudo-slotting: a pair that isn't one",
       takeaway:
-        "With the bottom layer turned, a corner and an edge from different pairs can go in together; turning the bottom back finishes both.",
+        "With the bottom layer turned, a corner and an edge from different pairs can go in together; turning the bottom back sends each one home, and each slot then still needs its other piece.",
       minutes: 4,
       body: [
         "A turn of the bottom layer carries its corners round with it, but the middle-layer edges stay where they are. Pseudo-slotting is built on that. Turn the bottom a quarter with D and the front-left corner's home moves round to sit under the front-right slot, while the front-right edge's home stays put. So the front-left corner and the front-right edge can go into the front-right slot together, as if they were a pair. Turn the bottom back with D' and the corner rides home to the front-left, while the edge is already where it belongs.",
@@ -372,18 +382,20 @@ export const multislotting: LevelPack = {
     {
       id: "multi-example",
       title: "The simplest multislot",
-      takeaway: "Move a second slot out of the way, insert, and bring it back already paired.",
+      takeaway:
+        "With the front-left slot still open, an L' before R U R' and an L after it can pair or even insert a second pair along with the first.",
       minutes: 4,
       body: [
-        "The textbook example: instead of inserting a front pair with R U R' directly, first turn the left face out of the way, then do R U R', then turn the left face back. The first pair goes in exactly as before, and the left turns have lined up the second pair as a side effect.",
-        "The cost is two moves. The saving is a whole pair's worth of pairing, which is usually four to six moves plus the time to find it. When it is available it is a very good trade.",
+        "A simple example is L' R U R' L. The R U R' in the middle is an ordinary insert for the front-right pair. The L' before it opens the front-left slot, which you haven't filled yet, and the L after it closes that slot again. The U in the middle turns the whole top layer, so anything sitting on top rides round with it, and whatever it brings above the open slot, the L puts in.",
+        "That only helps when two things are true. The front-left slot must not be finished yet, since the L' lifts whatever is in it and the U carries it away. And the second pair's pieces must sit where the R and the U will carry them over that slot. In the example below, the front-left pair's corner is stuck in the front-right slot, and its edge waits at the front of the top layer: the R lifts the corner out, the U brings corner and edge round together above the open slot, and the L drops them in.",
+        "The cost is the two left turns. Without them, R U R' puts the first pair in and brings the second out joined above its slot, and U' L' U L puts it in: seven moves and a second look, against five. On other scrambles the left turns can pair a second pair without putting it in, which still saves the moves it would take to pair it.",
         "What makes it hard is spotting it. You need to see where the second pair's pieces are and what a face turn would do to them, while executing the first — which is the knowing stage of lookahead.",
       ],
       examples: [
         {
-          label: "Insert one pair, pair up another",
+          label: "Two pairs in five moves",
           moves: "L' R U R' L",
-          note: "The left turns move a second pair's pieces together while the right hand inserts the first.",
+          note: "Before: the front-right pair's corner is above its slot with white facing right, and its edge is at the back. The front-left slot is empty; that pair's corner is stuck in the front-right slot with white facing right, and its edge is at the front of the top layer, green on top. After: both pairs are in.",
         },
       ],
     },
@@ -476,7 +488,7 @@ export const xcrossProperly: LevelPack = {
       minutes: 3,
       body: [
         "Some scrambles hand you an x-cross. The most common are a pair already joined somewhere on the cube, and a corner already sitting in the bottom layer near its slot, which the cross moves can carry home.",
-        "Pseudo x-cross is a related idea: the cross is built with the bottom layer turned a quarter or a half, so a corner and an edge from different pairs can go in with it, and turning the bottom back finishes both. It widens the set of scrambles where something useful is possible.",
+        "Pseudo x-cross is a related idea: the cross is built with the bottom layer turned a quarter or a half, so a corner and an edge from different pairs can go in with it, and turning the bottom back sends each one home. It widens the set of scrambles where something useful is possible.",
         "Trainers exist that give you a scramble and hide an optimal x-cross solution until you ask for it. Studying those solutions is one of the quickest ways to learn the shapes.",
       ],
     },
@@ -558,7 +570,7 @@ export const algSetsWorthIt: LevelPack = {
       takeaway: "ZBLL, OLLCP and VLS run to hundreds of cases. They are for the very top.",
       minutes: 3,
       body: [
-        "ZBLL solves the whole last layer in one step when the edges are oriented: about 470 cases, or 493 counting the PLLs. Only a handful of people have learned all of it. OLLCP is over 300 cases, and VLS over 400.",
+        "ZBLL solves the whole last layer in one step when the edges are oriented: about 470 cases, or 493 counting the PLLs. Relatively few solvers have learned all of it, nearly all of them at the very top. OLLCP is over 300 cases, and VLS over 400.",
         "These are real techniques used at the top of the sport, and they are a poor investment below it. The standard advice for anyone curious about ZBLL is to learn COLL first, since it is a subset of the same idea, then add ZBLL cases a group at a time.",
         "If you do start a large set, count case frequency first. Learn the cases that appear in your solves, and stop when the new ones stop showing up often enough to matter.",
       ],
@@ -624,7 +636,7 @@ export const reconstructYourSolves: LevelPack = {
       minutes: 4,
       body: [
         "Record a solve from above, with a phone's slow-motion mode if you have one. Play it back and write down every move, step by step: cross, each pair, OLL, PLL, and the turns between.",
-        "Count moves in a consistent metric. The common one counts any turn of any layer, including a half turn or a slice, as one move. Divide each step's moves by its time to get turns per second for that step.",
+        "Count moves in a consistent metric. The common one, STM, counts any turn of any layer, including a half turn or a slice, as one move. Divide each step's moves by its time to get turns per second for that step.",
         "Reconstructions are usually shared in a standard layout, step by step with the move count and speed of each, and there is a long-running community thread of them from fast solvers. Comparing yours against theirs is the fastest way to see what a good solution for your weak step looks like.",
       ],
       checkpoint: "You can say your move count and turns per second for each step of one solve.",
@@ -635,8 +647,8 @@ export const reconstructYourSolves: LevelPack = {
       takeaway: "Slow steps, long pairs, rotations, and pauses you didn't know about.",
       minutes: 4,
       body: [
-        "Look first at turns per second by step. F2L is usually turned noticeably faster than the cross by strong solvers, because the cross needs more thinking per move; a cross or F2L far slower than the rest of your solve points at planning or lookahead.",
-        "Then look at pairs individually. Most good pairs are seven or eight moves; one at twelve had a better solution. Rotations are worth marking too, since they cost more than their move count and are usually avoidable.",
+        "Look first at turns per second by step. F2L is usually turned noticeably faster than the cross by strong solvers, because cross moves are awkward (D, B and F turns, straight out of inspection) while F2L runs on practised triggers; a cross or F2L far slower than the rest of your solve points at planning or lookahead.",
+        "Then look at pairs individually. A good pair averages about seven moves and most take eight or fewer; one at twelve probably had a better solution. Rotations are worth marking too, since they cost more than their move count and are usually avoidable.",
         "Finally, look at the time between steps in the video. Pauses show up clearly on film that you'd never notice while solving, and they are usually the cheapest thing on the list to fix.",
       ],
     },
@@ -722,7 +734,7 @@ export const competing: LevelPack = {
         "Practise the conditions: fifteen-second inspection, a stackmat if you can, averages of five.",
       minutes: 3,
       body: [
-        "The single most useful preparation is inspection: practise with the full fifteen-second limit, planning your cross before looking up, every solve. Competitions punish going over, and nerves make you plan less than you think.",
+        "The single most useful preparation is inspection: practise with the full fifteen-second limit every solve, and plan your cross inside it. Competitions punish going over, and nerves make you plan less than you think.",
         "If you can borrow or buy a stackmat, practise starting and stopping on it until it's automatic. Do your practice in averages of five, the way you will be judged, rather than endless singles.",
         "Make your last-layer recognition automatic with a trainer. Nerves slow recognition before they slow anything else, and an algorithm you half-know is the first thing to go.",
       ],

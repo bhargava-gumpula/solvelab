@@ -47,7 +47,7 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
   cross: {
     why: "A slow cross usually means solving the edges one at a time instead of seeing how they fit together, or doing more moves than needed.",
     tips: [
-      "Look at how the four cross edges relate to each other and solve pairs of them together; almost every cross takes 8 moves or fewer.",
+      "Look at how the four cross edges relate to each other and solve pairs of them together; every cross can be solved in 8 moves or fewer.",
       "Solve the cross on the bottom so you never have to flip the cube before F2L.",
       "Turn a little slower and smoother during the cross; a clean cross with no pause afterwards beats a rushed one.",
     ],
@@ -71,13 +71,13 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
   cross_to_f2l: {
     why: "A pause after the cross usually happens because you only start looking for your first pair once the cross is done.",
     tips: [
-      "In inspection, once the cross is planned, find where the first pair's corner and edge are; they often don't move during the cross.",
+      "In inspection, once the cross is planned, find the first pair's corner and edge and where the cross will leave them; a pair the cross doesn't touch is the easiest to start with.",
       "Finish the cross with the first pair's slot in a comfortable spot so you can start F2L without a rotation.",
       "Slow down the last cross moves slightly and use them to spot the pair.",
     ],
     drill:
       "Cross + first pair: for each scramble, plan the cross and name the first pair before starting, then solve both without pausing.",
-    keep: "You go from cross into F2L smoothly. Next step could be planning an extended cross.",
+    keep: "You go from cross into F2L smoothly. Next step could be taking an extended cross (x-cross) when the scramble offers an easy one.",
     sources: [SOURCES.crossTransition, SOURCES.crossPlusPair, SOURCES.extendedCross],
   },
   f2l: {
@@ -119,7 +119,7 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
   f2l_to_oll: {
     why: "A pause before OLL usually means stopping to find the OLL case after the last pair.",
     tips: [
-      "Insert the last pair quickly and cleanly, then recognise OLL from the shape on top.",
+      "Start reading the OLL shape on top while the last pair is still going in, so the algorithm starts without a pause.",
       "Learn to recognise OLL cases from two sides, so you don't turn the cube to look.",
       "Later on, look into edge control: some last-pair inserts also orient the edges, which gives easier OLLs.",
     ],
@@ -147,7 +147,7 @@ export const ASPECT_TIPS: Record<AspectId, AspectTips> = {
       "Learning cases by their shape makes the next group easier to recognise.",
     ],
     drill:
-      "Once full PLL is done: each day, learn two new OLL cases and review the last few days' cases until they're as fast as your others. Until then, drill your slowest 2-look cases.",
+      "Once full PLL is done and you are near sub-20: each day, learn two new OLL cases and review the last few days' cases until they're as fast as your others. Until then, drill your slowest 2-look cases.",
     keep: "Your OLL cases take about the same time. You know your algorithms well.",
     sources: [SOURCES.ollAlgs],
   },

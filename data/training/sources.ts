@@ -57,7 +57,10 @@ export const SOURCES = {
     label: "Cubefreak: Cross",
     url: "http://www.cubefreak.net/speed/cfop/cross.php",
   },
-  badmephistoF2l: { label: "Badmephisto: F2L", url: "http://badmephisto.com/f2l.html" },
+  badmephistoF2l: {
+    label: "Badmephisto: F2L (mirror)",
+    url: "https://defhacks.github.io/badmephisto-mirror/f2l.html",
+  },
   emptySlots: {
     label: "Jayden McNeill: Taking advantage of empty slots",
     url: "https://www.jaydenmcneillcubing.com/blog/blog-post-twelve-s6blk",

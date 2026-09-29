@@ -3,10 +3,11 @@ import type { LevelPack } from "../types";
 
 /*
  * Packs added with the Learning Hub, where the courses had gaps: a first
- * taste of lookahead for the Sub-60 course, rotation-free F2L and edge
- * orientation for the 30 → 15 s stretch, getting unstuck at 15, and the last
- * layer for people chasing sub-10. Every move sequence quoted with a slot is
- * checked by a unit test to touch only that slot and the top layer.
+ * taste of lookahead for the Sub-60 course, rotation-free F2L, edge
+ * orientation and getting unstuck at 15 for the Sub-15 course, usable turning
+ * speed and the last layer at the top for Sub-12, and the second pair and
+ * practice for Sub-10. Every move sequence quoted with a slot is checked by a
+ * unit test to touch only that slot and the top layer.
  */
 
 export const firstLookahead: LevelPack = {
@@ -44,12 +45,13 @@ export const firstLookahead: LevelPack = {
     {
       id: "first-look-where",
       title: "Where to look",
-      takeaway: "The pieces you need next are nearly always in the top layer, so scan the top.",
+      takeaway:
+        "Pairs with both pieces on top are usually the quickest to solve, so scan the top layer first.",
       minutes: 3,
       body: [
-        "During F2L, the pieces you need next are almost always in the top layer, because that's where pieces go when they're not yet solved. So you don't have to search the whole cube. Scan the top face and its side stickers.",
+        "During F2L, the pairs worth finding first are the ones with both pieces in the top layer: they need no extra moves to free them, and there usually is at least one. So you don't have to search the whole cube. Scan the top face and its side stickers first.",
         "Look for colours, not positions. If the next corner you want is white, green and red, scan the top for those three colours together. It's quicker to spot a colour you're hunting for than to check each piece in turn.",
-        "When a piece is stuck lower down, in a slot, you'll need a move to bring it up first. That's fine, but it's the exception. Train your eyes to go to the top layer first.",
+        "Plenty of pieces start lower down, though: when F2L begins, about half of the corners and edges you need sit in the slots, and one stuck there needs a move to bring it up first. So when the top has nothing ready, check the slots next. Train your eyes to go to the top layer first, then the slots.",
       ],
     },
   ],
@@ -83,7 +85,7 @@ export const firstLookahead: LevelPack = {
   mistakes: [
     "Trying to look ahead at full speed and deciding it doesn't work.",
     "Watching your hands do moves you already know by heart.",
-    "Searching the whole cube instead of the top layer.",
+    "Searching the whole cube instead of starting with the top layer.",
     "Turning faster to make up for the time lost searching.",
   ],
   sources: [SOURCES.cubefreakLookahead, SOURCES.subMinute, SOURCES.lookaheadFramework],
@@ -249,7 +251,7 @@ export const goodAndBadEdges: LevelPack = {
       minutes: 5,
       body: [
         "For an F2L edge in the top layer, look only at the sticker on top. If it's the colour of your front or back centre, the edge is good. If it's the colour of your left or right centre, it's bad. You don't need to look at the side sticker at all.",
-        "For an edge in the middle layer, look at the sticker facing front or back instead. If that sticker is the left or right colour, the edge is bad; if it's the front or back colour, it's good. Last-layer edges follow the same rule, which reduces to something you already know: yellow on top is good.",
+        "For an edge in the middle layer, look at the sticker facing front or back instead. If that sticker is the left or right colour, the edge is bad; if it's the front or back colour, it's good. Last-layer edges carry yellow, so for them the check is one you already know: yellow on top is good, yellow on a side is bad.",
         "This rule is about how you're holding the cube right now. Rotate the cube a quarter turn and the front and back colours change, so edges that were bad can become good. That's the real reason a rotation sometimes makes an awkward pair easy.",
       ],
       checkpoint: "Given any top-layer F2L edge, you can call it good or bad in under a second.",
@@ -263,7 +265,7 @@ export const goodAndBadEdges: LevelPack = {
       body: [
         "When you have a choice between two pairs, the one with a good edge is usually the shorter, smoother solve. Checking the edge first is a quick way to choose, and it's the same check pseudoslotting relies on.",
         "When you must solve a pair with a bad edge, you have three honest options: an F or B move that flips it, such as F' U F into the front-right slot; a rotation that makes it good relative to your new front; or leaving it for later, when another pair's moves may flip it for you.",
-        "Some solvers go further and control the last-layer edges too, flipping them during the last pair so that OLL becomes easier. That's a bigger project, covered in the last-layer pack. For now, just learning to see good and bad edges will make your pair choices better.",
+        "Some solvers go further and control the last-layer edges too, choosing a last-pair insert that leaves more of them facing up so that OLL becomes easier. The pack on the last pair into OLL starts that with one common case; the full systems are a much bigger project. Seeing good and bad edges at a glance comes first, and it already makes your pair choices better.",
       ],
       examples: [
         {
@@ -282,7 +284,7 @@ export const goodAndBadEdges: LevelPack = {
       purpose: "Makes edge orientation a glance rather than a thought.",
       rules: [
         "After the cross, before solving anything, point at each F2L edge in the top layer and say good or bad.",
-        "Check yourself by trying the pair with R and U only.",
+        "Check yourself by trying the pair with R, L and U only.",
         "Then solve normally.",
       ],
       dose: "Ten solves a day for a week.",
@@ -323,7 +325,7 @@ export const stuckAtFifteen: LevelPack = {
   summary:
     "Why progress stops around 15 seconds, and how to find the leak that's holding you there.",
   levels: ["sub20"],
-  why: "Getting to 15 seconds is mostly learning things: full PLL, F2L, a decent cross. After that, the big lessons are done and the remaining time is spread across small leaks, each worth a few tenths of a second. More normal solves repeat those leaks faithfully. Finding the biggest one and working on it on purpose is what breaks the plateau.",
+  why: "Getting to about 20 seconds is mostly learning things: intuitive F2L, full PLL, a planned cross. From 20 to 15 it's mostly lookahead and more efficient F2L, which improve slowly, and by 15 the remaining time is spread across small leaks, each worth a few tenths of a second. More normal solves repeat those leaks faithfully. Finding the biggest one and working on it on purpose is what breaks the plateau.",
   lessons: [
     {
       id: "fifteen-whats-left",
@@ -331,7 +333,7 @@ export const stuckAtFifteen: LevelPack = {
       takeaway: "At 15 seconds the big lessons are learned; what's left is several small leaks.",
       minutes: 4,
       body: [
-        "On the way down to about 20 seconds, most people improve by adding knowledge: intuitive F2L, full PLL, a planned cross. By 15, those are done, and it can feel as if nothing else will help. Solves get faster in the good sessions and slower in the bad ones, and the average stays put.",
+        "On the way down to about 20 seconds, most people improve by adding knowledge: intuitive F2L, full PLL, a planned cross. From there to 15 the gains come mostly from lookahead and more efficient F2L, which build slowly, and by 15 it can feel as if nothing else will help. Solves get faster in the good sessions and slower in the bad ones, and the average stays put.",
         "What's usually left is a handful of small leaks. Pauses between F2L pairs. A cross that stops at the cross, so the first pair starts with a search. A few last-layer cases that take twice as long as the others. Lockups and regrips in the middle of algorithms. Each one is worth a few tenths of a second.",
         "The experienced advice on this is remarkably consistent: at this level, it's F2L lookahead and efficiency, planning the cross and first pair, and the last-layer cases you're slow at, rather than new algorithm sets. The one set that does belong here is full OLL. If you're at 15 or 16 seconds and your last layer still takes about six seconds, usually because OLL is still two-look, full OLL is the standard fix, together with R and U turning drills and practice on the last slot.",
       ],
@@ -408,7 +410,7 @@ export const lastLayerAtTheTop: LevelPack = {
   title: "The last layer at the top",
   summary: "Skips, oriented edges and COLL: what's worth chasing when every tenth counts.",
   levels: ["sub15"],
-  why: "Below 12 seconds the last layer is around a quarter of the solve, and small gains there are real. But it's also where a lot of effort goes into things that barely move the average. Knowing the actual odds and costs keeps that effort pointed at what pays.",
+  why: "Around 12 seconds the last layer is about a third of the solve, so small gains there are real. But it's also where a lot of effort goes into things that barely move the average. Knowing the actual odds and costs keeps that effort pointed at what pays.",
   lessons: [
     {
       id: "top-skips-are-maths",
@@ -428,7 +430,7 @@ export const lastLayerAtTheTop: LevelPack = {
       takeaway: "When the edges are oriented, COLL leaves only an edge PLL, with a 1 in 12 skip.",
       minutes: 5,
       body: [
-        "When all four last-layer edges are already oriented after F2L, you're in one of the seven corner-orientation cases of OLL, the ones like Sune and Antisune. You can solve them with OLL and then PLL as usual. Or you can use COLL, which orients and places the corners together in one algorithm.",
+        "When all four last-layer edges are already oriented after F2L, you're in one of the seven corner-orientation cases of OLL, the ones like Sune and Antisune, unless the corners happen to be oriented as well. You can solve them with OLL and then PLL as usual. Or you can use COLL, which orients and places the corners together in one algorithm.",
         "After COLL, only the edges can be out of place, so the PLL is always a U perm, an H perm, a Z perm or nothing. The chance of nothing is 1 in 12, and the rest are the fastest PLLs there are. COLL is 40 cases, which is why it's often the first set people learn after full OLL and PLL.",
         "The algorithm bank in this app has COLL with verified algorithms and pictures. Learn it a group at a time, starting with H and Pi: you already know one case of each, because the H and Pi OLL algorithms each solve one COLL case. Then add U, T and L. Leave Sune and Antisune for last and treat them as optional, since an OLL and a PLL are already quick there. Don't choose by how often a group comes up: with the edges oriented, every corner group except H is equally likely, and H comes up half as often.",
       ],
@@ -501,7 +503,7 @@ export const pastTheFirstPair: LevelPack = {
       body: [
         "At twenty seconds, a half-second pause is a small fraction of the solve. At ten, the same pause is five per cent of it. That's why the faster you get, the more of your improvement comes from removing pauses rather than turning faster.",
         "The standard advice for going sub-10 already includes an efficient cross, usually about six moves, planned together with your first pair, taking an x-cross when the scramble offers one. Eight moves isn't the bar, since every cross can be solved in eight or fewer. After that, the earliest pause left in most solves is the moment the first pair goes in and you look for the second.",
-        "Inspection can remove that pause too. Usually not by planning the second pair's moves, which for most solvers rarely fits in fifteen seconds (full second-pair plans come later, on friendly scrambles), but by knowing where its pieces are and where your first moves will leave them.",
+        "Inspection can remove that pause too, usually not by planning the second pair's moves but by knowing where its pieces are and where your first moves will leave them. A full second-pair plan rarely fits in fifteen seconds; it is for friendly scrambles only, and even top solvers rarely manage it.",
       ],
       checkpoint: "You can say which pair you'll solve second in at least some of your solves.",
     },
@@ -513,7 +515,7 @@ export const pastTheFirstPair: LevelPack = {
       minutes: 5,
       body: [
         "Planning a second pair in full rarely fits in inspection. Tracking one piece of it does. Pick the second pair's corner and follow it through the cross and first-pair moves you've planned, the same way you track pieces while planning a cross.",
-        "Choose a corner your plan barely touches if you can: one in the top layer on the side away from your first pair. A piece your moves don't disturb is free to track, because it will still be where you saw it.",
+        "Choose a corner away from your first pair if you can: one on the far side of the top layer from its slot, so the side turns of that pair never reach it. Every top turn still carries it round, so tracking it means following those turns and knowing where each one leaves it.",
         "When the first pair goes in, your eyes go straight to where that corner is, and its edge is usually found in the same glance. The search that used to take half a second becomes a look.",
       ],
       checkpoint:

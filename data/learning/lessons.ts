@@ -25,16 +25,16 @@ export const lessons: Lesson[] = [
     id: "beginner-know-cube",
     pathId: "beginner",
     title: "Know your cube",
-    summary: "Centers, edges, corners, what never moves, and how to hold the cube.",
+    summary: "Centres, edges, corners, what never moves, and how to hold the cube.",
     minutes: 5,
     steps: [
       {
-        title: "Center pieces define the colors",
-        body: "Each face center stays opposite the same center forever. White opposite yellow, red opposite orange, blue opposite green on a standard Western color scheme.",
+        title: "Centre pieces define the colours",
+        body: "Each face centre stays opposite the same centre forever. White opposite yellow, red opposite orange, blue opposite green on a standard Western colour scheme.",
       },
       {
         title: "Edges and corners",
-        body: "Edges have two colors; corners have three. You never swap a corner with an edge — every move preserves piece type.",
+        body: "Edges have two colours; corners have three. You never swap a corner with an edge — every move preserves piece type.",
       },
       {
         title: "Hold the cube the solving way",
@@ -82,7 +82,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "White cross on the bottom",
-        body: "Hold white on the bottom and yellow on top (z2 after the scramble) and build the cross there, matching each white edge's other color to its center. A daisy is fine as a bridge while learning: gather the four white edges white side up around the yellow center, turn the top until an edge's side color sits above its matching center, then turn that face twice to bring it down. From then on, white stays on the bottom and yellow on top.",
+        body: "Hold white on the bottom and yellow on top (z2 after the scramble) and build the cross there, matching each white edge's other colour to its centre. A daisy is fine as a bridge while learning: gather the four white edges white side up around the yellow centre, turn the top until an edge's side colour sits above its matching centre, then turn that face twice to bring it down. From then on, white stays on the bottom and yellow on top.",
       },
       {
         title: "Insert white corners",
@@ -90,7 +90,7 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Check the layer",
-        body: "When the white face is solved and the first-layer side colors match their centers, move on.",
+        body: "When the white face is solved and the first-layer side colours match their centres, move on.",
       },
     ],
     practiceHint: "Solve only the white layer ten times; ignore the rest of the cube.",
@@ -105,7 +105,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Second-layer edges",
-        body: "Find an edge on top with no yellow on it. Turn the top until its side color matches the center below it, then turn the whole cube (white still down) so that center faces you. If the edge's top color matches the right center, do U R U′ R′ U′ F′ U F; if it matches the left center, do U′ L′ U L U F U′ F′. Either one drops the edge into the middle layer and puts the white corner back. No edge on top without yellow, but a middle edge in the wrong slot or flipped? Hold that slot at the front right and do the right-hand insert once to lift the edge onto the top, then place it as usual.",
+        body: "Find an edge on top with no yellow on it. Turn the top until its side colour matches the centre below it, then turn the whole cube (white still down) so that centre faces you. If the edge's top colour matches the right centre, do U R U′ R′ U′ F′ U F; if it matches the left centre, do U′ L′ U L U F U′ F′. Either one drops the edge into the middle layer and puts the white corner back. No edge on top without yellow, but a middle edge in the wrong slot or flipped? Hold that slot at the front right and do the right-hand insert once to lift the edge onto the top, then place it as usual.",
       },
       {
         title: "Yellow cross",
@@ -117,23 +117,23 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Corners into place",
-        body: "Look around the top layer for headlights: a side whose two top corners show the same color. Headlights on one side: hold them on the left and do the T perm, R U R′ U′ R′ F R2 U′ R′ U′ R U R′ F′. No headlights: do the Y perm, F R U′ R′ U′ R U R′ F′ R U R′ U′ R′ F R F′, holding the cube any way. Either way you finish with headlights on all four sides, which means the corners are done. Turn the top until each corner matches the centers beside it.",
+        body: "Look around the top layer for headlights: a side whose two top corners show the same colour. Headlights on one side: hold them on the left and do the T perm, R U R′ U′ R′ F R2 U′ R′ U′ R U R′ F′. No headlights: do the Y perm, F R U′ R′ U′ R U R′ F′ R U R′ U′ R′ F R F′, holding the cube any way. Either way you finish with headlights on all four sides, which means the corners are done. Turn the top until each corner matches the centres beside it.",
       },
       {
         title: "Edges into place",
-        body: "Look for a finished side, where the whole top row matches the center. Hold it at the back and look at the front edge. If its color matches the right center, do the Ua perm, R U′ R U R U R U′ R′ U′ R2; if it matches the left center, do the Ub perm, R2 U R U R′ U′ R′ U′ R′ U R′. Mixed them up? The finished side stays at the back, so do the same one again. No finished side yet: do either one holding the cube any way, and you will have one. When every side matches, the cube is solved. Accuracy first.",
+        body: "Look for a finished side, where the whole top row matches the centre. Hold it at the back and look at the front edge. If its colour matches the right centre, do the Ua perm, R U′ R U R U R U′ R′ U′ R2; if it matches the left centre, do the Ub perm, R2 U R U R′ U′ R′ U′ R′ U R′. Mixed them up? The finished side stays at the back, so do the same one again. No finished side yet: do either one holding the cube any way, and you will have one. When every side matches, the cube is solved. Accuracy first.",
       },
     ],
     examples: [
       {
         label: "Middle edge, right-hand insert",
         moves: "U R U' R' U' F' U F",
-        note: "The edge's side color matches the front center and its top color the right one.",
+        note: "The edge's side colour matches the front centre and its top colour the right one.",
       },
       {
         label: "Middle edge, left-hand insert",
         moves: "U' L' U L U F U' F'",
-        note: "The same, with its top color matching the left center.",
+        note: "The same, with its top colour matching the left centre.",
       },
       {
         label: "Yellow cross from a line",
@@ -178,11 +178,11 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Inspection goal",
-        body: `${HOLD_RULE} Do the ${SOLVING_ROTATION} as inspection starts, then use the 15 seconds to find all four white edges and plan as much of the cross on the bottom as you can before your first turn: at least the first two edges. Planning the whole cross is the goal of the Sub-30 course, so don't worry yet if the last edges are still a search. Never solve the cross on top; color neutrality is an optional extra for later, not part of this lesson.`,
+        body: `${HOLD_RULE} Do the ${SOLVING_ROTATION} as inspection starts, then use the 15 seconds to find all four white edges and plan as much of the cross on the bottom as you can before your first turn: at least the first two edges. Planning the whole cross is the goal of the Sub-30 course, so don't worry yet if the last edges are still a search. Never solve the cross on top. Colour neutrality is an optional extra with its own unit in this course, not part of this lesson.`,
       },
       {
         title: "Efficient crosses",
-        body: "Every cross can be solved in 8 moves or fewer. If yours often take 10+, practice the cross on its own, untimed: find a solution, look for a shorter one, then redo the same scramble with 15 seconds of inspection and see how much more of it you can plan before turning.",
+        body: "Every cross can be solved in 8 moves or fewer. If yours often take 10+, practise the cross on its own, untimed: find a solution, look for a shorter one, then redo the same scramble with 15 seconds of inspection and see how much more of it you can plan before turning.",
       },
     ],
     practiceHint:
@@ -197,7 +197,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Pair then insert",
-        body: "Intuitive F2L sounds like dozens of cases and is really three ideas. If the corner or edge you need is stuck in a slot where it doesn't belong, take it out, usually with the same three-move trigger you insert with. Turn the top layer to bring the corner and edge together into a pair. Then drop the pair into its slot. The easiest case is a joined pair waiting in the top layer one turn from its slot: with the corner at the front left and its edge beside it at the front, R U' R' drops it in with three moves. Learn to spot pairs like that, then learn to make them by moving one piece out of the way, turning the top so the other lines up, and bringing the first back. Learn the motion, not forty-one names.",
+        body: "Intuitive F2L sounds like dozens of cases, but most of them come down to three ideas. If the corner or edge you need is stuck in a slot where it doesn't belong, take it out, usually with the same three-move trigger you insert with. Turn the top layer to bring the corner and edge together into a pair. Then drop the pair into its slot. The easiest case is a joined pair waiting in the top layer one turn from its slot: with the corner at the front left and its edge beside it at the front, R U' R' drops it in with three moves. Learn to spot pairs like that, then learn to make them by moving one piece out of the way, turning the top so the other lines up, and bringing the first back. Not every case fits that pattern exactly: some join as they go in, like the three-move case below, and in the Sub-30 course keyhole drops a single piece in through an empty slot without pairing it first. There are forty-one cases in all. Learn them by these moves, not by name.",
       },
       {
         title: "Front slots first",
@@ -210,10 +210,16 @@ export const lessons: Lesson[] = [
     ],
     examples: [
       {
+        label: "A joined pair",
+        moves: "R U' R'",
+        caseId: "f2l-3",
+        note: "Corner at the front left, its edge beside it at the front. R lifts the slot, U' swings the pair over it, R' drops it in.",
+      },
+      {
         label: "The three-move case",
         moves: "R U R'",
         caseId: "f2l-1",
-        note: "The pair isn't joined yet, but one R U R' joins it and drops it in at once. Most F2L solutions are built from this and its mirror.",
+        note: "The pair isn't joined yet, but one R U R' joins it and drops it in at once. Most F2L solutions are built from three-move pieces like these two.",
       },
     ],
     practiceHint: "Start F2L training on Train — turn a bit slower and look for the next pair.",
@@ -227,7 +233,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Edges first",
-        body: "Orienting the last layer takes two looks. In the first, look only at the four edges on top and whether their yellow faces up. Ignore the corners, and ignore where anything belongs: that is PLL's job. You will see a dot (none up), an L (two next to each other), a line (two opposite) or the cross already made. That is three algorithms, and the dot is just the line and the L done one after the other. Get to where you name the shape the moment you look.",
+        body: "Orienting the last layer takes two looks. In the first, look only at the four edges on top and whether their yellow faces up. Ignore the corners, and ignore where anything belongs: that is PLL's job. You will see a dot (none up), an L (two next to each other), a line (two opposite) or the cross already made. That is three algorithms, and the dot is just the line and the L done one after the other. Hold the line left to right and do F R U R′ U′ F′. Hold the L at the front right (its two edges at the front and on the right) and do f R U R′ U′ f′. For the dot, do the line algorithm holding the cube any way: it leaves an L at the front right, ready for the L algorithm straight away. Get to where you name the shape the moment you look.",
       },
       {
         title: "Seven corner cases",
@@ -278,15 +284,15 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Corner permutation",
-        body: "Look for headlights: two matching corner colors on one side. Headlights on one side: hold them on the left and do the T perm, which swaps the two right-hand corners. No headlights: do the Y perm, which swaps two corners diagonally across the top and works from any angle. Headlights on every side: the corners are done, so go straight to the edges. Some guides use an A perm instead (a three-corner cycle, for headlights on one side: Aa with the headlights on the left, Ab with them at the back) plus the E perm (no headlights, corners swapped in two pairs), which works from any angle. That is also two algorithms, but the E perm is harder to spot and to turn quickly than the Y, which is why most guides start with T and Y. Spotting headlights is the most useful recognition skill in the last layer: full PLL is read the same way, just with more cases.",
+        body: "Look for headlights: two matching corner colours on one side. Headlights on one side: hold them on the left and do the T perm, which swaps the two right-hand corners. No headlights: do the Y perm, which swaps two corners diagonally across the top and works from any angle. Headlights on every side: the corners are done, so go straight to the edges. Some guides use an A perm instead (a three-corner cycle, for headlights on one side: Aa with the headlights on the left, Ab with them at the back) plus the E perm (no headlights, corners swapped in two pairs), which works from any angle. That is also two algorithms, but the E perm is harder to spot and to turn quickly than the Y, which is why most guides start with T and Y. Spotting headlights is the most useful recognition skill in the last layer: full PLL is read the same way, just with more cases.",
       },
       {
         title: "Edge permutation",
-        body: "U-perms, H, and Z cover edge permutation after corners are done.",
+        body: "With the corners done, look for a solved bar: a side whose whole top row matches. One bar: hold it at the back and look at the front edge. If it belongs on the right, do the Ua perm; if it belongs on the left, the Ub perm. No bar: the edges swap in pairs, H if each belongs on the opposite side and Z if each belongs on a neighbouring one. The 2-look PLL unit in this course has the details and drills.",
       },
       {
         title: "AUF habit",
-        body: "Finish with an intentional U adjustment. Guessing AUF mid-alg creates lockups.",
+        body: "AUF means adjusting the top: a U, U′ or U2 before an algorithm to set the case up, or after it to line the layer up. Recognise the case first, then turn the top once to the angle the algorithm starts from. Don't turn it while you are still looking, and turn the top, not the whole cube. As the algorithm ends, already know which last turn lines the layer up.",
       },
     ],
     practiceHint: "Start PLL training once you can set up cases reliably.",
@@ -313,7 +319,8 @@ export const lessons: Lesson[] = [
     id: "advanced-rotations",
     pathId: "advanced",
     title: "Reduce F2L rotations",
-    summary: "Y rotations are expensive — empty slots and U moves scale better.",
+    summary:
+      "A y rotation hides the pieces you are tracking; back-slot inserts and top turns avoid most of them.",
     minutes: 8,
     steps: [
       {
@@ -321,8 +328,22 @@ export const lessons: Lesson[] = [
         body: "Film a few solves or consciously count y/y′. Aim for one or two in the whole F2L, never a y2, and don't rotate while you are tracking a piece. Rotations matter more once you are near sub-20; before that, lookahead comes first.",
       },
       {
-        title: "Slot choice",
-        body: "Solving into back slots without rotating keeps front pairs visible for lookahead.",
+        title: "Back slots without rotating",
+        body: "Solving the back slots without turning the cube keeps the pieces you are tracking in view. The inserts are the front ones mirrored, with each turn reversed. Back right: R′ U R for a pair joined at the back, and R′ U′ R when the corner sits above the slot with its edge at the front. Back left: L U′ L′ and L U L′ in the same way. Where you would rotate and then turn the top, a d or d′ (the bottom two layers turned together) does both in one move: d is a y′ and a U, d′ a y and a U′. It feels slow at first, so practise slowly until solving from the front beats rotating.",
+      },
+    ],
+    examples: [
+      {
+        label: "Back-right insert",
+        moves: "R' U R",
+        slot: "BR",
+        note: "A pair joined at the back, its corner at the back left: the back-slot mirror of R U' R'.",
+      },
+      {
+        label: "Back-left insert",
+        moves: "L U' L'",
+        slot: "BL",
+        note: "The same on the left: the pair joined at the back, its corner at the back right.",
       },
     ],
   },

@@ -124,6 +124,8 @@ export const COURSES: readonly CourseDefinition[] = [
         lessons: ["pll-why-first", "pll-order"],
         drills: ["pll-group-learn"],
         optional: true,
+        // The drill deals all 21 cases; here the start is the A and J perms.
+        recognition: false,
       },
     ],
     hue: 140,
@@ -192,11 +194,16 @@ export const COURSES: readonly CourseDefinition[] = [
       {
         id: "advanced-f2l-cases",
         lessons: ["adv-why-algorithms", "adv-stuck-in-slot"],
-        drills: [],
+        drills: ["adv-case-trainer"],
         // The recognition drill deals all 41 cases; memorised F2L here is the five stuck ones.
         recognition: false,
       },
-      { id: "oll-algorithms", lessons: ["oll-when", "oll-groups"], drills: [], optional: true },
+      {
+        id: "oll-algorithms",
+        lessons: ["oll-when", "oll-groups"],
+        drills: ["oll-group-of-four"],
+        optional: true,
+      },
       {
         id: "pll-execution",
         lessons: ["pll-target", "pll-algorithm-choice"],
@@ -218,7 +225,7 @@ export const COURSES: readonly CourseDefinition[] = [
         lessons: ["consistency-where-the-spread-is"],
         drills: ["consistency-ao12-only"],
       },
-      { id: "xcross-properly", lessons: ["xc-payoff", "xc-shapes"], drills: [], optional: true },
+      { id: "xcross-properly", lessons: ["xc-ladder"], drills: [], optional: true },
     ],
     hue: 45,
   },
@@ -287,22 +294,26 @@ export const COURSES: readonly CourseDefinition[] = [
       {
         id: "lookahead",
         lessons: ["lookahead-knowing"],
-        drills: ["lookahead-blind-pair", "lookahead-two-pairs-blind", "lookahead-metronome"],
+        drills: ["lookahead-blind-pair", "lookahead-two-pairs-blind"],
       },
-      { id: "predict-pll" },
       { id: "oll-into-pll", lessons: ["pll-during-oll"], drills: ["pll-oll-pll-joined"] },
+      { id: "predict-pll" },
       { id: "xcross-properly" },
-      { id: "speed-you-can-use" },
-      { id: "pll-execution", lessons: ["pll-under-pressure"], drills: ["pll-worst-three"] },
-      {
-        id: "consistency",
-        lessons: ["consistency-pressure"],
-        drills: ["consistency-finish-calmly"],
-      },
       {
         id: "reconstruct-your-solves",
         lessons: ["recon-two-numbers", "recon-how"],
         drills: ["recon-five"],
+      },
+      { id: "speed-you-can-use" },
+      {
+        id: "pll-execution",
+        lessons: ["pll-under-pressure"],
+        drills: ["pll-full-set", "pll-worst-three"],
+      },
+      {
+        id: "consistency",
+        lessons: ["consistency-pressure"],
+        drills: ["consistency-finish-calmly"],
       },
       { id: "last-layer-at-the-top", optional: true },
     ],
@@ -316,13 +327,13 @@ export const COURSES: readonly CourseDefinition[] = [
     tagline: "The details that separate the fastest solvers.",
     units: [
       { id: "past-the-first-pair" },
-      { id: "practising-near-ten" },
-      { id: "multislotting" },
       {
         id: "reconstruct-your-solves",
         lessons: ["recon-what-to-look-for", "recon-fast-solvers"],
         drills: ["recon-same-scramble"],
       },
+      { id: "practising-near-ten" },
+      { id: "multislotting" },
       {
         id: "alg-sets-worth-it",
         lessons: ["sets-large"],

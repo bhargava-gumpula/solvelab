@@ -22,14 +22,14 @@ export const pll: AlgorithmSetData = {
         {
           id: "aa-1",
           moves: "x L2 D2 L' U' L D2 L' U L' x'",
-          note: "The usual one, all with the left hand.",
+          note: "J Perm's version, all with the left hand. Many sheets lead with the right-hand one below.",
         },
         { id: "aa-2", moves: "x R' U R' D2 R U' R' D2 R2 x'" },
         { id: "aa-3", moves: "x' R2 D2 R' U' R D2 R' U R' x" },
         {
           id: "aa-4",
           moves: "R' F R' B2 R F' R' B2 R2",
-          note: "Short, but it needs comfortable B turns.",
+          note: "No rotations, but it needs comfortable B turns.",
         },
       ],
     },
@@ -66,7 +66,7 @@ export const pll: AlgorithmSetData = {
         "One side is a solved bar of three, and no other side shows headlights or a block. Hold the bar on the left for the first algorithm: the two right corners swap, and so do the front and back edges.",
       algorithms: [
         { id: "f-1", moves: "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R" },
-        { id: "f-2", moves: "R' U R U' R2 F' U' F U R F R' F' R2 U'" },
+        { id: "f-2", moves: "R' U R U' R2 F' U' F U R F R' F' R2" },
         { id: "f-3", moves: "R' U2 R' U' y R' F' R2 U' R' U R' F R U' F" },
       ],
     },
@@ -79,7 +79,6 @@ export const pll: AlgorithmSetData = {
       algorithms: [
         { id: "ga-1", moves: "R2 U R' U R' U' R U' R2 U' D R' U R D'" },
         { id: "ga-2", moves: "R2 u R' U R' U' R u' R2 y' R' U R" },
-        { id: "ga-3", moves: "R2 U R' U R' U' R U' R2 D U' R' U R D'" },
         { id: "ga-4", moves: "D' R2 U R' U R' U' R U' R2 U' D R' U R" },
       ],
     },
@@ -105,7 +104,6 @@ export const pll: AlgorithmSetData = {
       algorithms: [
         { id: "gc-1", moves: "R2 U' R U' R U R' U R2 U D' R U' R' D" },
         { id: "gc-2", moves: "R2 u' R U' R U R' u R2 y R U' R'" },
-        { id: "gc-3", moves: "R2 U' R U' R U R' U R2 D' U R U' R' D" },
         { id: "gc-4", moves: "D R2 U' R U' R U R' U R2 U D' R U' R'" },
       ],
     },
@@ -160,10 +158,9 @@ export const pll: AlgorithmSetData = {
         {
           id: "jb-1",
           moves: "R U R' F' R U R' U' R' F R2 U' R' U'",
-          note: "Built from the T perm's first half.",
+          note: "Built from the T perm's first half. Most sheets stop before the last U', which only lines the top up with the sides; in a solve, finish with whichever turn of the top does that.",
         },
         { id: "jb-2", moves: "R U2 R' U' R U2 L' U R' U' L" },
-        { id: "jb-3", moves: "R U R' F' R U R' U' R' F R2 U' R'" },
       ],
     },
     {
@@ -202,7 +199,6 @@ export const pll: AlgorithmSetData = {
         { id: "ra-1", moves: "R U' R' U' R U R D R' U' R D' R' U2 R'" },
         { id: "ra-2", moves: "L U2 L' U2 L F' L' U' L U L F L2" },
         { id: "ra-3", moves: "R U2 R' U2 R B' R' U' R U R B R2" },
-        { id: "ra-4", moves: "R U' R' U' R U R D R' U' R D' R' U2 R' U'" },
         { id: "ra-5", moves: "R U2 R D R' U R D' R' U' R' U R U R'" },
       ],
     },
@@ -236,7 +232,6 @@ export const pll: AlgorithmSetData = {
           note: "The same idea mirrored, for left-handed finger tricks.",
         },
         { id: "t-3", moves: "F R U' R' U R U R2 F' R U R U' R'" },
-        { id: "t-5", moves: "R U R' U' R' F R2 U' R' U' R U R' F' U" },
       ],
     },
     {
@@ -269,11 +264,10 @@ export const pll: AlgorithmSetData = {
       recognition:
         "No bar or headlights anywhere; blocks of two on two neighbouring sides meet at the corner between them, and the other two sides each show three different colours. In a Y perm the two blocks don't share a corner.",
       algorithms: [
-        { id: "v-1", moves: "R' U R' U' y R' F' R2 U' R' U R' F R F" },
+        { id: "v-1", moves: "R' U R' U' y R' F' R2 U' R' U R' F R F y'" },
         { id: "v-2", moves: "R U' R U R' D R D' R U' D R2 U R2 D' R2" },
         { id: "v-3", moves: "R' U R' U' R D' R' D R' U D' R2 U' R2 D R2" },
         { id: "v-4", moves: "z D' R2 D R2 U R' D' R U' R U R' D R U' z'" },
-        { id: "v-5", moves: "R' U R' d' R' F' R2 U' R' U R' F R F" },
       ],
     },
     {
@@ -296,8 +290,8 @@ export const pll: AlgorithmSetData = {
         { id: "z-1", moves: "M2 U M2 U M' U2 M2 U2 M' U2" },
         { id: "z-2", moves: "M' U M2 U M2 U M' U2 M2" },
         { id: "z-3", moves: "M' U' M2 U' M2 U' M' U2 M2" },
-        { id: "z-4", moves: "R' U' R U' R U R U' R' U R U R2 U' R' U2" },
-        { id: "z-5", moves: "M2 U' M2 U' M' U2 M2 U2 M' U2" },
+        { id: "z-4", moves: "R' U' R U' R U R U' R' U R U R2 U' R'" },
+        { id: "z-5", moves: "M2 U' M2 U' M' U2 M2 U2 M'" },
       ],
     },
   ],

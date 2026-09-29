@@ -27,7 +27,7 @@ export const advancedF2lCases: LevelPack = {
       body: [
         "Every F2L case can be solved by feel, and until your pairs flow one into the next, feel is the right way to do them. A memorised solution saves a couple of moves; a pause while you hunt for the next pair costs far more. J Perm suggests being roughly sub-15, with steady lookahead and few rotations, before putting real time into F2L algorithms.",
         "When you do start, don't work down a list. Start where intuition wastes the most, which is pieces stuck in the slot. By feel, these mean lifting pieces out without a plan, pairing them and putting them back, which often runs past ten moves and sometimes needs a rotation. The algorithms for the five both-stuck cases are nine to eleven moves, need no rotation, and need no thinking once learned. That's why these few are worth learning around sub-20, well before the rest.",
-        "This pack goes in that order: both pieces stuck, then the edge stuck with the corner on top, then the corner stuck with the edge on top, then shortcuts for corners with white facing up. Versions for the back slots come last, once the front ones are automatic.",
+        "This pack goes in that order: both pieces stuck, then the edge stuck with the corner on top, then the corner stuck with the edge on top, then shortcuts for corners with white facing up. Versions for the back slots come last, once the front ones are automatic. The Sub-20 course covers the first group; the Sub-15 course picks up the rest.",
         "A word on case numbers. SolveLab numbers its F2L cases from the cube, so they don't line up with SpeedCubeDB, where many solvers look up and vote on algorithms: SpeedCubeDB's 39 is SolveLab's F2L 40, for example. Every example here gives both numbers, so you can find the case in either place.",
         "Learn each one with the pieces in view. Do it slowly and watch which moves lift the pieces out, which join them and which put the pair in. An algorithm you understand is one you recognise sooner and forget later.",
       ],
@@ -44,7 +44,7 @@ export const advancedF2lCases: LevelPack = {
         'When the corner and edge are both in their slot but wrong, there are five cases: the corner home with the edge flipped, or the corner twisted one of two ways with the edge either right or flipped. You met them in "When a piece is stuck in a slot"; here are the solutions fast solvers tend to use.',
         "Read them in two looks. First the edge: if its green sticker faces you, the edge is right; if green faces right, it's flipped. Then the corner: white facing down means it's home, otherwise note whether white faces you or faces right.",
         "Start with the two where the edge is already right. Both use only R and U from your normal grip, with no regrip, which is the kind of algorithm that gets fast within a few days. Then the corner-home case, which has F R2 F' in the middle, and last the two with a twisted corner and a flipped edge, which use wide r turns.",
-        "Those last two are built from the same parts in opposite orders. One opens with R U' R' and finishes with the wide-r part; the other opens with the wide-r part and finishes with R U R'. Learn them together and you have half the work done.",
+        "Those last two share the same wide-r part, r U' r' U2 r U r', with a short R trigger at opposite ends. One opens with R U' R' and finishes with the wide-r part; the other opens with the wide-r part and finishes with R U R'. Learn them together and you have half the work done.",
       ],
       examples: [
         {
@@ -52,7 +52,7 @@ export const advancedF2lCases: LevelPack = {
           moves: "R U' R' U' R U R' U2 R U' R'",
           caseId: "f2l-38",
           slot: "FR",
-          note: "SolveLab's F2L 38 (SpeedCubeDB 38). Only R and U, with no regrip; flick the U2 with one finger.",
+          note: "SolveLab's F2L 38 (SpeedCubeDB 38). Only R and U, with no regrip; do the U2 as an index-then-middle double flick.",
         },
         {
           label: "Edge right, white facing right",
@@ -395,8 +395,8 @@ export const predictPll: LevelPack = {
         "Find the pieces the PLL doesn't move, see which centre they match, and you know the final U turn before the algorithm starts.",
       minutes: 4,
       body: [
-        "Since the Sub-20 course you have been calling the last turn from one reference sticker per case. This is the faster read that fast solvers move on to: you get the turn from the pieces themselves while you recognise the case, with no sticker to remember.",
-        "The trick is that every PLL leaves some pieces where they are. Look at those pieces now, see which centre they belong next to, and you know where they'll need to go at the end. In a U perm, H perm or Z perm the corners don't move at all, so the U turn that would line the corners up with their centres right now, after any set-up turn, is the turn you'll make after the algorithm.",
+        "If you call the last turn from one reference sticker per case (the AUF lesson in the Sub-20 course), this is the faster read that fast solvers move on to: you get the turn from the pieces themselves while you recognise the case, with no sticker to remember.",
+        "The trick is that every PLL leaves some pieces where they are. Look at those pieces now, see which centre they belong next to, and you know where they'll need to go at the end. With the usual U, H and Z perm algorithms the corners end where they started, so the U turn that would line the corners up with their centres right now, after any set-up turn, is the turn you'll make after the algorithm.",
         "The T perm, done with the headlights on the left, leaves those two corners alone, and afterwards the whole left side is the headlights' colour. So match the headlights to a centre. If they match the left centre, there's no final turn; the front centre, finish with U'; the back centre, U; the right centre, U2.",
         "Work out the same for the PLLs you meet most: which pieces stay put, and where they'll have to go. Then, once you've recognised a PLL, say the final turn to yourself before you start it. It slows you down at first; within a couple of weeks the last U is just part of the algorithm.",
       ],
@@ -412,7 +412,7 @@ export const predictPll: LevelPack = {
         "Every PLL can turn up facing any of four ways, and one guide to all of them runs to 84 angles. Learning them all is a poor trade. For most PLLs, one angle in four needs a U2 before your usual algorithm, and some leave a turn at the end you could have avoided. Those are the angles worth a second algorithm.",
         "Start with the U perms. The usual Ua and Ub are done with the solved bar at the back, so when the bar is in front of you, the usual way is a U2 first. There are R and U versions for that angle, which amount to doing the U perm from the back, and they need no set-up turn.",
         "Next, J perm endings. SolveLab's default Jb, R U R' F' R U R' U' R' F R2 U' R' U', ends with a U' built in; R U2 R' U' R U2 L' U R' U' L solves the same angle and doesn't need it. The T perm has a similar trick. R U R' U' R' F R2 U' R' U F' L' U L starts like the usual T and finishes a U2 away from it, so when the headlights match the right centre, it saves the U2 at the end.",
-        "G and R perms have versions that start one U turn apart: an Rb for headlights in front as well as on the left, a Gb for headlights at the back as well as on the left. From those angles the Gb saves one U turn and the Rb saves two, a U before and a U after, so learn them last, and only for cases you meet often.",
+        "G and R perms have versions that start one U turn apart: an Rb for headlights in front as well as on the left, a Gb for headlights at the back as well as on the left. From those angles the Gb saves one U turn and the Rb saves two, a U before and a U after. Add them after the U perm, J perm and T perm ones, and only for cases you meet often.",
         "Keep a short list of the cases where you catch yourself doing U2, the algorithm, then U2 again. Learn one alternative a week, and use it in solves until it's the one your hands pick.",
       ],
       examples: [

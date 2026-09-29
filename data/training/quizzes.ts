@@ -160,7 +160,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   // F2L in fewer moves
   "f2l-what-a-pair-is": [
     {
-      question: "What's the one idea behind every F2L case?",
+      question: "What's the idea behind most F2L cases?",
       options: [
         "Memorise 41 algorithms",
         "Join the corner and edge in the top layer, then drop the pair into its slot",
@@ -168,7 +168,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "Use as many rotations as needed",
       ],
       answer: 1,
-      why: "Every case is 'join, then insert'. Learning it that way lets you solve cases you've never seen and spot shorter solutions.",
+      why: "Most cases are 'free any stuck piece, join the pair on top, then insert'. A few go in another way: in one three-move case, R U R' joins the pair as it drops it in, and later keyhole puts the corner and edge in one at a time through an empty slot. Learning the moves rather than 41 names lets you solve cases you've never seen and spot shorter solutions.",
     },
   ],
   "f2l-move-count": [
@@ -337,12 +337,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "You can't read the exact OLL during the last pair. Is a partial read still worth it?",
       options: [
         "No — only an exact read helps",
-        "Yes — knowing the family (dot, line, L, cross) makes the final read nearly instant",
+        "Yes — the edge shape is a first cut, so less is left to read once the pair is in",
         "Only for PLL",
         "Only if you use Winter Variation",
       ],
       answer: 1,
-      why: "The family narrows 57 cases to a handful, so after the insertion one glance decides it. That captures most of the benefit.",
+      why: "The edge shape (dot, line, L or cross) doesn't name the case on its own: it leaves 8 dots, 15 lines, 27 Ls or 7 with every edge up. But it is the first cut, so once the pair is in, only the named shape and one sticker on the side are left to read. Every look you take during the insert is one you don't take after it.",
     },
   ],
   "lastpair-edge-control": [
@@ -379,12 +379,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "What makes OLL recognition fast?",
       options: [
         "Memorising the case numbers",
-        "Recognising the shape family first, then one corner sticker",
+        "The edge shape, then the named shape, then one sticker",
         "Checking all 57 pictures",
         "Only learning 2-look",
       ],
       answer: 1,
-      why: "The shape (dot, line, L, cross) narrows it to a few cases and one corner sticker decides — a two-step read instead of a comparison against 57.",
+      why: "The edge shape (dot, line, L or cross) is only the first cut: it leaves 8 dots, 15 lines, 27 Ls or 7 with every edge up. Inside a line or an L, the named shape (P, W, fish, lightning bolt, knight move and so on) narrows it to a few, often a mirror pair, and one sticker on the side decides. Three quick looks instead of a comparison against 57.",
     },
   ],
   "oll-angle": [
@@ -398,7 +398,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "Only practise the cases you find easy",
       ],
       answer: 0,
-      why: "Both 2-look reads work from any side: the edge shape first, then how many corners face up. The angle only decides which way to turn the top before you start, and a top turn is a flick where a rotation is a regrip.",
+      why: "Both 2-look reads work from any side: the edge shape first, then how many corners face up. The angle only decides which way to turn the top before you start, and a top turn is a flick where a rotation is a regrip. For the odd case where that turn is awkward, a second algorithm from that angle can be worth learning.",
     },
   ],
   "oll-lockups": [
@@ -528,7 +528,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "PLL is required at competitions",
       ],
       answer: 1,
-      why: "21 cases against 57, more reps per case, and recognition that transfers to reading the cube in F2L.",
+      why: "21 cases against 57, and each case comes up about three times as often: most PLLs 1 solve in 18, most OLLs 1 in 54. So the reps arrive faster, and the side-sticker reading carries over to reading the cube in F2L.",
     },
   ],
   "pll-order": [
@@ -875,12 +875,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "Which full-PLL cases are worth adding first after 2-look?",
       options: [
         "The G perms",
-        "The common cases 2-look handles worst, starting with the J perms",
+        "The common cases 2-look handles worst, starting with the A and J perms",
         "The rarest ones",
         "The N perms",
       ],
       answer: 1,
-      why: "Common cases that 2-look does as two algorithms give the biggest saving per case learned.",
+      why: "Common cases that 2-look does as two algorithms give the biggest saving per case learned. The A and J perms are quick to pick up; the G perms are better left until you can learn all four together.",
     },
   ],
   // Choosing the next pair
@@ -895,7 +895,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "Restart F2L",
       ],
       answer: 1,
-      why: "Stuck pairs take nine or ten moves; a pair on top takes three to seven. Declining the expensive one is a free efficiency gain.",
+      why: "A good pair averages about seven moves: an easy one on top takes three to seven, but a pair stuck in its slot takes nine to eleven even with a good solution. Declining the expensive one is a free efficiency gain.",
     },
   ],
   "choice-free-pairs": [
@@ -1071,15 +1071,15 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   "filler-merge": [
     {
       question:
-        "Your last F2L insert ends with a top turn and your OLL needs one to line up. What's the saving?",
+        "Your last F2L insert ends with R', and the OLL after it will need a top turn to line up. Where's the saving?",
       options: [
-        "None",
-        "Choose the insert's direction so the case comes out already aligned — one turn instead of two",
-        "Do both turns faster",
-        "Skip the OLL",
+        "None: the insert and the OLL are separate steps",
+        "Turn the top for the OLL first, then insert the pair",
+        "Decide that turn during the insert, so it follows the R' with no look",
+        "Rotate the cube to the case's angle instead of turning the top",
       ],
-      answer: 1,
-      why: "If you know the next step while finishing this one, the adjusting turn and the finishing turn can be the same turn.",
+      answer: 2,
+      why: "An insert usually ends on a side turn like R', so there's no top turn in it to merge with, and turning the top first would carry the pair away from its slot. The saving is deciding early: read the case and the turn it needs while the pair goes in, and the lining-up turn follows at once instead of after a look.",
     },
   ],
   "filler-rotations": [
@@ -1128,12 +1128,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "In the simplest multislot, what do two extra moves buy?",
       options: [
         "Nothing",
-        "A second pair lined up as a side effect — usually four to six moves of pairing saved",
+        "When the pieces sit right, a second pair lined up as a side effect",
         "An OLL skip",
         "A faster cross",
       ],
       answer: 1,
-      why: "Turning a second face out of the way and back costs two moves but pairs up the next pair for free.",
+      why: "In L' R U R' L, turning the left face out of the way and back costs two moves. With the front-left slot still empty and the second pair's pieces in the right places, those turns can pair it while R U R' inserts the first, saving four to six moves of pairing. Most of the time the pieces aren't placed for it, which is why you take it when you see it.",
     },
   ],
   "multi-limits": [
@@ -1220,13 +1220,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     {
       question: "If you're curious about ZBLL, what's the standard first step?",
       options: [
-        "Learn all 493 cases in order",
+        "Learn all of it, about 470 cases, in order",
         "Learn COLL first, then add ZBLL a group at a time",
         "Learn OLLCP",
         "Learn VLS",
       ],
       answer: 1,
-      why: "COLL is a subset of the same idea. Build on it, and stop adding cases when new ones stop coming up often enough to matter.",
+      why: "ZBLL is about 470 cases, or 493 counting the PLLs, and COLL is a subset of the same idea. Build on it a group at a time, and stop adding cases when new ones stop coming up often enough to matter.",
     },
   ],
   // Reconstructing your own solves
@@ -1241,10 +1241,11 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   ],
   "recon-how": [
     {
-      question: "In the usual move-counting metric, how many moves is R2?",
-      options: ["Two", "One", "Half", "Zero"],
+      question:
+        "Reconstructions usually count moves in STM, where a turn of any one layer is one move. How many moves is M U2 M'?",
+      options: ["Five", "Three", "Six", "Four"],
       answer: 1,
-      why: "The common metric counts any turn of any layer, including a half turn or a slice, as one move.",
+      why: "In STM (slice turn metric) a half turn like U2 is one move and so is each slice. HTM (half turn metric) also counts U2 as one but a slice as two, the outer turns it stands for, so it gives five; counting quarter turns gives six. Say which metric you used whenever you compare move counts.",
     },
   ],
   "recon-what-to-look-for": [
@@ -1252,12 +1253,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "Your reconstruction shows a pair that took 12 moves. What does that suggest?",
       options: [
         "Nothing — pairs vary",
-        "A better solution probably existed; most good pairs are seven or eight",
+        "A better solution probably existed; most good pairs are eight moves or fewer",
         "You need to turn faster",
         "It was a lucky case",
       ],
       answer: 1,
-      why: "Most good pairs take seven or eight moves. A twelve-move pair is worth looking up.",
+      why: "A good pair averages about seven moves and most take eight or fewer; even a pair stuck in its slot needs only nine to eleven. A twelve-move pair is worth looking up.",
     },
   ],
   "recon-fast-solvers": [
@@ -1477,12 +1478,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "Should a CFOP solver learn full ZBLS for edge control?",
       options: [
         "Yes, before full OLL",
-        "Usually not — it's well over a hundred algorithms and full OLL is the better investment",
+        "Usually not — it's well over a hundred algorithms and saves little over a good full OLL",
         "Yes, it's required for sub-10",
         "Only for one-handed",
       ],
       answer: 1,
-      why: "Full edge-control systems are big and often awkward. A few free cases are worth taking, but full OLL gives more for the effort.",
+      why: "Full edge-control systems are big and often awkward, and the saving over a good full OLL is small, which is why experienced solvers put the time into OLL instead. A few free cases on a joined last pair are worth taking; the whole system isn't.",
     },
   ],
   // Method lessons: your first solve
@@ -1544,7 +1545,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "F R U R' U' F' from any angle, repeated until the cross appears",
         "The Sune, repeated until all four yellow edges face up",
         "U turns until the yellow edges line up with their centres",
-        "F R U R' U' F', re-held each go: L at back-left, line left-to-right",
+        "F R U R' U' F', holding the L at back-left or the line left-to-right before each go",
       ],
       answer: 3,
       why: "Each go moves one stage, dot to L, L to line, line to cross, but only from the right hold: before each go, turn the top so the L sits at back-left or the line runs left to right. From a dot any angle works. Repeating it without re-holding can go round in circles and never reach the cross.",
@@ -1566,15 +1567,15 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   ],
   "cfop-f2l": [
     {
-      question: "What's every F2L case, at heart?",
+      question: "Is every F2L case 'join the pair on top, then insert'?",
       options: [
-        "A named algorithm to memorise",
-        "Bring the corner and edge together as a pair, then insert it",
-        "Solve the edge, then the corner",
-        "Rotate until it looks right",
+        "Yes: every case joins the pair in the top layer first",
+        "Nearly: most do, and a few join as they go in, like the R U R' case",
+        "No: each of the 41 cases is its own algorithm to memorise",
+        "No: the corner always goes in first, then the edge",
       ],
       answer: 1,
-      why: "Pair, then insert. Learning the motion lets you solve cases you've never seen.",
+      why: "Free, pair, insert covers most cases, which is why you learn the motion rather than 41 names. A few skip the separate join: in the three-move case, the R and U turns bring the corner and edge together just as R' drops them in. Later you'll also meet keyhole, which puts them in one at a time through an empty slot.",
     },
     {
       question: "Which three ideas cover almost every intuitive F2L case?",
@@ -1585,7 +1586,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "Corner first, then edge, then check",
       ],
       answer: 1,
-      why: "Free the pieces, pair them in the top layer, insert the pair. Every case is a version of those three.",
+      why: "Free the pieces, pair them in the top layer, insert the pair. Nearly every case you'll meet is a version of those three, so learn the motion, not 41 names.",
     },
   ],
   "cfop-2look-oll": [
@@ -1889,7 +1890,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
         "The sledgehammer, R' F R F', or its reverse",
       ],
       answer: 3,
-      why: "The sledgehammer, which you may know from OLL, lifts the corner out of the slot and sets it up with the edge in one motion. A short insert finishes, with no rotation.",
+      why: "The sledgehammer, which you may know from OLL, comes up in all three. In two it comes first, straight away or after a U': it lifts the corner out of the slot and sets it up with the edge, and a short insert finishes. In the third, a quick trigger comes first and the reverse, F R' F' R, finishes. None needs a rotation.",
     },
   ],
   "adv-white-up": [

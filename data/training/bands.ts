@@ -15,7 +15,10 @@ export interface LevelBand {
 }
 
 export const LEVEL_BANDS: readonly LevelBand[] = [
-  { id: "2m-1m", from: "2:00", to: "1:00", rungs: ["beginner", "sub120"] },
+  // Learning to solve has no time to start from, so it gets a stretch of its
+  // own rather than being filed under a two-minute start it hasn't reached.
+  { id: "first-2m", from: "First solves", to: "2:00", rungs: ["beginner"] },
+  { id: "2m-1m", from: "2:00", to: "1:00", rungs: ["sub120"] },
   { id: "1m-45", from: "1:00", to: "45 s", rungs: ["sub60"] },
   { id: "45-30", from: "45", to: "30 s", rungs: ["sub45"] },
   { id: "30-20", from: "30", to: "20 s", rungs: ["sub30", "sub25"] },

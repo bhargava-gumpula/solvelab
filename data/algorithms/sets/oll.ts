@@ -7,6 +7,11 @@ import type { AlgorithmSetData } from "../types";
  * `tests/unit/algorithms.test.ts`: it must leave the last layer facing up with
  * the first two layers untouched. The first algorithm of a case defines it.
  *
+ * The groups are the standard shape families the SpeedSolving wiki and J Perm
+ * use, so a case sits under the same heading here as on their sheets: T shapes
+ * (33, 45), small lightning (7, 8, 11, 12) and big lightning (39, 40), corners
+ * oriented (28, 57), I shapes (51, 52, 55, 56), and so on.
+ *
  * Each recognition text reads the case as drawn for its first algorithm, with
  * no set-up turn: the edge shape, the corners that face up, then a sticker or
  * two that tell it from its neighbours and its mirror. Every claim is checked
@@ -94,7 +99,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-7",
       name: "OLL 7",
-      group: "Lightning",
+      group: "Small lightning",
       aliases: ["Lightning"],
       recognition:
         "L at the back and left, one corner up at the front left: a small lightning bolt. No yellow on the left side; the corners match Sune's, where OLL 8's match Antisune's.",
@@ -103,7 +108,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-8",
       name: "OLL 8",
-      group: "Lightning",
+      group: "Small lightning",
       aliases: ["Reverse Lightning"],
       recognition:
         "L at the front and left, one corner up at the back left: a small lightning bolt. No yellow on the left side; the corners match Antisune's, where OLL 7's match Sune's.",
@@ -133,7 +138,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-11",
       name: "OLL 11",
-      group: "Lightning",
+      group: "Small lightning",
       aliases: ["Downstairs"],
       recognition:
         "L at the back and left, one corner up at the back right: a small lightning bolt. Two yellow stickers side by side on the front; the corners match Sune's, where OLL 12's match Antisune's.",
@@ -146,7 +151,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-12",
       name: "OLL 12",
-      group: "Lightning",
+      group: "Small lightning",
       aliases: ["Upstairs"],
       recognition:
         "L at the front and right, one corner up at the back right: a small lightning bolt. Two yellow stickers side by side on the left; the corners match Antisune's, where OLL 11's match Sune's.",
@@ -363,7 +368,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-28",
       name: "OLL 28",
-      group: "Other",
+      group: "Corners oriented",
       aliases: ["Stealth"],
       recognition:
         "L at the back and left, all four corners up: only the front and right edges show their yellow on the sides. Learn it first, with the corner cases.",
@@ -423,7 +428,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-33",
       name: "OLL 33",
-      group: "Cross and T",
+      group: "T shapes",
       aliases: ["Key"],
       recognition:
         "Line left to right, two corners up on the right: a T. The left-hand corners show their yellow on the front and back, where OLL 45's both face left; eight moves, so learn it early.",
@@ -495,7 +500,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-39",
       name: "OLL 39",
-      group: "Lightning",
+      group: "Big lightning",
       aliases: ["Fung"],
       recognition:
         "Line left to right, two corners up at the back right and front left: a big lightning bolt. Two yellow stickers at the back and none on the left; in OLL 40, its mirror, the bare side is the right.",
@@ -507,7 +512,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-40",
       name: "OLL 40",
-      group: "Lightning",
+      group: "Big lightning",
       aliases: ["Anti-Fung"],
       recognition:
         "Line left to right, two corners up at the back left and front right: a big lightning bolt. Two yellow stickers at the back and none on the right; in OLL 39, its mirror, the bare side is the left.",
@@ -562,7 +567,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-45",
       name: "OLL 45",
-      group: "Cross and T",
+      group: "T shapes",
       aliases: ["Suit Up"],
       recognition:
         "Line left to right, two corners up on the right: a T. The left-hand corners both show their yellow on the left; you know it already, as the 2-look line algorithm.",
@@ -628,7 +633,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-51",
       name: "OLL 51",
-      group: "Line",
+      group: "I shapes",
       aliases: ["Bottlecap"],
       recognition:
         "Line left to right, no corner up, with a pair of yellow corner stickers on the left and no yellow on the right. Learn it early: it is OLL 48's algorithm with a wide f for F.",
@@ -640,7 +645,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-52",
       name: "OLL 52",
-      group: "Line",
+      group: "I shapes",
       aliases: ["Rice Cooker"],
       recognition:
         "Line front to back, no corner up, with three yellow stickers along the right side and only the middle one on the left. OLL 55 has three on both sides.",
@@ -677,7 +682,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-55",
       name: "OLL 55",
-      group: "Line",
+      group: "I shapes",
       aliases: ["Highway"],
       recognition:
         "Line front to back, no corner up, with three yellow stickers along both the left and the right. OLL 52 has three on one side only.",
@@ -689,7 +694,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-56",
       name: "OLL 56",
-      group: "Line",
+      group: "I shapes",
       aliases: ["Streetlights"],
       recognition:
         "Line left to right, no corner up, with a pair of yellow corner stickers on both the left and the right. OLL 51 has a pair on one side only.",
@@ -702,7 +707,7 @@ export const oll: AlgorithmSetData = {
     {
       id: "oll-57",
       name: "OLL 57",
-      group: "Other",
+      group: "Corners oriented",
       aliases: ["Mummy"],
       recognition:
         "Line left to right, all four corners up: only the front and back edges show their yellow on the sides. Learn it first, with OLL 28 and the corner cases.",

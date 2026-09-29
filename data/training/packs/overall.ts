@@ -7,7 +7,7 @@ export const turningTechnique: AspectPack = {
   title: "Hands that do not get in the way",
   summary: "Finger tricks, regrips and why calm turning is faster than hard turning.",
   levels: ["sub120", "sub45", "sub20"],
-  why: "Below about a minute, the hands are usually the bottleneck: every turn is a whole hand movement and there is a regrip between most of them. Higher up it flips, and the problem becomes lockups from turning harder than you can control.",
+  why: "While you are slower than about a minute, clumsy turning costs you on every move: each turn is a whole hand movement, with a regrip between most of them. Once you are faster than that, the problem changes: it becomes lockups from turning harder than you can control, and regrips on the way into your algorithms.",
   lessons: [
     {
       id: "turning-what-a-fingertrick-is",
@@ -181,7 +181,7 @@ export const practicePlan: AspectPack = {
         "A shape that works: a few minutes of warm-up — trigger reps, a few untimed solves — then one focused block on a single weakness, then a set of timed solves, then a short look at what the timed solves showed.",
         "The important word is single. A session that works on lookahead, then OLL, then the cross, works on nothing. Keep the same focus for several sessions before choosing the next one; skills take longer than a session to move.",
         "The review at the end does not need to be elaborate. Which solves were slow, and what was common to them? Your worst solves usually share a cause, and that cause is your next focus.",
-        "Volume matters most at the beginning. Below a minute, simply solving a lot — twenty or thirty a day rather than a handful — is most of the improvement, because everything is still becoming familiar.",
+        "Volume matters most at the beginning. While you are slower than about a minute, simply solving a lot — twenty or thirty a day rather than a handful — is most of the improvement, because everything is still becoming familiar.",
       ],
     },
     {
@@ -307,7 +307,7 @@ export const consistency: AspectPack = {
       takeaway: "If you compete, practise the conditions, not just the solves.",
       minutes: 3,
       body: [
-        "Solving alone at a desk and solving with a judge watching and a stackmat in front of you are different activities. People routinely average several seconds slower at their first competition than at home, and the gap closes with exposure rather than with speed.",
+        "Solving alone at a desk and solving with a judge watching and a stackmat in front of you are different activities. People routinely average five to twenty per cent slower at their first competition than at home, a second or two at twelve seconds, and the gap closes with exposure rather than with speed.",
         "If competitions matter to you, practise in the format: full inspection every solve, a proper stop, averages of five rather than endless singles, and — where you can — with someone watching. Simple, repeatable movements matter more here too; unusual fingertricks are the first thing to fail when your hands are shaking.",
         "If competitions do not matter to you, this lesson is optional. Consistency at home is still worth having, but the pressure part specifically is a competition skill.",
       ],

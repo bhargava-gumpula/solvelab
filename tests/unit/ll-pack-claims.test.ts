@@ -138,7 +138,7 @@ describe("Full OLL learning order (audit 6.2 item 16)", () => {
     expect(dots).toHaveLength(8);
     expect(dots.every(({ entry }) => entry.group === "Dot")).toBe(true);
 
-    const triggerGroups = ["Cross and T", "P", "Fish", "Square", "Knight move"];
+    const triggerGroups = ["T shapes", "P", "Fish", "Square", "Knight move"];
     expect(text).toContain("T shapes, P shapes, fish, squares and knight moves");
     const triggerCases = oll.filter(({ entry }) => triggerGroups.includes(entry.group ?? ""));
     expect(new Set(triggerCases.map(({ entry }) => entry.group)).size).toBe(triggerGroups.length);
@@ -149,8 +149,8 @@ describe("Full OLL learning order (audit 6.2 item 16)", () => {
   });
 
   it("gives the remaining families a place between the trigger groups and the dots", () => {
-    expect(text).toContain("lines, L shapes, lightning bolts and the rest");
-    for (const group of ["Line", "L", "Lightning"]) {
+    expect(text).toContain("I shapes, L shapes, lightning bolts and the rest");
+    for (const group of ["I shapes", "L", "Small lightning", "Big lightning"]) {
       expect(
         oll.some(({ entry }) => entry.group === group),
         group,
@@ -221,7 +221,7 @@ describe("Keyhole (audit 6.2 item 15, f2l.ts)", () => {
   it("needs another empty slot, and says so", () => {
     expect(text).toContain("another slot is empty");
     expect(text).not.toContain("a neighbouring slot is empty");
-    expect(text).not.toContain("six moves");
+    // The six-move keyhole example is checked on the cube in phase4-cross-f2l.test.ts.
     expect(slotSolved(frontLeftEmpty, FRONT_LEFT)).toBe(false);
     expect(restSolved(frontLeftEmpty)).toBe(true);
   });

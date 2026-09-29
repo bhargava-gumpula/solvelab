@@ -18,8 +18,8 @@ export const ollExecution: AspectPack = {
       body: [
         "The last layer is the yellow one on top, with the white cross on the bottom where you built it. Every face, shape and sticker in these lessons is described from that hold.",
         "OLL numbers are a way of writing cases down, not a way of seeing them. What you actually recognise is a shape on the top face: a dot, a line, an L, a cross, and within those, where the corner stickers point.",
-        "Grouping by shape has two benefits. Recognition becomes a two-step read — the shape narrows it to a few, then one corner sticker decides — which is much faster than comparing against 57 pictures. And when you are learning, cases in the same family share fingertricks, so they go in as a group rather than one at a time.",
-        "The families worth having in your head: all edges oriented (the 'cross' cases, seven of them, which are also the second step of 2-look), edges forming a line, edges forming an L, and the dot cases where no edge is oriented. That is the first split; everything after it is corners.",
+        "Grouping by shape has two benefits. Recognition becomes a three-step read, which is much faster than comparing against 57 pictures: the edges give the first cut, the shape the corners make with them (a P, a W, a fish, a lightning bolt, a knight move and so on) narrows it to a few cases, often a mirror pair, and a side sticker settles it. And when you are learning, cases in the same family share fingertricks, so they go in as a group rather than one at a time.",
+        "The first cut is the edges alone. All four facing up are the cross cases, seven of them, which are also the second step of 2-look. Two facing up in a line give fifteen cases, two in an L give twenty-seven, and none at all gives the eight dots. The edges only get you that far; everything after it is about the corners.",
       ],
       checkpoint:
         "You can say which family a case is in before you have worked out which case it is.",
@@ -118,7 +118,7 @@ export const ollAlgorithms: AspectPack = {
       minutes: 3,
       body: [
         "Full OLL replaces two algorithms with one on most solves, which is worth roughly a second. That is a real saving and it is also 47 more algorithms than 2-look, so the question is what else a second of improvement would cost you.",
-        "Until you are close to twenty seconds there is almost always a cheaper second somewhere else: pause-free F2L, a planned cross, and above all full PLL, which comes first. PLL is about a third of the size and each of its cases comes up about three times as often, so it pays back sooner. You can reach sub-20 on 2-look OLL, so nothing forces the switch early.",
+        "Until you average around twenty seconds there is almost always a cheaper second somewhere else: pause-free F2L, a planned cross, and above all full PLL, which comes first. PLL is about a third of the size and each of its cases comes up about three times as often (most PLL cases once in 18 solves, most OLL cases once in 54), so it pays back sooner. You can reach sub-20 on 2-look OLL, so nothing forces the switch early.",
         "In the Sub-20 course you can start if you want to, in small groups, beginning with the cases you already know from 2-look. In the Sub-15 course it stops being optional: once your last layer takes about five or six seconds and the second look is the biggest leak in it, full OLL is the standard fix. Keep 2-look as the fallback while you learn, and switch over one case at a time.",
       ],
     },
@@ -130,7 +130,7 @@ export const ollAlgorithms: AspectPack = {
       minutes: 4,
       body: [
         "Learning in the numbered order is the worst order, because consecutive numbers rarely look or feel alike. Learning by family means each new case reinforces the recognition of the ones next to it.",
-        "A sensible order: start with the seven cases where all four edges already face up. You know them from 2-look, so the job there is making them fast, or swapping in a better algorithm where yours is slow. Your 2-look edge algorithms already count too: held the usual way, with the two right-hand corners also facing up and both left-hand corners showing their yellow on the left side, F R U R' U' F' solves OLL 45, one of the two T shapes, in one go, and f R U R' U' f' does the same for OLL 44, one of the P shapes. Next take the cases built from triggers you already know: the T shapes, P shapes, fish, squares and knight moves. After that, work through the other families one at a time: lines, L shapes, lightning bolts and the rest. Leave the dots until last. They are easy to spot, but the eight of them are harder to tell apart from each other, and their algorithms are long and awkward to execute.",
+        "A sensible order: start with the seven cases where all four edges already face up. You know them from 2-look, so the job there is making them fast, or swapping in a better algorithm where yours is slow. Your 2-look edge algorithms already count too: held the usual way, with the two right-hand corners also facing up and both left-hand corners showing their yellow on the left side, F R U R' U' F' solves OLL 45, one of the two T shapes, in one go, and f R U R' U' f' does the same for OLL 44, one of the P shapes. Next take the cases built from triggers you already know: the T shapes, P shapes, fish, squares and knight moves. After that, work through the other families one at a time: I shapes, L shapes, lightning bolts and the rest. Leave the dots until last. They are easy to spot, but the eight of them are harder to tell apart from each other, and their algorithms are long and awkward to execute.",
         "Take three to five cases at a time, and do not start the next group until the current one turns up in real solves without you thinking. Learning twenty at once reliably produces twenty you half-know.",
       ],
       checkpoint: "Every case you have learned appears in solves without hesitation.",
@@ -204,7 +204,7 @@ export const ollIntoPll: AspectPack = {
         "Every PLL can be told apart from two adjacent faces. If you need three, you are turning the cube for information you already had.",
       minutes: 5,
       body: [
-        "The decisive information for PLL is on the side stickers, not the top face. Headlights — two matching corner stickers with a different one between them — blocks of three, and bars tell you almost everything.",
+        "The decisive information for PLL is on the side stickers, not the top face. Headlights (two matching corner stickers with a different edge between them), blocks (a corner and edge that match) and bars (a whole row of three that matches) tell you almost everything.",
         "There are 21 cases and only two faces visible without moving, which sounds like it should not be enough. It is: every case is distinguishable from two adjacent sides, and lists of exactly which patterns mean which case are freely available. It takes a few weeks to internalise and it is permanent once it is there.",
         "The practical form is a decision tree rather than a lookup. Look at the two faces. How many pairs of headlights? Are there blocks? That narrows twenty-one cases to two or three, and one more sticker decides.",
         "Once it is two-sided, the recognition can happen while your hands are still finishing OLL, because the side stickers you need are visible throughout.",
@@ -316,7 +316,7 @@ export const pllExecution: AspectPack = {
       rules: [
         "Go through all 21 cases, timing each individually.",
         "Write the times down. Do not rely on feel.",
-        "Repeat monthly and compare.",
+        "Repeat every fortnight and compare.",
       ],
       dose: "One pass through the set, once a fortnight.",
       signal: "The slowest case and the fastest case get closer together.",
@@ -332,7 +332,7 @@ export const pllExecution: AspectPack = {
         "Do not practise the other eighteen this session.",
       ],
       dose: "Fifteen minutes a session until they leave the list.",
-      signal: "Next month's timed pass has three different cases at the bottom.",
+      signal: "Your next timed pass has three different cases at the bottom.",
     },
     {
       id: "ll-random-auf-log",
@@ -376,9 +376,9 @@ export const pllAlgorithms: AspectPack = {
         "About a third of the size, about three times the use per case, and the recognition carries further. Start in Sub-45 if you like; finish in Sub-30.",
       minutes: 3,
       body: [
-        "If you are choosing between full PLL and full OLL, take PLL. It is 21 cases against 57, so it is done in a fraction of the time, and each case comes up about three times as often, so the reps arrive faster and the learning sticks.",
-        "You can make a start in the Sub-45 course with the cases that come quickly, and aim to have the whole set by the end of the Sub-30 course. Take about two new cases a day at most; more than that and they blur together. Learn each one as a picture you can recognise without walking round the cube to check; a turn of the top to see it from a familiar side is fine for now. Reading every case from just the two sides facing you is the Sub-15 step.",
+        "If you are choosing between full PLL and full OLL, take PLL. It is 21 cases against 57, so it is done in a fraction of the time, and each case comes up about three times as often: most PLL cases turn up once in every 18 solves, most OLL cases once in 54. So the reps arrive faster and the learning sticks.",
         "There is a second reason that is easy to miss: PLL recognition teaches you to read side stickers, which is the same skill you use for reading the cube during F2L and for predicting cases. OLL recognition is more self-contained.",
+        "You can make a start in the Sub-45 course with the cases that come quickly, and aim to have the whole set by the end of the Sub-30 course. Take about two new cases a day at most; more than that and they blur together. Learn each one as a picture you can recognise without walking round the cube to check; a turn of the top to see it from a familiar side is fine for now. Reading every case from just the two sides facing you is the Sub-15 step.",
         "Keep 2-look as a fallback while you learn. A case you half-know is slower than two algorithms you know, so use the new one when you are confident and fall back when you are not, until the fallback stops being needed.",
       ],
     },
@@ -390,7 +390,7 @@ export const pllAlgorithms: AspectPack = {
       minutes: 4,
       body: [
         "You already know six cases from 2-look PLL: the T and Y perms for the corners and the four edge-only cases (Ua, Ub, H and Z). If you learned the A perms and E perm for the corners instead, count those. That is six or more of the twenty-one before you start, and they anchor the recognition for the rest.",
-        "A workable order after that: the A perms and the J perms (Jb and F are the T perm with a different start, so they come quickly); then the G perms as a group of four, which are the ones people most often leave until last and most often regret leaving; then the R perms; and E, V and the two N perms last, the N perms because they are rare and long. If you are starting early, in Sub-45, the A perms and J perms are a natural place to stop for now; the rest can wait for Sub-30.",
+        "A workable order after that: the A perms, the J perms and F (both reuse most of the T perm: Jb opens with R U R' F' and then runs its first nine moves, and F opens with R' U' F' and runs nearly all of it, so they come quickly); then the G perms as a group of four, which are the ones people most often leave until last and most often regret leaving; then the R perms; and E, V and the two N perms last, the N perms because they are rare and long. If you came through the A perms and E perm, start with the T and Y perms in place of the A perms, and E is already done. If you are starting early, in Sub-45, the A perms and J perms are a natural place to stop for now; the rest can wait for Sub-30.",
         "Take the G perms as a set rather than individually. They are four variations on one idea and learning them together is what makes them distinguishable — learning one now and one in three months guarantees you will confuse them.",
       ],
       checkpoint: "You can execute every case you have learned without a fallback.",

@@ -324,8 +324,8 @@ describe("beginner second-layer edges", () => {
   );
 
   it("names both inserts and the lift", () => {
-    expect(body).toContain(`top color matches the right center, do ${RIGHT_INSERT}`);
-    expect(body).toContain(`matches the left center, do ${LEFT_INSERT}`);
+    expect(body).toContain(`top colour matches the right centre, do ${RIGHT_INSERT}`);
+    expect(body).toContain(`matches the left centre, do ${LEFT_INSERT}`);
     expect(body).toContain("front right");
   });
 
@@ -582,14 +582,14 @@ describe("beginner corners into place", () => {
 
   it("names the holds and both algorithms", () => {
     for (const phrase of [
-      "a side whose two top corners show the same color",
+      "a side whose two top corners show the same colour",
       "Headlights on one side: hold them on the left and do the T perm",
       `do the T perm, ${T_PERM}`,
       "No headlights: do the Y perm",
       `do the Y perm, ${Y_PERM}`,
       "holding the cube any way",
       "headlights on all four sides, which means the corners are done",
-      "Turn the top until each corner matches the centers beside it",
+      "Turn the top until each corner matches the centres beside it",
     ]) {
       expect(body).toContain(phrase);
     }
@@ -642,8 +642,8 @@ describe("beginner edges into place", () => {
   it("names the hold, how to pick the U perm, and both algorithms", () => {
     for (const phrase of [
       "Hold it at the back",
-      "If its color matches the right center, do the Ua perm, " + UA_PERM,
-      "if it matches the left center, do the Ub perm, " + UB_PERM,
+      "If its colour matches the right centre, do the Ua perm, " + UA_PERM,
+      "if it matches the left centre, do the Ub perm, " + UB_PERM,
       "The finished side stays at the back, so do the same one again",
       "No finished side yet: do either one holding the cube any way, and you will have one",
     ]) {

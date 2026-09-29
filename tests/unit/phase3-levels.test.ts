@@ -158,9 +158,9 @@ describe("the road: each skill sits on its course's rung", () => {
 
   it("partial edge control from Sub-15; pseudo-slotting and PLL prediction routine in Sub-10", () => {
     expect(doNowItem("sub20", "Tighten the end of the solve")).toContain("partial edge control");
-    const sub12 = doNowItem("sub12", "Squeeze the end of F2L");
+    const sub12 = doNowItem("sub12", "Squeeze F2L");
     for (const phrase of [
-      "pseudo-slot a pair when it saves moves",
+      "while two slots are open, pseudo-slot when it saves moves",
       "leaves more top edges facing up (partial edge control)",
       "during OLL spot a block or headlights so the PLL is half-known",
     ]) {

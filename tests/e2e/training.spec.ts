@@ -32,13 +32,13 @@ test.describe("packs on Learn, practice on Train", () => {
     await all.getByTestId("filter-band-sub10").click();
     await expect(all.getByTestId("all-practising-near-ten")).toBeVisible();
     await expect(all.getByTestId("all-beginner-method-cold")).toHaveCount(0);
-    await all.getByTestId("filter-band-2m-1m").click();
+    await all.getByTestId("filter-band-first-2m").click();
     await expect(all.getByTestId("all-beginner-method-cold")).toBeVisible();
 
     await all.getByTestId("all-beginner-method-cold").click();
     await expect(page).toHaveURL(/\/learn\/beginner-method-cold\/$/);
-    await expect(page.getByText("Learn · 2:00 → 1:00")).toBeVisible();
-    await expect(page.getByText("Why it matters at 2:00 → 1:00")).toBeVisible();
+    await expect(page.getByText("Learn · First solves → 2:00")).toBeVisible();
+    await expect(page.getByText("Why it matters at First solves → 2:00")).toBeVisible();
   });
 
   test("with no tests taken, Learn recommends only the packs for your goal's level", async ({

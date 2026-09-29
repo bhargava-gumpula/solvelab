@@ -1,6 +1,28 @@
 # Validation report
 
-## Course content fixes, phase 3: course structure (awaiting review)
+## Course content fixes, phase 4: polish (awaiting review)
+
+Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass (404 pages)      |
+| Unit tests      | `npm test`                        | 898 passed (60 files) |
+| End-to-end      | `npx playwright test --workers=1` | 89 passed (see below) |
+
+The full e2e run gave 88 passed and 1 failed: the Learn pack page still expected the old
+"2:00 → 1:00" label for the beginner stretch. With that assertion updated, its spec file passed
+(6 of 6).
+
+New unit coverage: every case's picture solves with its first algorithm (the V perm didn't);
+cross move-count claims over all 190,080 crosses and a one-edge-at-a-time simulation; OLL edge
+shape counts and PLL/OLL case frequencies; the F2L SpeedCubeDB numbers; back-slot inserts; the
+multislot example; and the sample sizes behind testing out of full PLL and OLL. A new e2e spec
+covers the phase 3 course pages, optional badges, Library counts and recognition drills. Pages
+were checked at phone width (375px) for sideways overflow and page errors: none on 19 pages.
+
+## Course content fixes, phase 3: course structure
 
 Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
 blocked, dev server stopped first).

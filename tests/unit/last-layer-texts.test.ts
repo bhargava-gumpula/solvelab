@@ -754,7 +754,7 @@ describe("OLL nicknames", () => {
       const edges = edgesFacingUp(caseStateFor(entry, "oll"));
       if (entry.group === "Dot") expect(edges, entry.name).toEqual([]);
       if (entry.group === "All edges oriented") expect(edges, entry.name).toHaveLength(4);
-      if (entry.group === "Line") {
+      if (entry.group === "I shapes") {
         expect(edges, entry.name).toHaveLength(2);
         expect(OPPOSITE[edges[0]!], entry.name).toBe(edges[1]);
       }

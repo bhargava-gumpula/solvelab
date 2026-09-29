@@ -555,10 +555,11 @@ describe("level splits", () => {
 });
 
 describe("packs by level", () => {
-  it("has seven stretches, two minutes down to sub-10, covering every rung once", () => {
+  it("has eight stretches, first solves down to sub-10, covering every rung once", () => {
     expect(
       LEVEL_BANDS.map((band) => packBandLabel({ ...LEVEL_PACKS[0]!, levels: [...band.rungs] })),
     ).toEqual([
+      "First solves → 2:00",
       "2:00 → 1:00",
       "1:00 → 45 s",
       "45 → 30 s",

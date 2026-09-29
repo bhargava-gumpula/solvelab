@@ -573,7 +573,7 @@ describe("predicting the PLL, on the cube", () => {
       }
     }
     expect(text("predict-pll", "ppll-post-auf")).toContain(
-      "In a U perm, H perm or Z perm the corners don't move at all",
+      "With the usual U, H and Z perm algorithms the corners end where they started",
     );
   });
 

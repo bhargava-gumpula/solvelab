@@ -425,8 +425,8 @@ describe("When full PLL and full OLL come (audit 6.3 item 26)", () => {
       expect(topColourFacing(twinView, "back-left"), twinId).toBe("back");
       expect(checkAlgorithm(twin.state, moves, twin.kind).ok, twinId).toBe(false);
     }
-    expect(getCase("oll", "oll-45")!.group).toBe("Cross and T");
-    expect(getCase("oll", "oll-33")!.group).toBe("Cross and T");
+    expect(getCase("oll", "oll-45")!.group).toBe("T shapes");
+    expect(getCase("oll", "oll-33")!.group).toBe("T shapes");
     expect(getCase("oll", "oll-44")!.group).toBe("P");
     expect(getCase("oll", "oll-32")!.group).toBe("P");
   });
