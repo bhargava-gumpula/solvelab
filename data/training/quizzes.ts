@@ -48,19 +48,6 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       why: "Edges that are already right relative to each other are free: a single D turn places both. Solving them one at a time throws that away.",
     },
   ],
-  "cross-colour-neutral": [
-    {
-      question: "What's the cheapest first step into colour neutrality?",
-      options: [
-        "Go fully neutral in one intense week",
-        "Pick a random cross colour every solve",
-        "Solve on white and yellow only (dual neutral)",
-        "Wait until you average sub-10 first",
-      ],
-      answer: 2,
-      why: "Dual neutrality earns roughly half of the move or so per cross that full neutrality saves, and it usually settles in over a week or two to a few weeks. The reps go into F2L: on a yellow cross the side colours run in mirrored order, so each pair belongs in the opposite-side slot.",
-    },
-  ],
   // Using all fifteen seconds
   "inspection-what-it-is": [
     {
@@ -300,6 +287,20 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "You already know what the current pair is doing. Watching it tells you nothing; looking for the next one is what removes the pause.",
+    },
+  ],
+  "lookahead-both-pieces": [
+    {
+      question:
+        "You can follow the next pair's corner while this pair goes in. What's the next step?",
+      options: [
+        "Turn faster, so there is less time to lose it",
+        "Follow its edge too, so you know the whole case before the insert ends",
+        "Add a y rotation to see the pieces better",
+        "Stop tracking and look around after each pair",
+      ],
+      answer: 1,
+      why: "With both pieces followed, the next case is known before you get there. A rotation moves everything you were following, so keep the cube still.",
     },
   ],
   "lookahead-knowing": [

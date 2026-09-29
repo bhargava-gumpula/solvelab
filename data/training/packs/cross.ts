@@ -64,21 +64,6 @@ export const crossEfficiency: AspectPack = {
       ],
       checkpoint: "You notice when two cross edges are already correct relative to each other.",
     },
-    {
-      id: "cross-colour-neutral",
-      title: "Colour neutrality, and when it is worth it",
-      takeaway:
-        "Optional. Picking the best of six crosses saves about one move per cross on average; white and yellow alone get you about half of that.",
-      minutes: 3,
-      body: [
-        "This course keeps the white cross on the bottom, and you never have to leave it. Colour neutrality is an extra: if you can solve any of the six crosses, you get to pick the easiest one the scramble offers instead of taking whatever white cross it gives you.",
-        "The gain is real but modest. The average cross drops by about one move, from roughly 5.8 to 4.8; dual neutrality, white and yellow only, gets about half of that. The bigger change is in easy starts: crosses of four moves or fewer come up about five times as often. Feliks Zemdegs tested it on his own solves and put the long-run saving at about 0.25 seconds a solve.",
-        "The cost is real too. A full switch can take months, with slower times while you adjust and an extra decision in every inspection. The cross is not the hard part; F2L is. In a yellow cross the side colours run in mirrored order (hold it with green in front and red is on the right, where orange used to be), so every pair belongs in the slot on the opposite side from the one your hands expect, and only reps fix that.",
-        "Timing matters more than anything else. Switching is easiest soon after you can solve and gets harder the faster you are, because every solve you do builds the one-colour habit. If you want the middle ground, dual neutrality is the cheap step: usually a week or two of practice, sometimes a few weeks.",
-      ],
-      checkpoint:
-        "You have decided whether to stay on white, go dual, or go fully neutral, and if you switched, you look at more than one colour in inspection.",
-    },
   ],
   drills: [
     {
@@ -110,19 +95,6 @@ export const crossEfficiency: AspectPack = {
       signal:
         "Your first attempt and your second attempt converge; you stop finding two moves to cut.",
     },
-    {
-      id: "cross-other-colours",
-      title: "One colour at a time",
-      purpose:
-        "For anyone who has chosen to go neutral: brings each new colour in one at a time instead of all at once.",
-      rules: [
-        "Start with yellow. Solve only yellow crosses for a whole session.",
-        "Expect it to be slow and ugly, and expect F2L to be slower than the cross: around yellow the side colours are mirrored, so every pair goes in the slot on the other side.",
-        "Once yellow feels ordinary, choose freely between white and yellow. Add the other colours, one per session, only if you want full neutrality.",
-      ],
-      dose: "Sessions on each new colour until it stops feeling slow, then free choice among the colours you have practised.",
-      signal: "You stop having to think about which face is which before you can plan.",
-    },
   ],
   mistakes: [
     "Solving the cross edge by edge in the order you spot them, which roughly doubles the move count.",
@@ -130,13 +102,7 @@ export const crossEfficiency: AspectPack = {
     "Rotating the cube mid-cross to find an edge you lost track of.",
     "Practising the cross by turning faster, when the problem is that the solution was too long.",
   ],
-  sources: [
-    SOURCES.jpermCross,
-    SOURCES.cubefreakCross,
-    SOURCES.crossPlanning,
-    SOURCES.colourNeutrality,
-    SOURCES.colourNeutralWiki,
-  ],
+  sources: [SOURCES.jpermCross, SOURCES.cubefreakCross, SOURCES.crossPlanning],
 };
 
 export const inspection: AspectPack = {

@@ -22,6 +22,7 @@ import {
   getUnit,
   lessonHref,
   recognitionHref,
+  type RecognitionSet,
   type Unit,
   type UnitLesson,
 } from "@/lib/hub/units";
@@ -73,36 +74,44 @@ export function UnitView({ unitId }: { unitId: string }) {
 
       {unit.kind === "pack" && unit.pack.aspectId ? <UnitMeasure unit={unit} /> : null}
       {unit.kind === "pack" ? <PackLessons unit={unit} /> : <MethodLessons unit={unit} />}
-      {unit.recognition ? (
-        <Link
-          href={recognitionHref(unit.recognition)}
-          className="group flex items-center gap-4 rounded-2xl p-5 glass transition-transform hover:-translate-y-0.5"
-          data-testid="unit-recognition"
-        >
-          <span className="grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary transition-transform group-hover:scale-110">
-            <Eye className="size-6" />
-          </span>
-          <span className="flex-1">
-            <span className="block font-semibold">
-              {unit.recognition === "f2l"
-                ? "Recognition drill: pick the algorithm for each F2L pair"
-                : `Recognition drill: name ${RECOGNITION_LABEL[unit.recognition]} cases on sight`}
-            </span>
-            <span className="block text-sm text-muted-foreground">
-              {unit.recognition === "f2l"
-                ? "Twelve pairs, timed. Finds the ones you’re slowest to spot."
-                : "Twelve cases from two sides, timed. Finds the ones you’re slowest to spot."}
-            </span>
-          </span>
-          <ArrowRight className="size-5 text-primary" />
-        </Link>
-      ) : null}
+      {unit.recognition ? <RecognitionLink unitId={unit.id} set={unit.recognition} /> : null}
       {unit.kind === "pack" ? (
         <section aria-label="Everything in this pack">
           <PackDetail pack={unit.pack} />
         </section>
       ) : null}
     </div>
+  );
+}
+
+/** The unit's on-screen drill, unless your course leaves it out at your level. */
+function RecognitionLink({ unitId, set }: { unitId: string; set: RecognitionSet }) {
+  const { current } = useHub();
+  const inCourse = current?.units.find((state) => state.unit.id === unitId)?.unit;
+  if (inCourse && !inCourse.recognition) return null;
+  return (
+    <Link
+      href={recognitionHref(set)}
+      className="group flex items-center gap-4 rounded-2xl p-5 glass transition-transform hover:-translate-y-0.5"
+      data-testid="unit-recognition"
+    >
+      <span className="grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary transition-transform group-hover:scale-110">
+        <Eye className="size-6" />
+      </span>
+      <span className="flex-1">
+        <span className="block font-semibold">
+          {set === "f2l"
+            ? "Recognition drill: pick the algorithm for each F2L pair"
+            : `Recognition drill: name ${RECOGNITION_LABEL[set]} cases on sight`}
+        </span>
+        <span className="block text-sm text-muted-foreground">
+          {set === "f2l"
+            ? "Twelve pairs, timed. Finds the ones you’re slowest to spot."
+            : "Twelve cases from two sides, timed. Finds the ones you’re slowest to spot."}
+        </span>
+      </span>
+      <ArrowRight className="size-5 text-primary" />
+    </Link>
   );
 }
 

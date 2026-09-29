@@ -75,8 +75,8 @@ export const COURSES: readonly CourseDefinition[] = [
       { id: "two-look-pll" },
       {
         id: "cross-efficiency",
-        lessons: ["cross-bottom", "cross-colour-neutral"],
-        drills: ["cross-other-colours"],
+        lessons: ["cross-bottom"],
+        drills: [],
       },
       {
         id: "turning-technique",
@@ -235,8 +235,8 @@ export const COURSES: readonly CourseDefinition[] = [
       { id: "turning-technique", lessons: ["turning-full-sets"], drills: ["turning-two-gen"] },
       {
         id: "lookahead",
-        lessons: ["lookahead-what-to-look-at"],
-        drills: ["lookahead-follow-the-corner"],
+        lessons: ["lookahead-both-pieces"],
+        drills: ["lookahead-follow-the-pair"],
       },
       {
         id: "inspection",

@@ -123,9 +123,6 @@ describe("colour neutrality (cross.ts and late.ts)", () => {
     const [front, right, back, left] = sides(SOLVED_FACELETS);
     expect(sides(yellowDown)).toEqual([front, left, back, right]);
 
-    const cross = lessonText("cross-efficiency", "cross-colour-neutral");
-    expect(cross).toContain("side colours run in mirrored order");
-    expect(cross).toContain(`${onTheRight} is on the right, where ${SOLVING_VIEW.R} used to be`);
     const pairs = lessonText("colour-neutral-plan", "cn-pairs");
     expect(pairs).toContain(`${onTheRight} is on the right, where ${SOLVING_VIEW.R} sits`);
     expect(lessonText("colour-neutral-plan", "cn-dual-first")).toContain("mirrored order");
@@ -145,27 +142,18 @@ describe("colour neutrality (cross.ts and late.ts)", () => {
     expect(lessonText("colour-neutral-plan", "cn-pairs")).toContain(
       `${SOLVING_VIEW.F}-${SOLVING_VIEW.R} pair now goes in the ${greenOrange} slot instead of the front-right`,
     );
-    expect(lessonText("cross-efficiency", "cross-colour-neutral")).toContain(
-      "every pair belongs in the slot on the opposite side",
-    );
     expect(lessonText("colour-neutral-plan", "cn-dual-first")).toContain(
       "every pair belongs in the slot on the opposite side",
-    );
-    const drill = pack("cross-efficiency").drills.find((d) => d.id === "cross-other-colours")!;
-    expect(drill.rules.join(" ")).toContain(
-      "side colours are mirrored, so every pair goes in the slot on the other side",
     );
     expect(lesson("colour-neutral-plan", "cn-pairs").takeaway).toContain("mirrored slots");
   });
 
   it("tells one story about the gain, the cost and when to switch", () => {
-    const cross = lessonText("cross-efficiency", "cross-colour-neutral");
     const plan = pack("colour-neutral-plan");
     const buys = lessonText("colour-neutral-plan", "cn-what-it-buys");
-    expect(cross).toContain(`keeps the ${SOLVING_VIEW.D} cross on the bottom`);
-    expect(cross).toMatch(/^Optional\./);
     expect(plan.why).toContain("optional");
-    for (const text of [cross, buys]) {
+    expect(plan.why).toContain("staying on the white cross is a sound choice");
+    for (const text of [buys]) {
       expect(text).toContain("5.8");
       expect(text).toContain("4.8");
       expect(text).toContain("about half of that");
@@ -174,17 +162,12 @@ describe("colour neutrality (cross.ts and late.ts)", () => {
       expect(text).toContain("full switch can take months");
       expect(text).toContain("easiest soon after you can solve and gets harder the faster you are");
     }
-    expect(cross).toContain("a week or two of practice, sometimes a few weeks");
     expect(lesson("colour-neutral-plan", "cn-dual-first").takeaway).toContain(
       "a week or two of practice, sometimes a few weeks",
     );
     expect(plan.why).toContain("about one move");
 
-    const everything = JSON.stringify([
-      lesson("cross-efficiency", "cross-colour-neutral"),
-      pack("cross-efficiency").drills.find((drill) => drill.id === "cross-other-colours"),
-      plan,
-    ]);
+    const everything = JSON.stringify([pack("cross-efficiency"), plan]);
     for (const dropped of [
       "decision rather than a skill",
       "decision, not a skill",

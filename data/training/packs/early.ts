@@ -217,7 +217,8 @@ export const setUpYourCube: LevelPack = {
 export const switchToF2l: LevelPack = {
   id: "switch-to-f2l",
   title: "Making the switch to F2L",
-  summary: "Why your times get worse first, and how to get through the two slow weeks.",
+  summary:
+    "Why your times get worse first, and how to get through the two slow weeks. The F2L method itself is in Build your CFOP foundation.",
   levels: ["sub120"],
   why: "Solving the first layer and then the second takes about twenty moves more than solving them together. F2L is the fix, and it is also the step that makes almost everyone slower for a while — which is when most people give up on it.",
   lessons: [
@@ -285,7 +286,8 @@ export const switchToF2l: LevelPack = {
 export const twoLookOll: LevelPack = {
   id: "two-look-oll",
   title: "2-look OLL: ten algorithms",
-  summary: "Edges first, then corners — the step that replaces the beginner last layer.",
+  summary:
+    "Ten algorithms that replace the beginner last layer. Build your CFOP foundation teaches the two steps; this unit adds recognition cues and drills.",
   levels: ["sub120"],
   why: "The beginner last layer takes several algorithms, some of them twice. Two-look OLL does the whole top face in two steps with ten algorithms, and most of the time you only need a few of them.",
   lessons: [
@@ -341,7 +343,8 @@ export const twoLookOll: LevelPack = {
 export const twoLookPll: LevelPack = {
   id: "two-look-pll",
   title: "2-look PLL: corners, then edges",
-  summary: "Six cases that finish the solve, and the one pattern that tells them apart.",
+  summary:
+    "Six cases that finish the solve. Build your CFOP foundation teaches the corner step; this unit adds the edges, the last turn and drills.",
   levels: ["sub120"],
   why: "After two-look OLL the top face is one colour and the pieces are in the wrong places. Two-look PLL puts the corners home and then the edges, with six algorithms, and it teaches the pattern you will use for full PLL later.",
   lessons: [

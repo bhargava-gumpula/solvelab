@@ -273,6 +273,21 @@ export const lookahead: AspectPack = {
       ],
     },
     {
+      id: "lookahead-both-pieces",
+      title: "The whole pair, with the cube held still",
+      takeaway:
+        "Follow the corner and its edge, and keep rotations out so the thread doesn't break.",
+      minutes: 4,
+      body: [
+        "In the Sub-20 course you followed the next pair's corner while the current pair went in. The step now is the whole pair: the corner and its edge, so that when the insert ends you already know the case, not just where one piece is.",
+        "Find both pieces before you start the current pair, then keep them in view as the moves carry them. A turn that doesn't touch a piece leaves it where it is, so you only have to update your picture on the turns that move it. It is the same rule you use to follow a pair through the cross in inspection.",
+        "This is where cutting rotations pays twice. A y turn costs its own time, and it also moves every piece you were following, so you start looking again. Solving a back slot from where you're already holding the cube keeps the thread unbroken.",
+        "When you lose track, notice which move did it. It is usually one of a few: a regrip, a rotation, or a top turn you made without thinking.",
+      ],
+      checkpoint:
+        "In most solves you know the next pair's case, corner and edge both, before the current insert ends.",
+    },
+    {
       id: "lookahead-knowing",
       title: "Knowing where the next pair will be",
       takeaway:
@@ -318,6 +333,19 @@ export const lookahead: AspectPack = {
       ],
       dose: "Fifteen solves a session, for two weeks.",
       signal: "You name where the corner landed before you would have had to look for it.",
+    },
+    {
+      id: "lookahead-follow-the-pair",
+      title: "Follow the whole pair",
+      purpose:
+        "Takes tracking from one piece to the pair, so the next case is decided before you get there.",
+      rules: [
+        "Turn at a pace where F2L never stops, and use no y rotations.",
+        "As each pair goes in, keep both pieces of the next pair in view and name the case (for example: corner on top, edge in its slot) before the insert ends.",
+        "If you lose a piece, say which move lost it, then slow down a little.",
+      ],
+      dose: "Fifteen solves a session, for two weeks.",
+      signal: "You start each pair without looking for either piece.",
     },
     {
       id: "lookahead-metronome",

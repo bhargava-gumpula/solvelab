@@ -58,7 +58,7 @@ test.describe("packs on Learn, practice on Train", () => {
     await page.goto("/learn/lookahead/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Lookahead, properly");
     // Only shown once the saved progress has loaded, so this is a real reading.
-    await expect(page.getByTestId("pack-progress")).toContainText("0/4");
+    await expect(page.getByTestId("pack-progress")).toContainText("0/5");
 
     await page.getByTestId("lesson-lookahead-slow-solves").getByRole("button").first().click();
     const lesson = page.getByTestId("lesson-lookahead-slow-solves");
@@ -66,10 +66,10 @@ test.describe("packs on Learn, practice on Train", () => {
     await expect(lesson).toContainText("You have it when:");
 
     await page.getByTestId("lesson-done-lookahead-slow-solves").click();
-    await expect(page.getByTestId("pack-progress")).toContainText("1/4");
+    await expect(page.getByTestId("pack-progress")).toContainText("1/5");
 
     await page.reload();
-    await expect(page.getByTestId("pack-progress")).toContainText("1/4");
+    await expect(page.getByTestId("pack-progress")).toContainText("1/5");
   });
 
   test("a drill you choose to practise lands on Train, and leaves when you untick it", async ({

@@ -102,6 +102,7 @@ export function CaseDiagram({
               rx={1.5}
               fill={side("B", index)}
               data-face="B"
+              {...outline(side("B", index))}
             />
             <rect
               x={offset}
@@ -111,6 +112,7 @@ export function CaseDiagram({
               rx={1.5}
               fill={side("F", index)}
               data-face="F"
+              {...outline(side("F", index))}
             />
             <rect
               x={0}
@@ -120,6 +122,7 @@ export function CaseDiagram({
               rx={1.5}
               fill={side("L", index)}
               data-face="L"
+              {...outline(side("L", index))}
             />
             <rect
               x={size - strip}
@@ -129,6 +132,7 @@ export function CaseDiagram({
               rx={1.5}
               fill={side("R", index)}
               data-face="R"
+              {...outline(side("R", index))}
             />
           </g>
         );
@@ -160,6 +164,8 @@ export function CaseDiagram({
               fill={faceColour(sticker)}
               opacity={0.95}
               data-slot="F"
+              stroke="var(--cube-stroke)"
+              strokeWidth={0.5}
             />
           ))}
           {slot.right.map((sticker, index) => (
@@ -173,6 +179,8 @@ export function CaseDiagram({
               fill={faceColour(sticker)}
               opacity={0.95}
               data-slot="R"
+              stroke="var(--cube-stroke)"
+              strokeWidth={0.5}
             />
           ))}
         </g>
@@ -272,6 +280,11 @@ const SIDE_EDGE_STICKERS = new Set(TOP_EDGES.map((edge) => edge[1]));
 const ANY = "var(--cube-unsolved)";
 /** A side you can't see from where you're holding the cube. */
 const HIDDEN = "transparent";
+
+/** A thin edge on every drawn sticker, so white still reads on a light card. */
+function outline(fill: string) {
+  return fill === HIDDEN ? {} : { stroke: "var(--cube-stroke)", strokeWidth: 0.5 };
+}
 
 type Side = "B" | "F" | "L" | "R";
 

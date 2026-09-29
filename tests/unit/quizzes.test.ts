@@ -522,9 +522,6 @@ describe("crosses", () => {
     expect(buys.why).toContain("0.25 s");
     expect(buys.why).toContain("months");
     expect(buys.why).not.toMatch(/mostly the decision/);
-    const first = quiz("cross-colour-neutral");
-    expect(first.why).toContain("roughly half");
-    expect(first.why).not.toMatch(/days rather than weeks/);
   });
 
   it("a yellow cross mirrors the side colours, so each pair goes in the opposite-side slot", () => {
@@ -544,7 +541,6 @@ describe("crosses", () => {
     expect(getFace(SOLVED_FACELETS, "R")).toBe("R".repeat(9));
     expect(dual.why).toContain("front-right on a white cross goes front-left on a yellow one");
     expect(dual.why).not.toMatch(/slot opposite/);
-    expect(quiz("cross-colour-neutral").why).toContain("opposite-side slot");
   });
 });
 
