@@ -7,9 +7,14 @@ import { Button } from "@/components/ui/button";
 import { ToggleGroup } from "@/components/ui/toggle-group";
 import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
 import { algorithmActions } from "@/hooks/use-algorithms";
-import { algorithmsFor, chosenFor, kindFor, progressIdFor } from "@/lib/algorithms/catalog";
+import {
+  algorithmsFor,
+  chosenFor,
+  kindFor,
+  progressIdFor,
+  recognitionText,
+} from "@/lib/algorithms/catalog";
 import { casePicture, setUpTurn } from "@/lib/algorithms/orientation";
-import { CASE_KINDS } from "@/lib/cube/case-check";
 import { CASE_LABELS, type CaseLabel } from "@/lib/algorithms/labels";
 import { LabelToggleItem } from "@/components/algorithms/label-style";
 import { cn } from "@/lib/utils";
@@ -45,7 +50,7 @@ export function CaseDetail({
     ]),
   );
   const anyTurn = [...turns.values()].some(Boolean);
-  const turnWord = CASE_KINDS[kind].slotCase ? "top layer" : "cube";
+  const recognition = recognitionText(entry, kind, picture.facelets);
 
   return (
     <div className="grid gap-5">
@@ -67,7 +72,11 @@ export function CaseDetail({
             ))}
           </div>
           <p className="mt-1 text-sm text-muted-foreground">{entry.group}</p>
-          {entry.recognition ? <p className="mt-2 text-sm">{entry.recognition}</p> : null}
+          {recognition ? (
+            <p className="mt-2 text-sm" data-testid="case-recognition">
+              {recognition}
+            </p>
+          ) : null}
         </div>
       </div>
 
@@ -107,10 +116,10 @@ export function CaseDetail({
         </p>
         {anyTurn ? (
           <p className="text-xs text-muted-foreground" data-testid="turn-explainer">
-            A turn in front, like{" "}
-            <TurnChip turn={turnWord === "cube" ? "y" : "U"} className="mx-0.5" />, means that
-            algorithm starts with the {turnWord} turned from how it&apos;s pictured. Choose it and
-            the picture turns instead.
+            A turn in front, like <TurnChip turn="U" className="mx-0.5" />, means that algorithm
+            starts with the top layer turned from how it&apos;s pictured (turn the top, not the
+            whole cube), so its last turn of the top may differ too. Choose it and the picture turns
+            instead.
           </p>
         ) : null}
         <ul className="mt-1 grid gap-2">
@@ -176,7 +185,7 @@ function TurnChip({
         "inline-block rounded-md bg-primary/15 px-1.5 py-px font-mono text-xs font-semibold text-primary",
         className,
       )}
-      title={turn.startsWith("U") ? "Turn the top layer first" : "Turn the whole cube first"}
+      title="Turn the top layer first"
       {...props}
     >
       {turn}

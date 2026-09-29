@@ -1,6 +1,6 @@
 import type { CaseEntry } from "@/data/algorithms/types";
 import { caseStateFor } from "@/lib/algorithms/catalog";
-import { AUF, CASE_KINDS, solvesFromHere, type CaseKind } from "@/lib/cube/case-check";
+import { AUF, solvesFromHere, type CaseKind } from "@/lib/cube/case-check";
 import { applyAlgorithm } from "@/lib/cube/cube-state";
 
 /**
@@ -12,21 +12,16 @@ import { applyAlgorithm } from "@/lib/cube/cube-state";
  * it starts from. The other algorithms are then shown with whatever set-up turn
  * they need from that picture, so it is clear they start somewhere else.
  *
- * The picture itself always turns the top layer (U), so the cube underneath
- * keeps its centres where they are and every sticker reads the usual way. What
- * the turn is called depends on the kind: for a last-layer case only the top is
- * on show, so turning the top and turning the whole cube (y) look the same, and
- * y is what the solver does; a pair case keeps its slot at the front right, so
- * it really is the top layer that turns.
+ * The picture turns the top layer (U), and that is also what the solver does
+ * before the algorithm: a set-up turn of the top (U, U' or U2), never a turn of
+ * the whole cube. The last turn after the algorithm may differ as a result.
  */
 
 type Quarter = 0 | 1 | 2 | 3;
 
-const CUBE_TURNS = ["", "y", "y2", "y'"] as const;
-
-/** What to call a set-up turn of this many quarters, for this kind of case. */
-function turnName(kind: CaseKind, quarter: Quarter): string {
-  return (CASE_KINDS[kind].slotCase ? AUF : CUBE_TURNS)[quarter];
+/** What to call a set-up turn of this many quarters: always a turn of the top. */
+function turnName(quarter: Quarter): string {
+  return AUF[quarter];
 }
 
 /** Nearest first: no turn, a quarter either way, then a half. */
@@ -101,7 +96,7 @@ export function setUpTurn(
   if (reachable.length === 0) return null;
   for (const step of BY_DISTANCE) {
     const target = ((from + step) % 4) as Quarter;
-    if (reachable.includes(target)) return turnName(kind, step);
+    if (reachable.includes(target)) return turnName(step);
   }
   return null;
 }

@@ -1,3 +1,4 @@
+import type { PackExample } from "@/data/training/types";
 import { HOLD_RULE, SCRAMBLE_HOLD, SOLVING_HOLD, SOLVING_ROTATION } from "@/lib/config/cube";
 
 export type LessonId = string;
@@ -14,6 +15,8 @@ export interface Lesson {
   summary: string;
   minutes: number;
   steps: LessonStep[];
+  /** Worked examples the lesson player shows on the 3D cube, after the reading. */
+  examples?: PackExample[];
   practiceHint?: string;
 }
 
@@ -96,20 +99,71 @@ export const lessons: Lesson[] = [
     id: "beginner-first-solve",
     pathId: "beginner",
     title: "Complete your first solve",
-    summary: "Second layer, yellow cross, and corner orientation without speed.",
-    minutes: 15,
+    summary:
+      "Second layer, then the last layer in four steps: yellow cross, yellow corners, corners, edges.",
+    minutes: 25,
     steps: [
       {
         title: "Second-layer edges",
-        body: "Use the beginner F2L-edge insert (U R U′ R′ U′ F′ U F / mirror). Keep white on bottom.",
+        body: "Find an edge on top with no yellow on it. Turn the top until its side color matches the center below it, then turn the whole cube (white still down) so that center faces you. If the edge's top color matches the right center, do U R U′ R′ U′ F′ U F; if it matches the left center, do U′ L′ U L U F U′ F′. Either one drops the edge into the middle layer and puts the white corner back. No edge on top without yellow, but a middle edge in the wrong slot or flipped? Hold that slot at the front right and do the right-hand insert once to lift the edge onto the top, then place it as usual.",
       },
       {
         title: "Yellow cross",
-        body: "From a yellow dot or line/L-shape, use F R U R′ U′ F′ until you have a yellow cross.",
+        body: "Look only at the yellow edges on top and ignore the corners. Hold the shape the right way before every go. A line: hold it left to right and do F R U R′ U′ F′, and the cross is done. An L: hold it at the back left (yellow edges at the back and on the left) and do F R U R′ U′ F′ to turn it into a line, then do the line step; or do F U R U′ R′ F′ from the same hold to go straight to the cross. If you use f R U R′ U′ f′ instead, hold the L at the front right. A dot: do F R U R′ U′ F′ holding the cube any way, and you get an L. Repeating the algorithm without holding the shape first can go round in circles.",
       },
       {
-        title: "Finish the last layer",
-        body: "Orient corners (R U R′ U R U2 R′), then permute corners and edges with the beginner algorithms you trust. Accuracy first.",
+        title: "Yellow corners",
+        body: "Count the corners with yellow on top and hold the cube by that count. One: put it at the front left. None: turn the cube until the front-left corner's yellow faces left. Two: turn it until the front-left corner's yellow faces you. Then do the Sune, R U R′ U R U2 R′, and count again, holding by the same rule before each go. At most three Sunes finish the yellow face, and the cross stays in place.",
+      },
+      {
+        title: "Corners into place",
+        body: "Look around the top layer for headlights: a side whose two top corners show the same color. Headlights on one side: hold them on the left and do the T perm, R U R′ U′ R′ F R2 U′ R′ U′ R U R′ F′. No headlights: do the Y perm, F R U′ R′ U′ R U R′ F′ R U R′ U′ R′ F R F′, holding the cube any way. Either way you finish with headlights on all four sides, which means the corners are done. Turn the top until each corner matches the centers beside it.",
+      },
+      {
+        title: "Edges into place",
+        body: "Look for a finished side, where the whole top row matches the center. Hold it at the back and look at the front edge. If its color matches the right center, do the Ua perm, R U′ R U R U R U′ R′ U′ R2; if it matches the left center, do the Ub perm, R2 U R U R′ U′ R′ U′ R′ U R′. Mixed them up? The finished side stays at the back, so do the same one again. No finished side yet: do either one holding the cube any way, and you will have one. When every side matches, the cube is solved. Accuracy first.",
+      },
+    ],
+    examples: [
+      {
+        label: "Middle edge, right-hand insert",
+        moves: "U R U' R' U' F' U F",
+        note: "The edge's side color matches the front center and its top color the right one.",
+      },
+      {
+        label: "Middle edge, left-hand insert",
+        moves: "U' L' U L U F U' F'",
+        note: "The same, with its top color matching the left center.",
+      },
+      {
+        label: "Yellow cross from a line",
+        moves: "F R U R' U' F'",
+        caseId: "2oll-line",
+        note: "The line held left to right.",
+      },
+      {
+        label: "Yellow corners: the Sune",
+        moves: "R U R' U R U2 R'",
+        caseId: "2oll-sune",
+        note: "One corner up, held at the front left.",
+      },
+      {
+        label: "Corners into place: T perm",
+        moves: "R U R' U' R' F R2 U' R' U' R U R' F'",
+        caseId: "pll-t",
+        note: "Headlights held on the left.",
+      },
+      {
+        label: "Corners into place: Y perm",
+        moves: "F R U' R' U' R U R' F' R U R' U' R' F R F'",
+        caseId: "pll-y",
+        note: "No headlights on any side.",
+      },
+      {
+        label: "Edges into place: Ua perm",
+        moves: "R U' R U R U R U' R' U' R2",
+        caseId: "pll-ua",
+        note: "The finished side at the back; the front edge belongs on the right.",
       },
     ],
     practiceHint: "Aim for a clean solve under five minutes before caring about averages.",
@@ -127,7 +181,7 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Efficient crosses",
-        body: "Most good crosses are ≤8 moves. If you often need 10+, pause after inspection and rewrite the plan before starting.",
+        body: "Most good crosses are ≤8 moves. If yours often take 10+, practice the cross on its own, untimed: find a solution, look for a shorter one, then redo the same scramble with 15 seconds of inspection until the whole plan fits in 8 moves or fewer.",
       },
       {
         title: "X-cross when ready",
@@ -176,7 +230,7 @@ export const lessons: Lesson[] = [
       },
       {
         title: "Toward full OLL",
-        body: "When 2-look is automatic, add high-frequency full OLL cases one at a time.",
+        body: "When 2-look is automatic, add full OLL cases a few at a time, starting with short ones built from triggers you already know.",
       },
     ],
   },
@@ -189,7 +243,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Corner permutation",
-        body: "Recognize headlights / no headlights and apply the corner PLL you know (e.g. A-perms / E / beginner corner cycle).",
+        body: "Look for headlights: two matching corner colors on one side. Headlights on one side: hold them on the left and do the T perm, which swaps the two right-hand corners. No headlights: do the Y perm, which swaps two corners diagonally across the top. Some guides use an A perm instead (a three-corner cycle, for headlights on one side) plus the E perm (no headlights, corners swapped in two pairs). That is also two algorithms, but the E perm is harder to spot and to turn quickly than the Y, which is why most guides start with T and Y.",
       },
       {
         title: "Edge permutation",
@@ -229,7 +283,7 @@ export const lessons: Lesson[] = [
     steps: [
       {
         title: "Count your rotations",
-        body: "Film a few solves or consciously count y/y′. More than one per F2L pair is usually avoidable.",
+        body: "Film a few solves or consciously count y/y′. Aim for one or two in the whole F2L, never a y2, and don't rotate while you are tracking a piece. Rotations matter more once you are near sub-20; before that, lookahead comes first.",
       },
       {
         title: "Slot choice",

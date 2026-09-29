@@ -45,7 +45,7 @@ export const aufBothEnds: LevelPack = {
       takeaway: "The final turn should use whichever finger is already in place, not a regrip.",
       minutes: 3,
       body: [
-        "Different algorithms leave your hands in different places. A final U2 can be two flicks with one index finger, or one flick from each hand; a U' can be a left-index push. The best choice is whichever one your hands are already set up for when the algorithm ends.",
+        "Different algorithms leave your hands in different places. A final U2 can be an index-then-middle double flick with either hand, or one flick from each hand; a U' can be a left-index push. The best choice is whichever one your hands are already set up for when the algorithm ends.",
         "Go through your most common cases and deliberately decide the finger trick for the final turn. It takes a session and removes a small regrip from nearly every solve.",
         "Avoid anything exotic here. The last turn is the moment nerves bite hardest, and a simple, repeatable movement is worth more than a slightly faster clever one.",
       ],
@@ -175,41 +175,41 @@ export const colourNeutralPlan: LevelPack = {
   title: "Going colour neutral",
   summary: "A plan for solving on more than one colour, and an honest look at when it's worth it.",
   levels: ["sub20"],
-  why: "With one cross colour you take whatever cross the scramble gives you. With two you take the better of two, and with six the best of six. The saving is a move or two on the cross and, often more importantly, a better first pair.",
+  why: "With one cross colour you take whatever cross the scramble gives you. With two you take the better of two, and with six the best of six. The saving averages about one move on the cross, with many more short, easy crosses. It is optional, and staying on the white cross is a sound choice.",
   lessons: [
     {
       id: "cn-what-it-buys",
       title: "What it actually buys you",
       takeaway:
-        "A shorter cross and a better start to F2L — and it is mostly a decision, not a skill.",
+        "About one move off the average cross and far more easy starts, paid for with months of practice if you go fully neutral.",
       minutes: 3,
       body: [
         "Colour neutrality means having no preference between cross colours and no speed difference between them. Its benefit is choice: in inspection you can pick the cross that is shortest, or the one that leaves an easy first pair.",
-        "The cost is less than people expect. The recognition skills are the same with different colours; what changes is the decision to look at more than one. People who make that decision at an intermediate level generally report being dual neutral within a week or two.",
-        "It is still a personal choice. Some very fast solvers use one colour. What is clear is that switching gets harder the faster you are, because you have more solves built on one colour.",
+        "The numbers are modest. The average cross falls from roughly 5.8 moves on one colour to about 4.8 on six, and dual neutrality, white and yellow, gets about half of that. The bigger difference is easy starts: crosses of four moves or fewer come up about five times as often. Feliks Zemdegs tested it on his own solves and estimated the long-run saving at about 0.25 seconds a solve.",
+        "The cost is not small. A full switch can take months, with slower times while you adjust and an extra decision in every inspection. Switching is easiest soon after you can solve and gets harder the faster you are, because you have more solves built on one colour. At this level that means months of work for about a quarter of a second, so if you want some of the benefit, dual neutrality is the cheaper route.",
       ],
     },
     {
       id: "cn-dual-first",
       title: "White and yellow first",
       takeaway:
-        "The two opposite colours are nearly the same skill, and capture much of the benefit cheaply.",
+        "Dual neutrality gets about half the saving for a week or two of practice, sometimes a few weeks.",
       minutes: 3,
       body: [
-        "Dual neutrality — white or yellow — is the cheap first step. The two crosses are opposite each other, so the side colours around them keep the same arrangement, which is why the switch is quick.",
+        "Dual neutrality — white or yellow — is the cheap first step. The yellow cross itself comes quickly; what takes the practice is F2L, because the side colours around yellow run in mirrored order and every pair belongs in the slot on the opposite side.",
         "The plan is simple. Spend a week solving only yellow crosses, until it no longer feels foreign. Then spend a week choosing freely between the two in every inspection, taking whichever looks better.",
-        "Once that is automatic, decide whether to go further. Full neutrality is the same process one opposite pair at a time, and it takes longer — one account described months before times were fully back.",
+        "Once that is automatic, decide whether to go further. Full neutrality is the same process one opposite pair at a time, and it takes much longer: expect months, and a dip in your times while it settles.",
       ],
       checkpoint: "In inspection you look at both white and yellow before deciding, every solve.",
     },
     {
       id: "cn-pairs",
       title: "The part that takes time: pairs",
-      takeaway: "The cross adapts in days; recognising pairs in new colours takes longer.",
+      takeaway: "The cross adapts quickly; putting pairs in their mirrored slots takes reps.",
       minutes: 3,
       body: [
-        "Most people find the cross on a new colour becomes comfortable quickly. What lags is F2L: you have learned to spot pairs partly by their colour combinations, and a new cross colour changes every combination.",
-        "Expect your F2L to be the slow part for a few weeks after switching. The fix is ordinary solving on the new colours, not a special drill; recognition catches up on its own with reps.",
+        "Most people find the cross on a new colour becomes comfortable quickly. What lags is F2L. Hold a yellow cross on the bottom with green in front and red is on the right, where orange sits in a white-cross solve: the side colours run the other way round. So the green-orange pair now goes in the front-left slot instead of the front-right, and every other pair has swapped sides the same way.",
+        "Expect your F2L to be the slow part for a few weeks after switching, while your hands keep reaching for the old slot. The fix is ordinary solving on the new colours, not a special drill; recognition catches up with reps.",
         "Keep an eye on the numbers rather than the feeling. If your F2L test is back to where it was, the switch is done, whatever it still feels like.",
       ],
     },
@@ -532,7 +532,7 @@ export const algSetsWorthIt: LevelPack = {
       minutes: 4,
       body: [
         "Winter Variation is 27 cases. It solves the last pair while orienting the last-layer corners, when the pair is ready to insert and the edges are already oriented, so you go straight into PLL. Recognition is simple, and some guides suggest it much earlier than others; this ladder puts it around twelve seconds.",
-        "COLL is 40 cases. With the last-layer edges already oriented, it orients and permutes the corners together, leaving only an edge permutation. It gives a lot of PLL skips and easy PLLs, but recognition is harder than OLL's.",
+        "COLL is 40 cases, and it only applies when the last-layer edges are already oriented after F2L, which happens about one solve in eight. It orients and places the corners together, so the PLL left is always an edges-only one (U, H or Z), skipped about one time in twelve. Recognition is harder than OLL's.",
         "Both are in the algorithm bank in this app, checked on a cube. They make sense once full OLL and PLL are fast; learn the cases you meet most first.",
       ],
     },

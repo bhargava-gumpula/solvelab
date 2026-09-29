@@ -59,7 +59,7 @@ export const f2lEfficiency: AspectPack = {
       minutes: 5,
       body: [
         "While F2L is in progress there are unfilled slots, and anything you put in one can be taken back out without cost. That turns several long cases into short ones.",
-        "Keyhole is the plainest version. If the corner is already in its slot correctly and the edge is in the top layer — or the other way round — you can use an empty slot to move one piece out of the way, place the other, and put it back. A pair like this never needs more than about six moves, and it needs no pairing at all.",
+        "Keyhole is the plainest version. Say the corner is already correct in its slot but its edge is still in the top layer, and another slot is empty. Turn D so the empty slot's corner spot comes under this one (a quarter turn for a neighbouring slot, a half turn for the one diagonally opposite), which carries the placed corner out of the way; put the edge in with a short insert; then turn D back. With the edge home and the corner on top it works the other way round: the D turn brings the corner's spot under the empty slot, the corner goes in there, and D comes back. Neither needs any pairing. With no free slot at all, use the standard solution for the case instead, which is seven or eight moves.",
         "The second use is avoiding rotations. A case that would need you to turn the cube to solve it at the front will often go in cleanly using the empty slot on the other side, at the same move count and with no rotation.",
         "The third is move count outright: solving a pair by routing it through the empty slot can replace a nine-move solution with a six-move one. A commonly cited example is doing R U R' L U' L' in place of the longer U2 L U L' U2 L U' L'.",
         "Pseudoslotting is the advanced version, where you deliberately place a pair in the wrong slot knowing that a later D turn fixes it. Worth knowing it exists long before you use it.",
@@ -369,7 +369,7 @@ export const lastPairIntoOll: AspectPack = {
         "There are systems that choose your last pair's solution to control the OLL you get. Know they exist; save them for sub-12.",
       minutes: 3,
       body: [
-        "Beyond simply reading the case, there are methods that make the case you get better. Winter Variation solves the last pair while orienting the corners, so you go straight into a PLL. Other systems do similar things for edges.",
+        "Beyond simply reading the case, there are methods that make the case you get better. Winter Variation is one, but it only applies in one situation: the last pair already joined in the top layer, ready for a U R U' R' insert, with the top edges already oriented. Then it orients the corners during the insert, so PLL comes next. Other systems do similar things for edges.",
         "These are real and worth learning eventually, but they are big: the payoff only exists once your ordinary last pair and last layer are already quick, and they add recognition work in a place where you currently have spare attention. At around twelve seconds and below, that trade starts to make sense.",
         "The reason to mention it now is that it changes what 'good' looks like. The end point is not reading the case quickly; it is choosing the case. Reading it quickly is the step on the way.",
       ],

@@ -20,6 +20,41 @@ Anything the owner would otherwise have to do that isn't a matter of opinion (co
 4. **Phase 6 — your own AI** (built as far as providers allow — dev log 149 and below).
 5. Then **4.3**: ZBLL, cases for other methods, Fundamentals, and the small code items. Then try **several UI versions** of the Hub against each other, as the owner asked.
 
+## Course content fixes (research audit, 2026-09-28)
+
+Four phases from `~/Projects/solvelab-ui-drafts/research/cubing-content-research.md` (section 6), with a review stop after each:
+
+1. ✅ Orientation: white cross on the bottom everywhere teaching happens (dev log 157).
+2. Things that are wrong or teach bad habits: audit 6.2, plus item 22 (Learn to solve finishable) and item 44 (yellow-cross holds), in the order the council set (dev log 160). Item 20 (re-picking the F2L defaults) moves to phase 3.
+3. Course structure and missing content (6.3), unless the owner picks the proposal below first.
+4. Polish (6.4).
+
+### Proposed next phase: measured completion (owner decision needed)
+
+The council on 2026-09-28 found that an accurate course still can't show anyone getting faster, because progress measures reading. A unit is done when its lessons are read (`lib/hub/path.ts`, `complete`); a wrong quiz answer still saves the lesson with confetti (`components/hub/lesson-player.tsx`); drills never count and show as open (`components/hub/course-path.tsx`); the packs that make Sub-12 and Sub-10 different have no measure; and in 118 of 137 quizzes the longest option is the answer. The proposal, to run before the rest of 6.3:
+
+- **A unit passes on a measured result:** its retest meets the course's target, or improves on the before number that `sinceStarted` already works out. Reading every lesson earns a "read" tick. Big confetti comes only with a measured pass, and drills show as done on the path.
+- **Grade each course against its own target:** use `aspectTargetsFor(course.targetId)` instead of the person's settings goal (`hooks/use-hub.ts`).
+- **A measure for every fast-end level pack:**
+
+  | Pack(s)                             | Measure                 |
+  | ----------------------------------- | ----------------------- |
+  | Seeing past the first pair, X-cross | cross + first pair test |
+  | Turning speed you can use           | TPS test                |
+  | Multislotting                       | F2L test                |
+  | The last layer at the top           | OLL + PLL test          |
+  | Stuck at 15, Practising near ten    | the ao100 trend         |
+
+- **Save recognition times per case:** weight the recognition drill's decks towards slow and missed cases, and name your slowest cases in the profile, which the ladder already promises.
+- **Stop repeating packs unchanged across courses** (audit 25).
+
+Decisions for the owner:
+
+- the pass line for each pack;
+- what happens to units already finished by reading. They could be kept as "read" through a versioned IndexedDB migration, with no data lost;
+- how confetti fits the "lots of animation" direction;
+- whether this replaces the rest of 6.3 as phase 3.
+
 ## The Learning Hub: open items
 
 - **Owner review.** Walk through `/hub/start/` and a lesson, a drill session and the recognition drill; the screenshots in the session summary show every screen.

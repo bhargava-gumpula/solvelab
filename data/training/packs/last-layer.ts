@@ -128,7 +128,7 @@ export const ollAlgorithms: AspectPack = {
       minutes: 4,
       body: [
         "Learning in the numbered order is the worst order, because consecutive numbers rarely look or feel alike. Learning by family means each new case reinforces the recognition of the ones next to it.",
-        "Sensible groupings: start with the seven cases where all edges are already oriented, because you already know them from 2-look and only the corner recognition is new. Then take the two 'line' families, then the L shapes, then the dots, which are the hardest to read and the least frequent individually.",
+        "A sensible order: start with the seven cases where all four edges already face up. You know them from 2-look, so the job there is making them fast, or swapping in a better algorithm where yours is slow. Next take the cases built from triggers you already know: the T shapes, P shapes, fish, squares and knight moves. After that, work through the other families one at a time: lines, L shapes, lightning bolts and the rest. Leave the dots until last. They are easy to spot, but the eight of them are harder to tell apart from each other, and their algorithms are long and awkward to execute.",
         "Take three to five cases at a time, and do not start the next group until the current one turns up in real solves without you thinking. Learning twenty at once reliably produces twenty you half-know.",
       ],
       checkpoint: "Every case you have learned appears in solves without hesitation.",
@@ -216,8 +216,8 @@ export const ollIntoPll: AspectPack = {
       minutes: 3,
       body: [
         "Once an OLL algorithm is running, your hands do not need supervision — that is what it means for it to be learned. So the last few moves are free attention, in exactly the same way the last F2L pair is.",
-        "The habit: as you begin the last trigger of the OLL, move your eyes to the side stickers. You will not always get the full case, because the final moves change what is where, but you will usually get the family — adjacent swap, opposite swap, edges only — and that is most of the work.",
-        "This is easier for some algorithms than others. Ones that end with U-layer moves change the picture right at the end; ones that end with R or F moves let the sides settle earlier. Knowing which of your algorithms are readable early is worth noticing.",
+        "The habit: as you begin the last trigger of the OLL, move your eyes to the side stickers. You will not always get the full case, because the final moves change what is where, but you will usually get the family — adjacent corner swap, diagonal corner swap, edges only — and that is most of the work.",
+        "How early you can read it depends on how the algorithm ends. Once the last move that is not a U turn is done, the PLL is fixed: any U turns after it only change the angle, so read the case before them and allow for the turn. Algorithms that finish on R or F keep moving side stickers until the very last move, so on those the picture is still changing as you read it. Knowing which of your algorithms end which way is worth noticing.",
       ],
     },
     {
@@ -277,7 +277,7 @@ export const ollIntoPll: AspectPack = {
     },
   ],
   mistakes: [
-    "Recognising PLL from the top face, which needs more turning than the sides do.",
+    "Turning the cube to look at three or four sides instead of reading the two you can see.",
     "Waiting until the OLL algorithm has completely finished before looking anywhere.",
     "Doing a trial U turn to check the alignment.",
     "Working out the final U turn after the algorithm instead of before.",
@@ -395,8 +395,8 @@ export const pllAlgorithms: AspectPack = {
         "Start with the cases you already have from 2-look, then take groups that share recognition.",
       minutes: 4,
       body: [
-        "You already know several cases from 2-look PLL: the corner-only cases and the edge-only ones. That is seven or so of the twenty-one before you start, and they anchor the recognition for the rest.",
-        "A workable order after that: the T, J and R perms, which are common and share a family resemblance; then the G perms as a group of four, which are the ones people most often leave until last and most often regret leaving; then the rest.",
+        "You already know six cases from 2-look PLL: the T and Y perms for the corners and the four edge-only cases (Ua, Ub, H and Z). If you learned the A perms and E perm for the corners instead, count those. That is six or more of the twenty-one before you start, and they anchor the recognition for the rest.",
+        "A workable order after that: the A perms and the J perms (Jb and F are the T perm with a different start, so they come quickly); then the G perms as a group of four, which are the ones people most often leave until last and most often regret leaving; then the R perms; and E, V and the two N perms last, the N perms because they are rare and long.",
         "Take the G perms as a set rather than individually. They are four variations on one idea and learning them together is what makes them distinguishable — learning one now and one in three months guarantees you will confuse them.",
       ],
       checkpoint: "You can execute every case you have learned without a fallback.",

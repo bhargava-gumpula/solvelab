@@ -55,7 +55,7 @@ export const LEVELS: LevelGuide[] = [
     notYet: [
       "Algorithms beyond the beginner set. You cannot use what you cannot recognise yet.",
       "Timing every solve. Time it occasionally so you can see movement, but chasing the number now teaches rushing.",
-      "Colour neutrality. It is worth doing later and it is easier later than it sounds.",
+      "Colour neutrality, until you can finish every solve. It is optional and this course keeps the white cross on the bottom. If you do want it, start soon after that: switching is easiest while you are new and gets harder the faster you are.",
     ],
     packs: ["beginner-method-cold", "set-up-your-cube", "turning-technique", "practice-plan"],
     lessons: [
@@ -105,7 +105,7 @@ export const LEVELS: LevelGuide[] = [
     doNow: [
       "Learn F2L intuitively, not as a list. Understand that a pair is joined in the top layer and then dropped into its slot, and work the cases out from that. Learning it as 41 algorithms is slower to learn and worse to use.",
       "Expect to get slower for a week or two. Everyone does. Intuitive F2L is worse than your beginner method until it is better, and it is better by a long way.",
-      "Learn 2-look OLL (ten cases) and 2-look PLL (six cases). Sixteen algorithms replaces the whole beginner last layer.",
+      "Learn 2-look OLL (ten algorithms) and 2-look PLL (six): for the corners, a T perm when one side shows headlights (hold them on the left) and a Y perm when no side does; for the edges, Ua, Ub, H and Z. Sixteen algorithms replace the whole beginner last layer.",
       "Keep the cross on the bottom and keep planning it during inspection. Aim to at least know where all four edges are before you start.",
       "Practise solving pairs into the back slots so you stop rotating the cube for every pair.",
     ],
@@ -218,7 +218,7 @@ export const LEVELS: LevelGuide[] = [
     bottleneck:
       "The stages are all fine. What is left is the half-second of hesitation between pairs, four times a solve, plus the occasional algorithm you still have to think about.",
     doNow: [
-      "Get F2L to about ten or eleven seconds with no stops. That is the sub-20 shape: roughly two seconds of cross, ten or eleven of F2L, six of last layer.",
+      "Get the cross and F2L together under about 10 seconds with no stops. That is the sub-15 shape: roughly 1.5-2 s of cross and 7.5-8 s of F2L, leaving 5-5.5 s for the last layer.",
       "Plan the whole cross in eight moves or fewer during inspection, every time, and start your first pair with no hesitation.",
       "Learn full OLL if you have not. From here it is worth about a second, and 2-look starts to be the thing holding the last layer back.",
       "Find the algorithms you are slow on and treat them as separate work: the profile's OLL and PLL algorithm measurements exist to find them for you.",
@@ -253,7 +253,7 @@ export const LEVELS: LevelGuide[] = [
       "Get most of your OLLs and PLLs under a second. Not all of them — most of them. The slow handful are where the seconds are.",
       "Plan the cross and your first pair together in inspection. Not a full x-cross yet, just knowing both.",
       "Cut filler moves. U then U2, or a rotation you undo, means the solution you picked was not the one you wanted.",
-      "Become colour neutral, or at least dual, if you are not. At this level it is worth roughly a second of cross and a better first pair.",
+      "Colour neutrality is optional, so weigh it honestly. Full neutrality saves about one move per cross on average (roughly 5.8 down to 4.8), dual (white or yellow) about half that, and Feliks Zemdegs measured the gain at about 0.25 s a solve. With full neutrality, crosses of four moves or fewer come up about five times as often as on one colour. At this speed a full switch can take months of slower solves; dual is the cheaper middle step.",
     ],
     notYet: [
       "Chasing personal bests. The average is the thing that moves; a lucky single tells you nothing.",
@@ -279,7 +279,7 @@ export const LEVELS: LevelGuide[] = [
     doNow: [
       "Solve every F2L case in two or three triggers, with essentially no rotations and no regrips you did not choose.",
       "Learn x-crosses properly: spot when a pair is nearly made during the cross and take it. It removes the hardest pair and makes the rest of F2L easier to read.",
-      "Add the first useful subsets: COLL for the OLLs you get most, and Winter Variation if your last slot is often an easy corner case.",
+      "Optional, once F2L is pause-free: COLL (40 cases) for solves where the top edges already face up, about 1 in 8. It leaves only an edges PLL (U, H or Z), or a skip about 1 time in 12. And the short R/U Winter Variation cases, for when the last pair is joined above its slot ready for U R U' R' and the top edges face up: the corners come up as the pair goes in, so OLL is skipped.",
       "Reconstruct your own solves. Write out the moves you actually made and count them. Anything over about 55 moves has a reason worth finding.",
       "Practise with a metronome at a fixed turn rate so pauses become audible rather than invisible.",
     ],

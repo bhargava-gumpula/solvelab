@@ -1,5 +1,28 @@
 # Validation report
 
+## Course content fixes, phase 2: wrong or bad-habit content (awaiting review)
+
+Run on 2026-09-28 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass                  |
+| Unit tests      | `npm test`                        | 545 passed (41 files) |
+| End-to-end      | `npx playwright test --workers=1` | 81 passed             |
+
+New unit coverage ties each changed text to its case on the cube engine:
+
+- F2L recognition generated from the case as drawn, checked against the notes' list.
+- Trigger repetition counts.
+- The Learn-to-solve last layer: the yellow cross with re-holding from every edge state, the Sune
+  rule on every corner case, T/Y/U holds, and the demos' holds.
+- 2-look OLL and PLL holds for every algorithm, and the OLL aliases against the wiki list.
+- PLL recognition claims (bars, blocks, headlights).
+- The colour-neutrality mirror and the back-slot mirror.
+- The quizzes' corrected answers.
+- Set-up turns labelled as turns of the top.
+
 ## Course content fixes, phase 1: orientation (working tree, awaiting review)
 
 Run on 2026-09-28 against the static export: headless Chromium, one Playwright worker, Firebase blocked,

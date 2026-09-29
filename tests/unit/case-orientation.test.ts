@@ -3,14 +3,11 @@ import { pll } from "@/data/algorithms/sets/pll";
 import { ALGORITHM_SETS, algorithmsFor, kindFor } from "@/lib/algorithms/catalog";
 import { casePicture, setUpTurn } from "@/lib/algorithms/orientation";
 import { caseArrows } from "@/lib/cube/case-arrows";
-import { CASE_KINDS, solvesFromHere, type CaseKind } from "@/lib/cube/case-check";
+import { solvesFromHere } from "@/lib/cube/case-check";
 import { applyAlgorithm, isSolved } from "@/lib/cube/cube-state";
 
 const INVERSE: Record<string, string> = {
   "": "",
-  y: "y'",
-  "y'": "y",
-  y2: "y2",
   U: "U'",
   "U'": "U",
   U2: "U2",
@@ -18,9 +15,7 @@ const INVERSE: Record<string, string> = {
 
 /** How many angles an algorithm solves this picture from, with no set-up turn. */
 function angles(kind: string, facelets: string, moves: string): number {
-  const turns = CASE_KINDS[kind as CaseKind].slotCase
-    ? ["", "U", "U2", "U'"]
-    : ["", "y", "y2", "y'"];
+  const turns = ["", "U", "U2", "U'"];
   return turns.filter((turn) =>
     solvesFromHere(turn ? applyAlgorithm(turn, facelets) : facelets, moves, kind as never),
   ).length;
@@ -62,7 +57,7 @@ describe("case pictures follow the chosen algorithm", () => {
     }
   });
 
-  it("turn a whole last-layer case with y, and only the top of a pair case with U", () => {
+  it("set every case up with a turn of the top (U), never of the whole cube", () => {
     const turns = new Set<string>();
     for (const { entry, kind } of everyCase) {
       const algorithms = algorithmsFor(entry);
@@ -71,12 +66,11 @@ describe("case pictures follow the chosen algorithm", () => {
         const turn = setUpTurn(entry, kind, other.moves, picture.quarter);
         if (!turn) continue;
         turns.add(turn);
-        if (CASE_KINDS[kind as CaseKind].slotCase) expect(turn, entry.id).toMatch(/^U/);
-        else expect(turn, entry.id).toMatch(/^y/);
+        expect(turn, entry.id).toMatch(/^U/);
       }
     }
-    // The bank really does have algorithms that start from other angles.
-    expect([...turns].some((turn) => turn.startsWith("y"))).toBe(true);
+    // The bank really does have last-layer algorithms that start from other angles.
+    expect(turns.size).toBeGreaterThan(1);
   });
 
   it("swap the turn round when you pick the other algorithm", () => {
@@ -90,7 +84,7 @@ describe("case pictures follow the chosen algorithm", () => {
         const fromOther = setUpTurn(entry, kind, first!.moves, otherPicture.quarter);
         if (!fromFirst) continue;
         // A case that looks the same after a half turn (H, some OLLs) can
-        // start from two angles, so y and y' are equally right there. Only a
+        // start from two angles, so U and U' are equally right there. Only a
         // case with one starting angle has to give exactly the inverse.
         if (angles(kind, firstPicture.facelets, first!.moves) === 1) {
           expect(fromOther, entry.id).toBe(INVERSE[fromFirst]);

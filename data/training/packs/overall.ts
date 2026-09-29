@@ -12,12 +12,13 @@ export const turningTechnique: AspectPack = {
     {
       id: "turning-what-a-fingertrick-is",
       title: "What a finger trick actually is",
-      takeaway: "Turning a layer with one finger while the rest of the hand holds the cube still.",
+      takeaway:
+        "Turning a layer with a fingertip or a small wrist turn while your grip on the cube stays put.",
       minutes: 4,
       body: [
-        "A finger trick is a way of turning a layer using a fingertip rather than the whole hand — pushing the U layer with the right index finger, flicking R with the right ring finger, and so on. The cube stays in the same place in your hands the whole time.",
+        "A finger trick is a way of turning a layer without letting go of the cube — pushing the U layer with the right index finger, turning R with a small twist of the right wrist while the thumb stays on the front, and so on. The cube stays in the same place in your hands the whole time.",
         "The saving is not that the finger is faster than the arm. It is that the cube does not move, so the next turn can start immediately and your eyes do not have to re-find anything. A solve done with finger tricks and a solve done by picking the cube up for every turn can have the same move count and differ by thirty seconds.",
-        "The ones to get first, in order of value: U and U' with the index fingers, R and R' with the right ring finger and thumb, and U2 as two pushes rather than one big rotation. Between them those cover most of what a CFOP solve does.",
+        "The ones to get first, in order of value: U as a push with the right index finger and U' as a push with the left index finger; R and R' as turns of the right wrist, with the thumb resting on the front face; and U2 as a double flick, index then middle finger, or one flick from each hand, rather than one big rotation. Between them those cover most of what a CFOP solve does.",
         "Hold the cube so it is supported rather than gripped. A common description is thumbs on the front, the other fingers around the back, with the cube resting rather than clamped — clamping makes every turn fight you.",
       ],
       checkpoint: "You can do R U R' U' six times without the cube moving in your hands.",
@@ -71,8 +72,9 @@ export const turningTechnique: AspectPack = {
         "The basic triggers appear hundreds of times a session. Making them automatic pays back everywhere at once.",
       rules: [
         "R U R' U' repeated six times returns the cube to solved. Do it as one smooth run, not six separate algorithms.",
-        "Same for R U' R' and F' U' F.",
-        "Watch the cube in your hands: if it shifts, you are using the wrist instead of the finger.",
+        "Then the sledgehammer R' F R F' and the left-hand L' U' L U, which also come back to solved after six.",
+        "R U' R' and F' U' F come back sooner, after four, so run those in sets of four.",
+        "Watch the cube in your hands: if it shifts, you are regripping. R and R' are wrist turns and U is an index flick, and your grip should not change.",
       ],
       dose: "Two minutes as a warm-up, every session.",
       signal: "Your turns-per-second measurement rises with no increase in effort.",

@@ -328,7 +328,7 @@ export const twoLookOll: LevelPack = {
           note: "Turns a line of two edges into the cross.",
         },
         {
-          label: "L shape, held at the back left",
+          label: "L shape, held at the front right",
           moves: "f R U R' U' f'",
           caseId: "2oll-l",
           note: "The same idea with a wide front turn.",
@@ -339,12 +339,13 @@ export const twoLookOll: LevelPack = {
     {
       id: "oll2-sune-first",
       title: "Sune and Antisune first",
-      takeaway: "Two algorithms that cover the corner step far more often than any other.",
+      takeaway:
+        "Two short mirror-image algorithms that can stand in for every other corner case until you learn it.",
       minutes: 4,
       body: [
-        "Of the seven corner cases, two come up much more often than the rest and are the building blocks for several of the others: Sune and its mirror, Antisune. They are the first two to learn and the two worth making genuinely fast.",
-        "Both have exactly one corner already facing up. Recognition is about where that corner is and which way the others point: learn them from the angle the algorithm starts at, and turn the top layer until the case matches.",
-        "While you are learning, several of the other five corner cases can be solved as two Sune-type algorithms with a top turn between. That is a fine bridge — it is slower than knowing each case, so learn them properly one at a time.",
+        "Sune and its mirror, Antisune, are not more common than the other corner cases: six of the seven come up equally often, and H only half as often as each of those. They come first because they are short (seven moves each), easy on the fingers, and built from R U R'-style triggers you will meet all through F2L and OLL. Each is the other one run backwards, so learning one nearly gives you the other.",
+        "Both have exactly one corner already facing up. Recognition is about where that corner is and which way the others point: learn them from the angle the algorithm starts at, and turn the top layer until the case matches. For Sune the up corner goes at the front left; for Antisune, at the back right.",
+        "Until you know the other five, Sune and Antisune can solve them: two goes at most, with the right top turn before each. That is a fine bridge — it is slower than knowing each case, so learn them properly one at a time.",
       ],
       examples: [
         {
@@ -391,7 +392,7 @@ export const twoLookOll: LevelPack = {
       id: "oll2-sune-loops",
       title: "Sune and Antisune loops",
       purpose:
-        "Makes the two most common corner cases fast enough that they stop costing anything.",
+        "Makes Sune and Antisune fast enough that they stop costing anything; while you learn, they stand in for the other corner cases too.",
       rules: [
         "Loop Sune slowly until it is smooth, then Antisune.",
         "Alternate them: set up a case, recognise it, solve it.",
@@ -413,9 +414,9 @@ export const twoLookOll: LevelPack = {
 export const twoLookPll: LevelPack = {
   id: "two-look-pll",
   title: "2-look PLL: corners, then edges",
-  summary: "Seven cases that finish the solve, and the one pattern that tells them apart.",
+  summary: "Six cases that finish the solve, and the one pattern that tells them apart.",
   levels: ["sub60"],
-  why: "After two-look OLL the top face is one colour and the pieces are in the wrong places. Two-look PLL puts the corners home and then the edges, with seven algorithms, and it teaches the pattern you will use for full PLL later.",
+  why: "After two-look OLL the top face is one colour and the pieces are in the wrong places. Two-look PLL puts the corners home and then the edges, with six algorithms, and it teaches the pattern you will use for full PLL later.",
   lessons: [
     {
       id: "pll2-headlights",
@@ -424,7 +425,7 @@ export const twoLookPll: LevelPack = {
       minutes: 4,
       body: [
         "Look at the side stickers of the corners. When the two corners on one side show the same colour, that pair is called headlights. It means those two corners are already in the right place relative to each other.",
-        "Headlights on exactly one side means three corners need to cycle — one of the two A perms, with the headlights held at the back. No headlights on any side means the corners swap diagonally, which is one algorithm. Headlights on every side means the corners are already done: skip straight to the edges.",
+        "Headlights on exactly one side means two neighbouring corners need to swap: hold the headlights on the left and do the T perm. No headlights on any side means two diagonal corners need to swap: do the Y perm, which works from any angle. Headlights on every side means the corners are already done: skip straight to the edges. The A perms and E perm also do it: either A perm can stand in for the T (Aa with the headlights on the left, Ab with them at the back), and the E perm for the Y, from any angle. That is still two algorithms, but the E perm is harder to turn quickly than the Y, which is why most beginner guides start with T and Y.",
         "This is the single most useful recognition skill in the last layer. Full PLL is read the same way, just with more cases, so time spent getting fast at spotting headlights is time spent on full PLL too.",
       ],
       checkpoint: "You can tell one-side, no-side and every-side headlights at a glance.",
@@ -448,7 +449,7 @@ export const twoLookPll: LevelPack = {
       minutes: 3,
       body: [
         "After the edges, the last layer is solved but may be rotated. One turn of the top — U, U' or U2 — finishes the cube. It is part of the step, not an extra: start noticing which one you will need before the algorithm ends.",
-        "Two-look PLL is where to stay for a while, but not forever. Full PLL is 21 cases and saves an algorithm on most solves. The first ones to add are the common ones that two-look handles worst, starting with the T and J perms.",
+        "Two-look PLL is where to stay for a while, but not forever. Full PLL is 21 cases and saves an algorithm on most solves. The first ones to add are the common ones that two-look handles worst, starting with the J perms.",
         "Keep the two-look algorithms as a fallback while you learn. A full-PLL case you half-know is slower than two algorithms you know well.",
       ],
     },
@@ -481,7 +482,7 @@ export const twoLookPll: LevelPack = {
     },
   ],
   mistakes: [
-    "Recognising from the top face, when every clue is on the sides.",
+    "Turning the cube to look at three or four sides, when the two you can see already tell you the case.",
     "Guessing between the two U perms instead of asking one question each time.",
     "Treating the final turn as separate from the step.",
     "Dropping the two-look fallback before full PLL cases are reliable.",

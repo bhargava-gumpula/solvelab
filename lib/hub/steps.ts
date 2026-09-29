@@ -7,7 +7,7 @@
 import { lessons as METHOD_LESSONS } from "@/data/learning/lessons";
 import { TRAINING_PACKS } from "@/data/training";
 import { LESSON_QUIZZES } from "@/data/training/quizzes";
-import type { LessonQuiz } from "@/data/training/types";
+import type { LessonQuiz, PackExample } from "@/data/training/types";
 import { ALGORITHM_SETS, kindFor } from "@/lib/algorithms/catalog";
 import type { CaseKind } from "@/lib/cube/case-check";
 import type { LessonContent } from "./units";
@@ -112,6 +112,21 @@ function caseKindOf(caseId: string | undefined): CaseKind | null {
   return null;
 }
 
+/** Worked examples: played on the 3D cube when they have moves, read otherwise. */
+function exampleSteps(examples: readonly PackExample[] | undefined): LessonStep[] {
+  return (examples ?? []).map((example): LessonStep =>
+    example.moves
+      ? {
+          kind: "watch",
+          label: example.label,
+          moves: example.moves,
+          note: example.note,
+          caseKind: caseKindOf(example.caseId),
+        }
+      : { kind: "example", label: example.label, note: example.note },
+  );
+}
+
 export function lessonSteps(content: LessonContent): LessonStep[] {
   if (content.kind === "method") {
     const { lesson } = content;
@@ -124,6 +139,7 @@ export function lessonSteps(content: LessonContent): LessonStep[] {
         index,
         of: lesson.steps.length,
       })),
+      ...exampleSteps(lesson.examples),
       ...quizzesFor(lesson.id, () => recallQuiz(lesson.id, lesson.summary, METHOD_SUMMARIES)),
       ...(lesson.practiceHint ? [{ kind: "try" as const, prompt: lesson.practiceHint }] : []),
       { kind: "done", takeaway: lesson.summary },
@@ -140,17 +156,7 @@ export function lessonSteps(content: LessonContent): LessonStep[] {
       index,
       of: lesson.body.length,
     })),
-    ...(lesson.examples ?? []).map((example): LessonStep =>
-      example.moves
-        ? {
-            kind: "watch",
-            label: example.label,
-            moves: example.moves,
-            note: example.note,
-            caseKind: caseKindOf(example.caseId),
-          }
-        : { kind: "example", label: example.label, note: example.note },
-    ),
+    ...exampleSteps(lesson.examples),
     ...quizzesFor(lesson.id, () =>
       recallQuiz(`${content.unit.id}/${lesson.id}`, lesson.takeaway, PACK_TAKEAWAYS),
     ),

@@ -7,6 +7,7 @@ import { wv } from "@/data/algorithms/sets/wv";
 import type { AlgorithmSetData, CaseAlgorithm, CaseEntry } from "@/data/algorithms/types";
 import type { AlgorithmProgress } from "@/types/domain";
 import { caseStateOf, type CaseKind } from "@/lib/cube/case-check";
+import { f2lRecognition } from "@/lib/cube/describe";
 
 /** Every set with cases behind it. Others are still to come. */
 export const ALGORITHM_SETS: AlgorithmSetData[] = [twoLookOll, twoLookPll, pll, oll, f2l, coll, wv];
@@ -54,6 +55,19 @@ export function caseStateFor(entry: CaseEntry, kind: CaseKind = "pll"): string {
   const state = caseStateOf(algorithmsFor(entry)[0]!.moves, kind);
   states.set(entry.id, state);
   return state;
+}
+
+/**
+ * What to look for on the cube, for the case as it is drawn (`facelets`). A
+ * pair case is read off the cube itself, so its words can't disagree with its
+ * picture from any angle; the other sets carry written recognition.
+ */
+export function recognitionText(
+  entry: CaseEntry,
+  kind: CaseKind,
+  facelets: string,
+): string | undefined {
+  return kind === "f2l" ? f2lRecognition(facelets) : entry.recognition;
 }
 
 /** The algorithm to show first: the person's pick, else the case's own first. */

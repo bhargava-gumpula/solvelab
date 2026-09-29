@@ -50,15 +50,15 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   ],
   "cross-colour-neutral": [
     {
-      question: "What's the cheapest way to get most of colour neutrality's benefit?",
+      question: "What's the cheapest first step into colour neutrality?",
       options: [
-        "Go fully neutral in one week",
+        "Go fully neutral in one intense week",
+        "Pick a random cross colour every solve",
         "Solve on white and yellow only (dual neutral)",
-        "Switch colours every solve at random",
-        "Wait until you're sub-10",
+        "Wait until you average sub-10 first",
       ],
-      answer: 1,
-      why: "White and yellow crosses mirror each other, so dual neutrality takes days rather than weeks and captures a good share of the benefit.",
+      answer: 2,
+      why: "Dual neutrality earns roughly half of the move or so per cross that full neutrality saves, and it usually settles in over a week or two to a few weeks. The reps go into F2L: on a yellow cross the side colours run in mirrored order, so each pair belongs in the opposite-side slot.",
     },
   ],
   // Using all fifteen seconds
@@ -199,15 +199,15 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   "f2l-empty-slots": [
     {
       question:
-        "The corner is already correctly in its slot and the edge is in the top layer. What helps most?",
+        "The corner is already in its slot, the edge is in the top layer, and a slot next to it is empty. What helps most?",
       options: [
-        "Take the corner out and pair them",
-        "Use an empty slot to move the corner aside, place the edge, and put it back (keyhole)",
-        "Rotate until it looks familiar",
-        "Solve a different pair and hope",
+        "Borrow the empty slot: turn D, insert the edge, turn D back",
+        "Take the corner out of the slot and pair it with the edge",
+        "Rotate the cube until the case looks like one you know",
+        "Leave it, solve another pair, and hope this one fixes itself",
       ],
-      answer: 1,
-      why: "Keyhole uses a free slot as workspace. A case like this never needs more than about six moves, with no pairing at all.",
+      answer: 0,
+      why: "Keyhole borrows an empty slot as workspace: turning D (a quarter turn for the slot next door, a half turn for the one diagonally opposite) moves the placed corner aside, a short insert puts the edge in, and turning D back brings the corner home, with no pairing. With no free slot at all, use the standard solution, which is about eight moves.",
     },
   ],
   // Seeing a pair instantly
@@ -384,13 +384,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     {
       question: "Which OLL cases are the best place to start learning full OLL?",
       options: [
-        "The dot cases",
-        "The seven cases with all edges already oriented",
-        "Cases 1 to 10 in number order",
-        "Whichever are longest",
+        "The seven you already know from 2-look, made faster",
+        "The eight dot cases, because they come up most often",
+        "Cases 1 to 10, in number order",
+        "Whichever cases have the longest algorithms",
       ],
-      answer: 1,
-      why: "You already know the edges-oriented cases from 2-look, so only the corner recognition is new. Dots are the hardest to read and come last.",
+      answer: 0,
+      why: "The seven cases with every edge oriented are the 2-look corner cases you already recognise and solve, so start by making them fast or swapping in better algorithms. Then add short cases built from triggers you know. Leave the dots for last: easy to spot, but the eight are harder to tell apart and long to execute. They aren't rarer; most come up 1 time in 54, like most other OLLs.",
     },
   ],
   "oll-retention": [
@@ -824,13 +824,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     {
       question: "Why learn Sune and Antisune before the other corner cases?",
       options: [
-        "They're the shortest",
-        "They come up far more often, and several other cases can be solved with two of them",
-        "They're needed for PLL",
-        "They're the hardest",
+        "They come up far more often than the other five cases",
+        "You need them before you can learn any PLL algorithms",
+        "They mirror each other, and repeating them solves any corner case",
+        "They're the hardest corner cases, so they need the most time",
       ],
-      answer: 1,
-      why: "They cover the corner step most often and double as a bridge: several other cases can be done as two Sune-type algorithms while you learn them.",
+      answer: 2,
+      why: "It isn't how often they turn up: six of the seven corner cases are equally likely (4 in 27 each) and H is half as likely. Sune and Antisune are short, seven moves on one easy R U R' rhythm, and each is the other's mirror image. Until you know a case's own algorithm, repeating Sune, with the right turn of the top before each go, finishes any corner case in three goes or fewer.",
     },
   ],
   "oll2-one-cue": [
@@ -851,13 +851,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     {
       question: "There are no headlights on any side. What does that mean for the corners?",
       options: [
-        "They're already solved",
-        "They swap diagonally — one algorithm",
-        "Three need to cycle",
-        "The cube is broken",
+        "Two neighbouring corners swap: do a T perm",
+        "They're already solved, so go straight to the edges",
+        "Three corners cycle: do an A perm",
+        "Two diagonal corners swap: do a Y perm",
       ],
-      answer: 1,
-      why: "Headlights on one side means an A perm (three corners cycle); none means a diagonal swap; every side means the corners are done.",
+      answer: 3,
+      why: "Headlights on one side mean two neighbouring corners swap: hold them on the left for the T perm. None anywhere means a diagonal swap, which the Y perm fixes, and matching corners on every side mean the corners are done. With four edge algorithms that's six for 2-look PLL, sixteen with 2-look OLL. Some guides use A perms and an E perm here instead.",
     },
   ],
   "pll2-edges": [
@@ -878,7 +878,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "Which full-PLL cases are worth adding first after 2-look?",
       options: [
         "The G perms",
-        "The common cases 2-look handles worst, starting with T and J perms",
+        "The common cases 2-look handles worst, starting with the J perms",
         "The rarest ones",
         "The N perms",
       ],
@@ -1045,26 +1045,26 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     {
       question: "What does colour neutrality actually buy you?",
       options: [
-        "Faster turning",
-        "Choice: the shortest cross, or the one with the easiest first pair",
-        "Better OLL recognition",
-        "Nothing measurable",
+        "Choice: the shortest cross, or the one with an easy first pair",
+        "Faster turning once every colour feels familiar",
+        "Better OLL recognition from seeing more colours",
+        "Nothing that a timer could ever measure",
       ],
-      answer: 1,
-      why: "Its benefit is choice in inspection. The cost is mostly the decision to look at more than one colour.",
+      answer: 0,
+      why: "Choosing from six crosses saves about one move per cross on average, and crosses of four moves or fewer come up about five times as often; Feliks Zemdegs measured roughly 0.25 s a solve. The cost is real too: months to switch fully, a slower patch while pairs look unfamiliar, and more to decide in inspection.",
     },
   ],
   "cn-dual-first": [
     {
       question: "Why is white-and-yellow the cheap first step?",
       options: [
-        "They're the most common colours",
-        "Opposite crosses keep the same arrangement of side colours, so the switch is quick",
-        "Competitions require it",
-        "They have fewer cases",
+        "The side colours sit in the same order around both crosses",
+        "Just one rule: each pair goes in the opposite-side slot",
+        "Competitions only allow white or yellow crosses",
+        "White and yellow crosses always need fewer moves",
       ],
       answer: 1,
-      why: "The two crosses are opposite each other, so everything around them keeps the same arrangement. It takes days, not months.",
+      why: "Hold yellow on the bottom with green in front and orange sits on the left, so the side colours run in mirrored order and every pair swaps sides: one that goes front-right on a white cross goes front-left on a yellow one. That flip is what takes practice, usually a week or two to a few weeks rather than the months of a full switch.",
     },
   ],
   "cn-pairs": [
@@ -1072,7 +1072,7 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "After switching cross colours, which part stays slow longest?",
       options: ["The cross", "F2L pair recognition", "PLL", "Inspection"],
       answer: 1,
-      why: "The cross adapts in days, but pairs were partly recognised by colour combinations, and every combination changes. Ordinary solving fixes it with reps.",
+      why: "The cross adapts quickly, but around a yellow cross the side colours run in mirrored order, so every pair belongs in the slot on the other side from where your white-cross habit sends it. That takes reps in ordinary solving.",
     },
   ],
   // Cutting filler moves
@@ -1349,9 +1349,9 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   "front-back-slots": [
     {
       question: "A front-right pair goes in with R U R'. What's the back-right equivalent?",
-      options: ["R U' R'", "R' U R", "L U L'", "R2 U R2"],
-      answer: 1,
-      why: "R' U R has the same shape with R' lifting the back-right slot instead of the front one.",
+      options: ["R' U R", "L' U' L", "R' U' R", "R U' R'"],
+      answer: 2,
+      why: "Mirroring from front to back reverses every turn, so R U R' becomes R' U' R. R' U R is the back version of R U' R', which inserts a different case.",
     },
   ],
   "front-f-moves": [
@@ -1529,27 +1529,27 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
     {
       question: "From a yellow dot, what gives you the yellow cross on the beginner method?",
       options: [
-        "The Sune",
-        "Repeating F R U R' U' F' until the cross appears",
-        "Any U turn",
-        "The corner algorithm",
+        "F R U R' U' F' from any angle, repeated until the cross appears",
+        "The Sune, repeated until all four yellow edges face up",
+        "U turns until the yellow edges line up with their centres",
+        "F R U R' U' F', re-held each go: L at back-left, line left-to-right",
       ],
-      answer: 1,
-      why: "F R U R' U' F' moves from dot to L or line to cross; from a dot it takes more than one go.",
+      answer: 3,
+      why: "Each go moves one stage, dot to L, L to line, line to cross, but only from the right hold: before each go, turn the top so the L sits at back-left or the line runs left to right. From a dot any angle works. Repeating it without re-holding can go round in circles and never reach the cross.",
     },
   ],
   // Method lessons: CFOP foundation
   "cfop-cross": [
     {
-      question: "Your crosses often take 10 or more moves. What does the lesson suggest?",
+      question: "Your crosses often take 10 or more moves. What's the best way to practise?",
       options: [
-        "Accept it",
-        "After inspection, stop and rewrite the plan before starting — most good crosses are eight moves or fewer",
-        "Turn faster",
-        "Switch to a daisy",
+        "Stop after inspection and rewrite the plan before you start",
+        "Accept it and turn faster so the extra moves cost less",
+        "Build a daisy on top, then bring each edge down",
+        "Plan crosses untimed, then redo them with 15 s of inspection",
       ],
-      answer: 1,
-      why: "Most good crosses are eight moves or fewer. Ten or more regularly means the plan can be improved before you start.",
+      answer: 3,
+      why: "Every cross can be done in eight moves or fewer. In untimed cross-only sessions, find a solution, look for a shorter one, then redo the scramble with 15 seconds of inspection until the plan fits in eight moves or fewer. Stopping to re-plan once the solve has started trains a pause you'd have to unlearn.",
     },
   ],
   "cfop-f2l": [
@@ -1570,12 +1570,12 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       question: "When should you start adding full OLL cases?",
       options: [
         "Before 2-look",
-        "When 2-look is automatic, one high-frequency case at a time",
+        "When 2-look is automatic, a few short cases at a time",
         "All 57 at once",
         "Never",
       ],
       answer: 1,
-      why: "Build on an automatic 2-look, and add the cases that come up most first.",
+      why: "Build on an automatic 2-look and add cases a few at a time, starting with short ones built from triggers you already know. Most OLL cases come up equally often, 1 in 54, so frequency is a poor guide to order.",
     },
   ],
   "cfop-2look-pll": [
@@ -1602,10 +1602,10 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
   ],
   "advanced-rotations": [
     {
-      question: "How many rotations per F2L pair is usually too many?",
-      options: ["Any at all", "More than one", "More than four", "None is too many"],
+      question: "In one whole F2L (all four pairs), when do rotations become too many?",
+      options: ["More than four", "More than two", "Any rotation at all", "More than eight"],
       answer: 1,
-      why: "More than one per pair is usually avoidable with back-slot inserts and empty slots.",
+      why: "Aim for one or two y or y' turns in the whole F2L and never a y2; back-slot and left-hand inserts and empty slots cover the rest, and never rotate while you're tracking a piece. Rotations start to matter near sub-20; before that, lookahead comes first.",
     },
   ],
   "advanced-lookahead": [

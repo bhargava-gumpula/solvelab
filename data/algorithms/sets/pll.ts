@@ -16,7 +16,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-aa",
       name: "Aa",
       group: "Corners only",
-      recognition: "A bar of two matching side stickers; three corners cycle clockwise.",
+      recognition:
+        "Headlights on one side and every edge home; three corners cycle clockwise. Hold the headlights on the left for the first algorithm.",
       algorithms: [
         {
           id: "aa-1",
@@ -36,7 +37,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-ab",
       name: "Ab",
       group: "Corners only",
-      recognition: "The mirror of Aa: three corners cycle anticlockwise.",
+      recognition:
+        "The mirror of Aa: headlights on one side and every edge home, with three corners cycling anticlockwise. Hold the headlights at the back for the first algorithm.",
       algorithms: [
         { id: "ab-1", moves: "x L U' L D2 L' U L D2 L2 x'" },
         { id: "ab-2", moves: "x R2 D2 R U R' D2 R U' R x'" },
@@ -48,7 +50,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-e",
       name: "E",
       group: "Corners only",
-      recognition: "Two pairs of corners swap diagonally; every edge is already home.",
+      recognition:
+        "No headlights on any side and every edge home; the corners swap in two side-by-side pairs.",
       algorithms: [
         { id: "e-1", moves: "x' L' U L D' L' U' L D L' U' L D' L' U L D x" },
         { id: "e-2", moves: "x' R U' R' D R U R' D' R U R' D R U' R' D' x" },
@@ -59,7 +62,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-f",
       name: "F",
       group: "Corners and edges",
-      recognition: "Two corners swap on one side, two edges swap on the other.",
+      recognition:
+        "One side is a solved bar of three, and no other side shows headlights or a block. Hold the bar on the left for the first algorithm: the two right corners swap, and so do the front and back edges.",
       algorithms: [
         { id: "f-1", moves: "R' U' F' R U R' U' R' F R2 U' R' U' R U R' U R" },
         { id: "f-2", moves: "R' U R U' R2 F' U' F U R F R' F' R2 U'" },
@@ -70,7 +74,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-ga",
       name: "Ga",
       group: "Corners and edges",
-      recognition: "A G perm: one bar, with a corner cycle and an edge cycle together.",
+      recognition:
+        "A G perm: headlights on one side and a single block of two that doesn't touch them, with a corner cycle and an edge cycle together.",
       algorithms: [
         { id: "ga-1", moves: "R2 U R' U R' U' R U' R2 U' D R' U R D'" },
         { id: "ga-2", moves: "R2 u R' U R' U' R u' R2 y' R' U R" },
@@ -114,7 +119,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-h",
       name: "H",
       group: "Edges only",
-      recognition: "Every edge swaps with the one opposite; all four sides show a bar.",
+      recognition:
+        "Every edge swaps with the one opposite; every side shows headlights with the opposite colour between them.",
       algorithms: [
         {
           id: "h-1",
@@ -131,7 +137,7 @@ export const pll: AlgorithmSetData = {
       name: "Ja",
       group: "Corners and edges",
       recognition:
-        "A block of two solved pieces on two sides; a corner and an edge swap with their neighbours.",
+        "A bar of three on one side, and a block of two round the corner from its right-hand end as you face it; two neighbouring corners swap, and so do two neighbouring edges.",
       algorithms: [
         { id: "ja-1", moves: "R' U L' U2 R U' R' U2 R L" },
         { id: "ja-2", moves: "x R2 F R F' R U2 r' U r U2 x'" },
@@ -158,7 +164,7 @@ export const pll: AlgorithmSetData = {
       name: "Na",
       group: "Corners and edges",
       recognition:
-        "Two diagonal swaps that leave a symmetric pattern; Na leans one way, Nb the other.",
+        "A block of two on every side and no headlights; two diagonal corners swap, and so do two opposite edges. Facing any side, Na's block is on the right and Nb's on the left.",
       algorithms: [
         { id: "na-1", moves: "R U R' U R U R' F' R U R' U' R' F R2 U' R' U2 R U' R'" },
         { id: "na-2", moves: "z U R' D R2 U' R D' U R' D R2 U' R D' z'" },
@@ -203,7 +209,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-t",
       name: "T",
       group: "Corners and edges",
-      recognition: "A bar on one side; two corners and two edges swap across the top.",
+      recognition:
+        "Headlights on one side, a block of two touching them on each neighbouring side, and three different colours on the side opposite. Hold the headlights on the left for the first algorithm: the two right corners swap, and so do the left and right edges.",
       algorithms: [
         {
           id: "t-1",
@@ -258,7 +265,8 @@ export const pll: AlgorithmSetData = {
       id: "pll-y",
       name: "Y",
       group: "Corners and edges",
-      recognition: "A diagonal corner swap with a diagonal edge swap; no bar anywhere.",
+      recognition:
+        "No bar or headlights anywhere, but blocks of two on two neighbouring sides. Hold the blocks on the front and right: the front-right and back-left corners swap, and so do the back and left edges.",
       algorithms: [
         { id: "y-1", moves: "F R U' R' U' R U R' F' R U R' U' R' F R F'" },
         { id: "y-2", moves: "F R' F R2 U' R' U' R U R' F' R U R' U' F'" },

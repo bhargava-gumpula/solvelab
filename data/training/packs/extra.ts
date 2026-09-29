@@ -113,19 +113,26 @@ export const f2lFromTheFront: LevelPack = {
     {
       id: "front-back-slots",
       title: "Back slots without turning",
-      takeaway: "Back slots use the same moves as front slots, done with R' and L on the back.",
+      takeaway:
+        "Back-right inserts are the front ones mirrored, with every turn reversed; the back-left slot uses L.",
       minutes: 5,
       body: [
-        "The simplest back-slot inserts mirror the front ones. Where a front-right pair goes in with R U R', a back-right pair goes in with R' U R: the same shape, with R' lifting the back-right slot instead of the front one. On the left, L U L' does the same for the back-left slot.",
-        "At first you'll have to think about which way the pair must be facing. Set up each case slowly: put a pair in the back-right slot, undo it with R' U' R, and look at where the pieces end up. That's the case R' U R solves. Do the same for the other back-slot inserts until you recognise them on sight.",
+        "The simplest back-slot inserts mirror the front ones, and mirroring front to back reverses every turn. R U R' at the front becomes R' U' R at the back, and R U' R' becomes R' U R: the same shape, with R' lifting the back-right slot instead of R lifting the front one. On the left, L U L' does the same for the back-left slot.",
+        "At first you'll have to think about which way the pair must be facing. Set up each case slowly: put a pair in the back-right slot, undo it with R' U R, and look at where the pieces end up. That's the case R' U' R solves. Do the same for the other back-slot inserts until you recognise them on sight.",
         "There are also neater tricks for back slots, like f R' f', which uses a wide front turn to reach the back-right slot. Learn the simple mirrors first; they cover most cases and they're easy to execute at speed.",
       ],
       examples: [
         {
           label: "Back-right insert",
+          moves: "R' U' R",
+          slot: "BR",
+          note: "The back-right mirror of R U R'. R' lifts the slot and brings the corner beside its edge, U' swings the pair over the slot, R puts it down.",
+        },
+        {
+          label: "Back-right insert, other way round",
           moves: "R' U R",
           slot: "BR",
-          note: "The back-right version of R U R'. R' brings the slot up, U brings the pair round, R puts it back down.",
+          note: "The back-right mirror of R U' R'.",
         },
         {
           label: "Back-left insert",
@@ -174,7 +181,7 @@ export const f2lFromTheFront: LevelPack = {
         {
           label: "Across the cube",
           moves: "R2 u R2 u' R2",
-          note: "Moves pieces between the front-right and back-left slots and leaves the other two alone. Useful when a pair sits diagonally opposite where it belongs.",
+          note: "Swaps the edges of the front-right and back-left slots and leaves the other two slots alone. The corners don't travel with them: the back-left corner stays put, and the front-right slot's corner trades places with the top corner above it. Useful when your front-right edge is stuck back-left with green facing the back, and its corner waits above the slot with white facing up.",
         },
       ],
     },
@@ -434,7 +441,7 @@ export const lastLayerAtTheTop: LevelPack = {
         "Flipping last-layer edges during the last pair is possible, but full systems rarely pay.",
       minutes: 4,
       body: [
-        "Edge control means inserting the last F2L pair in a way that also orients the last-layer edges, so that you always land in an easier OLL. Full systems exist: ZBLS does it for every last-pair case, and a smaller system called VHLS handles the cases where the pair is already made or one move from it.",
+        "Edge control means inserting the last F2L pair in a way that also orients the last-layer edges, so that you always land in an easier OLL. Full systems exist: ZBLS does it for every last-pair case, and a smaller system called VHLS handles the cases where the last pair is already joined and ready to insert.",
         "They're usually not worth it for a CFOP solver. ZBLS is well over a hundred algorithms, many of them awkward, and experienced solvers generally advise learning full OLL instead. The saving over a good full OLL is small.",
         "A few simple cases are worth knowing, though: when the last pair is already made and one short alternative insert happens to leave all edges oriented, taking it gives you an easier OLL for free. Treat it as a bonus, never as a system to learn before full OLL and PLL are fast.",
       ],

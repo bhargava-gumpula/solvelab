@@ -36,7 +36,7 @@ test.describe("the algorithm bank", () => {
     ).trim();
     // This one starts from a different angle to the picture, so it shows the
     // turn it needs; once chosen, the picture turns instead and the turn goes.
-    await expect(dialog.getByTestId(`algorithm-turn-${secondId}`)).toHaveText("y2");
+    await expect(dialog.getByTestId(`algorithm-turn-${secondId}`)).toHaveText("U2");
 
     await dialog.getByTestId("case-label-known").click();
     await second.getByRole("button", { name: "Use this one" }).click();
@@ -47,7 +47,7 @@ test.describe("the algorithm bank", () => {
       .locator('[data-testid^="algorithm-t-"]')
       .first()
       .getAttribute("data-testid"))!.replace("algorithm-", "");
-    await expect(dialog.getByTestId(`algorithm-turn-${firstId}`)).toHaveText("y2");
+    await expect(dialog.getByTestId(`algorithm-turn-${firstId}`)).toHaveText("U2");
     await dialog.getByRole("button", { name: "Done" }).click();
 
     // The card follows what was chosen, and so does the set's count.

@@ -58,7 +58,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-5",
       name: "OLL 5",
       group: "Square",
-      aliases: ["Wario"],
+      aliases: ["Lefty Square"],
       algorithms: [
         { id: "o5-1", moves: "r' U2 R U R' U r" },
         { id: "o5-2", moves: "l' U2 L U L' U l" },
@@ -68,7 +68,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-6",
       name: "OLL 6",
       group: "Square",
-      aliases: ["Mario"],
+      aliases: ["Righty Square"],
       algorithms: [
         { id: "o6-1", moves: "r U2 R' U' R U' r'" },
         { id: "o6-2", moves: "l U2 L' U' L U' l'" },
@@ -209,7 +209,11 @@ export const oll: AlgorithmSetData = {
       algorithms: [
         { id: "o21-1", moves: "R U2 R' U' R U R' U' R U' R'" },
         { id: "o21-2", moves: "F R U R' U' R U R' U' R U R' U' F'" },
-        { id: "o21-3", moves: "R U R' U R U' R' U R U2 R'" },
+        {
+          id: "o21-3",
+          moves: "R U R' U R U' R' U R U2 R'",
+          note: "Hold the pairs of yellow stickers on the left and right.",
+        },
       ],
     },
     {
@@ -229,28 +233,44 @@ export const oll: AlgorithmSetData = {
       aliases: ["Headlights"],
       algorithms: [
         { id: "o23-1", moves: "R2 D R' U2 R D' R' U2 R'" },
-        { id: "o23-2", moves: "R2 D' R U2 R' D R U2 R" },
+        {
+          id: "o23-2",
+          moves: "R2 D' R U2 R' D R U2 R",
+          note: "Hold the two up corners at the front, so the headlights face away from you.",
+        },
       ],
     },
     {
       id: "oll-24",
       name: "OLL 24",
       group: "All edges oriented",
-      aliases: ["Bowtie"],
+      aliases: ["Chameleon"],
       algorithms: [
         { id: "o24-1", moves: "r U R' U' r' F R F'" },
-        { id: "o24-2", moves: "x' R U R' D R U' R' D' x" },
+        {
+          id: "o24-2",
+          moves: "x' R U R' D R U' R' D' x",
+          note: "Hold the two up corners at the back; the front two show their yellow on the left and right.",
+        },
       ],
     },
     {
       id: "oll-25",
       name: "OLL 25",
       group: "All edges oriented",
-      aliases: ["Fish Salad"],
+      aliases: ["Bowtie"],
       algorithms: [
         { id: "o25-1", moves: "F' r U R' U' r' F R" },
-        { id: "o25-2", moves: "x' R U' R' D R U R' D' x" },
-        { id: "o25-3", moves: "R U2 R D R' U2 R D' R2" },
+        {
+          id: "o25-2",
+          moves: "x' R U' R' D R U R' D' x",
+          note: "Hold the up corners at the front left and back right, with the front-right corner's yellow facing right.",
+        },
+        {
+          id: "o25-3",
+          moves: "R U2 R D R' U2 R D' R2",
+          note: "Hold the up corners at the back left and front right; the front-left corner's yellow faces you.",
+        },
       ],
     },
     {
@@ -260,7 +280,11 @@ export const oll: AlgorithmSetData = {
       aliases: ["Antisune"],
       algorithms: [
         { id: "o26-1", moves: "R U2 R' U' R U' R'" },
-        { id: "o26-2", moves: "L' U' L U' L' U2 L" },
+        {
+          id: "o26-2",
+          moves: "L' U' L U' L' U2 L",
+          note: "Left-hand version: hold the up corner at the front right.",
+        },
       ],
     },
     {
@@ -270,7 +294,11 @@ export const oll: AlgorithmSetData = {
       aliases: ["Sune"],
       algorithms: [
         { id: "o27-1", moves: "R U R' U R U2 R'" },
-        { id: "o27-2", moves: "L' U2 L U L' U L" },
+        {
+          id: "o27-2",
+          moves: "L' U2 L U L' U L",
+          note: "Left-hand version: hold the up corner at the back left.",
+        },
       ],
     },
     {
@@ -297,7 +325,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-30",
       name: "OLL 30",
       group: "Awkward",
-      aliases: ["Knight Move"],
+      aliases: ["Anti-Spotted Chameleon"],
       algorithms: [
         { id: "o30-1", moves: "F R' F R2 U' R' U' R U R' F2" },
         { id: "o30-2", moves: "r' D' r U' r' D r2 U' r' U r U r'" },
@@ -307,7 +335,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-31",
       name: "OLL 31",
       group: "P",
-      aliases: ["P"],
+      aliases: ["Couch"],
       algorithms: [
         { id: "o31-1", moves: "R' U' F U R U' R' F' R" },
         { id: "o31-2", moves: "S' L' U' L U L F' L' f" },
@@ -317,7 +345,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-32",
       name: "OLL 32",
       group: "P",
-      aliases: ["Anti-P"],
+      aliases: ["Anti-Couch"],
       algorithms: [
         { id: "o32-1", moves: "L U F' U' L' U L F L'" },
         { id: "o32-2", moves: "S R U R' U' R' F R f'" },
@@ -347,7 +375,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-35",
       name: "OLL 35",
       group: "Fish",
-      aliases: ["Fish Salad 2"],
+      aliases: ["Fish Salad"],
       algorithms: [
         { id: "o35-1", moves: "R U2 R2 F R F' R U2 R'" },
         { id: "o35-3", moves: "f R U R' U' f' R U R' U R U2 R'" },
@@ -357,7 +385,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-36",
       name: "OLL 36",
       group: "W",
-      aliases: ["Sea Makai"],
+      aliases: ["Sea-Mew"],
       algorithms: [
         { id: "o36-1", moves: "L' U' L U' L' U L U L F' L' F" },
         { id: "o36-3", moves: "R' U' R U' R' U R U R B' R' B" },
@@ -377,7 +405,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-38",
       name: "OLL 38",
       group: "W",
-      aliases: ["Mario 2"],
+      aliases: ["Mario"],
       algorithms: [
         { id: "o38-1", moves: "R U R' U R U' R' U' R' F R F'" },
         { id: "o38-3", moves: "L U L' U L U' L' U' L' B L B'" },
@@ -387,7 +415,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-39",
       name: "OLL 39",
       group: "Lightning",
-      aliases: ["Big Lightning"],
+      aliases: ["Fung"],
       algorithms: [
         { id: "o39-1", moves: "L F' L' U' L U F U' L'" },
         { id: "o39-3", moves: "R B' R' U' R U B U' R'" },
@@ -397,7 +425,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-40",
       name: "OLL 40",
       group: "Lightning",
-      aliases: ["Anti-Big Lightning"],
+      aliases: ["Anti-Fung"],
       algorithms: [
         { id: "o40-1", moves: "R' F R U R' U' F' U R" },
         { id: "o40-3", moves: "L' B L U L' U' B' U L" },
@@ -414,14 +442,14 @@ export const oll: AlgorithmSetData = {
       id: "oll-42",
       name: "OLL 42",
       group: "Awkward",
-      aliases: ["Anti-Awkward Fish"],
+      aliases: ["Lefty Awkward Fish"],
       algorithms: [{ id: "o42-1", moves: "R' U' R U' R' U2 R F R U R' U' F'" }],
     },
     {
       id: "oll-43",
       name: "OLL 43",
       group: "P",
-      aliases: ["Anti-Fung"],
+      aliases: ["Anti-P"],
       algorithms: [
         { id: "o43-1", moves: "F' U' L' U L F" },
         { id: "o43-2", moves: "f' L' U' L U f" },
@@ -432,7 +460,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-44",
       name: "OLL 44",
       group: "P",
-      aliases: ["Fung"],
+      aliases: ["P"],
       algorithms: [
         { id: "o44-1", moves: "F U R U' R' F'" },
         { id: "o44-2", moves: "f R U R' U' f'" },
@@ -459,7 +487,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-47",
       name: "OLL 47",
       group: "L",
-      aliases: ["Breakneck"],
+      aliases: ["Anti-Breakneck"],
       algorithms: [
         { id: "o47-1", moves: "F' L' U' L U L' U' L U F" },
         { id: "o47-2", moves: "R' U' R' F R F' R' F R F' U R" },
@@ -469,14 +497,14 @@ export const oll: AlgorithmSetData = {
       id: "oll-48",
       name: "OLL 48",
       group: "L",
-      aliases: ["Right Back Squeezy"],
+      aliases: ["Breakneck"],
       algorithms: [{ id: "o48-1", moves: "F R U R' U' R U R' U' F'" }],
     },
     {
       id: "oll-49",
       name: "OLL 49",
       group: "L",
-      aliases: ["Right Front Squeezy"],
+      aliases: ["Right Back Squeezy"],
       algorithms: [
         { id: "o49-1", moves: "r U' r2 U r2 U r2 U' r" },
         { id: "o49-3", moves: "l U' l2 U l2 U l2 U' l" },
@@ -486,7 +514,7 @@ export const oll: AlgorithmSetData = {
       id: "oll-50",
       name: "OLL 50",
       group: "L",
-      aliases: ["Left Back Squeezy"],
+      aliases: ["Right Front Squeezy"],
       algorithms: [
         { id: "o50-1", moves: "r' U r2 U' r2 U' r2 U r'" },
         { id: "o50-3", moves: "l' U l2 U' l2 U' l2 U l'" },

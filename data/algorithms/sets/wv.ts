@@ -2,8 +2,12 @@ import type { AlgorithmSetData } from "../types";
 
 /**
  * Winter Variation: the last pair goes in and the last layer's corners come
- * up in the same algorithm, for when the edges are already facing up. What's
- * left is a PLL.
+ * up in the same algorithm, so a PLL is all that's left.
+ *
+ * It only applies when two things are already true: the last pair is joined
+ * in the top layer, its corner right above the slot, ready for a U R U' R'
+ * insert; and the last layer's edges already face up. Otherwise insert the
+ * pair as usual and do OLL.
  *
  * The algorithms are the community's, collected by SpeedCubeDB, and every one
  * is checked against the cube engine by `tests/unit/algorithms.test.ts`.
@@ -83,7 +87,7 @@ export const wv: AlgorithmSetData = {
       id: "wv-12",
       name: "WV 12",
       group: "Insert and orient",
-      algorithms: [{ id: "wv12-1", moves: "Lw' U2 Lw F2 U L' U L" }],
+      algorithms: [{ id: "wv12-1", moves: "l' U2 l F2 U L' U L" }],
     },
     {
       id: "wv-13",
