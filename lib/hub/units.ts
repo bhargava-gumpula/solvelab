@@ -15,7 +15,7 @@ import type { PackDrill, PackLesson, TrainingPack } from "@/data/training/types"
 
 export type MethodPathId = (typeof learningPaths)[number]["id"];
 /** The algorithm sets with an on-screen recognition drill. */
-export type RecognitionSet = "pll" | "oll" | "two-look-oll" | "two-look-pll" | "f2l";
+export type RecognitionSet = "pll" | "oll" | "two-look-oll" | "two-look-pll" | "f2l" | "coll";
 
 /** What each recognition drill is called on the path. */
 export const RECOGNITION_LABEL: Record<RecognitionSet, string> = {
@@ -24,6 +24,7 @@ export const RECOGNITION_LABEL: Record<RecognitionSet, string> = {
   "two-look-oll": "2-look OLL",
   "two-look-pll": "2-look PLL",
   f2l: "F2L",
+  coll: "COLL",
 };
 
 export interface UnitLesson {
@@ -66,6 +67,8 @@ const RECOGNITION: Partial<Record<string, RecognitionSet>> = {
   "two-look-oll": "two-look-oll",
   "two-look-pll": "two-look-pll",
   "advanced-f2l-cases": "f2l",
+  // COLL is taught here (the small sets worth learning).
+  "alg-sets-worth-it": "coll",
 };
 
 const METHOD_PREFIX = "method-";

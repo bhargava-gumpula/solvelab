@@ -3,7 +3,9 @@
     "cases": 21,
     "records": 2520,
     "existing": 69,
+    "found": 1506,
     "extra": 1506,
+    "trimmed": 0,
     "firstFoundIn": {
       "speedcubedb": 1133,
       "speedsolving-wiki": 313,
@@ -22,7 +24,9 @@
     "cases": 57,
     "records": 12709,
     "existing": 104,
-    "extra": 10497,
+    "found": 10497,
+    "extra": 2638,
+    "trimmed": 7859,
     "firstFoundIn": {
       "speedcubedb": 1608,
       "speedsolving-wiki": 8812,
@@ -40,7 +44,9 @@
     "cases": 40,
     "records": 10170,
     "existing": 142,
+    "found": 8688,
     "extra": 8688,
+    "trimmed": 0,
     "firstFoundIn": {
       "speedcubedb": 257,
       "speedsolving-wiki": 8394,
@@ -56,7 +62,9 @@
     "cases": 27,
     "records": 1239,
     "existing": 27,
+    "found": 139,
     "extra": 139,
+    "trimmed": 0,
     "firstFoundIn": {
       "speedcubedb": 135,
       "alg-trainer wv": 3,

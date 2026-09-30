@@ -81,6 +81,10 @@ const idOf = (moves: string) =>
   `ex-${createHash("sha256").update(moves).digest("hex").slice(0, 10)}`;
 
 const extras = new Map<string, { id: string; moves: string }[]>();
+/** The most extras a case keeps, where there is a limit. */
+const CAP: Record<string, number> = Object.fromEntries(
+  ["oll-21", "oll-22", "oll-23", "oll-24", "oll-25", "oll-26", "oll-27"].map((id) => [id, 100]),
+);
 const report: Record<string, unknown> = {};
 for (const [name, setId] of Object.entries(SET_IDS)) {
   const set = getAlgorithmSet(setId)!;
@@ -140,18 +144,27 @@ for (const [name, setId] of Object.entries(SET_IDS)) {
           length(a.moves) - length(b.moves) ||
           a.moves.localeCompare(b.moves),
       );
-    if (ranked.length) {
+    // The corner-only OLLs are solved by every ZBLL of their shape, so the lists
+    // run past a thousand; only the most common are kept (the owner's call).
+    const kept = ranked.slice(0, CAP[known.entry.id] ?? ranked.length);
+    if (kept.length) {
       extras.set(
         known.entry.id,
-        ranked.map((algorithm) => ({ id: idOf(algorithm.key), moves: algorithm.moves })),
+        kept.map((algorithm) => ({ id: idOf(algorithm.key), moves: algorithm.moves })),
       );
     }
   }
+  const keptExtra = cases.reduce(
+    (sum, known) => sum + (extras.get(known.entry.id)?.length ?? 0),
+    0,
+  );
   report[name] = {
     cases: cases.length,
     records: mine.length,
     existing,
-    extra,
+    found: extra,
+    extra: keptExtra,
+    trimmed: extra - keptExtra,
     firstFoundIn: Object.fromEntries(bySource),
     dropped: Object.fromEntries(unmatched),
   };

@@ -37,6 +37,15 @@ await build({
       "  const solution = await experimentalSolve3x3x3IgnoringCenters(pattern);",
       "  return solution.invert().experimentalSimplify({ cancel: true }).toString();",
       "}",
+      // A scramble that leaves the cube as `setup` does, found by the solver, so
+      // an algorithm trainer can set up a case without showing the algorithm.
+      "export async function scrambleFor333Alg(setup) {",
+      "  kpuzzlePromise ??= cube3x3x3.kpuzzle();",
+      "  const kpuzzle = await kpuzzlePromise;",
+      "  const pattern = kpuzzle.defaultPattern().applyAlg(setup);",
+      "  const solution = await experimentalSolve3x3x3IgnoringCenters(pattern);",
+      "  return solution.invert().experimentalSimplify({ cancel: true }).toString();",
+      "}",
     ].join("\n"),
     resolveDir: root,
     sourcefile: "cubing-scramble.js",

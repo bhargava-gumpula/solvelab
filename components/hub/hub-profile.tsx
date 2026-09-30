@@ -20,6 +20,7 @@ const RECOGNITION_SETS: readonly RecognitionSet[] = [
   "two-look-pll",
   "pll",
   "oll",
+  "coll",
   "f2l",
 ];
 

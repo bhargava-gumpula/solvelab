@@ -577,6 +577,7 @@ export const algSetsWorthIt: LevelPack = {
       body: [
         "ZBLL solves the whole last layer in one step when the edges are oriented: about 470 cases, or 493 counting the PLLs. Relatively few solvers have learned all of it, nearly all of them at the very top. OLLCP is over 300 cases, and VLS over 400.",
         "These are real techniques used at the top of the sport, and they are a poor investment below it. The standard advice for anyone curious about ZBLL is to learn COLL first, since it is a subset of the same idea, then add ZBLL cases a group at a time.",
+        "The algorithm bank in this app has all of ZBLL, every algorithm checked on a cube. It is grouped by COLL case, twelve ZBLL cases to a group (eight in two of the H groups), so a group whose COLL you already know is the natural place to start. Each case shows its most widely used algorithm first, with the rest a tap away.",
         "If you do start a large set, count case frequency first. Learn the cases that appear in your solves, and stop when the new ones stop showing up often enough to matter.",
       ],
     },

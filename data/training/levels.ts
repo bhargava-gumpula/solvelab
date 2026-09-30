@@ -344,7 +344,7 @@ export const LEVELS: LevelGuide[] = [
     ],
     notYet: [
       "Expecting steady progress. Improvement at this level arrives in steps with long flat stretches between them.",
-      "New algorithm sets as the main plan. ZBLL is optional even here: Feliks Zemdegs and Max Park were already among the best in the world before they learned it, and the gain showed mostly in their singles. If you want it, begin with the ZBLL cases that differ only slightly from COLL cases you already know.",
+      "New algorithm sets as the main plan. ZBLL is optional even here: Feliks Zemdegs and Max Park were already among the best in the world before they learned it, and the gain showed mostly in their singles. If you want it, begin with the ZBLL cases that differ only slightly from COLL cases you already know; the algorithm bank groups ZBLL by COLL case for exactly that.",
     ],
     packs: ["practising-near-ten", "pll-execution"],
   },

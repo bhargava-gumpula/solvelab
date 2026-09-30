@@ -23,6 +23,12 @@ const DRILLS: Record<RecognitionSet, { title: string; unitId: string; copy: Reco
     unitId: "two-look-pll",
     copy: { ...NAME_THE_CASE, allSides: true },
   },
+  // COLL cases can look alike from two sides, so the drill shows all four.
+  coll: {
+    title: "Recognise COLL cases",
+    unitId: "alg-sets-worth-it",
+    copy: { ...NAME_THE_CASE, allSides: true },
+  },
   // The answers are algorithms, not names.
   f2l: {
     title: "Which algorithm solves this pair?",

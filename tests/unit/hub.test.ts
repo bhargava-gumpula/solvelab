@@ -562,6 +562,30 @@ describe("recognition drills", () => {
     }
   });
 
+  it("drill COLL from the unit that teaches it, with look-alikes from the same group as wrong answers", () => {
+    const data = getAlgorithmSet("coll")!;
+    const deck = recognitionDeck("coll", 40, seededRandom(9));
+    expect(deck).toHaveLength(40);
+    for (const card of deck) {
+      const entry = data.cases.find((item) => item.id === card.caseId)!;
+      // The case shown is the one named: its own algorithm solves it from the picture.
+      expect(checkAlgorithm(card.facelets, algorithmsFor(entry)[0]!.moves, card.kind).ok).toBe(
+        true,
+      );
+      expect(card.options[card.answer]).toContain(entry.name);
+      // COLL groups have at least four cases, so every wrong answer is a look-alike.
+      const group = data.cases
+        .filter((item) => item.group === entry.group)
+        .map((item) => item.name);
+      for (const option of card.options)
+        expect(group.some((name) => option.startsWith(name))).toBe(true);
+    }
+    const unit = courseUnits(COURSES.find((course) => course.id === "sub-15")!).find(
+      (item) => item.id === "alg-sets-worth-it",
+    )!;
+    expect(unit.recognition).toBe("coll");
+  });
+
   it("work for OLL too", () => {
     const deck = recognitionDeck("oll", 10, seededRandom(11));
     expect(deck).toHaveLength(10);
