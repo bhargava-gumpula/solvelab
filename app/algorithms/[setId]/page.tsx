@@ -3,14 +3,16 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CaseBrowser } from "@/components/algorithms/case-browser";
+import { TriggerList } from "@/components/algorithms/trigger-list";
 import { PageHeading } from "@/components/layout/page-heading";
 import { Button } from "@/components/ui/button";
+import { FUNDAMENTALS_SET_ID } from "@/data/algorithms/fundamentals";
 import { algorithmSets } from "@/data/algorithms/sets";
 import { SET_SOURCES } from "@/data/algorithms/sources";
 import { ALGORITHM_SETS, getAlgorithmSet } from "@/lib/algorithms/catalog";
 
 export function generateStaticParams() {
-  return ALGORITHM_SETS.map((set) => ({ setId: set.id }));
+  return [{ setId: FUNDAMENTALS_SET_ID }, ...ALGORITHM_SETS.map((set) => ({ setId: set.id }))];
 }
 
 export async function generateMetadata({
@@ -20,22 +22,40 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { setId } = await params;
   const set = getAlgorithmSet(setId);
-  return { title: set ? set.name : "Algorithms" };
+  const definition = algorithmSets.find((entry) => entry.id === setId);
+  return { title: set?.name ?? (setId === FUNDAMENTALS_SET_ID ? definition?.name : "Algorithms") };
 }
 
 export default async function AlgorithmSetPage({ params }: { params: Promise<{ setId: string }> }) {
   const { setId } = await params;
+  const definition = algorithmSets.find((entry) => entry.id === setId);
+  const back = (
+    <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2 w-fit">
+      <Link href="/algorithms/">
+        <ArrowLeft /> All sets
+      </Link>
+    </Button>
+  );
+  // Triggers have no cases: the Fundamentals set has its own page body.
+  if (setId === FUNDAMENTALS_SET_ID && definition) {
+    return (
+      <>
+        {back}
+        <PageHeading
+          eyebrow="Algorithms"
+          title={definition.name}
+          description={definition.description}
+        />
+        <TriggerList />
+      </>
+    );
+  }
   const set = getAlgorithmSet(setId);
   if (!set) notFound();
-  const definition = algorithmSets.find((entry) => entry.id === set.id);
 
   return (
     <>
-      <Button asChild variant="ghost" size="sm" className="mb-2 -ml-2 w-fit">
-        <Link href="/algorithms/">
-          <ArrowLeft /> All sets
-        </Link>
-      </Button>
+      {back}
       <PageHeading
         eyebrow="Algorithms"
         title={definition?.name ?? set.name}

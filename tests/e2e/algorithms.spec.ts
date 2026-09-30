@@ -156,4 +156,26 @@ test.describe("the algorithm bank", () => {
     await page.getByTestId("case-open-oll-57").click();
     await expect(page.getByRole("dialog")).toContainText("Mummy");
   });
+
+  test("Fundamentals lists the triggers, with what each claims, and keeps your labels", async ({
+    page,
+  }) => {
+    await page.goto("/algorithms/");
+    await expect(page.getByTestId("set-fundamentals")).toContainText("15 triggers");
+    await page.getByTestId("set-fundamentals").click();
+    await expect(page).toHaveURL(/\/algorithms\/fundamentals\/?$/);
+    await expect(page.getByTestId("set-progress")).toContainText("0 of 15 owned", {
+      timeout: 20_000,
+    });
+    await expect(page.getByTestId("trigger-sexy")).toContainText("R U R' U'");
+    await expect(page.getByTestId("trigger-repeats-sexy")).toHaveText(
+      "Six times in a row and the cube is back where it started.",
+    );
+    await page.getByTestId("trigger-label-sexy-known").click();
+    await expect(page.getByTestId("set-progress")).toContainText("1 of 15 owned");
+    await page.reload();
+    await expect(page.getByTestId("trigger-sexy")).toHaveAttribute("data-label", "known", {
+      timeout: 20_000,
+    });
+  });
 });

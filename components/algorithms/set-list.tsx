@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import {
+  FUNDAMENTALS,
+  FUNDAMENTALS_SET_ID,
+  triggerProgressId,
+} from "@/data/algorithms/fundamentals";
 import { algorithmSets } from "@/data/algorithms/sets";
 import { useAlgorithmProgress } from "@/hooks/use-algorithms";
 import { LabelBar, LabelTally } from "@/components/algorithms/label-style";
@@ -18,6 +23,33 @@ export function AlgorithmSetList() {
     <ul className="grid gap-3 sm:grid-cols-2">
       {algorithmSets.map((definition) => {
         const set = ready.get(definition.id);
+        if (definition.id === FUNDAMENTALS_SET_ID) {
+          const counts = countLabels(FUNDAMENTALS.map(triggerProgressId), labels);
+          return (
+            <li key={definition.id}>
+              <Link
+                href={`/algorithms/${definition.id}/`}
+                className="block rounded-2xl border p-4 glass transition-colors hover:border-primary/40"
+                data-testid={`set-${definition.id}`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium">{definition.name}</p>
+                  <ArrowRight className="size-4 text-muted-foreground" aria-hidden />
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">{definition.description}</p>
+                <p className="mt-3 text-sm">{counts.total} triggers</p>
+                {loaded ? (
+                  <>
+                    <LabelBar counts={counts} className="mt-2" />
+                    <div className="mt-2">
+                      <LabelTally counts={counts} />
+                    </div>
+                  </>
+                ) : null}
+              </Link>
+            </li>
+          );
+        }
         if (!set) {
           return (
             <li

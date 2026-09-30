@@ -6,7 +6,8 @@ export const algorithmSets: AlgorithmSetDefinition[] = [
   {
     id: "fundamentals",
     name: "Fundamentals",
-    description: "Triggers and the building blocks of smooth turning.",
+    description:
+      "The short chunks every algorithm is made of: what each one does, how the hands do it, and how many in a row bring the cube back to solved.",
     difficulty: "beginner",
     category: "fundamentals",
     phase: "V1.5",
