@@ -7,6 +7,7 @@ import { SignInReturn } from "@/components/auth/sign-in-return";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AccountSyncProvider } from "./account-sync-provider";
+import { ServiceWorker } from "./service-worker";
 import { StorageProvider } from "./storage-provider";
 import { TimerDeviceProvider } from "@/components/timer/timer-device-provider";
 import { TrainingDataSync } from "@/components/training-data/training-data-sync";
@@ -26,6 +27,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           </StorageProvider>
         </AuthProvider>
         <Toaster position="bottom-center" />
+        <ServiceWorker />
       </TooltipProvider>
     </AppearanceProvider>
   );

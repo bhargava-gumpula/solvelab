@@ -52,7 +52,7 @@ Signed-in accounts also store sessions, solves, and timer settings in Cloud Fire
 
 SolveLab is served from **Cloudflare Pages** at the subdomain `solvelab.bhargava-gumpula.com`: a direct upload of `out/` (see HANDOFF §8). It needs no server, because accounts, sync and training data go through Firebase. That keeps it fast worldwide and up when the owner's home network or Raspberry Pi is down. The owner's main website stays on the Pi behind a Cloudflare Tunnel because it needs a server (payments, email, calendar). An earlier Pi copy of SolveLab was retired on 2026-09-19.
 
-A sub-path deployment (`SOLVELAB_BASE_PATH=/solvelab`) still works if it's ever needed. IndexedDB is per origin, so data on a preview address does not carry over; use backup/restore. Offline reloads need a service worker (PWA phase).
+A sub-path deployment (`SOLVELAB_BASE_PATH=/solvelab`) still works if it's ever needed. IndexedDB is per origin, so data on a preview address does not carry over; use backup/restore. Offline reloads come from `public/sw.js`: network-first pages, cache-first hashed files, other origins untouched (dev log 170).
 
 ## Phase boundaries
 

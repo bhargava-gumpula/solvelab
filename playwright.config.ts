@@ -9,6 +9,8 @@ export default defineConfig({
     browserName: "chromium",
     headless: true,
     trace: "retain-on-failure",
+    // Blocked so request routing stays exact; offline.spec.ts allows it.
+    serviceWorkers: "block",
   },
   webServer: {
     command: "node scripts/serve-static.mjs",

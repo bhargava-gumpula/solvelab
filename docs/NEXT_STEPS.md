@@ -92,7 +92,7 @@ Still to do:
 - **ZBLL (493 cases)** and cases for other methods (Roux CMLL, ZZ's sets, OLLCP as needed). The checker already understands a last layer solved from an edge-oriented start.
 - ✅ **Fundamentals** as an algorithm set: 15 triggers with their repeat counts and the pieces they move, all checked on the cube (dev log 169).
 - ✅ **Custom algorithms** in the case dialog, checked on the cube before they are kept (dev log 167).
-- **Small code items:** ✅ skill tests, drills and daily checks now count inspection as in competition (+2 past 15 s, no attempt past 17 s; dev log 167). ✅ The phone layout flash and the glass blur on machines without a GPU are fixed (dev log 168). Still to do: goals for joins and lookahead are starting estimates to calibrate from real data; offline/PWA support.
+- **Small code items:** ✅ skill tests, drills and daily checks now count inspection as in competition (+2 past 15 s, no attempt past 17 s; dev log 167). ✅ The phone layout flash and the glass blur on machines without a GPU are fixed (dev log 168). ✅ Offline reloads through a conservative service worker (dev log 170). Still to do: goals for joins and lookahead are starting estimates to calibrate from real data.
 
 ## Coach model: open items
 

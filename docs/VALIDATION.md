@@ -412,5 +412,5 @@ Run on 2026-09-13 against the static export (`out/`), Chromium headless via Play
 ### Known limitations
 
 - Initial JS for `/timer` is about 320 KB gzip (framework ~125 KB). The cubing.js solver (~330 KB gzip across chunks) loads only when the first scramble is needed.
-- Not yet an installable PWA; a full offline reload is not guaranteed until a service worker is added.
+- Offline reloads of the timer are covered by `offline.spec.ts` (dev log 170); the web manifest uses only the SVG icon.
 - The e2e suite runs Chromium only.

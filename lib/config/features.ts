@@ -9,6 +9,8 @@ export const features = {
    * Keep `true` so the catalog itself stays usable.
    */
   algorithms: true,
+  /** A service worker that lets the timer reload without a network. Off removes it. */
+  offline: true,
 } as const;
 
 export const upcoming = {

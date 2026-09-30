@@ -8,7 +8,7 @@
  * runtime. The output is generated (not committed) and only fetched when a
  * scramble is first needed.
  */
-import { rm } from "node:fs/promises";
+import { readdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
@@ -53,4 +53,10 @@ await build({
   external: ["node:*"],
   logLevel: "warning",
 });
+// The service worker keeps these so scrambles work offline from the first reload.
+const chunks = (await readdir(`${outdir}/chunks`)).filter((name) => name.endsWith(".js")).sort();
+await writeFile(
+  `${outdir}/files.json`,
+  JSON.stringify(["scramble.js", ...chunks.map((name) => `chunks/${name}`)]),
+);
 console.log("Bundled cubing.js scrambler into public/vendor/cubing");
