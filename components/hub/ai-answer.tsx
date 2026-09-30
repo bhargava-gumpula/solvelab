@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment, type ReactNode } from "react";
 import { TEST_ORDER, testHref, testTitle } from "@/data/exercises";
 import { TRAINING_PACKS } from "@/data/training";
+import { unknownReferences } from "@/lib/ai/grounding";
 import { unitHref } from "@/lib/hub/units";
 
 /** Names the AI may mention, longest first so "Faster PLL" beats "PLL". */
@@ -84,5 +85,20 @@ export function AiAnswer({ text }: { text: string }) {
     );
   }
   flush();
-  return <div className="grid gap-2 text-sm leading-relaxed">{blocks}</div>;
+  const unknown = unknownReferences(text);
+  return (
+    <div className="grid gap-2 text-sm leading-relaxed">
+      {blocks}
+      {unknown.length ? (
+        <p className="text-xs text-muted-foreground" data-testid="ai-unknown-references">
+          SolveLab has nothing called {unknown.map((name) => `“${name}”`).join(" or ")}. The linked
+          names are the real packs and tests; the{" "}
+          <Link href="/hub/library/" className="underline underline-offset-4">
+            Library
+          </Link>{" "}
+          lists them all.
+        </p>
+      ) : null}
+    </div>
+  );
 }

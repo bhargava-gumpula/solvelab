@@ -61,6 +61,7 @@ test.describe("your AI coach", () => {
         [
           'data: {"choices":[{"delta":{"content":"Start with **Lookahead, properly**"}}]}',
           'data: {"choices":[{"delta":{"content":" and take the F2L test after."}}]}',
+          'data: {"choices":[{"delta":{"content":" Then the \\"Cross Mastery\\" pack."}}]}',
           "data: [DONE]",
           "",
         ].join("\n"),
@@ -89,6 +90,10 @@ test.describe("your AI coach", () => {
     await expect(answer.getByRole("link", { name: "F2L test" })).toHaveAttribute(
       "href",
       "/coach/tests/f2l_only/",
+    );
+    // A pack the AI made up is named as not being in SolveLab.
+    await expect(answer.getByTestId("ai-unknown-references")).toContainText(
+      "SolveLab has nothing called “Cross Mastery”",
     );
     // The AI was told the profile, then asked the question.
     expect(sent.messages?.[0]?.role).toBe("system");

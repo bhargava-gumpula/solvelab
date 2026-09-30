@@ -85,7 +85,7 @@ Still to do:
 
 - **A live check with real accounts (owner).** Open "Ask Claude" and "Ask ChatGPT" while signed in, and try "Sign in with OpenRouter" once. The flows are covered by tests with the services mocked, but not yet against the real sites. Granting an app access on OpenRouter is the owner's decision.
 - **SolveLab as a connector inside Claude and ChatGPT** — the supported way to use a subscription with live data. Needs a small server: a remote MCP server (for example a Cloudflare Worker) with OAuth, where the person signs in with Google, and tools such as `get_solve_profile`, `get_course`, `list_packs` and `get_pack` that read their data through Firestore with their own Firebase token (so the security rules still apply). Then add it in Claude (Customize → Connectors → Add custom connector) or ChatGPT (developer mode). Deploying it changes production and needs the owner's approval; the Google OAuth client for it is a console change.
-- **Grounding check.** Answers only link packs and tests that exist; a later step could warn when an answer names a pack that isn't in SolveLab.
+- ✅ **Grounding check:** answers that name a pack, test or drill SolveLab doesn't have get a note saying so (dev log 171).
 
 ## 4.3 (after the Hub and phase 6)
 
