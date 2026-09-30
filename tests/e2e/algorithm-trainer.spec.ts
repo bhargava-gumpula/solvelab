@@ -75,6 +75,13 @@ test.describe("the algorithm trainer", () => {
     expect(await groups.count()).toBe(41);
     await groups.filter({ hasText: "T · COLL T 1" }).click();
     await expect(page.getByTestId("trainer-count")).toHaveText("12 cases");
+    // Your choice is remembered on this device.
+    await page.reload();
+    await expect(page.getByTestId("trainer-count")).toHaveText("12 cases", { timeout: 20_000 });
+    await expect(groups.filter({ hasText: "T · COLL T 1" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
   });
 
   test("flashcards show the case, then the algorithm, and count what you knew", async ({

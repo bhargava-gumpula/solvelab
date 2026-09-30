@@ -6,7 +6,9 @@ import {
   caseWeight,
   nextCard,
   nextCase,
+  readTrainerChoice,
   recallRecords,
+  saveTrainerChoice,
   setOnTheCube,
   slowestOnTheCube,
   whereCaseLives,
@@ -175,5 +177,50 @@ describe("the algorithm trainer", () => {
       typicalMs: 2000,
     });
     expect(setOnTheCube(["pll-h"], times)).toEqual({ timed: 0, total: 1, typicalMs: null });
+  });
+
+  it("remembers your choice for a set on this device, and survives bad or missing storage", () => {
+    const store = new Map<string, string>();
+    const fake = {
+      getItem: (key: string) => store.get(key) ?? null,
+      setItem: (key: string, value: string) => void store.set(key, value),
+    };
+    const original = Object.getOwnPropertyDescriptor(globalThis, "localStorage");
+    Object.defineProperty(globalThis, "localStorage", { value: fake, configurable: true });
+    try {
+      expect(readTrainerChoice("zbll", ["T · COLL T 1"])).toBeNull();
+      saveTrainerChoice("zbll", {
+        labels: ["learning"],
+        groups: ["T · COLL T 1", "gone"],
+        mode: "recall",
+      });
+      expect(readTrainerChoice("zbll", ["T · COLL T 1"])).toEqual({
+        labels: ["learning"],
+        groups: ["T · COLL T 1"],
+        mode: "recall",
+      });
+      store.set("solvelab:trainer:pll", "{not json");
+      expect(readTrainerChoice("pll", [])).toBeNull();
+      store.set("solvelab:trainer:oll", JSON.stringify({ labels: ["nope"], mode: "fast" }));
+      expect(readTrainerChoice("oll", [])).toEqual({ labels: [], groups: [], mode: "execution" });
+      Object.defineProperty(globalThis, "localStorage", {
+        value: {
+          getItem: () => {
+            throw new Error("blocked");
+          },
+          setItem: () => {
+            throw new Error("blocked");
+          },
+        },
+        configurable: true,
+      });
+      expect(readTrainerChoice("pll", [])).toBeNull();
+      expect(() =>
+        saveTrainerChoice("pll", { labels: null, groups: [], mode: "execution" }),
+      ).not.toThrow();
+    } finally {
+      if (original) Object.defineProperty(globalThis, "localStorage", original);
+      else delete (globalThis as { localStorage?: unknown }).localStorage;
+    }
   });
 });

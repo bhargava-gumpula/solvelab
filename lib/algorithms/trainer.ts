@@ -212,3 +212,47 @@ export function setOnTheCube(
     .filter((value): value is number => value !== null && value !== undefined);
   return { timed: medians.length, total: caseIds.length, typicalMs: median(medians) };
 }
+
+export interface SavedTrainerChoice {
+  labels: CaseLabel[] | null;
+  groups: string[];
+  mode: TrainerMode;
+}
+
+const choiceKey = (setId: string) => `solvelab:trainer:${setId}`;
+const MODES: readonly TrainerMode[] = ["execution", "combined", "recall"];
+
+/** Your last choice for a set on this device; null when there's none or it can't be read. */
+export function readTrainerChoice(
+  setId: string,
+  groups: readonly string[],
+): SavedTrainerChoice | null {
+  try {
+    const raw = globalThis.localStorage?.getItem(choiceKey(setId));
+    if (!raw) return null;
+    const saved = JSON.parse(raw) as Partial<SavedTrainerChoice>;
+    const labels = Array.isArray(saved.labels)
+      ? saved.labels.filter((label): label is CaseLabel =>
+          ["unknown", "learning", "known"].includes(label),
+        )
+      : null;
+    return {
+      labels,
+      // Groups that no longer exist are dropped.
+      groups: Array.isArray(saved.groups)
+        ? saved.groups.filter((group) => groups.includes(group))
+        : [],
+      mode: MODES.includes(saved.mode as TrainerMode) ? (saved.mode as TrainerMode) : "execution",
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function saveTrainerChoice(setId: string, choice: SavedTrainerChoice): void {
+  try {
+    globalThis.localStorage?.setItem(choiceKey(setId), JSON.stringify(choice));
+  } catch {
+    // Private windows and full storage: remembering is only a convenience.
+  }
+}

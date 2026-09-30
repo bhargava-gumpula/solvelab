@@ -38,8 +38,10 @@ import {
   nextCard,
   nextCase,
   KNOWN_AFTER_RECALLS,
+  readTrainerChoice,
   recallRecords,
   type RecallRecord,
+  saveTrainerChoice,
   slowestCases,
   trainerCases,
   type TrainerCase,
@@ -90,9 +92,14 @@ export function AlgorithmTrainer({
   const times = useMemo(() => caseTimes(attempts ?? []), [attempts]);
 
   const groups = useMemo(() => groupCases(set.cases).map((group) => group.group), [set]);
-  const [chosenLabels, setChosenLabels] = useState<CaseLabel[] | null>(null);
-  const [chosenGroups, setChosenGroups] = useState<string[]>([]);
-  const [mode, setMode] = useState<TrainerMode>("execution");
+  // Your last choice for this set on this device, when there is one.
+  const [saved] = useState(() => readTrainerChoice(set.id, groups));
+  const [chosenLabels, setChosenLabels] = useState<CaseLabel[] | null>(saved?.labels ?? null);
+  const [chosenGroups, setChosenGroups] = useState<string[]>(saved?.groups ?? []);
+  const [mode, setMode] = useState<TrainerMode>(saved?.mode ?? "execution");
+  useEffect(() => {
+    saveTrainerChoice(set.id, { labels: chosenLabels, groups: chosenGroups, mode });
+  }, [set.id, chosenLabels, chosenGroups, mode]);
   const [running, setRunning] = useState(Boolean(startWith));
   // "Your slowest" or one case: a session of just those, whatever the choice above says.
   const [only, setOnly] = useState<readonly string[] | null>(startWith ? [startWith] : null);
