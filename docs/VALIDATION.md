@@ -1,5 +1,23 @@
 # Validation report
 
+## Extra PLL, OLL, COLL and WV algorithms; your own algorithms (dev log 174, awaiting review)
+
+Run on 2026-09-30 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass                  |
+| Unit tests      | `npm test`                        | 977 passed (69 files) |
+| End-to-end      | `npx playwright test --workers=1` | 98 passed (port 4391) |
+
+New coverage: every extra algorithm solves its case, finishes upright and defines the case on its
+own; the bank's own stay first and unchanged; no extra repeats one already listed; the set list's
+counts match. Your own algorithm is read with brackets, repeats, commutators, Rw and run-together
+turns, and one already listed is recognised from another side or with turns of the top added. In
+the browser: a PLL case's extras behind "More algorithms", a pick of one kept after reload, and
+OLL 24 listing its 1,424 extras fifty at a time.
+
 ## ZBLL set (dev log 173, awaiting review)
 
 Run on 2026-09-30 against the static export (headless Chromium, one Playwright worker, Firebase

@@ -1,11 +1,11 @@
 {
-  "records": 31502,
-  "kept": 30506,
+  "records": 32593,
+  "kept": 31597,
   "cases": 493,
   "zbllCases": 472,
   "pllCases": 21,
-  "algorithms": 5948,
-  "average": 12.6,
+  "algorithms": 5974,
+  "average": 12.7,
   "fewest": 1,
   "most": 51,
   "unnamed": 0,
@@ -42,10 +42,10 @@
     }
   },
   "bySource": {
-    "speedcubedb": 4565,
+    "speedcubedb": 4525,
     "jabari-nuruddin": 841,
     "nuruddin-taylor-yu": 513,
-    "algdb": 2025,
+    "algdb": 2023,
     "juliette-sebastien": 1732,
     "speedsolving-wiki": 1013,
     "speedsolving-forum-18172": 2,
@@ -61,7 +61,8 @@
     "speedcubingtips-eu": 1253,
     "cubingapp": 472,
     "caiden-lee": 960,
+    "cuber-pro": 1061,
     "bernard-helmstetter": 879,
-    "roman-strakhov": 2938
+    "roman-strakhov": 2935
   }
 }

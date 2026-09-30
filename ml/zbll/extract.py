@@ -150,13 +150,14 @@ TEXT_PAGES = {
     "sct": "speedcubingtips-eu",
     "cubingapp": "cubingapp",
     "caidenlee": "caiden-lee",
+    "cuberpro": "cuber-pro",
 }
 for folder, source in TEXT_PAGES.items():
     path = os.path.join(raw, folder)
     if not os.path.isdir(path):
         continue
     for name in sorted(os.listdir(path)):
-        if name.startswith("_"):
+        if name.startswith("_") or name.startswith("other-"):
             continue
         text = open(os.path.join(path, name), encoding="utf-8", errors="replace").read()
         for alg in sequences(text):
@@ -208,10 +209,10 @@ if os.path.isdir(extra):
 other_path = sys.argv[3] if len(sys.argv) > 3 else None
 if other_path:
     other = []
-    def add_other(source, set_name, moves):
+    def add_other(source, set_name, moves, votes=None):
         moves = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", moves))).strip()
         if moves:
-            other.append({"source": source, "set": set_name, "moves": moves})
+            other.append({"source": source, "set": set_name, "moves": moves, "votes": votes})
     sets = {"PLL": "pll", "OLL": "oll", "COLL": "coll", "WV": "wv"}
     if os.path.isdir(scdb):
         for name in sorted(os.listdir(scdb)):
@@ -219,8 +220,22 @@ if other_path:
             if category not in sets:
                 continue
             text = open(os.path.join(scdb, name), encoding="utf-8").read()
-            for alg in re.findall(r'class="formatted-alg">(.*?)</div>', text, re.S):
-                add_other("speedcubedb", sets[category], alg)
+            for item in re.split(r"<li class='list-group-item'>", text)[1:]:
+                alg = re.search(r'class="formatted-alg">(.*?)</div>', item, re.S)
+                vote = re.search(r"fa-thumbs-up me-1'></i>(-?\d+)", item)
+                if alg:
+                    add_other("speedcubedb", sets[category], alg.group(1), int(vote.group(1)) if vote else 0)
+    # The SpeedSolving wiki's algorithm database for OLL, PLL and COLL.
+    if os.path.isdir(wiki):
+        for name in sorted(os.listdir(wiki)):
+            match = re.match(r"other-(OLL|PLL|COLL)-\d+\.html$", name)
+            if not match:
+                continue
+            text = open(os.path.join(wiki, name), encoding="utf-8", errors="replace").read()
+            for rotation, alg in re.findall(
+                r"<td class='rtn_cell'>([^<]*)</td><td><a [^>]*>([^<]*)</a>", text
+            ):
+                add_other("speedsolving-wiki", sets[match.group(1)], f"{rotation} {alg}")
     if os.path.exists(algtrainer):
         data = json.load(open(algtrainer))
         for key, set_name in {
@@ -240,6 +255,30 @@ if other_path:
                 if line.strip():
                     row = json.loads(line)
                     add_other(row["source"], row["set"], row["moves"])
+    # J Perm's algorithm pages keep their lists in a script: alg:["...", ...].
+    jperm = os.path.join(raw, "jperm")
+    if os.path.isdir(jperm):
+        for name, set_name in {
+            "lib_pll.js.txt": "pll", "lib_ohpll.js.txt": "pll", "lib_oll.js.txt": "oll",
+            "lib_oholl.js.txt": "oll", "lib_coll.js.txt": "coll", "lib_wv.js.txt": "wv",
+        }.items():
+            path = os.path.join(jperm, name)
+            if not os.path.exists(path):
+                continue
+            for group in re.findall(r"alg:\[([^\]]*)\]", open(path, encoding="utf-8").read()):
+                for alg in re.findall(r'"([^"]*)"', group):
+                    add_other("jperm", set_name, alg)
+    # Web pages saved as other-<SET>-*.html next to a source's ZBLL pages.
+    for folder, source in TEXT_PAGES.items():
+        path = os.path.join(raw, folder)
+        if not os.path.isdir(path):
+            continue
+        for name in sorted(os.listdir(path)):
+            match = re.match(r"other-(PLL|OLL|COLL|WV)-", name)
+            if match:
+                text = open(os.path.join(path, name), encoding="utf-8", errors="replace").read()
+                for alg in sequences(text):
+                    add_other(source, {"PLL": "pll", "OLL": "oll", "COLL": "coll", "WV": "wv"}[match.group(1)], alg)
     # Brant Holbein's ZZ document has a front-right Winter Variation section.
     for row in records:
         if row["source"] == "brant-holbein":

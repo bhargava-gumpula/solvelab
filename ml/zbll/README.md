@@ -8,6 +8,7 @@ The ZBLL set (`data/algorithms/sets/zbll-data.ts`) is generated. To rebuild it:
    - Tao Yu's Alg-Trainer: `python3 ml/zbll/parse_algtrainer.py alg_list.js RAW/algtrainer.json`.
 2. **Extract**: `python3 ml/zbll/extract.py RAW records.json other-records.json`. Everything downloaded is read as text, JSON or spreadsheet XML; nothing fetched is ever run.
 3. **Build**: `IN=records.json REPORT=ml/zbll/zbll-report.json node ml/scripts/run.mjs ml/zbll/build-zbll.ts`.
-4. **Report on the other sets** (nothing is changed): `IN=other-records.json REPORT=ml/zbll/other-sets-report.json node ml/scripts/run.mjs ml/zbll/report-other-sets.ts`.
+4. **Extras for PLL, OLL, COLL and WV**: `IN=other-records.json REPORT=ml/zbll/other-sets-report.json node ml/scripts/run.mjs ml/zbll/build-extras.ts` (writes `data/algorithms/sets/extras/`). It takes a few minutes: every record is tried against every case of its set.
+5. Run `npx prettier --write data/algorithms/sets/zbll-summary.ts data/algorithms/sets/extras/summary.ts`; the big generated files are in `.prettierignore`.
 
 How cases are found, how algorithms are merged and ranked, and why some are dropped is described at the top of `build-zbll.ts` and `normalise.ts`. `tests/unit/zbll.test.ts` checks the result on the cube.

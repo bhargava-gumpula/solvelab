@@ -14,6 +14,7 @@ import {
   algorithmsFor,
   chosenFor,
   kindFor,
+  ownAlgorithmCount,
   progressIdFor,
   recognitionText,
 } from "@/lib/algorithms/catalog";
@@ -24,6 +25,9 @@ import { CASE_LABELS, type CaseLabel } from "@/lib/algorithms/labels";
 import { LabelToggleItem } from "@/components/algorithms/label-style";
 import { cn } from "@/lib/utils";
 import type { AlgorithmProgress } from "@/types/domain";
+
+/** How many of the extra algorithms "More algorithms" lists at a time. */
+const MORE_PAGE = 50;
 
 /** Everything about one case: how to spot it, what to turn, and where you stand. */
 export function CaseDetail({
@@ -42,6 +46,8 @@ export function CaseDetail({
   collapseAfter?: number;
 }) {
   const [showAll, setShowAll] = useState(false);
+  // Some cases have hundreds of extras; they are listed a page at a time.
+  const [pages, setPages] = useState(1);
   const label: CaseLabel =
     progress?.state === "known" || progress?.state === "mastered"
       ? "known"
@@ -63,22 +69,23 @@ export function CaseDetail({
   // The picture turns to where your algorithm starts; the others are shown with
   // the turn they would need from there.
   const picture = casePicture(entry, kind, chosen.moves);
+  const recognition = recognitionText(entry, kind, picture.facelets, picture.quarter);
+  // The bank's own algorithms show (or as many as the set asks for); the extras
+  // gathered from published lists wait behind "More algorithms".
+  const limit = collapseAfter ?? ownAlgorithmCount(entry);
+  const shown = algorithms.filter(
+    (algorithm, index) => index < limit || algorithm.id === chosen.id || own.has(algorithm.id),
+  );
+  const hidden = algorithms.filter((algorithm) => !shown.includes(algorithm));
+  const listed = hidden.slice(0, pages * MORE_PAGE);
+  // Set-up turns are worked out only for what is on screen: some cases list hundreds.
   const turns = new Map(
-    algorithms.map((algorithm) => [
+    (showAll ? [...shown, ...listed] : shown).map((algorithm) => [
       algorithm.id,
       algorithm.id === chosen.id ? "" : setUpTurn(entry, kind, algorithm.moves, picture.quarter),
     ]),
   );
   const anyTurn = [...turns.values()].some(Boolean);
-  const recognition = recognitionText(entry, kind, picture.facelets, picture.quarter);
-  const shown =
-    collapseAfter === undefined
-      ? algorithms
-      : algorithms.filter(
-          (algorithm, index) =>
-            index < collapseAfter || algorithm.id === chosen.id || own.has(algorithm.id),
-        );
-  const hidden = algorithms.filter((algorithm) => !shown.includes(algorithm));
 
   const renderAlgorithm = (algorithm: CaseAlgorithm) => {
     const isChosen = algorithm.id === chosen.id;
@@ -232,9 +239,24 @@ export function CaseDetail({
               {showAll ? "Show fewer" : `More algorithms (${hidden.length})`}
             </Button>
             {showAll ? (
-              <ul className="grid gap-2" data-testid="more-algorithms-list">
-                {hidden.map(renderAlgorithm)}
-              </ul>
+              <>
+                <ul className="grid gap-2" data-testid="more-algorithms-list">
+                  {listed.map(renderAlgorithm)}
+                </ul>
+                {listed.length < hidden.length ? (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-fit"
+                    onClick={() => setPages((count) => count + 1)}
+                    data-testid="more-algorithms-page"
+                  >
+                    <ChevronDown />
+                    Show {Math.min(MORE_PAGE, hidden.length - listed.length)} more (
+                    {hidden.length - listed.length} left)
+                  </Button>
+                ) : null}
+              </>
             ) : null}
           </>
         ) : null}

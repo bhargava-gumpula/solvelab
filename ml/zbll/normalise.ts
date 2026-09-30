@@ -6,58 +6,10 @@
 import { applyAlgorithm, SOLVED_FACELETS } from "@/lib/cube/cube-state";
 import { formatMove, parseAlgorithm, type Move, type QuarterTurns } from "@/lib/cube/notation";
 
-/** Expands [A: B] (A B A'), [A, B] (A B A' B') and (A)n, innermost first. */
-export function expand(text: string): string | null {
-  let current = text
-    .replace(/[’′‘`´]/g, "'")
-    .replace(/ /g, " ")
-    .replace(/\*/g, "")
-    // Turns written without a space between them: R'U, R2U.
-    .replace(/(['2])(?=[UDLRFBudlrfbMESxyz])/g, "$1 ");
-  for (let round = 0; round < 20; round++) {
-    const before = current;
-    current = current.replace(/\(([^()[\]]*)\)\s*(\d)(?!['w])/g, (_, inner: string, n: string) =>
-      Array.from({ length: Number(n) }, () => inner).join(" "),
-    );
-    current = current.replace(/\[([^[\]]*)\]/g, (_, inner: string) => {
-      const conj = inner.split(":");
-      const comm = inner.split(",");
-      if (conj.length === 2) return ` ${conj[0]} ${conj[1]} ${invert(conj[0]!)} `;
-      if (comm.length === 2)
-        return ` ${comm[0]} ${comm[1]} ${invert(comm[0]!)} ${invert(comm[1]!)} `;
-      return ` ${inner} `;
-    });
-    if (current === before) break;
-  }
-  return /[[\]:,]/.test(current) ? null : current;
-}
-
-export function invert(text: string): string {
-  const parsed = parseAlgorithm(text);
-  if (!parsed.ok) return "#";
-  return [...parsed.moves]
-    .reverse()
-    .map((move) => formatMove({ family: move.family, turns: (4 - move.turns) as QuarterTurns }))
-    .join(" ");
-}
-
-/** Adjacent turns of the same layer merged, repeatedly. */
-export function cancel(moves: Move[]): Move[] {
-  const out: Move[] = [];
-  for (const move of moves) {
-    const last = out.at(-1);
-    if (last && last.family === move.family) {
-      const turns = (last.turns + move.turns) % 4;
-      out.pop();
-      if (turns !== 0) out.push({ family: move.family, turns: turns as QuarterTurns });
-    } else out.push({ ...move });
-  }
-  return out.length === moves.length ? out : cancel(out);
-}
+export { cancel, expand } from "@/lib/cube/written";
+import { cancel, expand } from "@/lib/cube/written";
 
 export const ROTATION = new Set(["x", "y", "z"]);
-/** Moves after which the layer on top is no longer the last layer. */
-export const TIPS_UP = new Set(["x", "z", "r", "l", "f", "b", "M", "S"]);
 
 /** The top turns and rotations at the end, which only line the cube up. */
 export function trimEnd(moves: Move[]): Move[] {
@@ -66,7 +18,9 @@ export function trimEnd(moves: Move[]): Move[] {
     const last = out.at(-1);
     if (!last) return out;
     if (ROTATION.has(last.family)) out.pop();
-    else if (last.family === "U" && !out.some((move) => TIPS_UP.has(move.family))) out.pop();
+    // A last U is only a turn of the last layer when the cube is upright by then:
+    // after r ... r' it is, after an r left undone it isn't.
+    else if (last.family === "U" && YAW.includes(netTurn(text(out.slice(0, -1))))) out.pop();
     else return out;
   }
 }

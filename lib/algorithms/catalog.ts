@@ -31,10 +31,35 @@ function referenced(entry: CaseEntry): CaseEntry | null {
   return null;
 }
 
-/** The algorithms to show, following a reference to another set when there is one. */
-export function algorithmsFor(entry: CaseEntry): CaseAlgorithm[] {
+/**
+ * More algorithms per case, gathered from published lists, loaded after the
+ * page (lib/algorithms/extras.ts). Empty until then.
+ */
+let extraAlgorithms: Readonly<Record<string, readonly CaseAlgorithm[]>> = {};
+
+export function setExtraAlgorithms(extras: Readonly<Record<string, readonly CaseAlgorithm[]>>) {
+  extraAlgorithms = extras;
+}
+
+/** The bank's own algorithms for a case, following a reference to another set. */
+function ownAlgorithms(entry: CaseEntry): CaseAlgorithm[] {
   if (entry.algorithms.length > 0) return entry.algorithms;
   return referenced(entry)?.algorithms ?? [];
+}
+
+/** How many of a case's algorithms are the bank's own, which come first. */
+export function ownAlgorithmCount(entry: CaseEntry): number {
+  return ownAlgorithms(entry).length;
+}
+
+/**
+ * The algorithms to show: the bank's own first (the first defines the case),
+ * then any extras once they have loaded.
+ */
+export function algorithmsFor(entry: CaseEntry): CaseAlgorithm[] {
+  const own = ownAlgorithms(entry);
+  const more = extraAlgorithms[entry.sameAs ?? entry.id];
+  return more?.length ? [...own, ...more] : own;
 }
 
 /** What a label is saved against: one case, however many sets it appears in. */

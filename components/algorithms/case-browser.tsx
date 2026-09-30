@@ -25,6 +25,7 @@ import {
   progressIdFor,
   searchCases,
 } from "@/lib/algorithms/catalog";
+import { EXTRA_CHUNKS_FOR_SET, useExtraAlgorithms } from "@/lib/algorithms/extras";
 import { CASE_LABELS, countLabels, type CaseLabel } from "@/lib/algorithms/labels";
 import { casePicture } from "@/lib/algorithms/orientation";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ export function CaseBrowser({
   collapseAfter?: number;
 }) {
   const { loaded, progress, labels } = useAlgorithmProgress();
+  useExtraAlgorithms(EXTRA_CHUNKS_FOR_SET[set.id] ?? []);
   const [query, setQuery] = useState("");
   // Nothing picked means everything shows; otherwise any mix of the three.
   const [shown, setShown] = useState<CaseLabel[]>([]);

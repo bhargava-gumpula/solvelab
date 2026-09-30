@@ -126,8 +126,16 @@ test.describe("the algorithm bank", () => {
       "doesn't solve this case",
     );
 
-    // The T perm from a turn away is fine, and becomes the one shown on the case.
+    // The bank's T perm with turns of the top added is the same algorithm.
     await input.fill("U R U R' U' R' F R2 U' R' U' R U R' F' U'");
+    await dialog.getByTestId("custom-algorithm-add").click();
+    await expect(dialog.getByTestId("custom-algorithm-error")).toContainText(
+      "already in the list, written as",
+    );
+
+    // One the list doesn't have (R and L commute, so R L R' L' does nothing) is
+    // kept, and becomes the one shown on the case.
+    await input.fill("(R U R' U') R' F R2 U' R' U' R U R' F' R L R' L'");
     await dialog.getByTestId("custom-algorithm-add").click();
     const own = dialog.locator('[data-testid^="algorithm-custom-"]');
     await expect(own).toHaveCount(1);
@@ -222,5 +230,48 @@ test.describe("the algorithm bank", () => {
 
     await page.goto("/algorithms/pll/");
     await expect(page.getByTestId("case-state-pll-t")).toHaveText("Learning", { timeout: 20_000 });
+  });
+
+  test("PLL keeps its own algorithms first, with the extras behind More algorithms", async ({
+    page,
+  }) => {
+    await page.goto("/algorithms/pll/");
+    await expect(page.getByTestId("set-progress")).toContainText("0 of 21 known", {
+      timeout: 20_000,
+    });
+    await page.getByTestId("case-open-pll-t").click();
+    const dialog = page.getByRole("dialog");
+    // The bank's own are listed straight away; the extras load and wait behind the button.
+    await expect(dialog.locator('[data-testid^="algorithm-t-"]').first()).toBeVisible();
+    await expect(dialog.getByTestId("more-algorithms")).toBeVisible({ timeout: 20_000 });
+    await expect(dialog.locator('[data-testid^="algorithm-ex-"]')).toHaveCount(0);
+    await dialog.getByTestId("more-algorithms").click();
+    const extra = dialog
+      .getByTestId("more-algorithms-list")
+      .locator('[data-testid^="algorithm-ex-"]')
+      .first();
+    const extraId = (await extra.getAttribute("data-testid"))!.replace("algorithm-", "");
+    await extra.getByRole("button", { name: "Use this one" }).click();
+    await expect(dialog.getByTestId(`algorithm-${extraId}`)).toContainText("Yours");
+    await page.keyboard.press("Escape");
+
+    // The pick is shown on the card, and in the dialog without opening the list.
+    await page.reload();
+    await page.getByTestId("case-open-pll-t").click({ timeout: 20_000 });
+    await expect(page.getByRole("dialog").getByTestId(`algorithm-${extraId}`)).toContainText(
+      "Yours",
+      { timeout: 20_000 },
+    );
+  });
+
+  test("a case with hundreds of extras lists them fifty at a time", async ({ page }) => {
+    await page.goto("/algorithms/oll/");
+    await page.getByTestId("case-open-oll-24").click({ timeout: 20_000 });
+    const dialog = page.getByRole("dialog");
+    await dialog.getByTestId("more-algorithms").click({ timeout: 20_000 });
+    const rows = dialog.getByTestId("more-algorithms-list").locator("li");
+    await expect(rows).toHaveCount(50);
+    await dialog.getByTestId("more-algorithms-page").click();
+    await expect(rows).toHaveCount(100);
   });
 });

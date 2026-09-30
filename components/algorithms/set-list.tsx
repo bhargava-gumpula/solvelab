@@ -12,7 +12,9 @@ import { algorithmSets } from "@/data/algorithms/sets";
 import { ZBLL_PROGRESS_IDS, ZBLL_SUMMARY } from "@/data/algorithms/sets/zbll-summary";
 import { useAlgorithmProgress } from "@/hooks/use-algorithms";
 import { LabelBar, LabelTally } from "@/components/algorithms/label-style";
-import { ALGORITHM_SETS, algorithmsFor, progressIdFor } from "@/lib/algorithms/catalog";
+import { EXTRA_COUNTS } from "@/data/algorithms/sets/extras/summary";
+import { ALGORITHM_SETS, ownAlgorithmCount, progressIdFor } from "@/lib/algorithms/catalog";
+import { EXTRA_CHUNK_OF_SET } from "@/lib/algorithms/extras";
 import { countLabels } from "@/lib/algorithms/labels";
 import { ZBLL_SET_ID } from "@/lib/algorithms/zbll";
 
@@ -100,10 +102,12 @@ export function AlgorithmSetList() {
           set.cases.map((entry) => progressIdFor(entry)),
           labels,
         );
-        const algorithms = set.cases.reduce(
-          (total, entry) => total + algorithmsFor(entry).length,
-          0,
-        );
+        // The bank's own, plus the extras gathered from published lists (counted
+        // from a summary, so the list doesn't load them).
+        const chunk = EXTRA_CHUNK_OF_SET[set.id];
+        const algorithms =
+          set.cases.reduce((total, entry) => total + ownAlgorithmCount(entry), 0) +
+          (chunk ? EXTRA_COUNTS[chunk] : 0);
         return (
           <li key={set.id}>
             <Link

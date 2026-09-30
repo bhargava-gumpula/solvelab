@@ -7,6 +7,8 @@ import {
   getAlgorithmSet,
 } from "@/lib/algorithms/catalog";
 import { checkCustomAlgorithm } from "@/lib/algorithms/custom";
+import { roundTheCube } from "@/lib/algorithms/canonical";
+import { zbll } from "@/data/algorithms/sets/zbll-data";
 import { attemptFrom, INSPECTION_PLUS_TWO_MS } from "@/lib/coach/test-attempt";
 import { checkAlgorithm } from "@/lib/cube/case-check";
 import { caseStateFor } from "@/lib/algorithms/catalog";
@@ -32,7 +34,8 @@ describe("your own algorithm for a case (4.3)", () => {
 
   it("keeps one that solves the case, written plainly", () => {
     // The T perm with a turn of the top before and after: allowed, like the bank's own.
-    const check = checkCustomAlgorithm(t, kind, "U R U R′ U' R' F R2 U' R' U' R U R' F' U’");
+    // (Against an empty list: with the bank's T perm there, it would be the same one.)
+    const check = checkCustomAlgorithm(t, kind, "U R U R′ U' R' F R2 U' R' U' R U R' F' U’", []);
     expect(check).toEqual({ ok: true, moves: "U R U R' U' R' F R2 U' R' U' R U R' F' U'" });
     // Like the bank's own algorithms, it may start a turn of the top away from the picture.
     if (check.ok) expect(checkAlgorithm(caseStateFor(t, kind), check.moves, kind).ok).toBe(true);
@@ -54,6 +57,49 @@ describe("your own algorithm for a case (4.3)", () => {
     const wrong = checkCustomAlgorithm(t, kind, y);
     expect(wrong.ok).toBe(false);
     if (!wrong.ok) expect(wrong.error).toContain("doesn't solve this case");
+  });
+
+  it("reads algorithms the way people write them", () => {
+    const tPerm = "R U R' U' R' F R2 U' R' U' R U R' F'";
+    const existing: string[] = [];
+    expect(checkCustomAlgorithm(t, kind, "RUR'U'R'FR2U'R'U'RUR'F'", existing)).toEqual({
+      ok: true,
+      moves: tPerm,
+    });
+    expect(
+      checkCustomAlgorithm(t, kind, "(R U R' U') R' F R2 U' R' U' R U R' F'", existing),
+    ).toEqual({ ok: true, moves: tPerm });
+    // A set-up that doesn't solve the case is still refused.
+    expect(checkCustomAlgorithm(t, kind, "[R: U] R'", [])).toMatchObject({ ok: false });
+    expect(checkCustomAlgorithm(t, kind, "[R U", [])).toMatchObject({ ok: false });
+  });
+
+  it("knows an algorithm written from another side is one it already has", () => {
+    const first = algorithmsFor(t)[0]!.moves;
+    const rotated = roundTheCube(first)[2]!;
+    expect(rotated).not.toBe(first);
+    const check = checkCustomAlgorithm(t, kind, rotated);
+    expect(check).toEqual({
+      ok: false,
+      error: `That one is already in the list, written as ${first}.`,
+    });
+  });
+
+  it("knows a set-up or finishing turn of the top doesn't make a new algorithm", () => {
+    const first = algorithmsFor(t)[0]!.moves;
+    expect(checkCustomAlgorithm(t, kind, `U2 ${first} U`)).toEqual({
+      ok: false,
+      error: `That one is already in the list, written as ${first}.`,
+    });
+  });
+
+  it("takes a wide-turn start on a ZBLL case", () => {
+    const entry = zbll.cases.find((candidate) =>
+      candidate.algorithms.some((algorithm) => /^[rl]'? /.test(algorithm.moves)),
+    )!;
+    const wide = entry.algorithms.find((algorithm) => /^[rl]'? /.test(algorithm.moves))!.moves;
+    const typed = wide.replace(/^r/, "Rw").replace(/^l/, "Lw");
+    expect(checkCustomAlgorithm(entry, "pll", typed, [])).toEqual({ ok: true, moves: wide });
   });
 
   it("is the one shown on the case once chosen, and the bank's first one again once removed", () => {
