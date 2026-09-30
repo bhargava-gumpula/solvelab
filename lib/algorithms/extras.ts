@@ -86,3 +86,19 @@ export function useExtraAlgorithms(chunks: readonly ExtraChunk[]): number {
     () => 0,
   );
 }
+
+/**
+ * The extras a person's picks need: the chunk of each case whose chosen
+ * algorithm is an extra one. Case ids start with their set's name.
+ */
+export function extraChunksForPicks(
+  rows: readonly { caseId: string; preferredVariantId?: string | null }[],
+): ExtraChunk[] {
+  const needed = new Set<ExtraChunk>();
+  for (const row of rows) {
+    if (!row.preferredVariantId?.startsWith("ex-")) continue;
+    const chunk = ALL_EXTRA_CHUNKS.find((name) => row.caseId.startsWith(`${name}-`));
+    if (chunk) needed.add(chunk);
+  }
+  return ALL_EXTRA_CHUNKS.filter((chunk) => needed.has(chunk));
+}

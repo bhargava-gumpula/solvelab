@@ -2,7 +2,7 @@
 
 import { useLiveQuery } from "dexie-react-hooks";
 import { useStorageStatus } from "@/components/layout/storage-provider";
-import { ALL_EXTRA_CHUNKS, useExtraAlgorithms } from "@/lib/algorithms/extras";
+import { extraChunksForPicks, useExtraAlgorithms } from "@/lib/algorithms/extras";
 import { labelOf, type CaseLabel } from "@/lib/algorithms/labels";
 import { getRepositories } from "@/lib/storage";
 import type { AlgorithmProgress } from "@/types/domain";
@@ -20,9 +20,9 @@ export function useAlgorithmProgress(): AlgorithmBankState {
     async () => (ready ? await getRepositories().algorithms.list() : undefined),
     [ready],
   );
-  // A pick may be one of the extra algorithms; only then does every page need them.
-  const pickedExtra = (rows ?? []).some((row) => row.preferredVariantId?.startsWith("ex-"));
-  useExtraAlgorithms(pickedExtra ? ALL_EXTRA_CHUNKS : []);
+  // A pick may be one of the extra algorithms; only then does every page need
+  // them, and only the set that pick is in.
+  useExtraAlgorithms(extraChunksForPicks(rows ?? []));
   const progress = new Map((rows ?? []).map((row) => [row.caseId, row]));
   const labels = new Map([...progress].map(([caseId, row]) => [caseId, labelOf(row)]));
   return { loaded: rows !== undefined, progress, labels };

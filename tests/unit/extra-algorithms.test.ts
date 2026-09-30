@@ -15,6 +15,7 @@ import {
   ownAlgorithmCount,
   setExtraAlgorithms,
 } from "@/lib/algorithms/catalog";
+import { extraChunksForPicks } from "@/lib/algorithms/extras";
 import { caseStateOf, checkAlgorithm } from "@/lib/cube/case-check";
 import { applyAlgorithm, SOLVED_FACELETS } from "@/lib/cube/cube-state";
 
@@ -98,5 +99,17 @@ describe("the extra algorithms for PLL, OLL, COLL and WV", () => {
     const { entry } = owners.get(caseId)!;
     const pick = extras.at(-1)!;
     expect(chosenAlgorithm(entry, pick.id)).toEqual(pick);
+  });
+
+  it("loads only the chunk of each case whose pick is an extra", () => {
+    expect(
+      extraChunksForPicks([
+        { caseId: "oll-24", preferredVariantId: "ex-1234567890" },
+        { caseId: "pll-t", preferredVariantId: "t-2" },
+        { caseId: "wv-3", preferredVariantId: "ex-abc" },
+        { caseId: "zbll-t-1", preferredVariantId: "zb-1" },
+      ]),
+    ).toEqual(["oll", "wv"]);
+    expect(extraChunksForPicks([])).toEqual([]);
   });
 });
