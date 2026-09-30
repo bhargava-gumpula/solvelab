@@ -2,13 +2,26 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowRight, Bot, CircleHelp, Eye, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
+import { useLiveQuery } from "dexie-react-hooks";
+import {
+  ArrowRight,
+  Bot,
+  CircleHelp,
+  Eye,
+  Sparkles,
+  Timer,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { useStorageStatus } from "@/components/layout/storage-provider";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { SolveProfileView } from "@/components/stats/solve-profile";
 import { Button } from "@/components/ui/button";
 import { useHub } from "@/hooks/use-hub";
 import { caseStateFor, getAlgorithmSet, kindFor } from "@/lib/algorithms/catalog";
+import { caseTimes, slowestOnTheCube } from "@/lib/algorithms/trainer";
+import { getRepositories } from "@/lib/storage";
 import { compareWithProfile } from "@/lib/hub/intro";
 import { caseLabel } from "@/lib/hub/recognition";
 import { recognitionStats, type RecognitionStats } from "@/lib/hub/recognition-stats";
@@ -92,6 +105,7 @@ export function HubProfile() {
         </section>
       ) : null}
       <SlowestCases attempts={hub.attempts} />
+      <SlowestOnTheCube />
       <Link
         href="/hub/ask/"
         className="group flex items-center gap-3 rounded-2xl p-4 glass transition-transform hover:-translate-y-0.5"
@@ -117,6 +131,42 @@ export function HubProfile() {
  * For every recognition drill you have answered: how many of its cases you
  * know on sight, and the ones to work on, slowest and missed first.
  */
+/** Your slowest cases in the algorithm trainer, whatever the set. */
+function SlowestOnTheCube() {
+  const ready = useStorageStatus().status === "ready";
+  const attempts = useLiveQuery(
+    async () => (ready ? await getRepositories().algorithms.trainerAttempts() : undefined),
+    [ready],
+  );
+  const rows = slowestOnTheCube(caseTimes(attempts ?? []));
+  if (!rows.length) return null;
+  return (
+    <section className="rounded-2xl p-5 glass" data-testid="slowest-on-the-cube">
+      <h2 className="text-sm font-semibold">Slowest on your cube</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        From the algorithm trainer: the median of your times for each case.
+      </p>
+      <ul className="mt-3 grid gap-2">
+        {rows.map((row) => (
+          <li key={row.caseId} className="flex flex-wrap items-center gap-2 text-sm">
+            <Timer className="size-4 text-primary" />
+            <span className="flex-1">{row.name}</span>
+            <span className="font-mono tabular">
+              {(row.times.medianMs! / 1000).toFixed(2)} s{" "}
+              <span className="text-muted-foreground">× {row.times.count}</span>
+            </span>
+            <Button asChild size="sm" variant="outline" className="rounded-full">
+              <Link href={`/algorithms/${row.setId}/train/`}>
+                Practise <ArrowRight />
+              </Link>
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function SlowestCases({ attempts }: { attempts: readonly AlgorithmAttempt[] }) {
   const drilled = RECOGNITION_SETS.map((set) => recognitionStats(attempts, set)).filter((stats) =>
     [...stats.cases.values()].some((entry) => entry.seen > 0),

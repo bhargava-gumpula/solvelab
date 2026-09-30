@@ -6,6 +6,8 @@ import {
   nextCard,
   nextCase,
   recallRecords,
+  slowestOnTheCube,
+  whereCaseLives,
   slowestCases,
   trainerCases,
   type TrainerCase,
@@ -132,5 +134,22 @@ describe("the algorithm trainer", () => {
       previous = next.caseId;
     }
     expect(counts.get("pll-t")!).toBeGreaterThan(counts.get("pll-y")! * 2.5);
+  });
+
+  it("names a saved case wherever it lives, and ranks the slowest across sets", () => {
+    expect(whereCaseLives("pll-t")).toEqual({ setId: "pll", name: `${pll.name} · T` });
+    expect(whereCaseLives("zbll-pi-12")).toEqual({ setId: "zbll", name: "ZBLL Pi 12" });
+    expect(whereCaseLives("zbll-as-3")).toEqual({ setId: "zbll", name: "ZBLL AS 3" });
+    expect(whereCaseLives("2oll-dot")?.setId).toBe("two-look-oll");
+    expect(whereCaseLives("nothing")).toBeNull();
+    const rows = slowestOnTheCube(
+      caseTimes([
+        attempt("pll-t", 1000),
+        attempt("zbll-t-1", 3000),
+        attempt("coll-t1", 2000),
+        attempt("nothing", 9000),
+      ]),
+    );
+    expect(rows.map((row) => row.caseId)).toEqual(["zbll-t-1", "coll-t1", "pll-t"]);
   });
 });

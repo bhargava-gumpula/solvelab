@@ -47,6 +47,15 @@ test.describe("the algorithm trainer", () => {
     await page.reload();
     await page.getByTestId("trainer-start").click({ timeout: 20_000 });
     await expect(page.getByTestId("trainer-slowest").locator("li")).toHaveCount(1);
+
+    // The profile names your slowest case on the cube, with a way back to practise it.
+    await page.goto("/hub/profile/");
+    const slowest = page.getByTestId("slowest-on-the-cube");
+    await expect(slowest).toContainText("PLL ·", { timeout: 20_000 });
+    await expect(slowest.getByRole("link", { name: /Practise/ })).toHaveAttribute(
+      "href",
+      "/algorithms/pll/train/",
+    );
   });
 
   test("ZBLL can be practised a COLL group at a time", async ({ page }) => {

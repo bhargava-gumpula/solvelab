@@ -4,7 +4,7 @@
  * done yet, or that are slower than your others, come round more often.
  */
 import type { AlgorithmSetData, CaseAlgorithm, CaseEntry } from "@/data/algorithms/types";
-import { chosenFor, progressIdFor } from "@/lib/algorithms/catalog";
+import { ALGORITHM_SETS, chosenFor, progressIdFor } from "@/lib/algorithms/catalog";
 import type { CaseLabel } from "@/lib/algorithms/labels";
 import type { AlgorithmAttempt, AlgorithmProgress } from "@/types/domain";
 
@@ -160,4 +160,35 @@ export function nextCard(
     if (left < 0) return open[index]!;
   }
   return open.at(-1)!;
+}
+
+/** Which set a saved case id belongs to, and what it is called there. */
+export function whereCaseLives(caseId: string): { setId: string; name: string } | null {
+  // ZBLL's own cases (its PLLs are saved as full PLL's).
+  const zbll = /^zbll-([a-z]+)-(\d+)$/.exec(caseId);
+  if (zbll) {
+    const set = zbll[1] === "pi" ? "Pi" : zbll[1]!.toUpperCase();
+    return { setId: "zbll", name: `ZBLL ${set} ${zbll[2]}` };
+  }
+  for (const set of ALGORITHM_SETS) {
+    const entry = set.cases.find((item) => item.id === caseId && !item.sameAs);
+    if (entry) return { setId: set.id, name: `${set.name} · ${entry.name}` };
+  }
+  return null;
+}
+
+/** Your slowest cases on the cube across every set, slowest first. */
+export function slowestOnTheCube(
+  times: ReadonlyMap<string, CaseTimes>,
+  count = 5,
+): { caseId: string; setId: string; name: string; times: CaseTimes }[] {
+  return [...times]
+    .map(([caseId, own]) => ({ caseId, where: whereCaseLives(caseId), times: own }))
+    .filter(
+      (row): row is { caseId: string; where: { setId: string; name: string }; times: CaseTimes } =>
+        row.where !== null && row.times.medianMs !== null,
+    )
+    .sort((a, b) => b.times.medianMs! - a.times.medianMs!)
+    .slice(0, count)
+    .map(({ caseId, where, times: own }) => ({ caseId, ...where, times: own }));
 }
