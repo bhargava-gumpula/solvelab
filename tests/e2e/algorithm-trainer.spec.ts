@@ -57,6 +57,12 @@ test.describe("the algorithm trainer", () => {
       "/algorithms/pll/train/",
     );
 
+    // The unit that teaches PLL shows the number too.
+    await page.goto("/hub/unit/pll-algorithms/");
+    await expect(page.getByTestId("unit-trainer-number")).toContainText("1 of 21 cases timed", {
+      timeout: 20_000,
+    });
+
     // The case's card in the set shows your median too.
     await page.goto("/algorithms/pll/");
     await expect(page.locator('[data-testid^="case-time-"]')).toHaveCount(1, { timeout: 20_000 });
@@ -102,6 +108,9 @@ test.describe("the algorithm trainer", () => {
       await expect(scramble).not.toHaveText(previous, { timeout: 30_000 });
       previous = (await scramble.innerText()).trim();
       const name = (await page.getByTestId("trainer-case").innerText()).trim();
+      // The timer's key listeners attach just after the scramble paints; a
+      // person is never this quick, a busy test runner can be.
+      await page.waitForTimeout(150);
       await keyboardSolve(page, ms);
       return name;
     };

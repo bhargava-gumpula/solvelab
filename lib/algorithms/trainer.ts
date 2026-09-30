@@ -201,3 +201,14 @@ export function slowestOnTheCube(
     .slice(0, count)
     .map(({ caseId, where, times: own }) => ({ caseId, ...where, times: own }));
 }
+
+/** A set's cases on the cube, in one line: how many you've timed and your typical case. */
+export function setOnTheCube(
+  caseIds: readonly string[],
+  times: ReadonlyMap<string, CaseTimes>,
+): { timed: number; total: number; typicalMs: number | null } {
+  const medians = caseIds
+    .map((caseId) => times.get(caseId)?.medianMs)
+    .filter((value): value is number => value !== null && value !== undefined);
+  return { timed: medians.length, total: caseIds.length, typicalMs: median(medians) };
+}

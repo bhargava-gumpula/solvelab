@@ -7,6 +7,7 @@ import {
   nextCard,
   nextCase,
   recallRecords,
+  setOnTheCube,
   slowestOnTheCube,
   whereCaseLives,
   slowestCases,
@@ -160,5 +161,19 @@ describe("the algorithm trainer", () => {
     }
     expect(setIdOfCase("zbll-pi-4")).toBe("zbll");
     expect(setIdOfCase("something")).toBeNull();
+  });
+
+  it("sums up a set on the cube: cases timed and the typical case", () => {
+    const times = caseTimes([
+      attempt("pll-t", 1000),
+      attempt("pll-y", 3000),
+      attempt("pll-e", 2000),
+    ]);
+    expect(setOnTheCube(["pll-t", "pll-y", "pll-e", "pll-h"], times)).toEqual({
+      timed: 3,
+      total: 4,
+      typicalMs: 2000,
+    });
+    expect(setOnTheCube(["pll-h"], times)).toEqual({ timed: 0, total: 1, typicalMs: null });
   });
 });

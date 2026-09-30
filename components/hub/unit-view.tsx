@@ -9,6 +9,11 @@ import { PaceBadge } from "@/components/coach/pace-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { testHref } from "@/data/exercises";
 import { useHub } from "@/hooks/use-hub";
+import { useLiveQuery } from "dexie-react-hooks";
+import { useStorageStatus } from "@/components/layout/storage-provider";
+import { getAlgorithmSet, progressIdFor } from "@/lib/algorithms/catalog";
+import { caseTimes, setOnTheCube } from "@/lib/algorithms/trainer";
+import { getRepositories } from "@/lib/storage";
 import { formatMeasureValue, formatPassLine, passedHow, waitingOn } from "@/lib/hub/measure-format";
 import { courseState, type CourseState } from "@/lib/hub/path";
 import { usePackProgress } from "@/hooks/use-training-progress";
@@ -118,6 +123,15 @@ function RecognitionLink({ unitId, set }: { unitId: string; set: RecognitionSet 
 
 /** The set's algorithm trainer: its cases on a real cube, timed from a set-up scramble. */
 function TrainerLink({ set }: { set: RecognitionSet }) {
+  const ready = useStorageStatus().status === "ready";
+  const attempts = useLiveQuery(
+    async () => (ready ? await getRepositories().algorithms.trainerAttempts() : undefined),
+    [ready],
+  );
+  const caseIds = [
+    ...new Set((getAlgorithmSet(set)?.cases ?? []).map((entry) => progressIdFor(entry))),
+  ];
+  const onCube = setOnTheCube(caseIds, caseTimes(attempts ?? []));
   return (
     <Link
       href={`/algorithms/${set}/train/`}
@@ -133,6 +147,15 @@ function TrainerLink({ set }: { set: RecognitionSet }) {
           A scramble sets up each case; you solve it with your algorithm and the time is kept. Your
           slowest cases come round more often.
         </span>
+        {onCube.typicalMs !== null ? (
+          <span className="mt-1 block text-sm" data-testid="unit-trainer-number">
+            Your typical case:{" "}
+            <span className="font-mono tabular">{(onCube.typicalMs / 1000).toFixed(2)} s</span>{" "}
+            <span className="text-muted-foreground">
+              ({onCube.timed} of {onCube.total} cases timed)
+            </span>
+          </span>
+        ) : null}
       </span>
       <ArrowRight className="size-5 text-primary" />
     </Link>
