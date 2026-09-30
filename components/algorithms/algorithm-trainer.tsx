@@ -65,7 +65,16 @@ const seconds = (ms: number | null | undefined) =>
  * with your algorithm, and the time goes against the case. New and slow cases
  * come round more often.
  */
-export function AlgorithmTrainer({ set, backHref }: { set: AlgorithmSetData; backHref: string }) {
+export function AlgorithmTrainer({
+  set,
+  backHref,
+  startWith = null,
+}: {
+  set: AlgorithmSetData;
+  backHref: string;
+  /** A case to start on straight away, on its own (from "Practise this case"). */
+  startWith?: string | null;
+}) {
   const settings = useSettings();
   const ready = useStorageStatus().status === "ready";
   const { loaded, progress, labels } = useAlgorithmProgress();
@@ -80,9 +89,9 @@ export function AlgorithmTrainer({ set, backHref }: { set: AlgorithmSetData; bac
   const [chosenLabels, setChosenLabels] = useState<CaseLabel[] | null>(null);
   const [chosenGroups, setChosenGroups] = useState<string[]>([]);
   const [mode, setMode] = useState<TrainerMode>("execution");
-  const [running, setRunning] = useState(false);
-  // "Your slowest": a session of just those cases, whatever the choice above says.
-  const [only, setOnly] = useState<readonly string[] | null>(null);
+  const [running, setRunning] = useState(Boolean(startWith));
+  // "Your slowest" or one case: a session of just those, whatever the choice above says.
+  const [only, setOnly] = useState<readonly string[] | null>(startWith ? [startWith] : null);
 
   // Start with the cases you're learning, when there are any.
   const learning = [...labels.values()].includes("learning");

@@ -112,4 +112,17 @@ test.describe("the algorithm trainer", () => {
       expect(timed).toContain(await solveNext(300));
     }
   });
+
+  test("a case's dialog goes straight to practising just that case", async ({ page }) => {
+    await page.goto("/algorithms/pll/");
+    await page.getByTestId("case-open-pll-t").click({ timeout: 20_000 });
+    await page.getByRole("dialog").getByTestId("practise-case").click();
+    await expect(page).toHaveURL(/\/algorithms\/pll\/train\/\?case=pll-t$/);
+    await expect(page.getByTestId("trainer-case")).toHaveText("T", { timeout: 20_000 });
+    await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 30_000 });
+    await keyboardSolve(page, 300);
+    // Only that case comes round.
+    await expect(page.getByTestId("trainer-last")).toContainText("T");
+    await expect(page.getByTestId("trainer-case")).toHaveText("T");
+  });
 });

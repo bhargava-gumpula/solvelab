@@ -1,7 +1,9 @@
+import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { TrainerPage } from "@/components/algorithms/trainer-page";
 import { PageHeading } from "@/components/layout/page-heading";
+import { Skeleton } from "@/components/ui/skeleton";
 import { algorithmSets } from "@/data/algorithms/sets";
 import { ALGORITHM_SETS } from "@/lib/algorithms/catalog";
 import { ZBLL_SET_ID } from "@/lib/algorithms/zbll";
@@ -38,7 +40,10 @@ export default async function TrainAlgorithmsPage({
         title={`Practise ${name}`}
         description="A scramble sets up a case, you solve it with your algorithm on your cube, and the time goes against the case. Cases you haven't done yet, and your slowest ones, come round more often."
       />
-      <TrainerPage setId={setId} />
+      {/* The page reads ?case= in the browser; a static export needs the boundary. */}
+      <Suspense fallback={<Skeleton className="h-72" />}>
+        <TrainerPage setId={setId} />
+      </Suspense>
     </>
   );
 }

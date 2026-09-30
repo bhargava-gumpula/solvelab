@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronDown, ChevronUp, Plus, Star, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Check, ChevronDown, ChevronUp, Plus, Star, Timer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { Badge } from "@/components/ui/badge";
@@ -181,6 +182,12 @@ export function CaseDetail({
           ) : null}
         </div>
       </div>
+
+      <Button asChild variant="outline" size="sm" className="w-fit">
+        <Link href={`/algorithms/${set.id}/train/?case=${caseId}`} data-testid="practise-case">
+          <Timer /> Practise this case on your cube
+        </Link>
+      </Button>
 
       <div>
         <p className="text-sm font-medium" id={`${entry.id}-label`}>
