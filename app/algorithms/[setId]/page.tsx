@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Timer } from "lucide-react";
 import { CaseBrowser } from "@/components/algorithms/case-browser";
 import { TriggerList } from "@/components/algorithms/trigger-list";
 import { ZbllBrowser } from "@/components/algorithms/zbll-browser";
@@ -65,6 +65,7 @@ export default async function AlgorithmSetPage({ params }: { params: Promise<{ s
           eyebrow="Algorithms"
           title={definition.name}
           description={definition.description}
+          action={<PractiseButton setId={setId} />}
         />
         <ZbllBrowser />
       </>
@@ -80,6 +81,7 @@ export default async function AlgorithmSetPage({ params }: { params: Promise<{ s
         eyebrow="Algorithms"
         title={definition?.name ?? set.name}
         description={definition?.description}
+        action={<PractiseButton setId={set.id} />}
       />
       {SET_SOURCES[set.id]?.length ? (
         <p className="-mt-2 mb-4 text-xs text-muted-foreground" data-testid="set-sources">
@@ -102,5 +104,16 @@ export default async function AlgorithmSetPage({ params }: { params: Promise<{ s
       ) : null}
       <CaseBrowser set={set} />
     </>
+  );
+}
+
+/** Into the trainer for this set: its cases on a real cube, timed. */
+function PractiseButton({ setId }: { setId: string }) {
+  return (
+    <Button asChild variant="outline" data-testid="practise-set">
+      <Link href={`/algorithms/${setId}/train/`}>
+        <Timer /> Practise on your cube
+      </Link>
+    </Button>
   );
 }

@@ -14,6 +14,8 @@ import type { ScrambleProvider } from "./types";
 export interface CubingScrambleModule {
   randomScrambleForEvent(event: string): Promise<{ toString(): string }>;
   scrambleFrom333Pattern?: (patternData: CubiePatternData) => Promise<string>;
+  /** A scramble that leaves the cube as these outer turns do (for setting up a case). */
+  scrambleFor333Alg?: (setup: string) => Promise<string>;
 }
 
 /**

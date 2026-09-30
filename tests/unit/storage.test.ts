@@ -388,6 +388,31 @@ describe("schema v3", () => {
     expect(new Set(saved.map((row) => row.createdAt)).size).toBe(3);
   });
 
+  it("keeps the algorithm trainer's times apart from recognition, and takes one back", async () => {
+    await repos.algorithms.recordRecognition(
+      [{ caseId: "pll-t", variantId: "t-1", successful: true, recognitionMs: 900 }],
+      "2026-09-29T09:00:00.000Z",
+    );
+    const first = await repos.algorithms.recordExecution(
+      { caseId: "pll-t", variantId: "t-1", totalMs: 1834.6, mode: "execution" },
+      "2026-09-29T09:01:00.000Z",
+    );
+    await repos.algorithms.recordExecution(
+      { caseId: "zbll-t-1", variantId: "zb-1", totalMs: 2500, mode: "combined" },
+      "2026-09-29T09:02:00.000Z",
+    );
+    const trainer = await repos.algorithms.trainerAttempts();
+    expect(trainer.map((row) => [row.caseId, row.mode, row.totalMs])).toEqual([
+      ["pll-t", "execution", 1835],
+      ["zbll-t-1", "combined", 2500],
+    ]);
+    expect(await repos.algorithms.recognitionAttempts()).toHaveLength(1);
+    await repos.algorithms.removeAttempt(first);
+    expect((await repos.algorithms.trainerAttempts()).map((row) => row.caseId)).toEqual([
+      "zbll-t-1",
+    ]);
+  });
+
   it("saves an untimed drill's rounds", async () => {
     const run = await repos.drills.save(
       "cross-efficiency",

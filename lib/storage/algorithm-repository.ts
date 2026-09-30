@@ -54,6 +54,35 @@ export class AlgorithmRepository {
   }
 
   /** Every saved recognition answer, oldest first. */
+  /** One timed solve of a case in the algorithm trainer. */
+  async recordExecution(
+    attempt: { caseId: string; variantId: string; totalMs: number; mode: "execution" | "combined" },
+    now = new Date().toISOString(),
+  ): Promise<string> {
+    const row = algorithmAttemptSchema.parse({
+      id: createId(),
+      caseId: attempt.caseId,
+      variantId: attempt.variantId,
+      createdAt: now,
+      mode: attempt.mode,
+      successful: true,
+      totalMs: Math.round(attempt.totalMs),
+    });
+    await this.db.algorithmAttempts.put(row);
+    return row.id;
+  }
+
+  /** Takes back one trainer attempt (the one just timed, when it went wrong). */
+  async removeAttempt(id: string): Promise<void> {
+    await this.db.algorithmAttempts.delete(id);
+  }
+
+  /** Every timed solve from the algorithm trainer, oldest first. */
+  async trainerAttempts(): Promise<AlgorithmAttempt[]> {
+    const rows = await this.db.algorithmAttempts.orderBy("createdAt").toArray();
+    return rows.filter((row) => row.mode === "execution" || row.mode === "combined");
+  }
+
   async recognitionAttempts(): Promise<AlgorithmAttempt[]> {
     const rows = await this.db.algorithmAttempts.orderBy("createdAt").toArray();
     return rows.filter((row) => row.mode === "recognition");

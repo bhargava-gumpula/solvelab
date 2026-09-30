@@ -11,6 +11,7 @@ import { useInspectionCues } from "@/hooks/use-inspection-cues";
 import { useScramble } from "@/hooks/use-scramble";
 import { useTimerControls } from "@/hooks/use-timer-controls";
 import { attemptFrom } from "@/lib/coach/test-attempt";
+import type { GeneratedScramble } from "@/lib/scramble";
 import { isTimerFocused, type TimerConfig, type TimerResult } from "@/lib/timer/engine";
 import { createTimerStore } from "@/lib/timer/store";
 import type { ExerciseDefinition, UserSettings } from "@/types/domain";
@@ -23,6 +24,11 @@ interface TestTimerCardProps {
   lastTimeMs: number | null;
   onAttempt: (rawTimeMs: number) => void;
   onDeleteLast: () => void;
+  /**
+   * A scramble chosen by the page rather than drawn at random (the algorithm
+   * trainer's case set-ups). The page makes the next one after each attempt.
+   */
+  scramble?: { value: GeneratedScramble | null; onNext: () => void };
 }
 
 /** The scramble (or algorithm) and the timer for one test. */
@@ -33,6 +39,7 @@ export function TestTimerCard({
   lastTimeMs,
   onAttempt,
   onDeleteLast,
+  scramble: given,
 }: TestTimerCardProps) {
   const { session: deviceSession } = useTimerDevice();
   const bluetooth = settings.timerInput === "bluetooth";
@@ -53,9 +60,10 @@ export function TestTimerCard({
     () => "idle" as const,
   );
 
-  const needsScramble = !test.algorithm;
+  const needsScramble = !test.algorithm && !given;
   const scrambles = useScramble(test.scrambleEvent ?? "333", needsScramble);
-  const canTime = enabled && (!needsScramble || Boolean(scrambles.scramble));
+  const canTime =
+    enabled && (given ? Boolean(given.value) : !needsScramble || Boolean(scrambles.scramble));
   const idle = phase === "idle" || phase === "stopped";
 
   const surfaceRef = useRef<HTMLDivElement>(null);
@@ -88,6 +96,12 @@ export function TestTimerCard({
     [
       { key: "Backspace", run: onDeleteLast },
       { key: "Delete", run: onDeleteLast },
+      ...(given
+        ? [
+            { key: "n", run: given.onNext },
+            { key: "ArrowRight", run: given.onNext },
+          ]
+        : []),
       ...(needsScramble
         ? [
             { key: "n", run: scrambles.next },
@@ -110,7 +124,14 @@ export function TestTimerCard({
       data-focus-shell
       className="grid gap-3 rounded-3xl p-3 glass transition-[background-color,border-color,box-shadow] duration-200 sm:p-4"
     >
-      {needsScramble ? (
+      {given ? (
+        <ScrambleBar
+          scramble={given.value}
+          canGoBack={false}
+          onPrevious={() => undefined}
+          onNext={given.onNext}
+        />
+      ) : needsScramble ? (
         <ScrambleBar
           scramble={scrambles.scramble}
           canGoBack={scrambles.canGoBack}

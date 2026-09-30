@@ -7,7 +7,7 @@ export { ScrambleService } from "./scramble-service";
 export { createCubingProvider, randomMoveProvider, type CubingScrambleModule } from "./providers";
 
 /** Built by scripts/bundle-cubing.mjs; loaded natively so its worker can resolve its own chunks. */
-const loadBundledCubing = () =>
+export const loadBundledCubing = () =>
   import(
     /* webpackIgnore: true */ `${siteConfig.basePath}/vendor/cubing/scramble.js`
   ) as Promise<CubingScrambleModule>;

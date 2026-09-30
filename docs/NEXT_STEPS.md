@@ -94,6 +94,8 @@ Still to do:
 - ✅ **Custom algorithms** in the case dialog, checked on the cube before they are kept (dev log 167).
 - **Small code items:** ✅ skill tests, drills and daily checks now count inspection as in competition (+2 past 15 s, no attempt past 17 s; dev log 167). ✅ The phone layout flash and the glass blur on machines without a GPU are fixed (dev log 168). ✅ Offline reloads through a conservative service worker (dev log 170). Still to do: goals for joins and lookahead are starting estimates to calibrate from real data.
 
+- ✅ **Algorithm trainer:** practise any set's cases on a real cube, with scrambles that set up each case without giving the algorithm away (dev log 176). Still open from the spec's trainer modes: recall (type or pick the algorithm) and flashcards.
+
 ## Coach model: open items
 
 - **Real data:** once about 200 people have finished the core tests, run the export (owner) → `npm run ml:calibrate` → tune `ml/sim.ts` → `npm run ml:train` → compare benchmarks → ship. The runbook is in `ml/README.md`.

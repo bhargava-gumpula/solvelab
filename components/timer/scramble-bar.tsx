@@ -84,7 +84,9 @@ export function ScrambleBar({ scramble, canGoBack, onPrevious, onNext, onEdit }:
               <TriangleAlert className="size-3" aria-hidden />
               {scramble.providerId === "custom"
                 ? "Custom scramble"
-                : "Random-move scramble (random-state generator unavailable)"}
+                : scramble.providerId === "case-setup"
+                  ? "The case's set-up (the scramble generator is unavailable)"
+                  : "Random-move scramble (random-state generator unavailable)"}
             </p>
           )}
         </div>
