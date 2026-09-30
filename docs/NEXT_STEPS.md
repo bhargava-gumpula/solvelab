@@ -64,6 +64,13 @@ Decisions for the owner:
 - how confetti fits the "lots of animation" direction;
 - whether it comes before or after phase 4 (6.4 polish).
 
+## For the owner's review (overnight 2026-09-30, dev logs 175–187)
+
+- **The algorithm trainer:** open any set, "Practise on your cube". Try a few cases with a real cube, the "Recognise it yourself" mode, flashcards, "Just your slowest", and "Practise this case" from a case's dialog. Check the scrambles feel like normal scrambles and the case comes out right after z2.
+- **Left-hand versions are kept** (dev log 181 reverses a merge from 173–174): ZBLL 6,416 algorithms; extras PLL +1,683, OLL +2,912 (OLL 21–27 capped at 100), COLL +9,064, WV +139.
+- **The stuck-timer fix** (dev log 182): the timer could ignore one press after a stop if the page switched it off before the key came up. Worth a few quick solves on the timer and a skill test to feel that nothing else changed.
+- **COLL recognition drill** in the Hub (the unit on algorithm sets), and the numbers on the Hub units, profile, Practice tab and case cards.
+
 ## The Learning Hub: open items
 
 - **Owner review.** Walk through `/hub/start/` and a lesson, a drill session and the recognition drill; the screenshots in the session summary show every screen.

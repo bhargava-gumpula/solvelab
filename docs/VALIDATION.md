@@ -1,5 +1,25 @@
 # Validation report
 
+## Overnight 2026-09-30: trainer, left-hand versions, timer fix (dev logs 175–187, awaiting review)
+
+Static export, headless Chromium, one Playwright worker on a spare port (`E2E_PORT=4391`),
+Firebase blocked, dev server stopped first.
+
+| Check           | Command                                         | Result          |
+| --------------- | ----------------------------------------------- | --------------- |
+| Full validation | `npm run validate`                              | Pass            |
+| Unit tests      | `npm test`                                      | 994 passed      |
+| End-to-end      | `E2E_PORT=4391 npx playwright test --workers=1` | see dev log 188 |
+
+New coverage: case scrambles checked with the real solver in Node (PLL incl. an x-start A perm,
+OLL incl. a wide start, COLL, WV, F2L and ZBLL starts with r, l, x, y and M); outer-turn rewrites
+of wide turns, slices and rotations; trainer choice, weighting, flashcard records and the known-in-
+a-row offer; the timer's controls switched off between the stopping press and its release (fails
+without the fix); left-hand versions kept; set lookup by case id. In the browser: a PLL session
+with real scrambles and space-bar solves, a click that doesn't start the timer, undo, the hidden-
+name mode, flashcards by mouse and keyboard, just your slowest, practising one case from its
+dialog, the Practice tab's button, the profile's and the unit's numbers, and the palette command.
+
 ## Extra PLL, OLL, COLL and WV algorithms; your own algorithms (dev log 174, awaiting review)
 
 Run on 2026-09-30 against the static export (headless Chromium, one Playwright worker, Firebase
