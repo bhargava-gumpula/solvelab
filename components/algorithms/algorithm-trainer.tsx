@@ -45,7 +45,7 @@ import {
   type TrainerCase,
   type TrainerMode,
 } from "@/lib/algorithms/trainer";
-import { HOLD_RULE } from "@/lib/config/cube";
+import { HOLD_RULE, SCRAMBLE_HOLD, SOLVING_ROTATION } from "@/lib/config/cube";
 import { loadBundledCubing, type GeneratedScramble } from "@/lib/scramble";
 import { getRepositories } from "@/lib/storage";
 import { formatTime } from "@/lib/timer/format";
@@ -69,10 +69,13 @@ const seconds = (ms: number | null | undefined) =>
 export function AlgorithmTrainer({
   set,
   backHref,
+  backLabel,
   startWith = null,
 }: {
   set: AlgorithmSetData;
   backHref: string;
+  /** What the set is called on its page (Full PLL, not PLL). */
+  backLabel?: string;
   /** A case to start on straight away, on its own (from "Practise this case"). */
   startWith?: string | null;
 }) {
@@ -110,7 +113,7 @@ export function AlgorithmTrainer({
     <div className="grid gap-4">
       <Button asChild variant="ghost" size="sm" className="-ml-2 w-fit">
         <Link href={backHref}>
-          <ArrowLeft /> Back to {set.name}
+          <ArrowLeft /> Back to {backLabel ?? set.name}
         </Link>
       </Button>
       {running && mode === "recall" ? (
@@ -336,7 +339,7 @@ function TrainerSession({
 
   return (
     <div className="grid gap-4" data-testid="trainer-session">
-      <section className="grid gap-3 rounded-2xl p-4 glass sm:grid-cols-[auto_1fr] sm:items-center">
+      <section className="grid grid-cols-[auto_1fr] items-center gap-3 rounded-2xl p-3 glass sm:p-4">
         {current && mode === "execution" ? (
           <>
             <CaseDiagram
@@ -345,7 +348,7 @@ function TrainerSession({
                   .facelets
               }
               kind={kindFor(set, current.entry)}
-              className="w-20"
+              className="w-14 sm:w-20"
               title={`${current.entry.name}, seen from above`}
             />
             <div className="min-w-0">
@@ -358,11 +361,14 @@ function TrainerSession({
             </div>
           </>
         ) : (
-          <p className="text-sm text-muted-foreground sm:col-span-2" data-testid="trainer-hidden">
+          <p className="col-span-2 text-sm text-muted-foreground" data-testid="trainer-hidden">
             Recognise the case yourself, then solve it. Its name shows after you stop the timer.
           </p>
         )}
-        <p className="text-xs text-muted-foreground sm:col-span-2">{HOLD_RULE}</p>
+        <p className="col-span-2 text-xs text-muted-foreground" title={HOLD_RULE}>
+          Scramble with {SCRAMBLE_HOLD}, then turn the cube over ({SOLVING_ROTATION}) and solve the
+          case on top.
+        </p>
       </section>
 
       <TestTimerCard

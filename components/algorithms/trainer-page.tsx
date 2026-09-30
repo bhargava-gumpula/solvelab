@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { AlgorithmTrainer } from "@/components/algorithms/algorithm-trainer";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AlgorithmSetData } from "@/data/algorithms/types";
+import { algorithmSets } from "@/data/algorithms/sets";
 import { getAlgorithmSet, progressIdFor } from "@/lib/algorithms/catalog";
 import { loadZbll, ZBLL_SET_ID } from "@/lib/algorithms/zbll";
 
@@ -30,6 +31,7 @@ export function TrainerPage({ setId }: { setId: string }) {
       key={known ? startWith : "all"}
       set={set}
       backHref={`/algorithms/${setId}/`}
+      backLabel={algorithmSets.find((entry) => entry.id === setId)?.name ?? set.name}
       startWith={known ? startWith : null}
     />
   );
