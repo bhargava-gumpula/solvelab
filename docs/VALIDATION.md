@@ -5,11 +5,11 @@
 Static export, headless Chromium, one Playwright worker on a spare port (`E2E_PORT=4391`),
 Firebase blocked, dev server stopped first.
 
-| Check           | Command                                         | Result          |
-| --------------- | ----------------------------------------------- | --------------- |
-| Full validation | `npm run validate`                              | Pass            |
-| Unit tests      | `npm test`                                      | 994 passed      |
-| End-to-end      | `E2E_PORT=4391 npx playwright test --workers=1` | see dev log 188 |
+| Check           | Command                                         | Result     |
+| --------------- | ----------------------------------------------- | ---------- |
+| Full validation | `npm run validate`                              | Pass       |
+| Unit tests      | `npm test`                                      | 994 passed |
+| End-to-end      | `E2E_PORT=4391 npx playwright test --workers=1` | 104 passed |
 
 New coverage: case scrambles checked with the real solver in Node (PLL incl. an x-start A perm,
 OLL incl. a wide start, COLL, WV, F2L and ZBLL starts with r, l, x, y and M); outer-turn rewrites
