@@ -74,7 +74,7 @@ export const ollExecution: AspectPack = {
         "Removes the rotation-to-recognise habit, which normal solving will never remove on its own.",
       rules: [
         "Pick one case. Set it up and solve it. Then set it up rotated by a quarter turn and solve it again, without rotating the cube back.",
-        "Or let the algorithm trainer (\"Practise on your cube\" on the OLL page) do the setting up: it scrambles each case at a random angle, so the angles come without you choosing them.",
+        'Or let the algorithm trainer ("Practise on your cube" on the OLL page) do the setting up: it scrambles each case at a random angle, so the angles come without you choosing them.',
         "All four angles for each case.",
         "Start with the cases you know you rotate for.",
       ],
