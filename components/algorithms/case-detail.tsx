@@ -1,11 +1,14 @@
 "use client";
 
-import { Check, Star } from "lucide-react";
+import { useState } from "react";
+import { Check, Plus, Star, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ToggleGroup } from "@/components/ui/toggle-group";
-import type { AlgorithmSetData, CaseEntry } from "@/data/algorithms/types";
+import type { AlgorithmSetData, CaseAlgorithm, CaseEntry } from "@/data/algorithms/types";
 import { algorithmActions } from "@/hooks/use-algorithms";
 import {
   algorithmsFor,
@@ -14,7 +17,9 @@ import {
   progressIdFor,
   recognitionText,
 } from "@/lib/algorithms/catalog";
+import { checkCustomAlgorithm } from "@/lib/algorithms/custom";
 import { casePicture, setUpTurn } from "@/lib/algorithms/orientation";
+import type { CaseKind } from "@/lib/cube/case-check";
 import { CASE_LABELS, type CaseLabel } from "@/lib/algorithms/labels";
 import { LabelToggleItem } from "@/components/algorithms/label-style";
 import { cn } from "@/lib/utils";
@@ -36,9 +41,17 @@ export function CaseDetail({
       : progress?.state === "learning" || progress?.state === "practicing"
         ? "learning"
         : "unknown";
-  const algorithms = algorithmsFor(entry);
   const kind = kindFor(set, entry);
   const caseId = progressIdFor(entry);
+  const own = new Set((progress?.customVariants ?? []).map((variant) => variant.id));
+  // The bank's algorithms, then yours.
+  const algorithms: CaseAlgorithm[] = [
+    ...algorithmsFor(entry),
+    ...(progress?.customVariants ?? []).map((variant) => ({
+      id: variant.id,
+      moves: variant.algorithm,
+    })),
+  ];
   const chosen = chosenFor(entry, progress);
   // The picture turns to where your algorithm starts; the others are shown with
   // the turn they would need from there.
@@ -150,26 +163,117 @@ export function CaseDetail({
                       <p className="mt-0.5 text-xs text-muted-foreground">{algorithm.note}</p>
                     ) : null}
                   </div>
-                  {isChosen ? (
-                    <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                      <Star className="size-3.5" aria-hidden /> Yours
-                    </span>
-                  ) : (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => void algorithmActions.setPreferred(caseId, algorithm.id)}
-                    >
-                      <Check /> Use this one
-                    </Button>
-                  )}
+                  <span className="flex items-center gap-1">
+                    {own.has(algorithm.id) ? (
+                      <Badge variant="outline" className="text-[10px]">
+                        Your own
+                      </Badge>
+                    ) : null}
+                    {isChosen ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                        <Star className="size-3.5" aria-hidden /> Yours
+                      </span>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => void algorithmActions.setPreferred(caseId, algorithm.id)}
+                      >
+                        <Check /> Use this one
+                      </Button>
+                    )}
+                    {own.has(algorithm.id) ? (
+                      <Button
+                        size="icon-sm"
+                        variant="ghost"
+                        aria-label="Remove this algorithm"
+                        data-testid={`remove-custom-${algorithm.id}`}
+                        onClick={() =>
+                          void algorithmActions
+                            .removeCustom(caseId, algorithm.id)
+                            .catch(() => toast.error("Couldn’t remove it."))
+                        }
+                      >
+                        <Trash2 />
+                      </Button>
+                    ) : null}
+                  </span>
                 </div>
               </li>
             );
           })}
         </ul>
+        <AddCustomAlgorithm
+          entry={entry}
+          kind={kind}
+          caseId={caseId}
+          existing={algorithms.map((algorithm) => algorithm.moves)}
+        />
       </div>
     </div>
+  );
+}
+
+/**
+ * Add an algorithm of your own. It is kept only when SolveLab's cube agrees it
+ * solves the case, and it becomes the one shown on the case.
+ */
+function AddCustomAlgorithm({
+  entry,
+  kind,
+  caseId,
+  existing,
+}: {
+  entry: CaseEntry;
+  kind: CaseKind;
+  caseId: string;
+  existing: string[];
+}) {
+  const [text, setText] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const check = checkCustomAlgorithm(entry, kind, text, existing);
+    if (!check.ok) {
+      setError(check.error);
+      return;
+    }
+    try {
+      await algorithmActions.addCustom(caseId, check.moves);
+      setText("");
+      setError(null);
+    } catch {
+      toast.error("Couldn’t save your algorithm.");
+    }
+  };
+  return (
+    <form onSubmit={(event) => void submit(event)} className="mt-3 grid gap-1.5">
+      <div className="flex gap-2">
+        <Input
+          value={text}
+          onChange={(event) => {
+            setText(event.target.value);
+            if (error) setError(null);
+          }}
+          placeholder="Add your own, e.g. R U R' U' R' F R2 U' R' U' R U R' F'"
+          aria-label="Your own algorithm for this case"
+          className="font-mono"
+          data-testid="custom-algorithm-input"
+        />
+        <Button type="submit" variant="outline" data-testid="custom-algorithm-add">
+          <Plus /> Add
+        </Button>
+      </div>
+      {error ? (
+        <p className="text-xs text-destructive" data-testid="custom-algorithm-error">
+          {error}
+        </p>
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Checked on the cube before it&apos;s kept, from the case as pictured.
+        </p>
+      )}
+    </form>
   );
 }
 

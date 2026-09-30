@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowLeft, ArrowRight, Check, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, RotateCcw, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useStorageStatus } from "@/components/layout/storage-provider";
@@ -16,6 +16,7 @@ import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import { getExercise, isTestId, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { aspectTargetsFor, testGoal } from "@/data/milestones/aspect-targets";
+import { useHub } from "@/hooks/use-hub";
 import { useSettings } from "@/hooks/use-local-data";
 import { useOpenCoachRequest } from "@/hooks/use-coach-thread";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
@@ -24,6 +25,9 @@ import { aspectsForTest } from "@/lib/coach/aspects";
 import { estimate, MIN_TEST_TIMES } from "@/lib/coach/profile";
 import { formatAspectGoal, formatAspectValue } from "@/lib/coach/profile-format";
 import { saveProfileSnapshot } from "@/lib/coach/profile-store";
+import { formatMeasureValue, formatPassLine } from "@/lib/hub/measure-format";
+import type { UnitState } from "@/lib/hub/path";
+import { unitHref } from "@/lib/hub/units";
 import { getRepositories } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import type { DiagnosticRun, ExerciseDefinition, UserSettings } from "@/types/domain";
@@ -358,6 +362,8 @@ function TestResults({
         ) : null}
       </section>
 
+      <CourseUnitsForTest testId={test.id} />
+
       {aspects.length > 0 ? (
         <section aria-labelledby="shows-heading" className="rounded-3xl p-5 glass md:p-6">
           <h2 id="shows-heading" className="text-base font-semibold">
@@ -424,5 +430,66 @@ function TestResults({
         </p>
       </section>
     </div>
+  );
+}
+
+/**
+ * The units of your course that this test settles: passed now, or still short
+ * of the line. Mounting the Hub here also saves a pass this test has just
+ * earned, so it is celebrated on the spot.
+ */
+function CourseUnitsForTest({ testId }: { testId: string }) {
+  const hub = useHub();
+  const state = hub.current;
+  if (!state) return null;
+  const units = state.units.filter(
+    (unit) =>
+      (!unit.unit.optional || unit.pick) &&
+      unit.measure?.next?.kind === "test" &&
+      unit.measure.next.testId === testId,
+  );
+  if (!units.length) return null;
+  const line = (unit: UnitState) => {
+    const { measure, passed } = unit;
+    if (!measure) return "";
+    if (passed) return `Passed · ${formatMeasureValue(measure, passed.value ?? measure.value)}`;
+    const pass = formatPassLine(measure);
+    const now = measure.value === null ? "" : `${formatMeasureValue(measure, measure.value)} now`;
+    return [now, pass ? `pass line ${pass}` : ""].filter(Boolean).join(" · ");
+  };
+  return (
+    <section className="rounded-3xl p-5 glass md:p-6" data-testid="test-course-units">
+      <h2 className="text-base font-semibold">In your {state.course.title} course</h2>
+      <p className="mt-1 text-xs text-muted-foreground">
+        This test is the measure for {units.length === 1 ? "this unit" : "these units"}. A unit
+        passes at the line, or once it is clearly better than when you started it.
+      </p>
+      <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+        {units.map((unit) => (
+          <li key={unit.unit.id}>
+            <Link
+              href={unitHref(unit.unit)}
+              className="flex items-center gap-3 rounded-xl border bg-background/40 px-3 py-2 text-sm transition-colors hover:border-primary/50"
+              data-testid={`test-unit-${unit.unit.id}`}
+            >
+              <span
+                className={cn(
+                  "grid size-8 shrink-0 place-items-center rounded-full",
+                  unit.passed
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground",
+                )}
+              >
+                <Trophy className="size-4" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block font-medium">{unit.unit.title}</span>
+                <span className="block text-xs text-muted-foreground">{line(unit)}</span>
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

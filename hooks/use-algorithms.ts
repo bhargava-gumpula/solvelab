@@ -30,4 +30,12 @@ export const algorithmActions = {
   setPreferred: (caseId: string, variantId: string | null) =>
     getRepositories().algorithms.setPreferred(caseId, variantId),
   setNotes: (caseId: string, notes: string) => getRepositories().algorithms.setNotes(caseId, notes),
+  /** Keeps an algorithm of your own for the case, and makes it the one you use. */
+  addCustom: async (caseId: string, moves: string) => {
+    const id = `custom-${crypto.randomUUID()}`;
+    await getRepositories().algorithms.addCustom(caseId, { id, algorithm: moves });
+    await getRepositories().algorithms.setPreferred(caseId, id);
+  },
+  removeCustom: (caseId: string, variantId: string) =>
+    getRepositories().algorithms.removeCustom(caseId, variantId),
 };

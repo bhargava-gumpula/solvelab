@@ -1,6 +1,22 @@
 # Validation report
 
-## Measured completion, phase 6 (awaiting review)
+## Small items of 4.3, phase 7 (awaiting review)
+
+Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                |
+| --------------- | --------------------------------- | --------------------- |
+| Full validation | `npm run validate`                | Pass (405 pages)      |
+| Unit tests      | `npm test`                        | 944 passed (64 files) |
+| End-to-end      | `npx playwright test --workers=1` | 92 passed             |
+
+New coverage: inspection past 15 s adds two seconds to a timed attempt and past 17 s drops it;
+an algorithm of your own is kept only when the cube agrees it solves the case, is refused when
+unreadable, already listed or wrong, and the bank's first algorithm returns once it is removed;
+in the browser, adding one in the case dialog, reloading and removing it.
+
+## Measured completion, phase 6
 
 Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
 blocked, dev server stopped first).

@@ -34,7 +34,7 @@ What was left after phase 5 is listed in dev log 165: an "untimed" drill mode, a
 
 ### Measured completion: built (dev log 166; awaiting review)
 
-The owner took the proposal with its defaults on 2026-09-29. Units now pass on a measured result, against their course's line; reading marks a unit read; drills count; a wrong quiz answer gets another go and the lesson is read only after a right one; recognition answers are saved and decks favour weak cases; big confetti is kept for a measured pass. How it works is in `docs/ARCHITECTURE.md` ("Measured completion"). Still open from the proposal: the pass lines for recognition and the improvement bands are first estimates to calibrate from real use, and the test summary page doesn't yet say which units a retest passed.
+The owner took the proposal with its defaults on 2026-09-29. Units now pass on a measured result, against their course's line; reading marks a unit read; drills count; a wrong quiz answer gets another go and the lesson is read only after a right one; recognition answers are saved and decks favour weak cases; big confetti is kept for a measured pass. How it works is in `docs/ARCHITECTURE.md` ("Measured completion"). Still open from the proposal: the pass lines for recognition and the improvement bands are first estimates to calibrate from real use. The test results page now names the units a retest settles (dev log 167).
 
 The proposal as it was written, for the record:
 
@@ -91,8 +91,8 @@ Still to do:
 
 - **ZBLL (493 cases)** and cases for other methods (Roux CMLL, ZZ's sets, OLLCP as needed). The checker already understands a last layer solved from an edge-oriented start.
 - **Fundamentals** as an algorithm set: triggers and turning blocks. It needs its own shape, since there is nothing to "solve" for the checker to confirm.
-- **Custom algorithms** in the case dialog: the repository already stores them (`addCustom`). Validate with `parseAlgorithm` and `checkAlgorithm` before saving.
-- **Small code items:** skill tests record raw times and ignore inspection penalties (+2/DNF past 15 s) — warn or exclude; goals for joins and lookahead are starting estimates to calibrate from real data; a layout flash on phones from `useMediaQuery`; glass blur on low-end devices; offline/PWA support.
+- ✅ **Custom algorithms** in the case dialog, checked on the cube before they are kept (dev log 167).
+- **Small code items:** ✅ skill tests, drills and daily checks now count inspection as in competition (+2 past 15 s, no attempt past 17 s; dev log 167). Still to do: goals for joins and lookahead are starting estimates to calibrate from real data; a layout flash on phones from `useMediaQuery`; glass blur on low-end devices; offline/PWA support.
 
 ## Coach model: open items
 

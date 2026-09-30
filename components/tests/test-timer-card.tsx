@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { toast } from "sonner";
 import { ScrambleBar } from "@/components/timer/scramble-bar";
 import { TimerHint, TimerStage } from "@/components/timer/timer-stage";
 import { useTimerDevice } from "@/components/timer/timer-device-provider";
@@ -9,6 +10,7 @@ import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useInspectionCues } from "@/hooks/use-inspection-cues";
 import { useScramble } from "@/hooks/use-scramble";
 import { useTimerControls } from "@/hooks/use-timer-controls";
+import { attemptFrom } from "@/lib/coach/test-attempt";
 import { isTimerFocused, type TimerConfig, type TimerResult } from "@/lib/timer/engine";
 import { createTimerStore } from "@/lib/timer/store";
 import type { ExerciseDefinition, UserSettings } from "@/types/domain";
@@ -67,7 +69,14 @@ export function TestTimerCard({
   useFocusMode(isTimerFocused(phase));
 
   const complete = useEffectEvent((result: TimerResult) => {
-    onAttempt(result.rawTimeMs);
+    // Inspection that ran over counts as it would in competition.
+    const attempt = attemptFrom(result);
+    if (attempt.note) {
+      if (attempt.timeMs === null) toast.error(attempt.note);
+      else toast(attempt.note);
+    }
+    if (attempt.timeMs === null) return;
+    onAttempt(attempt.timeMs);
     if (needsScramble) void scrambles.fresh();
   });
   useEffect(() => store.onComplete((result) => complete(result)), [store]);

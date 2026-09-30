@@ -110,6 +110,43 @@ test.describe("the algorithm bank", () => {
     await expect(page.getByTestId("case-state-oll-27")).toHaveText("Know it", { timeout: 20_000 });
   });
 
+  test("keeps an algorithm of your own once the cube agrees it solves the case", async ({
+    page,
+  }) => {
+    await page.goto("/algorithms/pll/");
+    await expect(page.getByTestId("case-open-pll-t")).toBeVisible({ timeout: 20_000 });
+    await page.getByTestId("case-open-pll-t").click();
+    const dialog = page.getByRole("dialog");
+    const input = dialog.getByTestId("custom-algorithm-input");
+
+    // A Y perm doesn't solve a T perm, so it isn't kept.
+    await input.fill("F R U' R' U' R U R' F' R U R' U' R' F R F'");
+    await dialog.getByTestId("custom-algorithm-add").click();
+    await expect(dialog.getByTestId("custom-algorithm-error")).toContainText(
+      "doesn't solve this case",
+    );
+
+    // The T perm from a turn away is fine, and becomes the one shown on the case.
+    await input.fill("U R U R' U' R' F R2 U' R' U' R U R' F' U'");
+    await dialog.getByTestId("custom-algorithm-add").click();
+    const own = dialog.locator('[data-testid^="algorithm-custom-"]');
+    await expect(own).toHaveCount(1);
+    await expect(own).toContainText("Your own");
+    await expect(own).toContainText("Yours");
+    await expect(input).toHaveValue("");
+
+    // It stays after a reload, and can be removed.
+    await page.reload();
+    await page.getByTestId("case-open-pll-t").click();
+    await expect(
+      page.getByRole("dialog").locator('[data-testid^="algorithm-custom-"]'),
+    ).toHaveCount(1);
+    await page.getByRole("dialog").locator('[data-testid^="remove-custom-"]').click();
+    await expect(
+      page.getByRole("dialog").locator('[data-testid^="algorithm-custom-"]'),
+    ).toHaveCount(0);
+  });
+
   test("every case shows a diagram and at least one algorithm", async ({ page }) => {
     await page.goto("/algorithms/oll/");
     await expect(page.getByTestId("set-progress")).toBeVisible({ timeout: 20_000 });
