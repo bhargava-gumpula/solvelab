@@ -151,6 +151,13 @@ export function useTimerControls(
       surface?.removeEventListener("pointerup", onSurfaceUp);
       surface?.removeEventListener("pointercancel", onSurfaceUp);
       surface?.removeEventListener("contextmenu", preventContextMenu);
+      // The timer can be switched off between the press that stopped it and
+      // that key's release (a page loading its next scramble, say). With the
+      // listeners gone the release would never arrive, and the next press
+      // would be taken for it; so let go now, as switching windows does.
+      const state = store.getState();
+      if (state.phase === "ready") store.dispatch({ type: "cancel" });
+      if (state.awaitingRelease) store.dispatch({ type: "release", at: performance.now() });
     };
   }, [store, enabled, surfaceRef, deviceControls]);
 }

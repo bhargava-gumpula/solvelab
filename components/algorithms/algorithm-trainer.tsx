@@ -3,7 +3,18 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowLeft, Check, Eye, EyeOff, Layers, Play, Settings2, Undo2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Eye,
+  EyeOff,
+  Layers,
+  Play,
+  Settings2,
+  Turtle,
+  Undo2,
+  X,
+} from "lucide-react";
 import { toast } from "sonner";
 import { LabelToggleItem } from "@/components/algorithms/label-style";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
@@ -39,6 +50,9 @@ import { getRepositories } from "@/lib/storage";
 import { formatTime } from "@/lib/timer/format";
 import type { ExerciseDefinition } from "@/types/domain";
 
+/** How many cases "Just your slowest" takes. */
+const SLOWEST_COUNT = 5;
+
 /** The trainer times plain solves of a set-up case: no inspection. */
 const TRAINER_TIMER: ExerciseDefinition = { ...getExercise("normal_solves")!, inspection: "none" };
 
@@ -67,13 +81,18 @@ export function AlgorithmTrainer({ set, backHref }: { set: AlgorithmSetData; bac
   const [chosenGroups, setChosenGroups] = useState<string[]>([]);
   const [mode, setMode] = useState<TrainerMode>("execution");
   const [running, setRunning] = useState(false);
+  // "Your slowest": a session of just those cases, whatever the choice above says.
+  const [only, setOnly] = useState<readonly string[] | null>(null);
 
   // Start with the cases you're learning, when there are any.
   const learning = [...labels.values()].includes("learning");
   const labelsInUse = chosenLabels ?? (learning ? ["learning" as const] : []);
-  const cases = loaded
+  const everyCase = loaded ? trainerCases(set, { labels: [], groups: [] }, labels, progress) : [];
+  const chosen = loaded
     ? trainerCases(set, { labels: labelsInUse, groups: chosenGroups }, labels, progress)
     : [];
+  const cases = only ? everyCase.filter((item) => only.includes(item.caseId)) : chosen;
+  const slowest = slowestCases(everyCase, times, SLOWEST_COUNT);
 
   if (!loaded || attempts === undefined || !settings) return <Skeleton className="h-72" />;
 
@@ -189,17 +208,32 @@ export function AlgorithmTrainer({ set, backHref }: { set: AlgorithmSetData; bac
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Button
-              onClick={() => setRunning(true)}
-              disabled={cases.length === 0}
+              onClick={() => {
+                setOnly(null);
+                setRunning(true);
+              }}
+              disabled={chosen.length === 0}
               data-testid="trainer-start"
             >
               <Play /> Start
             </Button>
             <p className="text-sm text-muted-foreground" data-testid="trainer-count">
-              {cases.length === 0
+              {chosen.length === 0
                 ? "No cases match. Pick other labels or groups."
-                : `${cases.length} ${cases.length === 1 ? "case" : "cases"}`}
+                : `${chosen.length} ${chosen.length === 1 ? "case" : "cases"}`}
             </p>
+            {slowest.length >= 2 ? (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOnly(slowest.map((row) => row.item.caseId));
+                  setRunning(true);
+                }}
+                data-testid="trainer-slowest-start"
+              >
+                <Turtle /> Just your {slowest.length} slowest
+              </Button>
+            ) : null}
           </div>
         </section>
       )}

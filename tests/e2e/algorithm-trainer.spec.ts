@@ -90,4 +90,26 @@ test.describe("the algorithm trainer", () => {
     await page.keyboard.press("1");
     await expect(cards.getByTestId("flash-tally")).toContainText("1 known, 1 missed");
   });
+
+  test("can go back over just your slowest cases", async ({ page }) => {
+    await page.goto("/algorithms/pll/train/");
+    await page.getByTestId("trainer-start").click({ timeout: 20_000 });
+    const scramble = page.getByTestId("scramble");
+    let previous = "";
+    /** Waits for the next case's own scramble, then times a solve of it. */
+    const solveNext = async (ms: number) => {
+      await expect(scramble).toBeVisible({ timeout: 30_000 });
+      await expect(scramble).not.toHaveText(previous, { timeout: 30_000 });
+      previous = (await scramble.innerText()).trim();
+      const name = (await page.getByTestId("trainer-case").innerText()).trim();
+      await keyboardSolve(page, ms);
+      return name;
+    };
+    const timed = [await solveNext(400), await solveNext(700)];
+    await page.getByTestId("trainer-stop").click();
+    await page.getByTestId("trainer-slowest-start").click();
+    for (let round = 0; round < 4; round++) {
+      expect(timed).toContain(await solveNext(300));
+    }
+  });
 });
