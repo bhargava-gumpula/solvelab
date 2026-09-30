@@ -212,6 +212,11 @@ test.describe("the Learning Hub", () => {
 
   test("the recognition drill times twelve cases and sums them up", async ({ page }) => {
     await page.goto("/hub/unit/pll-algorithms/");
+    // The unit also leads to practising the set on a real cube.
+    await expect(page.getByTestId("unit-trainer")).toHaveAttribute(
+      "href",
+      "/algorithms/pll/train/",
+    );
     await page.getByTestId("unit-recognition").click();
     await page.getByTestId("recognition-start").click();
     for (let card = 0; card < 12; card++) {

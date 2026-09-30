@@ -203,6 +203,8 @@ test.describe("the algorithm bank", () => {
     // A PLL inside ZBLL is the same case as in full PLL, so its label is shared.
     await page.getByTestId("case-zbll-pll-t").click();
     await expect(page.getByTestId("case-state-zbll-pll-t")).toHaveText("Learning");
+    // Each group says how much of it you know.
+    await expect(page.getByTestId("group-tally-PLL")).toHaveText("0 of 21 known · 1 learning");
 
     // The dialog shows the default, with the rest behind "More algorithms".
     await page.getByTestId("case-open-zbll-t-1").click();

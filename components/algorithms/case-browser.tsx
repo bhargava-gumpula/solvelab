@@ -129,9 +129,14 @@ export function CaseBrowser({
           <section key={group} aria-labelledby={`group-${group.replace(/\W+/g, "-")}`}>
             <h2
               id={`group-${group.replace(/\W+/g, "-")}`}
-              className="mb-2 eyebrow text-muted-foreground"
+              className="mb-2 flex flex-wrap items-baseline gap-x-3 eyebrow text-muted-foreground"
             >
               {group}
+              <GroupTally
+                group={group}
+                cases={set.cases.filter((entry) => entry.group === group)}
+                labels={labels}
+              />
             </h2>
             <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {cases.map((entry) => {
@@ -212,5 +217,34 @@ export function CaseBrowser({
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+/**
+ * How much of a group you know, for learning a set a group at a time. It
+ * counts the whole group, whatever the filter or search is showing.
+ */
+function GroupTally({
+  group,
+  cases,
+  labels,
+}: {
+  group: string;
+  cases: readonly CaseEntry[];
+  labels: ReadonlyMap<string, CaseLabel>;
+}) {
+  const counts = countLabels(
+    cases.map((entry) => progressIdFor(entry)),
+    labels,
+  );
+  if (counts.total < 2) return null;
+  return (
+    <span
+      className="font-mono tabular text-[11px] tracking-normal normal-case"
+      data-testid={`group-tally-${group.replace(/\W+/g, "-")}`}
+    >
+      {counts.known} of {counts.total} known
+      {counts.learning ? ` · ${counts.learning} learning` : ""}
+    </span>
   );
 }

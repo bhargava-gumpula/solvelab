@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, BookOpen, Check, Eye, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Check, Eye, Timer, Trophy } from "lucide-react";
 import { PackDetail } from "@/components/train/pack-detail";
 import { Button } from "@/components/ui/button";
 import { PaceBadge } from "@/components/coach/pace-badge";
@@ -73,6 +73,7 @@ export function UnitView({ unitId }: { unitId: string }) {
       <UnitMeasure unit={unit} />
       {unit.kind === "pack" ? <PackLessons unit={unit} /> : <MethodLessons unit={unit} />}
       {unit.recognition ? <RecognitionLink unitId={unit.id} set={unit.recognition} /> : null}
+      {unit.recognition ? <TrainerLink set={unit.recognition} /> : null}
       {unit.kind === "pack" ? (
         <section aria-label="Everything in this pack">
           <PackDetail pack={unit.pack} />
@@ -105,9 +106,32 @@ function RecognitionLink({ unitId, set }: { unitId: string; set: RecognitionSet 
         <span className="block text-sm text-muted-foreground">
           {set === "f2l"
             ? "Twelve pairs, timed. Finds the ones you’re slowest to spot."
-            : set.startsWith("two-look")
+            : set.startsWith("two-look") || set === "coll"
               ? "Twelve cases, timed. Finds the ones you’re slowest to spot."
               : "Twelve cases from two sides, timed. Finds the ones you’re slowest to spot."}
+        </span>
+      </span>
+      <ArrowRight className="size-5 text-primary" />
+    </Link>
+  );
+}
+
+/** The set's algorithm trainer: its cases on a real cube, timed from a set-up scramble. */
+function TrainerLink({ set }: { set: RecognitionSet }) {
+  return (
+    <Link
+      href={`/algorithms/${set}/train/`}
+      className="group flex items-center gap-4 rounded-2xl p-5 glass transition-transform hover:-translate-y-0.5"
+      data-testid="unit-trainer"
+    >
+      <span className="grid size-12 place-items-center rounded-2xl bg-primary/15 text-primary transition-transform group-hover:scale-110">
+        <Timer className="size-6" />
+      </span>
+      <span className="flex-1">
+        <span className="block font-semibold">Practise {RECOGNITION_LABEL[set]} on your cube</span>
+        <span className="block text-sm text-muted-foreground">
+          A scramble sets up each case; you solve it with your algorithm and the time is kept. Your
+          slowest cases come round more often.
         </span>
       </span>
       <ArrowRight className="size-5 text-primary" />
