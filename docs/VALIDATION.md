@@ -14,7 +14,7 @@ blocked, dev server stopped first).
 New coverage: every extra algorithm solves its case, finishes upright and defines the case on its
 own; the bank's own stay first and unchanged; no extra repeats one already listed; the set list's
 counts match. Your own algorithm is read with brackets, repeats, commutators, Rw and run-together
-turns, and one already listed is recognised from another side or with turns of the top added. In
+turns, and one already listed is recognised with turns of the top added (a left-hand version counts as new, dev log 181). In
 the browser: a PLL case's extras behind "More algorithms", a pick of one kept after reload, and
 OLL 24 listing its 1,424 extras fifty at a time.
 
@@ -31,8 +31,8 @@ blocked, dev server stopped first).
 
 Run with a copy of the config on port 4391, because another project on this machine keeps a
 server on 4173 and Playwright reuses whatever answers there. New coverage: every ZBLL algorithm
-solves its case, finishes upright and defines the case alone; no case repeats an algorithm, even
-written round the cube; ids come from the normalised moves; 472 cases in 40 COLL groups plus the
+solves its case, finishes upright and defines the case alone; no case repeats an algorithm (see dev log 181 on
+left-hand versions); ids come from the normalised moves; 472 cases in 40 COLL groups plus the
 21 PLLs pointing at full PLL. In the browser: the set list's counts, the lazily loaded grid, a
 PLL label shared with full PLL, the "More algorithms" list, and a pick kept after reload.
 
