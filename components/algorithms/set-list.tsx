@@ -9,10 +9,12 @@ import {
   triggerProgressId,
 } from "@/data/algorithms/fundamentals";
 import { algorithmSets } from "@/data/algorithms/sets";
+import { ZBLL_PROGRESS_IDS, ZBLL_SUMMARY } from "@/data/algorithms/sets/zbll-summary";
 import { useAlgorithmProgress } from "@/hooks/use-algorithms";
 import { LabelBar, LabelTally } from "@/components/algorithms/label-style";
 import { ALGORITHM_SETS, algorithmsFor, progressIdFor } from "@/lib/algorithms/catalog";
 import { countLabels } from "@/lib/algorithms/labels";
+import { ZBLL_SET_ID } from "@/lib/algorithms/zbll";
 
 /** The sets you can open, and the ones still to come. */
 export function AlgorithmSetList() {
@@ -38,6 +40,35 @@ export function AlgorithmSetList() {
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">{definition.description}</p>
                 <p className="mt-3 text-sm">{counts.total} triggers</p>
+                {loaded ? (
+                  <>
+                    <LabelBar counts={counts} className="mt-2" />
+                    <div className="mt-2">
+                      <LabelTally counts={counts} />
+                    </div>
+                  </>
+                ) : null}
+              </Link>
+            </li>
+          );
+        }
+        if (definition.id === ZBLL_SET_ID) {
+          const counts = countLabels(ZBLL_PROGRESS_IDS, labels);
+          return (
+            <li key={definition.id}>
+              <Link
+                href={`/algorithms/${definition.id}/`}
+                className="block rounded-2xl border p-4 glass transition-colors hover:border-primary/40"
+                data-testid={`set-${definition.id}`}
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium">{definition.name}</p>
+                  <ArrowRight className="size-4 text-muted-foreground" aria-hidden />
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">{definition.description}</p>
+                <p className="mt-3 text-sm">
+                  {ZBLL_SUMMARY.cases} cases · {ZBLL_SUMMARY.algorithms} algorithms
+                </p>
                 {loaded ? (
                   <>
                     <LabelBar counts={counts} className="mt-2" />

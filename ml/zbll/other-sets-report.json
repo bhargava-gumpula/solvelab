@@ -1,0 +1,59 @@
+{
+  "pll": {
+    "cases": 21,
+    "records": 1666,
+    "existing": 69,
+    "extra": 1201,
+    "firstFoundIn": {
+      "speedcubedb": 1169,
+      "alg-trainer pll": 2,
+      "alg-trainer ohpll": 30
+    },
+    "dropped": {
+      "speedcubedb": 2,
+      "alg-trainer ohpll": 2
+    }
+  },
+  "oll": {
+    "cases": 57,
+    "records": 2475,
+    "existing": 104,
+    "extra": 1647,
+    "firstFoundIn": {
+      "speedcubedb": 1616,
+      "alg-trainer oll": 2,
+      "alg-trainer oholl": 29
+    },
+    "dropped": {
+      "alg-trainer oholl": 1
+    }
+  },
+  "coll": {
+    "cases": 40,
+    "records": 677,
+    "existing": 142,
+    "extra": 273,
+    "firstFoundIn": {
+      "speedcubedb": 257,
+      "alg-trainer coll": 10,
+      "alg-trainer coll-tao": 6
+    },
+    "dropped": {}
+  },
+  "wv": {
+    "cases": 27,
+    "records": 1134,
+    "existing": 27,
+    "extra": 139,
+    "firstFoundIn": {
+      "speedcubedb": 135,
+      "alg-trainer wv": 3,
+      "brant-holbein": 1
+    },
+    "dropped": {
+      "speedcubedb": 19,
+      "alg-trainer wv": 35,
+      "brant-holbein": 825
+    }
+  }
+}

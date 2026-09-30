@@ -1,5 +1,23 @@
 # Validation report
 
+## ZBLL set (dev log 173, awaiting review)
+
+Run on 2026-09-30 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                              |
+| --------------- | --------------------------------- | ----------------------------------- |
+| Full validation | `npm run validate`                | Pass                                |
+| Unit tests      | `npm test`                        | 967 passed (68 files)               |
+| End-to-end      | `npx playwright test --workers=1` | 96 passed (on port 4391, see below) |
+
+Run with a copy of the config on port 4391, because another project on this machine keeps a
+server on 4173 and Playwright reuses whatever answers there. New coverage: every ZBLL algorithm
+solves its case, finishes upright and defines the case alone; no case repeats an algorithm, even
+written round the cube; ids come from the normalised moves; 472 cases in 40 COLL groups plus the
+21 PLLs pointing at full PLL. In the browser: the set list's counts, the lazily loaded grid, a
+PLL label shared with full PLL, the "More algorithms" list, and a pick kept after reload.
+
 ## Untimed drills, hydration frame, plain panels, second questions (dev log 168)
 
 Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase

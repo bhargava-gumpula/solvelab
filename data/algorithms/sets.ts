@@ -72,7 +72,8 @@ export const algorithmSets: AlgorithmSetDefinition[] = [
   {
     id: "zbll",
     name: "ZBLL",
-    description: "A deeper last-layer system, organised into focused subsets.",
+    description:
+      "The whole last layer in one algorithm once the edges face up: 472 cases grouped by their corners, plus the 21 PLLs you already know. Most cases have many algorithms; the most widely used comes first.",
     difficulty: "expert",
     category: "advanced",
     phase: "V1.75",

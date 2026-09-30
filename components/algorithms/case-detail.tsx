@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Plus, Star, Trash2 } from "lucide-react";
+import { Check, ChevronDown, ChevronUp, Plus, Star, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { Badge } from "@/components/ui/badge";
@@ -30,11 +30,18 @@ export function CaseDetail({
   set,
   entry,
   progress,
+  collapseAfter,
 }: {
   set: AlgorithmSetData;
   entry: CaseEntry;
   progress: AlgorithmProgress | undefined;
+  /**
+   * For sets with many algorithms per case: show this many (plus your pick and
+   * your own), with the rest behind "More algorithms".
+   */
+  collapseAfter?: number;
 }) {
+  const [showAll, setShowAll] = useState(false);
   const label: CaseLabel =
     progress?.state === "known" || progress?.state === "mastered"
       ? "known"
@@ -64,9 +71,84 @@ export function CaseDetail({
   );
   const anyTurn = [...turns.values()].some(Boolean);
   const recognition = recognitionText(entry, kind, picture.facelets, picture.quarter);
+  const shown =
+    collapseAfter === undefined
+      ? algorithms
+      : algorithms.filter(
+          (algorithm, index) =>
+            index < collapseAfter || algorithm.id === chosen.id || own.has(algorithm.id),
+        );
+  const hidden = algorithms.filter((algorithm) => !shown.includes(algorithm));
+
+  const renderAlgorithm = (algorithm: CaseAlgorithm) => {
+    const isChosen = algorithm.id === chosen.id;
+    const turn = turns.get(algorithm.id);
+    return (
+      <li key={algorithm.id}>
+        <div
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-3 py-2",
+            isChosen ? "border-primary/50 bg-primary/5" : "bg-background/30",
+          )}
+          data-testid={`algorithm-${algorithm.id}`}
+        >
+          <div className="min-w-0">
+            <p className="font-mono text-sm break-words">
+              {turn ? (
+                <TurnChip
+                  turn={turn}
+                  className="mr-1.5"
+                  data-testid={`algorithm-turn-${algorithm.id}`}
+                />
+              ) : null}
+              <span data-testid={`algorithm-moves-${algorithm.id}`}>{algorithm.moves}</span>
+            </p>
+            {algorithm.note ? (
+              <p className="mt-0.5 text-xs text-muted-foreground">{algorithm.note}</p>
+            ) : null}
+          </div>
+          <span className="flex items-center gap-1">
+            {own.has(algorithm.id) ? (
+              <Badge variant="outline" className="text-[10px]">
+                Your own
+              </Badge>
+            ) : null}
+            {isChosen ? (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                <Star className="size-3.5" aria-hidden /> Yours
+              </span>
+            ) : (
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => void algorithmActions.setPreferred(caseId, algorithm.id)}
+              >
+                <Check /> Use this one
+              </Button>
+            )}
+            {own.has(algorithm.id) ? (
+              <Button
+                size="icon-sm"
+                variant="ghost"
+                aria-label="Remove this algorithm"
+                data-testid={`remove-custom-${algorithm.id}`}
+                onClick={() =>
+                  void algorithmActions
+                    .removeCustom(caseId, algorithm.id)
+                    .catch(() => toast.error("Couldn’t remove it."))
+                }
+              >
+                <Trash2 />
+              </Button>
+            ) : null}
+          </span>
+        </div>
+      </li>
+    );
+  };
 
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 gap-5">
       <div className="flex flex-wrap items-start gap-4">
         <div className="w-28 shrink-0">
           <CaseDiagram
@@ -112,7 +194,7 @@ export function CaseDetail({
               key={option.id}
               label={option.id}
               value={option.id}
-              className="px-4"
+              className="px-2 sm:px-4"
               data-testid={`case-label-${option.id}`}
             />
           ))}
@@ -135,74 +217,27 @@ export function CaseDetail({
             instead.
           </p>
         ) : null}
-        <ul className="mt-1 grid gap-2">
-          {algorithms.map((algorithm) => {
-            const isChosen = algorithm.id === chosen.id;
-            const turn = turns.get(algorithm.id);
-            return (
-              <li key={algorithm.id}>
-                <div
-                  className={cn(
-                    "flex flex-wrap items-center justify-between gap-3 rounded-xl border px-3 py-2",
-                    isChosen ? "border-primary/50 bg-primary/5" : "bg-background/30",
-                  )}
-                  data-testid={`algorithm-${algorithm.id}`}
-                >
-                  <div className="min-w-0">
-                    <p className="font-mono text-sm break-words">
-                      {turn ? (
-                        <TurnChip
-                          turn={turn}
-                          className="mr-1.5"
-                          data-testid={`algorithm-turn-${algorithm.id}`}
-                        />
-                      ) : null}
-                      <span data-testid={`algorithm-moves-${algorithm.id}`}>{algorithm.moves}</span>
-                    </p>
-                    {algorithm.note ? (
-                      <p className="mt-0.5 text-xs text-muted-foreground">{algorithm.note}</p>
-                    ) : null}
-                  </div>
-                  <span className="flex items-center gap-1">
-                    {own.has(algorithm.id) ? (
-                      <Badge variant="outline" className="text-[10px]">
-                        Your own
-                      </Badge>
-                    ) : null}
-                    {isChosen ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                        <Star className="size-3.5" aria-hidden /> Yours
-                      </span>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => void algorithmActions.setPreferred(caseId, algorithm.id)}
-                      >
-                        <Check /> Use this one
-                      </Button>
-                    )}
-                    {own.has(algorithm.id) ? (
-                      <Button
-                        size="icon-sm"
-                        variant="ghost"
-                        aria-label="Remove this algorithm"
-                        data-testid={`remove-custom-${algorithm.id}`}
-                        onClick={() =>
-                          void algorithmActions
-                            .removeCustom(caseId, algorithm.id)
-                            .catch(() => toast.error("Couldn’t remove it."))
-                        }
-                      >
-                        <Trash2 />
-                      </Button>
-                    ) : null}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
+        <ul className="mt-1 grid gap-2">{shown.map(renderAlgorithm)}</ul>
+        {hidden.length ? (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-fit"
+              aria-expanded={showAll}
+              onClick={() => setShowAll((open) => !open)}
+              data-testid="more-algorithms"
+            >
+              {showAll ? <ChevronUp /> : <ChevronDown />}
+              {showAll ? "Show fewer" : `More algorithms (${hidden.length})`}
+            </Button>
+            {showAll ? (
+              <ul className="grid gap-2" data-testid="more-algorithms-list">
+                {hidden.map(renderAlgorithm)}
+              </ul>
+            ) : null}
+          </>
+        ) : null}
         <AddCustomAlgorithm
           entry={entry}
           kind={kind}

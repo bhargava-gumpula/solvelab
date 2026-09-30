@@ -298,7 +298,7 @@ test.describe("skill tests and the solve profile", () => {
       "Every case, every algorithm that works.",
     );
     await expect(page.getByTestId("set-pll")).toContainText("21 cases");
-    await expect(page.getByTestId("set-zbll")).toContainText("Coming later");
+    await expect(page.getByTestId("set-zbll")).toContainText("493 cases");
 
     await page.goto("/settings/");
     await expect(page.getByRole("heading", { name: "SolveLab 4.1" })).toBeVisible();

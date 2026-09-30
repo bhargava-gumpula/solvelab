@@ -1,0 +1,67 @@
+{
+  "records": 31502,
+  "kept": 30506,
+  "cases": 493,
+  "zbllCases": 472,
+  "pllCases": 21,
+  "algorithms": 5948,
+  "average": 12.6,
+  "fewest": 1,
+  "most": 51,
+  "unnamed": 0,
+  "drops": {
+    "algdb": {
+      "breaks F2L": 1
+    },
+    "juliette-sebastien": {
+      "breaks F2L": 19,
+      "not ZBLL: an F2L or last-slot algorithm": 2
+    },
+    "brant-holbein": {
+      "breaks F2L": 62,
+      "not ZBLL: an F2L or last-slot algorithm": 253,
+      "unreadable": 1
+    },
+    "goodforthewin": {
+      "not ZBLL: an F2L or last-slot algorithm": 12,
+      "breaks F2L": 5
+    },
+    "tao-yu-justin-taylor": {
+      "not ZBLL: edges not oriented": 630,
+      "breaks F2L": 2
+    },
+    "simon-swanson": {
+      "breaks F2L": 2,
+      "not ZBLL: an F2L or last-slot algorithm": 1
+    },
+    "speedcubingtips-eu": {
+      "breaks F2L": 1
+    },
+    "caiden-lee": {
+      "breaks F2L": 5
+    }
+  },
+  "bySource": {
+    "speedcubedb": 4565,
+    "jabari-nuruddin": 841,
+    "nuruddin-taylor-yu": 513,
+    "algdb": 2025,
+    "juliette-sebastien": 1732,
+    "speedsolving-wiki": 1013,
+    "speedsolving-forum-18172": 2,
+    "brant-holbein": 532,
+    "goodforthewin": 686,
+    "nicolas-gertner": 514,
+    "tao-yu-justin-taylor": 510,
+    "simon-swanson": 768,
+    "dv-egdal": 503,
+    "anthony-brooks": 328,
+    "yoruba": 493,
+    "yomie": 359,
+    "speedcubingtips-eu": 1253,
+    "cubingapp": 472,
+    "caiden-lee": 960,
+    "bernard-helmstetter": 879,
+    "roman-strakhov": 2938
+  }
+}

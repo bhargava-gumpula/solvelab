@@ -4,15 +4,21 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { CaseBrowser } from "@/components/algorithms/case-browser";
 import { TriggerList } from "@/components/algorithms/trigger-list";
+import { ZbllBrowser } from "@/components/algorithms/zbll-browser";
 import { PageHeading } from "@/components/layout/page-heading";
 import { Button } from "@/components/ui/button";
 import { FUNDAMENTALS_SET_ID } from "@/data/algorithms/fundamentals";
 import { algorithmSets } from "@/data/algorithms/sets";
 import { SET_SOURCES } from "@/data/algorithms/sources";
 import { ALGORITHM_SETS, getAlgorithmSet } from "@/lib/algorithms/catalog";
+import { ZBLL_SET_ID } from "@/lib/algorithms/zbll";
 
 export function generateStaticParams() {
-  return [{ setId: FUNDAMENTALS_SET_ID }, ...ALGORITHM_SETS.map((set) => ({ setId: set.id }))];
+  return [
+    { setId: FUNDAMENTALS_SET_ID },
+    { setId: ZBLL_SET_ID },
+    ...ALGORITHM_SETS.map((set) => ({ setId: set.id })),
+  ];
 }
 
 export async function generateMetadata({
@@ -23,7 +29,7 @@ export async function generateMetadata({
   const { setId } = await params;
   const set = getAlgorithmSet(setId);
   const definition = algorithmSets.find((entry) => entry.id === setId);
-  return { title: set?.name ?? (setId === FUNDAMENTALS_SET_ID ? definition?.name : "Algorithms") };
+  return { title: set?.name ?? definition?.name ?? "Algorithms" };
 }
 
 export default async function AlgorithmSetPage({ params }: { params: Promise<{ setId: string }> }) {
@@ -47,6 +53,20 @@ export default async function AlgorithmSetPage({ params }: { params: Promise<{ s
           description={definition.description}
         />
         <TriggerList />
+      </>
+    );
+  }
+  // ZBLL's data loads in the browser when the page opens, not with every page.
+  if (setId === ZBLL_SET_ID && definition) {
+    return (
+      <>
+        {back}
+        <PageHeading
+          eyebrow="Algorithms"
+          title={definition.name}
+          description={definition.description}
+        />
+        <ZbllBrowser />
       </>
     );
   }

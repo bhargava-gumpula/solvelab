@@ -37,7 +37,14 @@ const NEXT_LABEL: Record<CaseLabel, CaseLabel> = {
 };
 
 /** The cases of one set, with what you know marked on each. */
-export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
+export function CaseBrowser({
+  set,
+  collapseAfter,
+}: {
+  set: AlgorithmSetData;
+  /** Passed to the case dialog: show this many algorithms before "More algorithms". */
+  collapseAfter?: number;
+}) {
   const { loaded, progress, labels } = useAlgorithmProgress();
   const [query, setQuery] = useState("");
   // Nothing picked means everything shows; otherwise any mix of the three.
@@ -188,7 +195,12 @@ export function CaseBrowser({ set }: { set: AlgorithmSetData }) {
         <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-xl">
           <DialogTitle className="sr-only">{open?.name ?? "Case"}</DialogTitle>
           {open ? (
-            <CaseDetail set={set} entry={open} progress={progress.get(progressIdFor(open))} />
+            <CaseDetail
+              set={set}
+              entry={open}
+              progress={progress.get(progressIdFor(open))}
+              collapseAfter={collapseAfter}
+            />
           ) : null}
           <div className="mt-2 flex justify-end">
             <Button variant="outline" onClick={() => setOpen(null)}>

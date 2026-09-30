@@ -178,4 +178,49 @@ test.describe("the algorithm bank", () => {
       timeout: 20_000,
     });
   });
+
+  test("ZBLL loads when opened, shows the most common algorithm first and keeps your pick", async ({
+    page,
+  }) => {
+    await page.goto("/algorithms/");
+    await expect(page.getByTestId("set-zbll")).toContainText(/493 cases · \d+ algorithms/);
+    await page.getByTestId("set-zbll").click();
+    await expect(page).toHaveURL(/\/algorithms\/zbll\/?$/);
+    await expect(page.getByTestId("case-zbll-t-1")).toBeVisible({ timeout: 20_000 });
+    await expect(
+      page.locator('[data-testid^="case-zbll-"]:not([data-testid^="case-zbll-pll"])').first(),
+    ).toBeVisible();
+    await expect(page.getByTestId("set-progress")).toContainText("0 of 493 known");
+
+    // A PLL inside ZBLL is the same case as in full PLL, so its label is shared.
+    await page.getByTestId("case-zbll-pll-t").click();
+    await expect(page.getByTestId("case-state-zbll-pll-t")).toHaveText("Learning");
+
+    // The dialog shows the default, with the rest behind "More algorithms".
+    await page.getByTestId("case-open-zbll-t-1").click();
+    const dialog = page.getByRole("dialog");
+    const shown = dialog.locator('[data-testid^="algorithm-zb-"]');
+    await expect(shown).toHaveCount(1);
+    await expect(dialog.getByTestId("more-algorithms-list")).toHaveCount(0);
+    await dialog.getByTestId("more-algorithms").click();
+    const more = dialog.getByTestId("more-algorithms-list");
+    await expect(more).toBeVisible();
+    const pick = more.locator('[data-testid^="algorithm-zb-"]').first();
+    const pickId = (await pick.getAttribute("data-testid"))!.replace("algorithm-", "");
+    await pick.getByRole("button", { name: "Use this one" }).click();
+    await expect(dialog.getByTestId(`algorithm-${pickId}`)).toContainText("Yours");
+    await page.keyboard.press("Escape");
+
+    await page.reload();
+    await expect(page.getByTestId("case-zbll-t-1")).toBeVisible({ timeout: 20_000 });
+    await page.getByTestId("case-open-zbll-t-1").click();
+    // Your pick is shown without opening the list.
+    await expect(page.getByRole("dialog").getByTestId(`algorithm-${pickId}`)).toContainText(
+      "Yours",
+    );
+    await page.keyboard.press("Escape");
+
+    await page.goto("/algorithms/pll/");
+    await expect(page.getByTestId("case-state-pll-t")).toHaveText("Learning", { timeout: 20_000 });
+  });
 });

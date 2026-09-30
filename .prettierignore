@@ -12,3 +12,4 @@ public/vendor
 drafts
 ml/coach-mlp.json
 .claude
+data/algorithms/sets/zbll-data.ts

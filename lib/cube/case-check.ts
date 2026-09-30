@@ -53,7 +53,15 @@ export const AUF = ["", "U", "U2", "U'"] as const;
  * rotation was free during the fingers' work. A finished cube is a finished
  * cube whichever way it faces, so every check looks past these.
  */
-const TURNS = ["", "y", "y2", "y'"] as const;
+const YAW = ["", "y", "y2", "y'"] as const;
+/**
+ * Every way a cube can face, the y turns first. Wide and slice turns, or an x
+ * or z left undone, can finish with the cube tipped over; it is still solved.
+ */
+const TURNS: readonly string[] = [
+  ...YAW,
+  ...["x", "x2", "x'", "z", "z'"].flatMap((tip) => YAW.map((yaw) => (yaw ? `${tip} ${yaw}` : tip))),
+];
 
 /** The same state with the cube stood back up in the usual orientation. */
 function upright(facelets: string, test = firstTwoLayersSolved): string | null {
@@ -171,7 +179,15 @@ function finishingTurn(caseState: string, algorithm: string, kind: CaseKind): st
   } catch {
     return null;
   }
-  return AUF.find((post) => satisfies(post ? applyAlgorithm(post, after) : after, kind)) ?? null;
+  // Stand the cube up first: an algorithm can finish with it tipped over, and
+  // the last turn belongs to the last layer, wherever that ended up.
+  const stood = upright(after) ?? after;
+  return AUF.find((post) => satisfies(post ? applyAlgorithm(post, stood) : stood, kind)) ?? null;
+}
+
+/** The cube turned so its first two layers sit at the bottom, or null if they're broken. */
+export function standUp(facelets: string): string | null {
+  return upright(facelets);
 }
 
 /** Does this algorithm solve this case, allowing a U turn on either side? */
