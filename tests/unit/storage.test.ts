@@ -411,6 +411,12 @@ describe("schema v3", () => {
     expect((await repos.algorithms.trainerAttempts()).map((row) => row.caseId)).toEqual([
       "zbll-t-1",
     ]);
+    await repos.algorithms.recordRecall(
+      { caseId: "pll-t", variantId: "t-1", known: false },
+      "2026-09-29T09:03:00.000Z",
+    );
+    const recall = (await repos.algorithms.trainerAttempts()).at(-1)!;
+    expect([recall.mode, recall.successful, recall.totalMs]).toEqual(["recall", false, undefined]);
   });
 
   it("saves an untimed drill's rounds", async () => {

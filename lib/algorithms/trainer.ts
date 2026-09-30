@@ -8,8 +8,11 @@ import { chosenFor, progressIdFor } from "@/lib/algorithms/catalog";
 import type { CaseLabel } from "@/lib/algorithms/labels";
 import type { AlgorithmAttempt, AlgorithmProgress } from "@/types/domain";
 
-/** Name shown before you solve (execution), or only afterwards (recognition too). */
-export type TrainerMode = "execution" | "combined";
+/**
+ * Name shown before you solve (execution), only afterwards (recognition too),
+ * or flashcards: recall the algorithm from the picture, then check.
+ */
+export type TrainerMode = "execution" | "combined" | "recall";
 
 export interface TrainerChoice {
   /** Which labels to include; none means every case. */
@@ -118,4 +121,43 @@ export function slowestCases(
     .filter((row): row is { item: TrainerCase; times: CaseTimes } => row.times?.medianMs != null)
     .sort((a, b) => b.times.medianMs! - a.times.medianMs!)
     .slice(0, count);
+}
+
+export interface RecallRecord {
+  count: number;
+  /** How the last card for it went. */
+  lastKnown: boolean;
+}
+
+/** Each case's flashcard record, from saved recall attempts (oldest first). */
+export function recallRecords(attempts: readonly AlgorithmAttempt[]): Map<string, RecallRecord> {
+  const byCase = new Map<string, RecallRecord>();
+  for (const attempt of attempts) {
+    if (attempt.mode !== "recall") continue;
+    const before = byCase.get(attempt.caseId);
+    byCase.set(attempt.caseId, { count: (before?.count ?? 0) + 1, lastKnown: attempt.successful });
+  }
+  return byCase;
+}
+
+/** Flashcards: new cases and ones you missed last time come round more often. */
+export function nextCard(
+  cases: readonly TrainerCase[],
+  records: ReadonlyMap<string, RecallRecord>,
+  previous: string | null,
+  random: () => number,
+): TrainerCase | null {
+  if (!cases.length) return null;
+  const open = cases.filter((item) => cases.length === 1 || item.caseId !== previous);
+  const weights = open.map((item) => {
+    const record = records.get(item.caseId);
+    if (!record) return 3;
+    return record.lastKnown ? 1 : 4;
+  });
+  let left = random() * weights.reduce((sum, value) => sum + value, 0);
+  for (let index = 0; index < open.length; index++) {
+    left -= weights[index]!;
+    if (left < 0) return open[index]!;
+  }
+  return open.at(-1)!;
 }

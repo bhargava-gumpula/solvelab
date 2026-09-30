@@ -57,4 +57,21 @@ test.describe("the algorithm trainer", () => {
     await groups.filter({ hasText: "T · COLL T 1" }).click();
     await expect(page.getByTestId("trainer-count")).toHaveText("12 cases");
   });
+
+  test("flashcards show the case, then the algorithm, and count what you knew", async ({
+    page,
+  }) => {
+    await page.goto("/algorithms/oll/train/");
+    await page.getByTestId("trainer-mode-recall").click({ timeout: 20_000 });
+    await page.getByTestId("trainer-start").click();
+    const cards = page.getByTestId("flashcards");
+    await expect(cards.getByRole("img")).toBeVisible();
+    await expect(cards.getByTestId("flash-back")).toHaveCount(0);
+    await cards.getByTestId("flash-reveal").click();
+    await expect(cards.getByTestId("flash-back")).toContainText("OLL");
+    await cards.getByTestId("flash-missed").click();
+    await cards.getByTestId("flash-reveal").click();
+    await cards.getByTestId("flash-known").click();
+    await expect(cards.getByTestId("flash-tally")).toContainText("1 known, 1 missed");
+  });
 });

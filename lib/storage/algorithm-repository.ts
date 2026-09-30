@@ -72,15 +72,34 @@ export class AlgorithmRepository {
     return row.id;
   }
 
+  /** One flashcard: whether you recalled the case's algorithm. */
+  async recordRecall(
+    attempt: { caseId: string; variantId: string; known: boolean },
+    now = new Date().toISOString(),
+  ): Promise<void> {
+    await this.db.algorithmAttempts.put(
+      algorithmAttemptSchema.parse({
+        id: createId(),
+        caseId: attempt.caseId,
+        variantId: attempt.variantId,
+        createdAt: now,
+        mode: "recall",
+        successful: attempt.known,
+      }),
+    );
+  }
+
   /** Takes back one trainer attempt (the one just timed, when it went wrong). */
   async removeAttempt(id: string): Promise<void> {
     await this.db.algorithmAttempts.delete(id);
   }
 
-  /** Every timed solve from the algorithm trainer, oldest first. */
+  /** Everything from the algorithm trainer (timed solves and flashcards), oldest first. */
   async trainerAttempts(): Promise<AlgorithmAttempt[]> {
     const rows = await this.db.algorithmAttempts.orderBy("createdAt").toArray();
-    return rows.filter((row) => row.mode === "execution" || row.mode === "combined");
+    return rows.filter(
+      (row) => row.mode === "execution" || row.mode === "combined" || row.mode === "recall",
+    );
   }
 
   async recognitionAttempts(): Promise<AlgorithmAttempt[]> {

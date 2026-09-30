@@ -3,7 +3,9 @@ import { getAlgorithmSet } from "@/lib/algorithms/catalog";
 import {
   caseTimes,
   caseWeight,
+  nextCard,
   nextCase,
+  recallRecords,
   slowestCases,
   trainerCases,
   type TrainerCase,
@@ -107,5 +109,28 @@ describe("the algorithm trainer", () => {
       attempt("pll-e", 3000),
     ]);
     expect(slowestCases(cases, times, 2).map((row) => row.item.caseId)).toEqual(["pll-e", "pll-t"]);
+  });
+
+  it("brings missed flashcards back more often than known ones", () => {
+    const cases = trainerCases(pll, { labels: [], groups: [] }, new Map(), new Map());
+    const records = recallRecords([
+      { ...attempt("pll-t", 0, "recall"), successful: false },
+      { ...attempt("pll-y", 0, "recall"), successful: false },
+      { ...attempt("pll-y", 1, "recall"), successful: true },
+      attempt("pll-ja", 1200),
+    ]);
+    expect(records.get("pll-t")).toEqual({ count: 1, lastKnown: false });
+    expect(records.get("pll-y")).toEqual({ count: 2, lastKnown: true });
+    expect(records.has("pll-ja")).toBe(false);
+    const random = seededRandom(5);
+    const counts = new Map<string, number>();
+    let previous: string | null = null;
+    for (let round = 0; round < 3000; round++) {
+      const next: TrainerCase = nextCard(cases, records, previous, random)!;
+      expect(next.caseId).not.toBe(previous);
+      counts.set(next.caseId, (counts.get(next.caseId) ?? 0) + 1);
+      previous = next.caseId;
+    }
+    expect(counts.get("pll-t")!).toBeGreaterThan(counts.get("pll-y")! * 2.5);
   });
 });

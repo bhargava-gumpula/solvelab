@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowLeft, Eye, EyeOff, Play, Settings2, Undo2 } from "lucide-react";
+import { ArrowLeft, Check, Eye, EyeOff, Layers, Play, Settings2, Undo2, X } from "lucide-react";
 import { toast } from "sonner";
 import { LabelToggleItem } from "@/components/algorithms/label-style";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
@@ -23,7 +23,10 @@ import { CASE_LABELS, type CaseLabel } from "@/lib/algorithms/labels";
 import { casePicture } from "@/lib/algorithms/orientation";
 import {
   caseTimes,
+  nextCard,
   nextCase,
+  recallRecords,
+  type RecallRecord,
   slowestCases,
   trainerCases,
   type TrainerCase,
@@ -80,7 +83,14 @@ export function AlgorithmTrainer({ set, backHref }: { set: AlgorithmSetData; bac
           <ArrowLeft /> Back to {set.name}
         </Link>
       </Button>
-      {running ? (
+      {running && mode === "recall" ? (
+        <FlashcardSession
+          set={set}
+          cases={cases}
+          records={recallRecords(attempts)}
+          onStop={() => setRunning(false)}
+        />
+      ) : running && mode !== "recall" ? (
         <TrainerSession
           set={set}
           cases={cases}
@@ -144,7 +154,7 @@ export function AlgorithmTrainer({ set, backHref }: { set: AlgorithmSetData; bac
             </div>
           ) : null}
           <div>
-            <p className="text-sm font-medium">The case&apos;s name</p>
+            <p className="text-sm font-medium">How</p>
             <ToggleGroup
               type="single"
               variant="outline"
@@ -166,6 +176,13 @@ export function AlgorithmTrainer({ set, backHref }: { set: AlgorithmSetData; bac
                 data-testid="trainer-mode-combined"
               >
                 <EyeOff className="size-3.5" /> Recognise it yourself
+              </ToggleGroupItem>
+              <ToggleGroupItem
+                value="recall"
+                className="gap-1.5 px-3"
+                data-testid="trainer-mode-recall"
+              >
+                <Layers className="size-3.5" /> Flashcards
               </ToggleGroupItem>
             </ToggleGroup>
           </div>
@@ -199,7 +216,7 @@ function TrainerSession({
 }: {
   set: AlgorithmSetData;
   cases: TrainerCase[];
-  mode: TrainerMode;
+  mode: Exclude<TrainerMode, "recall">;
   times: ReturnType<typeof caseTimes>;
   settings: NonNullable<ReturnType<typeof useSettings>>;
   onStop: () => void;
@@ -357,6 +374,103 @@ function TrainerSession({
             </ol>
           </div>
         ) : null}
+      </section>
+    </div>
+  );
+}
+
+/**
+ * Flashcards: the case as your algorithm starts it; recall the algorithm, then
+ * turn the card over and say whether you knew it. Missed cards come round again
+ * sooner.
+ */
+function FlashcardSession({
+  set,
+  cases,
+  records,
+  onStop,
+}: {
+  set: AlgorithmSetData;
+  cases: TrainerCase[];
+  records: ReadonlyMap<string, RecallRecord>;
+  onStop: () => void;
+}) {
+  const [dealt, setDealt] = useState(() => ({
+    item: nextCard(cases, records, null, Math.random),
+    round: 0,
+  }));
+  const [revealed, setRevealed] = useState(false);
+  const [tally, setTally] = useState({ known: 0, missed: 0 });
+  const current = dealt.item;
+  if (!current) return null;
+  const kind = kindFor(set, current.entry);
+
+  const answer = async (known: boolean) => {
+    try {
+      await getRepositories().algorithms.recordRecall({
+        caseId: current.caseId,
+        variantId: current.algorithm.id,
+        known,
+      });
+    } catch {
+      toast.error("Couldn’t save that card.");
+    }
+    setTally((now) =>
+      known ? { ...now, known: now.known + 1 } : { ...now, missed: now.missed + 1 },
+    );
+    setRevealed(false);
+    setDealt((now) => ({
+      item: nextCard(cases, records, current.caseId, Math.random),
+      round: now.round + 1,
+    }));
+  };
+
+  return (
+    <div className="grid gap-4" data-testid="flashcards">
+      <section className="grid justify-items-center gap-4 rounded-2xl p-6 text-center glass">
+        <CaseDiagram
+          key={dealt.round}
+          facelets={casePicture(current.entry, kind, current.algorithm.moves).facelets}
+          kind={kind}
+          className="w-36"
+          title="The case, as your algorithm starts it"
+        />
+        {revealed ? (
+          <div className="grid gap-1" data-testid="flash-back">
+            <p className="text-lg font-semibold">{current.entry.name}</p>
+            <p className="font-mono text-base break-words">{current.algorithm.moves}</p>
+            <div className="mt-3 flex justify-center gap-2">
+              <Button onClick={() => void answer(true)} data-testid="flash-known">
+                <Check /> Knew it
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => void answer(false)}
+                data-testid="flash-missed"
+              >
+                <X /> Missed it
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-3">
+            <p className="text-sm text-muted-foreground">
+              What&apos;s your algorithm for this case, from this angle?
+            </p>
+            <Button onClick={() => setRevealed(true)} data-testid="flash-reveal">
+              <Eye /> Show it
+            </Button>
+          </div>
+        )}
+      </section>
+      <section className="flex flex-wrap items-center justify-between gap-2 rounded-2xl p-4 glass">
+        <p className="text-sm" data-testid="flash-tally">
+          This session: <span className="font-mono tabular">{tally.known}</span> known,{" "}
+          <span className="font-mono tabular">{tally.missed}</span> missed
+        </p>
+        <Button variant="outline" size="sm" onClick={onStop} data-testid="trainer-stop">
+          <Settings2 /> Change cases
+        </Button>
       </section>
     </div>
   );
