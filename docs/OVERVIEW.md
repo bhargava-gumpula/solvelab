@@ -47,7 +47,9 @@ There are two optional **extra tests**: slow-turning F2L, which adds lookahead c
 
 **The road, two minutes to sub-10** (Learn). Ten rungs. Each says where the time actually is at that speed, what to do about it, and what to leave alone for now — because most wasted practice is real advice applied at the wrong level. The rung opens itself from the timer average, and its split goals come from the same model the solve profile uses. Underneath it are the twelve short lessons for learning the method itself.
 
-**Not yet on.** Algorithms is a browsable bank without recognition drills, and Fundamentals and ZBLL are unbuilt. No AI model runs yet: every number and tag comes from plain formulas. The small 3.0 model in `ml/` isn't used by any screen.
+**Algorithms** (the algorithm bank). 2-look OLL and PLL, F2L, full PLL and OLL, COLL, Winter Variation, ZBLL (all 472 cases grouped by COLL case, plus the 21 PLLs) and Fundamentals (the triggers). Every algorithm is checked on SolveLab's own cube. Each case can be marked don't know / learning / know it, each group says how much of it you know, and you choose the algorithm you use, from the bank's own, from thousands more gathered from published lists (behind "More algorithms", most common first), or your own, which is checked before it is kept. Each set can be practised on a real cube (Practise on your cube): a scramble sets up each case without giving the algorithm away, you solve it on the space-bar timer and the time goes against the case, slow and new cases come round more often; with the name shown first, recognising it yourself, or as flashcards. The Hub's recognition drills cover PLL, OLL, the 2-look sets, F2L pairs and COLL.
+
+**Not yet on.** No AI model runs yet: every number and tag comes from plain formulas. The small 3.0 model in `ml/` isn't used by any screen.
 
 ## How the coach thinks
 
