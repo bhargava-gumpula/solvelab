@@ -75,11 +75,12 @@ export const crossEfficiency: AspectPack = {
         "Scramble, then take as long as you like — a minute if you need it — to find a cross solution of eight moves or fewer.",
         "Write the solution down and count it before you touch the cube; if it is longer than eight, keep looking.",
         "Execute it and check the cross is right.",
-        "The timer only records the session: the point is the search, not the hands.",
+        "Count a round for each scramble. The point is the search, not the hands.",
       ],
       dose: "Ten scrambles, two or three times a week for a fortnight.",
       signal:
         "The time you need to find an eight-move solution drops from a minute to about twenty seconds, and then towards fifteen — which is inspection.",
+      untimed: true,
     },
     {
       id: "cross-replay",
@@ -226,6 +227,7 @@ export const inspection: AspectPack = {
       ],
       dose: "Five minutes, most days. It is a warm-up, not a session.",
       signal: "You stop losing the piece at move three.",
+      untimed: true,
     },
     {
       id: "inspection-follow-one-corner",

@@ -267,7 +267,6 @@ export const LEVELS: LevelGuide[] = [
       "oll-into-pll",
       "last-pair-into-oll",
       "pair-recognition",
-      "practice-plan",
       "consistency",
       "alg-sets-worth-it",
     ],

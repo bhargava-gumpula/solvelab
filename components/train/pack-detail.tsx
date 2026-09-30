@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, CircleAlert, Timer } from "lucide-react";
+import { ArrowRight, Check, CircleAlert, Dumbbell, Timer } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -328,7 +328,15 @@ export function DrillBlock({
       </dl>
       <Button asChild size="sm" className="mt-4 rounded-full">
         <Link href={drillHref(packId, drill.id)} data-testid={`drill-run-${drill.id}`}>
-          <Timer /> Run a timed session
+          {drill.untimed ? (
+            <>
+              <Dumbbell /> Start the drill
+            </>
+          ) : (
+            <>
+              <Timer /> Run a timed session
+            </>
+          )}
         </Link>
       </Button>
     </article>

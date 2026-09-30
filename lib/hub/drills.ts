@@ -35,12 +35,17 @@ export interface SessionSummary {
   bestMs: number | null;
 }
 
-export function summarise(timesMs: readonly number[]): SessionSummary {
+export function summarise(timesMs: readonly number[], rounds?: number): SessionSummary {
   return {
-    count: timesMs.length,
+    count: rounds ?? timesMs.length,
     meanMs: mean([...timesMs]),
     bestMs: timesMs.length ? Math.min(...timesMs) : null,
   };
+}
+
+/** A saved session's numbers, timed or not. */
+export function summariseRun(run: DrillRun): SessionSummary {
+  return summarise(run.timesMs, run.rounds);
 }
 
 /** The last session before this one, for "last time" beside today's numbers. */

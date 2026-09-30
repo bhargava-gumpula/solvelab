@@ -217,8 +217,8 @@ export const COURSES: readonly CourseDefinition[] = [
       },
       {
         id: "practice-plan",
-        lessons: ["practice-plateau"],
-        drills: ["practice-one-focus", "practice-take-a-break"],
+        lessons: ["practice-plateau", "practice-measure"],
+        drills: ["practice-one-focus", "practice-take-a-break", "practice-worst-solves"],
       },
       {
         id: "consistency",
@@ -266,7 +266,6 @@ export const COURSES: readonly CourseDefinition[] = [
         drills: ["lastpair-ls-oll"],
       },
       { id: "pair-recognition", lessons: ["pair-ergonomics"], drills: ["pair-four-slots"] },
-      { id: "practice-plan", lessons: ["practice-measure"], drills: ["practice-worst-solves"] },
       {
         id: "consistency",
         lessons: ["consistency-recovery"],

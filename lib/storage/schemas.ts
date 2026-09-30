@@ -338,6 +338,7 @@ export const drillRunSchema: z.ZodType<DrillRun> = z.object({
   packId: z.string().min(1),
   drillId: z.string().min(1),
   timesMs: z.array(z.number().finite().nonnegative()).max(500),
+  rounds: z.number().int().nonnegative().max(10_000).optional(),
   createdAt: z.string().min(1),
   updatedAt: z.string().min(1),
 });

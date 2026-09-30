@@ -67,10 +67,10 @@ Decisions for the owner:
 ## The Learning Hub: open items
 
 - **Owner review.** Walk through `/hub/start/` and a lesson, a drill session and the recognition drill; the screenshots in the session summary show every screen.
-- **Daily check into the profile.** The owner wants daily-check results to feed the solve profile. Today the check compares with the profile without changing it; feeding two-attempt samples in needs care so they don't replace a twelve-attempt estimate with a noisy one (weight them, or only move a number when several days agree).
-- **Recognition progress.** The recognition drill isn't saved yet; keeping each case's time would let the drill favour your slowest cases.
+- ✅ **Daily check into the profile:** done in 3.1 (`blendDailyAttempts` folds the latest attempts into the profile without replacing a full test).
+- ✅ **Recognition progress:** answers are saved per case and decks favour weak cases (dev log 166).
 - **Units per course at the fast end** still share many aspect packs. Keep writing level packs for Sub-15, Sub-12 and Sub-10 (candidates: planning a second pair in inspection, TPS without lockups at speed, advanced last-slot tricks, competition-level routines, reading reconstructions of the fastest solves).
-- **Questions**: every lesson has one. A second, harder question for the key lessons would make the checks more useful.
+- ✅ **Questions:** the key lessons now carry a second, harder question (dev log 168); more can follow the same pattern.
 - **UI versions**: the owner wants to compare a few designs of the Hub once this one is reviewed.
 
 ## Phase 6 — your own AI: status
@@ -92,7 +92,7 @@ Still to do:
 - **ZBLL (493 cases)** and cases for other methods (Roux CMLL, ZZ's sets, OLLCP as needed). The checker already understands a last layer solved from an edge-oriented start.
 - **Fundamentals** as an algorithm set: triggers and turning blocks. It needs its own shape, since there is nothing to "solve" for the checker to confirm.
 - ✅ **Custom algorithms** in the case dialog, checked on the cube before they are kept (dev log 167).
-- **Small code items:** ✅ skill tests, drills and daily checks now count inspection as in competition (+2 past 15 s, no attempt past 17 s; dev log 167). Still to do: goals for joins and lookahead are starting estimates to calibrate from real data; a layout flash on phones from `useMediaQuery`; glass blur on low-end devices; offline/PWA support.
+- **Small code items:** ✅ skill tests, drills and daily checks now count inspection as in competition (+2 past 15 s, no attempt past 17 s; dev log 167). ✅ The phone layout flash and the glass blur on machines without a GPU are fixed (dev log 168). Still to do: goals for joins and lookahead are starting estimates to calibrate from real data; offline/PWA support.
 
 ## Coach model: open items
 

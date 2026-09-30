@@ -197,6 +197,19 @@ test.describe("the Learning Hub", () => {
     ).toHaveCount(1);
   });
 
+  test("a drill with nothing to time counts rounds instead", async ({ page }) => {
+    await page.goto("/hub/drill/cross-efficiency/cross-eight-move-hunt/");
+    await expect(page.getByTestId("drill-rounds")).toBeVisible();
+    await expect(page.getByTestId("test-timer-surface")).toHaveCount(0);
+    await expect(page.getByTestId("drill-finish")).toBeDisabled();
+    await page.getByTestId("drill-round").click();
+    await page.getByTestId("drill-round").click();
+    await page.getByTestId("drill-finish").click();
+    await expect(page.getByTestId("drill-summary")).toContainText("2 rounds");
+    await page.reload();
+    await expect(page.getByTestId("drill-session")).toContainText("2");
+  });
+
   test("the recognition drill times twelve cases and sums them up", async ({ page }) => {
     await page.goto("/hub/unit/pll-algorithms/");
     await page.getByTestId("unit-recognition").click();

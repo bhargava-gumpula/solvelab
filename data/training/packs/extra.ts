@@ -190,18 +190,17 @@ export const f2lFromTheFront: LevelPack = {
   ],
   drills: [
     {
-      id: "front-no-rotation",
-      title: "No rotations",
-      purpose: "Forces you to find the front-facing solution for back slots and awkward pairs.",
+      id: "front-left-hand",
+      title: "Left hand for the front-left slot",
+      purpose:
+        "Makes the left-hand inserts automatic, so the front-left slot never needs a rotation.",
       rules: [
-        "Solve F2L without a single cube rotation.",
-        "If a pair seems impossible, slow down and try a back-slot insert or an F move.",
-        "Note the cases that made you want to rotate.",
+        "For a session, every pair that goes into the front-left slot goes in with the left hand: L' U' L, L' U L and the moves built from them.",
+        "If you catch yourself turning the cube to bring that slot to the right, take the rotation back and do it left-handed.",
+        "Note the cases where the left hand felt lost. Those are the ones to work through slowly afterwards.",
       ],
-      dose: "Twelve solves, three times a week.",
-      signal:
-        "Your list of 'wanted to rotate' cases shortens, and your normal solves have fewer rotations without trying.",
-      exerciseId: "f2l_only",
+      dose: "Ten solves a session, three times a week.",
+      signal: "Front-left pairs go in without a rotation and without a thought.",
     },
     {
       id: "front-back-slot-reps",
@@ -214,6 +213,7 @@ export const f2lFromTheFront: LevelPack = {
       ],
       dose: "Two minutes each side before every session.",
       signal: "You recognise back-slot cases as quickly as front ones.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -376,6 +376,7 @@ export const stuckAtFifteen: LevelPack = {
       ],
       dose: "Once, then again every two weeks.",
       signal: "You know exactly what you're working on and why.",
+      untimed: true,
     },
     {
       id: "fifteen-one-focus",
@@ -389,6 +390,7 @@ export const stuckAtFifteen: LevelPack = {
       dose: "Every session for two weeks.",
       signal:
         "The retest for that part improves, and your normal average follows a week or two later.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -462,6 +464,7 @@ export const lastLayerAtTheTop: LevelPack = {
       ],
       dose: "50 solves, once.",
       signal: "You have a clear number for how often COLL would apply in your own solves.",
+      untimed: true,
     },
     {
       id: "top-coll-sune",
@@ -734,12 +737,13 @@ export const practisingNearTen: LevelPack = {
       title: "The weekly average of 100",
       purpose: "Gives you a measure steady enough to see tenths of improvement.",
       rules: [
-        "Once a week, warmed up, do 100 normal solves on the main timer, across the day if you like. The timer keeps your average of 100; a drill session here shows only a plain mean.",
+        "Once a week, warmed up, do 100 normal solves on the main timer, across the day if you like. The timer keeps your average of 100; count a round here when the hundred are done.",
         "Write down the average of 100 and the median.",
         "Compare with last week's only as part of a month-long trend.",
       ],
       dose: "Once a week.",
       signal: "The trend over a month moves, even when single weeks don't.",
+      untimed: true,
     },
     {
       id: "near-focused-block",
@@ -752,6 +756,7 @@ export const practisingNearTen: LevelPack = {
       ],
       dose: "Every session, same focus for two weeks.",
       signal: "The retest for that part improves before your overall average does.",
+      untimed: true,
     },
   ],
   mistakes: [

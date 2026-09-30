@@ -45,7 +45,7 @@ export const ollExecution: AspectPack = {
       body: [
         "A locked-up algorithm costs more than a slow one, because you lose the time and the rhythm. It is tempting to blame hardware, but on a decent modern cube, lockups on ordinary triggers almost always mean the turns are not finishing before the next one starts.",
         "On 2-look OLL, a few short algorithms do most of the work. Seven solves in eight need the line or the L algorithm, F R U R' U' F' or f R U R' U' f', and both have R U R' U' in the middle, so a lockup there comes back again and again. After that the corner step is shared almost evenly: Sune, Antisune, Pi, Headlights, T and Bowtie each come up equally often and H half as often, so look next at whichever corner algorithm you restart most.",
-        "The fix is the same one that works for turning speed generally: turn calmly and accurately, keeping your hands close to a neutral position, and let speed come from not wasting movement rather than from force. Aggressive turning produces lockups which cost more than the aggression gains.",
+        "The fix is the one from the Sub-60 turning lessons: calm, accurate turns, with speed coming from wasting no movement rather than from force.",
         "Practically: take the algorithm you lock up on, do it twenty times slowly and perfectly, then twenty times slightly faster, and stop at the speed where it is still clean. That speed is your real speed for that case, and it will rise.",
       ],
       checkpoint: "You have no algorithm that you regularly have to restart.",
@@ -79,6 +79,7 @@ export const ollExecution: AspectPack = {
       ],
       dose: "Five cases a session.",
       signal: "You stop turning the cube to look at the top face.",
+      untimed: true,
     },
     {
       id: "oll-slow-clean",
@@ -91,6 +92,7 @@ export const ollExecution: AspectPack = {
       ],
       dose: "Two or three algorithms a session.",
       signal: "The case stops appearing in your list of slow ones.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -178,6 +180,7 @@ export const ollAlgorithms: AspectPack = {
       ],
       dose: "One group a week.",
       signal: "Cases from last week's group appear in solves without a pause.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -333,6 +336,7 @@ export const pllExecution: AspectPack = {
       ],
       dose: "Fifteen minutes a session until they leave the list.",
       signal: "Your next timed pass has three different cases at the bottom.",
+      untimed: true,
     },
     {
       id: "ll-random-auf-log",
@@ -420,6 +424,7 @@ export const pllAlgorithms: AspectPack = {
       ],
       dose: "About two new cases a day at most, and one family at a time.",
       signal: "You stop mixing up cases within a family.",
+      untimed: true,
     },
     {
       id: "pll-recognition-flash",

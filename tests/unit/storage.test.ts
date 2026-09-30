@@ -388,6 +388,20 @@ describe("schema v3", () => {
     expect(new Set(saved.map((row) => row.createdAt)).size).toBe(3);
   });
 
+  it("saves an untimed drill's rounds", async () => {
+    const run = await repos.drills.save(
+      "cross-efficiency",
+      "cross-eight-move-hunt",
+      [],
+      undefined,
+      5,
+    );
+    expect(run.rounds).toBe(5);
+    expect(run.timesMs).toEqual([]);
+    const timed = await repos.drills.save("lookahead", "lookahead-slow-solve", [19800]);
+    expect(timed).not.toHaveProperty("rounds");
+  });
+
   it("keeps each drill's sessions in order", async () => {
     await repos.drills.save(
       "lookahead",

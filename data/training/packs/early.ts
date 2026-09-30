@@ -177,6 +177,7 @@ export const setUpYourCube: LevelPack = {
       ],
       dose: "One change a week, at most.",
       signal: "You stop wanting to adjust the cube, and start working on turning instead.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -228,12 +229,13 @@ export const switchToF2l: LevelPack = {
       purpose:
         "Takes the timer's pressure off while the new habit forms, so you learn it instead of rushing it.",
       rules: [
-        "For one week, keep your F2L solves off the main timer. Every solve uses F2L, however slow. The timer here only counts your solves: ignore the times.",
+        "For one week, keep your F2L solves off the main timer. Every solve uses F2L, however slow. Count a round here for each day you keep to it.",
         "Say out loud what you are doing with each pair: taking out, pairing, inserting.",
         "If you get stuck on a pair, work it out rather than falling back to the old method.",
       ],
       dose: "Twenty solves a day for a week.",
       signal: "By the end of the week pairs feel like one thing, not two pieces.",
+      untimed: true,
     },
     {
       id: "switch-one-pair",
@@ -515,6 +517,7 @@ export const stuckPieces: LevelPack = {
       ],
       dose: "Once, then again a month later.",
       signal: "The list gets shorter, and a different case is at the top.",
+      untimed: true,
     },
     {
       id: "stuck-lift-and-join",

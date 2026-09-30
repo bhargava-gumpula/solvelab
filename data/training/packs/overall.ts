@@ -108,6 +108,7 @@ export const turningTechnique: AspectPack = {
       ],
       dose: "One solve, once a fortnight.",
       signal: "The count falls. It is a slow number to move and a reliable one.",
+      untimed: true,
     },
     {
       id: "turning-no-r-moves",
@@ -116,11 +117,12 @@ export const turningTechnique: AspectPack = {
         "Forces the weaker hand to do real work, which normal solving always lets you avoid.",
       rules: [
         "For the whole session, solve F2L without R or R'; use L, F and U instead. Do the cross and the last layer as normal.",
-        "Frustrating by design. The timer only records the session; ignore the times.",
+        "Frustrating by design. Count a round for each solve, and don't time them.",
         "Note which cases you had no left-handed answer for.",
       ],
       dose: "One session a fortnight.",
       signal: "You stop rotating the cube to bring cases to your right hand.",
+      untimed: true,
     },
     {
       id: "turning-two-gen",
@@ -155,7 +157,7 @@ export const practicePlan: AspectPack = {
   title: "Practice that actually moves the average",
   summary:
     "How to structure a session, why half of it should not be timed, and what to do on a plateau.",
-  levels: ["sub120", "sub30", "sub25", "sub20"],
+  levels: ["sub120", "sub30", "sub25"],
   why: "Most practice is doing timed solves and hoping. That maintains what you have; it rarely builds anything new, because full-speed solving lets you avoid exactly the things you are worst at.",
   lessons: [
     {
@@ -224,6 +226,7 @@ export const practicePlan: AspectPack = {
       ],
       dose: "Five sessions, then reassess.",
       signal: "The measurement for that part improves, and the overall average follows it later.",
+      untimed: true,
     },
     {
       id: "practice-worst-solves",
@@ -250,6 +253,7 @@ export const practicePlan: AspectPack = {
       ],
       dose: "Once, when you are stuck.",
       signal: "Times often come back the same or better, and the block is gone.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -326,6 +330,7 @@ export const consistency: AspectPack = {
       ],
       dose: "Continuous. It costs a few seconds a solve.",
       signal: "One cause dominates, you fix it, and a different one takes its place.",
+      untimed: true,
     },
     {
       id: "consistency-ao12-only",

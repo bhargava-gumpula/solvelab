@@ -368,6 +368,26 @@
   }
 }
 
+/*
+ * Plain panels where the blur would cost more than it gives: machines with no
+ * hardware renderer (set by the appearance provider) and people who asked
+ * their system for less transparency. The card colour is made nearly solid so
+ * text stays readable over the background (the panel is made more solid, not opaque).
+ */
+html[data-effects="low"] .glass {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  background: color-mix(in srgb, var(--card), var(--background) 35%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: color-mix(in srgb, var(--card), var(--background) 35%);
+  }
+}
+
 /* Horizontal strips that scroll on phones without a visible bar. */
 @utility no-scrollbar {
   scrollbar-width: none;

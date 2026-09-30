@@ -229,6 +229,7 @@ export const colourNeutralPlan: LevelPack = {
       ],
       dose: "Every solve for one week.",
       signal: "The gap between the two averages closes to nearly nothing.",
+      untimed: true,
     },
     {
       id: "cn-best-of-two",
@@ -323,6 +324,7 @@ export const fillerMoves: LevelPack = {
       ],
       dose: "Three solves, once a week.",
       signal: "Fewer circles each week, and a lower move count on the same scramble.",
+      untimed: true,
     },
     {
       id: "filler-plan-the-merge",
@@ -591,6 +593,7 @@ export const algSetsWorthIt: LevelPack = {
       ],
       dose: "Once, before starting a new set.",
       signal: "You start a set only when it clearly beats more F2L work.",
+      untimed: true,
     },
     {
       id: "sets-group-of-five",
@@ -603,6 +606,7 @@ export const algSetsWorthIt: LevelPack = {
       ],
       dose: "Five cases a week, at most.",
       signal: "Each group gets used in real solves without a pause.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -682,6 +686,7 @@ export const reconstructYourSolves: LevelPack = {
       ],
       dose: "Once a month.",
       signal: "The worst step changes from month to month, which means you fixed the last one.",
+      untimed: true,
     },
     {
       id: "recon-same-scramble",
@@ -695,6 +700,7 @@ export const reconstructYourSolves: LevelPack = {
       ],
       dose: "One scramble a week.",
       signal: "Your move count on new solves drops over a few weeks.",
+      untimed: true,
     },
   ],
   mistakes: [

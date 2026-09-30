@@ -257,7 +257,8 @@ describe("lesson steps", () => {
       (item) => item.id === "lookahead-three-stages",
     )!;
     expect(steps.filter((step) => step.kind === "read")).toHaveLength(lesson.body.length);
-    expect(steps.filter((step) => step.kind === "quiz")).toHaveLength(1);
+    // Key lessons carry a second, harder question.
+    expect(steps.filter((step) => step.kind === "quiz")).toHaveLength(2);
   });
 
   it("play worked examples on a cube, knowing which set a bank case is from", () => {

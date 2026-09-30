@@ -131,6 +131,7 @@ export const f2lEfficiency: AspectPack = {
       ],
       dose: "Twenty solves, then the comparison. Once.",
       signal: "You have a written list of three to five cases, with a better solution for each.",
+      untimed: true,
     },
     {
       id: "f2l-no-rotations",
@@ -157,6 +158,7 @@ export const f2lEfficiency: AspectPack = {
       ],
       dose: "Fifteen solves, at an easy pace.",
       signal: "You start spotting keyhole cases during normal solves without looking for them.",
+      untimed: true,
     },
   ],
   mistakes: [
@@ -248,6 +250,7 @@ export const pairRecognition: AspectPack = {
       ],
       dose: "Five cases a session.",
       signal: "A case at the back reads as quickly as one at the front right.",
+      untimed: true,
     },
     {
       id: "pair-four-slots",
@@ -260,6 +263,7 @@ export const pairRecognition: AspectPack = {
       ],
       dose: "Three cases a session, all four slots each.",
       signal: "The back slots stop feeling like different cases.",
+      untimed: true,
     },
     {
       id: "pair-name-it",

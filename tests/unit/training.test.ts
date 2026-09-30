@@ -590,7 +590,7 @@ describe("packs by level", () => {
       expect(packBandLabel(pack), pack.id).not.toBe("");
     }
     // Packs are marked for the courses that teach them (data/hub/courses.ts).
-    expect(packBandLabel(getPack("practice-plan")!)).toBe("2:00 → 15 s");
+    expect(packBandLabel(getPack("practice-plan")!)).toBe("2:00 → 20 s");
     expect(packBandLabel(getPack("lookahead")!)).toBe("45 → 10 s");
     expect(packBandLabel(getPack("stuck-pieces")!)).toBe("1:00 → 45 s");
   });

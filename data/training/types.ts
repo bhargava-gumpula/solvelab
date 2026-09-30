@@ -74,6 +74,11 @@ export interface PackDrill {
   signal: string;
   /** A test whose scrambles and timer this drill can borrow, when one fits. */
   exerciseId?: TestId;
+  /**
+   * Nothing to time: a search, a tally over other solves, set-up reps or a
+   * plan. The session counts rounds instead of running a timer.
+   */
+  untimed?: true;
 }
 
 interface PackBase {

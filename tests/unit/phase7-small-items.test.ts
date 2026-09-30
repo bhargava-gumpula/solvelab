@@ -64,3 +64,34 @@ describe("your own algorithm for a case (4.3)", () => {
     expect(removed.id).toBe(algorithmsFor(t)[0]!.id);
   });
 });
+
+describe("drills with nothing to time", () => {
+  it("borrow no test's timer, and their words don't ask for one", async () => {
+    const { TRAINING_PACKS } = await import("@/data/training");
+    const untimed = TRAINING_PACKS.flatMap((pack) => pack.drills.filter((drill) => drill.untimed));
+    expect(untimed.length).toBeGreaterThan(20);
+    for (const drill of untimed) {
+      expect(drill.exerciseId, drill.id).toBeUndefined();
+      // "Untimed" in a title is fine; a rule that talks about the timer here isn't.
+      for (const rule of drill.rules)
+        expect(rule, drill.id).not.toMatch(/timer here|only records/i);
+    }
+  });
+
+  it("summarise counts rounds when a session had no times", async () => {
+    const { summarise, summariseRun } = await import("@/lib/hub/drills");
+    expect(summarise([], 7)).toEqual({ count: 7, meanMs: null, bestMs: null });
+    expect(summarise([1200, 1400])).toEqual({ count: 2, meanMs: 1300, bestMs: 1200 });
+    expect(
+      summariseRun({
+        id: "r",
+        packId: "p",
+        drillId: "d",
+        timesMs: [],
+        rounds: 3,
+        createdAt: "2026-09-29T09:00:00.000Z",
+        updatedAt: "2026-09-29T09:00:00.000Z",
+      }).count,
+    ).toBe(3);
+  });
+});

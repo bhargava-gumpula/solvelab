@@ -87,7 +87,13 @@ function nodesFor(state: UnitState, nextLessonId: string | null): PathNode[] {
         title: drill.title,
         detail: `Drill · ${drill.dose}${done ? " · done once" : ""}`,
         href: drillHref(unit.id, drill.id),
-        action: done ? "Run another session" : "Run a session",
+        action: drill.untimed
+          ? done
+            ? "Do it again"
+            : "Start drill"
+          : done
+            ? "Run another session"
+            : "Run a session",
         state: done ? "done" : "open",
       });
     }

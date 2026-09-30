@@ -1,5 +1,21 @@
 # Validation report
 
+## Untimed drills, hydration frame, plain panels, second questions (dev log 168)
+
+Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase
+blocked, dev server stopped first).
+
+| Check           | Command                           | Result                        |
+| --------------- | --------------------------------- | ----------------------------- |
+| Full validation | `npm run validate`                | Pass (405 pages)              |
+| Unit tests      | `npm test`                        | 947 passed (64 files)         |
+| End-to-end      | `npx playwright test --workers=1` | 92 passed, 1 fixed then green |
+
+The one failure was the course spec still expecting 19 units on Sub-15 (18 once the practice unit
+moved to Sub-20); with the count corrected the spec passes 8/8. New coverage: untimed drills save
+rounds and show "Start drill"; every drill marked untimed has no timed exercise behind it; the
+lookahead lesson carries two questions.
+
 ## Small items of 4.3, phase 7 (awaiting review)
 
 Run on 2026-09-29 against the static export (headless Chromium, one Playwright worker, Firebase

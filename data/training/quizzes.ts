@@ -184,6 +184,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       answer: 1,
       why: "With white facing up the corner can't join its edge yet. A trigger with a U2, like the R U2 R' that starts R U2 R' U' R U R', turns it so white faces a side; then a top turn and a three-move insert finish.",
     },
+    {
+      question:
+        "You know R U2 R' U' R U R' for a white-up corner at the front right. Its mirror, for the same case reflected across the slot, is?",
+      options: ["L U2 L' U' L U L'", "F' U2 F U F' U' F", "R' U2 R U R' U' R", "F U2 F' U' F U F'"],
+      answer: 1,
+      why: "Across the front-right slot, R turns become F turns and every turn reverses: R U2 R' U' R U R' becomes F' U2 F U F' U' F, which is the bank's own algorithm for the mirrored case.",
+    },
   ],
   "f2l-move-count": [
     {
@@ -275,6 +282,13 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       options: ["Knowing", "Tracking", "Spotting", "Planning"],
       answer: 2,
       why: "Spotting is solving what you see, then looking for the next. Tracking follows the next pair during this one; knowing predicts where your moves will leave it.",
+    },
+    {
+      question:
+        "Which stage lets you solve a pair without watching it, because you already know where the next one will land?",
+      options: ["Spotting", "Tracking", "Knowing", "Planning"],
+      answer: 2,
+      why: "Knowing is the last stage: you have done the case enough times to predict where your moves leave the next pair, so nothing needs watching. Tracking follows the pieces; spotting finds them afterwards.",
     },
   ],
   "lookahead-slow-solves": [
@@ -556,6 +570,17 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 1,
       why: "They're four variations on one idea. Learning them together is what makes them distinguishable; spreading them out guarantees confusion.",
+    },
+    {
+      question: "Starting full PLL in Sub-45, where is a sensible place to stop for now?",
+      options: [
+        "After the A perms and the J perms",
+        "Once the four G perms are learned",
+        "After the E, V and N perms",
+        "Only when all twenty-one are known",
+      ],
+      answer: 0,
+      why: "The A and J perms come quickly and build on the T perm you have. The G perms want learning as a group of four, and E, V and the N perms come last, so the rest can wait for Sub-30.",
     },
   ],
   "pll-recognition-first": [
@@ -1513,6 +1538,17 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       answer: 1,
       why: "Corners have three colours and edges two. Turns move pieces around, but never change a piece's type.",
     },
+    {
+      question: "You turn the top face a quarter turn. What happens to the yellow centre?",
+      options: [
+        "It moves to the side that faced you",
+        "It spins in place and stays the top centre",
+        "It swaps with the white centre underneath",
+        "It moves one position round the top face",
+      ],
+      answer: 1,
+      why: "Turning a face spins its centre but never moves it. That is why each centre tells you which colour its whole face will be when solved, and why you match pieces to the centres.",
+    },
   ],
   "beginner-notation": [
     {
@@ -1551,6 +1587,17 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       answer: 1,
       why: "An all-white face can still have its side colours wrong. Check each side's bottom row against its centre before moving on.",
     },
+    {
+      question: "A white corner is in the bottom layer, but in the wrong slot. What now?",
+      options: [
+        "Turn the bottom layer until it reaches its own slot",
+        "Bring it to the front right and do R U R' U' once to lift it out",
+        "Leave it and place the other three corners around it",
+        "Turn the whole cube so it sits at the back",
+      ],
+      answer: 1,
+      why: "Turning the bottom would break the cross. One R U R' U' with the corner at the front right lifts it to the top layer, where the usual rule places it; the cross stays as it was.",
+    },
   ],
   "beginner-first-solve": [
     {
@@ -1588,6 +1635,17 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       ],
       answer: 2,
       why: "After the z2, find all four white edges and plan as much of the cross on the bottom as you can, at least the first two edges. Planning the whole cross is the Sub-30 course's goal; tracking the first pair and x-crosses come later still, and the cross never goes on top.",
+    },
+    {
+      question: "Your crosses often take ten moves or more. What's the practice that fixes it?",
+      options: [
+        "Turn the cross faster so the extra moves cost less",
+        "Untimed crosses: find a solution, then look for a shorter one",
+        "Switch to solving the cross on top, where it is easier to see",
+        "Skip cross practice; it improves on its own with solves",
+      ],
+      answer: 1,
+      why: "Every cross has a solution of eight moves or fewer. Untimed practice, finding a solution and then a shorter one, is what teaches you to see it; a faster long cross is still a long cross.",
     },
   ],
   "cfop-f2l": [

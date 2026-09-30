@@ -30,6 +30,8 @@ import { useFocusMode } from "@/hooks/use-focus-mode";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useInspectionCues } from "@/hooks/use-inspection-cues";
 import { useActiveSession, useSessionSolves, useSettings } from "@/hooks/use-local-data";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useHydrated } from "@/hooks/use-hydrated";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useScramble } from "@/hooks/use-scramble";
 import { useTimerControls } from "@/hooks/use-timer-controls";
@@ -80,6 +82,9 @@ export function TimerWorkspace() {
   const event = session?.event ?? "333";
   const scrambles = useScramble(event);
   const { scramble } = scrambles;
+  // The static HTML can't know the screen size. Until React runs, the panels
+  // are a neutral frame, so a phone never paints the desktop grid and then jumps.
+  const hydrated = useHydrated();
   const isDesktop = useMediaQuery("(min-width: 1024px)", true);
   const shortViewport = useMediaQuery("(max-height: 820px)", true);
   const canvasRef = useRef<HTMLDivElement>(null);
@@ -481,7 +486,16 @@ export function TimerWorkspace() {
         onEdit={actions.customScramble}
       />
 
-      {isDesktop ? (
+      {!hydrated ? (
+        <div className="flex min-h-0 flex-1 flex-col gap-3" aria-hidden data-testid="timer-loading">
+          <Skeleton className="min-h-[38vh] flex-1 rounded-3xl" />
+          <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <Skeleton className="h-36 rounded-3xl" />
+            <Skeleton className="h-36 rounded-3xl" />
+            <Skeleton className="h-36 rounded-3xl max-md:hidden" />
+          </div>
+        </div>
+      ) : isDesktop ? (
         <div
           className={cn(
             "grid min-h-0 flex-1 grid-cols-[clamp(14rem,16vw,16.5rem)_minmax(0,1fr)_clamp(14rem,16vw,16.5rem)] gap-x-3",

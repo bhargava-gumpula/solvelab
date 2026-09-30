@@ -1,5 +1,6 @@
 "use client";
 
+import { supportsHardwareWebGL } from "@/lib/appearance/gpu";
 import { createContext, useContext, useEffect, useMemo, useSyncExternalStore } from "react";
 import {
   DEFAULT_APPEARANCE,
@@ -68,6 +69,9 @@ export function AppearanceProvider({ children }: { children: React.ReactNode }) 
     root.dataset.digits = preferences.digitFont;
     root.classList.toggle("dark", theme.mode === "dark");
     root.classList.toggle("light", theme.mode === "light");
+    // Without a hardware renderer, the frosted panels' blur is paid for on the
+    // CPU, alongside the timer; those machines get plain panels instead.
+    root.dataset.effects = supportsHardwareWebGL() ? "full" : "low";
   }, [ready, theme, preferences.digitFont]);
 
   const value = useMemo(

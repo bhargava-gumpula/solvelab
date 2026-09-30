@@ -24,12 +24,15 @@ export class DrillRepository {
     drillId: string,
     timesMs: number[],
     now = new Date().toISOString(),
+    /** For an untimed drill: how many rounds were done. */
+    rounds?: number,
   ): Promise<DrillRun> {
     const run = drillRunSchema.parse({
       id: createId(),
       packId,
       drillId,
       timesMs,
+      ...(rounds === undefined ? {} : { rounds }),
       createdAt: now,
       updatedAt: now,
     });

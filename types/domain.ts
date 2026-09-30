@@ -414,6 +414,8 @@ export interface DrillRun {
   packId: string;
   drillId: string;
   timesMs: number[];
+  /** Untimed drills: the rounds the session had; `timesMs` is then empty. */
+  rounds?: number;
   createdAt: string;
   updatedAt: string;
 }
