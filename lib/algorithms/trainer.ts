@@ -127,7 +127,12 @@ export interface RecallRecord {
   count: number;
   /** How the last card for it went. */
   lastKnown: boolean;
+  /** How many cards running you've known it, up to the last one. */
+  knownRunning: number;
 }
+
+/** Cards known running before a case is worth calling known. */
+export const KNOWN_AFTER_RECALLS = 3;
 
 /** Each case's flashcard record, from saved recall attempts (oldest first). */
 export function recallRecords(attempts: readonly AlgorithmAttempt[]): Map<string, RecallRecord> {
@@ -135,7 +140,11 @@ export function recallRecords(attempts: readonly AlgorithmAttempt[]): Map<string
   for (const attempt of attempts) {
     if (attempt.mode !== "recall") continue;
     const before = byCase.get(attempt.caseId);
-    byCase.set(attempt.caseId, { count: (before?.count ?? 0) + 1, lastKnown: attempt.successful });
+    byCase.set(attempt.caseId, {
+      count: (before?.count ?? 0) + 1,
+      lastKnown: attempt.successful,
+      knownRunning: attempt.successful ? (before?.knownRunning ?? 0) + 1 : 0,
+    });
   }
   return byCase;
 }

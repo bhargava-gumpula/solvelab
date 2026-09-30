@@ -125,4 +125,22 @@ test.describe("the algorithm trainer", () => {
     await expect(page.getByTestId("trainer-last")).toContainText("T");
     await expect(page.getByTestId("trainer-case")).toHaveText("T");
   });
+
+  test("offers to mark a case known after three flashcards running", async ({ page }) => {
+    // Mark one case Learning; the trainer starts with the cases you're learning.
+    await page.goto("/algorithms/pll/");
+    await page.getByTestId("case-pll-t").click({ timeout: 20_000 });
+    await expect(page.getByTestId("case-state-pll-t")).toHaveText("Learning");
+    await page.getByTestId("practise-set").click();
+    await expect(page.getByTestId("trainer-count")).toHaveText("1 case", { timeout: 20_000 });
+    await page.getByTestId("trainer-mode-recall").click();
+    await page.getByTestId("trainer-start").click();
+    for (let card = 0; card < 3; card++) {
+      await page.getByTestId("flash-reveal").click();
+      await page.getByTestId("flash-known").click();
+    }
+    await page.getByRole("button", { name: "Mark it known" }).click();
+    await page.goto("/algorithms/pll/");
+    await expect(page.getByTestId("case-state-pll-t")).toHaveText("Know it", { timeout: 20_000 });
+  });
 });

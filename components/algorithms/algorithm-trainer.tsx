@@ -25,7 +25,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { getExercise } from "@/data/exercises";
 import type { AlgorithmSetData } from "@/data/algorithms/types";
-import { useAlgorithmProgress } from "@/hooks/use-algorithms";
+import { algorithmActions, useAlgorithmProgress } from "@/hooks/use-algorithms";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useSettings } from "@/hooks/use-local-data";
 import { caseScramble } from "@/lib/algorithms/case-scramble";
@@ -37,6 +37,7 @@ import {
   caseTimes,
   nextCard,
   nextCase,
+  KNOWN_AFTER_RECALLS,
   recallRecords,
   type RecallRecord,
   slowestCases,
@@ -117,6 +118,7 @@ export function AlgorithmTrainer({
           set={set}
           cases={cases}
           records={recallRecords(attempts)}
+          labels={labels}
           onStop={() => setRunning(false)}
         />
       ) : running && mode !== "recall" ? (
@@ -432,11 +434,13 @@ function FlashcardSession({
   set,
   cases,
   records,
+  labels,
   onStop,
 }: {
   set: AlgorithmSetData;
   cases: TrainerCase[];
   records: ReadonlyMap<string, RecallRecord>;
+  labels: ReadonlyMap<string, CaseLabel>;
   onStop: () => void;
 }) {
   const [dealt, setDealt] = useState(() => ({
@@ -457,6 +461,17 @@ function FlashcardSession({
       });
     } catch {
       toast.error("Couldn’t save that card.");
+    }
+    // Known several cards running, and not marked known yet: offer to mark it.
+    const running = known ? (records.get(current.caseId)?.knownRunning ?? 0) + 1 : 0;
+    if (running >= KNOWN_AFTER_RECALLS && labels.get(current.caseId) !== "known") {
+      const { caseId, entry } = current;
+      toast(`${entry.name}: known ${running} times running`, {
+        action: {
+          label: "Mark it known",
+          onClick: () => void algorithmActions.setLabel(caseId, "known"),
+        },
+      });
     }
     setTally((now) =>
       known ? { ...now, known: now.known + 1 } : { ...now, missed: now.missed + 1 },

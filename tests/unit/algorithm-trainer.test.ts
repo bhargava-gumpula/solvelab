@@ -121,8 +121,8 @@ describe("the algorithm trainer", () => {
       { ...attempt("pll-y", 1, "recall"), successful: true },
       attempt("pll-ja", 1200),
     ]);
-    expect(records.get("pll-t")).toEqual({ count: 1, lastKnown: false });
-    expect(records.get("pll-y")).toEqual({ count: 2, lastKnown: true });
+    expect(records.get("pll-t")).toEqual({ count: 1, lastKnown: false, knownRunning: 0 });
+    expect(records.get("pll-y")).toEqual({ count: 2, lastKnown: true, knownRunning: 1 });
     expect(records.has("pll-ja")).toBe(false);
     const random = seededRandom(5);
     const counts = new Map<string, number>();
