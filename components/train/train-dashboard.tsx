@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PackCard } from "@/components/train/pack-card";
@@ -10,6 +10,9 @@ import { TRAINING_PACKS, bandLabel } from "@/data/training";
 import { levelContext } from "@/lib/training/level";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
 import { setPackItemDone, useTrainingProgress } from "@/hooks/use-training-progress";
+import { algorithmSets } from "@/data/algorithms/sets";
+import { useAlgorithmProgress } from "@/hooks/use-algorithms";
+import { setIdOfCase } from "@/lib/algorithms/case-ids";
 
 /**
  * Train is what you're working on now: the drills you chose to practise and
@@ -68,6 +71,8 @@ export function TrainDashboard() {
           </Link>
         </Button>
       </section>
+
+      <AlgorithmsToPractise />
 
       {nothingYet ? (
         <section className="rounded-3xl border border-dashed p-6" data-testid="train-empty">
@@ -129,5 +134,45 @@ export function TrainDashboard() {
         </section>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * The algorithm cases you've marked as learning, by set, each set with a way
+ * into its trainer (which starts with the cases you're learning).
+ */
+function AlgorithmsToPractise() {
+  const { loaded, labels } = useAlgorithmProgress();
+  if (!loaded) return null;
+  const bySet = new Map<string, number>();
+  for (const [caseId, label] of labels) {
+    if (label !== "learning") continue;
+    const setId = setIdOfCase(caseId);
+    if (setId) bySet.set(setId, (bySet.get(setId) ?? 0) + 1);
+  }
+  if (!bySet.size) return null;
+  return (
+    <section aria-labelledby="algorithms-heading" data-testid="train-algorithms">
+      <h2 id="algorithms-heading" className="text-base font-semibold">
+        Algorithms you&apos;re learning
+      </h2>
+      <p className="mt-1 mb-3 text-sm text-muted-foreground">
+        Practise them on your cube: a scramble sets up each case and the time is kept.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {algorithmSets
+          .filter((set) => bySet.has(set.id))
+          .map((set) => (
+            <Button key={set.id} asChild variant="outline" size="sm">
+              <Link
+                href={`/algorithms/${set.id}/train/`}
+                data-testid={`train-algorithms-${set.id}`}
+              >
+                <Timer /> {set.name} · {bySet.get(set.id)} learning
+              </Link>
+            </Button>
+          ))}
+      </div>
+    </section>
   );
 }

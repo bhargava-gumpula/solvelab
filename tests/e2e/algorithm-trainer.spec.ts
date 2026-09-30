@@ -131,7 +131,11 @@ test.describe("the algorithm trainer", () => {
     await page.goto("/algorithms/pll/");
     await page.getByTestId("case-pll-t").click({ timeout: 20_000 });
     await expect(page.getByTestId("case-state-pll-t")).toHaveText("Learning");
-    await page.getByTestId("practise-set").click();
+    // The Practice tab lists the sets you're learning cases in, with their trainers.
+    await page.goto("/train/");
+    const learning = page.getByTestId("train-algorithms-pll");
+    await expect(learning).toHaveText("Full PLL · 1 learning", { timeout: 20_000 });
+    await learning.click();
     await expect(page.getByTestId("trainer-count")).toHaveText("1 case", { timeout: 20_000 });
     await page.getByTestId("trainer-mode-recall").click();
     await page.getByTestId("trainer-start").click();

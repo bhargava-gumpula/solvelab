@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { getAlgorithmSet } from "@/lib/algorithms/catalog";
+import { setIdOfCase } from "@/lib/algorithms/case-ids";
+import { ALGORITHM_SETS, getAlgorithmSet } from "@/lib/algorithms/catalog";
 import {
   caseTimes,
   caseWeight,
@@ -151,5 +152,13 @@ describe("the algorithm trainer", () => {
       ]),
     );
     expect(rows.map((row) => row.caseId)).toEqual(["zbll-t-1", "coll-t1", "pll-t"]);
+  });
+
+  it("reads a case's set from its id, and agrees with the bank", () => {
+    for (const set of ALGORITHM_SETS) {
+      for (const entry of set.cases) expect(setIdOfCase(entry.id), entry.id).toBe(set.id);
+    }
+    expect(setIdOfCase("zbll-pi-4")).toBe("zbll");
+    expect(setIdOfCase("something")).toBeNull();
   });
 });
