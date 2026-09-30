@@ -56,6 +56,10 @@ test.describe("the algorithm trainer", () => {
       "href",
       "/algorithms/pll/train/",
     );
+
+    // The case's card in the set shows your median too.
+    await page.goto("/algorithms/pll/");
+    await expect(page.locator('[data-testid^="case-time-"]')).toHaveCount(1, { timeout: 20_000 });
   });
 
   test("ZBLL can be practised a COLL group at a time", async ({ page }) => {
@@ -79,8 +83,11 @@ test.describe("the algorithm trainer", () => {
     await cards.getByTestId("flash-reveal").click();
     await expect(cards.getByTestId("flash-back")).toContainText("OLL");
     await cards.getByTestId("flash-missed").click();
-    await cards.getByTestId("flash-reveal").click();
-    await cards.getByTestId("flash-known").click();
+    // The keyboard works too: Enter shows the card, 1 means you knew it.
+    await expect(cards.getByTestId("flash-back")).toHaveCount(0);
+    await page.keyboard.press("Enter");
+    await expect(cards.getByTestId("flash-back")).toBeVisible();
+    await page.keyboard.press("1");
     await expect(cards.getByTestId("flash-tally")).toContainText("1 known, 1 missed");
   });
 });

@@ -4,10 +4,10 @@
   "cases": 493,
   "zbllCases": 472,
   "pllCases": 21,
-  "algorithms": 5974,
-  "average": 12.7,
+  "algorithms": 6416,
+  "average": 13.6,
   "fewest": 1,
-  "most": 51,
+  "most": 53,
   "unnamed": 0,
   "drops": {
     "algdb": {
@@ -42,27 +42,27 @@
     }
   },
   "bySource": {
-    "speedcubedb": 4525,
-    "jabari-nuruddin": 841,
+    "speedcubedb": 4786,
+    "jabari-nuruddin": 842,
     "nuruddin-taylor-yu": 513,
-    "algdb": 2023,
-    "juliette-sebastien": 1732,
-    "speedsolving-wiki": 1013,
+    "algdb": 2136,
+    "juliette-sebastien": 1756,
+    "speedsolving-wiki": 1086,
     "speedsolving-forum-18172": 2,
     "brant-holbein": 532,
-    "goodforthewin": 686,
+    "goodforthewin": 693,
     "nicolas-gertner": 514,
     "tao-yu-justin-taylor": 510,
-    "simon-swanson": 768,
+    "simon-swanson": 791,
     "dv-egdal": 503,
     "anthony-brooks": 328,
     "yoruba": 493,
     "yomie": 359,
-    "speedcubingtips-eu": 1253,
+    "speedcubingtips-eu": 1293,
     "cubingapp": 472,
-    "caiden-lee": 960,
-    "cuber-pro": 1061,
+    "caiden-lee": 975,
+    "cuber-pro": 1091,
     "bernard-helmstetter": 879,
-    "roman-strakhov": 2935
+    "roman-strakhov": 3047
   }
 }

@@ -13,7 +13,9 @@
  * Before counting, each algorithm is normalised so the same one written two ways
  * is kept once: brackets and repeats expanded, turns cancelled, the set-up and
  * finishing turns of the top taken off, and a leading y dropped when the moves
- * still solve the case without it (the picture shows the angle instead).
+ * still solve the case without it (the picture shows the angle instead). The
+ * left-hand version of an algorithm, or the same idea done from another face,
+ * is a different algorithm to perform, so it is kept as one.
  *
  * An algorithm is dropped, and counted against its source, when it can't be
  * read, disturbs the first two layers, doesn't start from oriented edges, does
@@ -35,7 +37,6 @@ import {
 } from "@/lib/cube/case-check";
 import { applyAlgorithm, getFace, isSolved, SOLVED_FACELETS } from "@/lib/cube/cube-state";
 import { formatAlgorithm, invertAlgorithm, parseAlgorithm } from "@/lib/cube/notation";
-import { canonicalKey } from "@/lib/algorithms/canonical";
 import { length, readMoves, spellings, levelled, finishesUpright, text } from "./normalise";
 
 interface SourceRecord {
@@ -130,7 +131,7 @@ const drop = (source: string, why: Drop, moves: string) => {
 };
 
 interface Found {
-  /** The key every spelling of this algorithm round the cube shares. */
+  /** The normalised moves: listings with the same are the same algorithm. */
   key: string;
   /** Each spelling seen, and which sources wrote it that way. */
   spellings: Map<string, Set<string>>;
@@ -216,7 +217,7 @@ for (const record of records) {
     known.names.set(record.label, (known.names.get(record.label) ?? 0) + 1);
   }
   cases.set(found.signature, known);
-  const key = canonicalKey(found.moves);
+  const key = found.moves;
   const algorithm = known.algorithms.get(key) ?? {
     key,
     spellings: new Map<string, Set<string>>(),
@@ -247,7 +248,7 @@ for (const record of records) {
   if (scdbCase.get(signature) !== record.label) {
     const known = cases.get(signature)!;
     const moves = again.moves;
-    const key = moves ? canonicalKey(moves) : undefined;
+    const key = moves;
     const algorithm = key ? known.algorithms.get(key) : undefined;
     if (algorithm) {
       algorithm.sources.delete("speedcubedb");
@@ -271,25 +272,6 @@ interface OutCase {
   algorithms: { id: string; moves: string }[];
 }
 
-/** Moves that make you reach round the cube: fewer is easier to hold. */
-const awkward = (moves: string) => ({
-  frontBack: moves.split(" ").filter((move) => /^[FBfb]/.test(move)).length,
-  leftDown: moves.split(" ").filter((move) => /^[LDld]/.test(move)).length,
-});
-
-/** The spelling to show: the one most sources use, then the one easiest to hold. */
-function spellingOf(algorithm: Found): string {
-  return [...algorithm.spellings]
-    .filter(([, sources]) => sources.size > 0)
-    .sort(
-      ([a, aSources], [b, bSources]) =>
-        bSources.size - aSources.size ||
-        awkward(a).frontBack - awkward(b).frontBack ||
-        awkward(a).leftDown - awkward(b).leftDown ||
-        a.localeCompare(b),
-    )[0]![0];
-}
-
 /** An algorithm's id comes from its key, so it survives a change of spelling or order. */
 const idOf = (moves: string) =>
   `zb-${createHash("sha256").update(moves).digest("hex").slice(0, 10)}`;
@@ -298,7 +280,7 @@ const out: OutCase[] = [];
 const unnamed: string[] = [];
 for (const known of cases.values()) {
   if (known.algorithms.size === 0) continue;
-  const first = spellingOf([...known.algorithms.values()][0]!);
+  const first = [...known.algorithms.values()][0]!.key;
   const state = caseStateOf(first, "pll");
   if (lastLayerOriented(state)) {
     const sameAs = pllBySignature.get(known.signature);
@@ -322,7 +304,7 @@ for (const known of cases.values()) {
   }
   const [, setShort, number] = /^ZBLL (\w+) (\d+)$/.exec(name)!;
   const ranked = [...known.algorithms.values()]
-    .map((algorithm) => ({ ...algorithm, moves: spellingOf(algorithm) }))
+    .map((algorithm) => ({ ...algorithm, moves: algorithm.key }))
     .sort(
       (a, b) =>
         b.sources.size - a.sources.size ||

@@ -7,7 +7,6 @@ import {
   getAlgorithmSet,
 } from "@/lib/algorithms/catalog";
 import { checkCustomAlgorithm } from "@/lib/algorithms/custom";
-import { roundTheCube } from "@/lib/algorithms/canonical";
 import { zbll } from "@/data/algorithms/sets/zbll-data";
 import { attemptFrom, INSPECTION_PLUS_TWO_MS } from "@/lib/coach/test-attempt";
 import { checkAlgorithm } from "@/lib/cube/case-check";
@@ -74,15 +73,14 @@ describe("your own algorithm for a case (4.3)", () => {
     expect(checkCustomAlgorithm(t, kind, "[R U", [])).toMatchObject({ ok: false });
   });
 
-  it("knows an algorithm written from another side is one it already has", () => {
-    const first = algorithmsFor(t)[0]!.moves;
-    const rotated = roundTheCube(first)[2]!;
-    expect(rotated).not.toBe(first);
-    const check = checkCustomAlgorithm(t, kind, rotated);
-    expect(check).toEqual({
-      ok: false,
-      error: `That one is already in the list, written as ${first}.`,
-    });
+  it("lets you add the same algorithm for the other hand", () => {
+    // The Sune for the left hand solves the Antisune case from the other side.
+    const oll = getAlgorithmSet("oll")!;
+    const antisune = getCase("oll", "oll-26")!;
+    const check = checkCustomAlgorithm(antisune, kindFor(oll, antisune), "L' U' L U' L' U2 L", [
+      "R U2 R' U' R U' R'",
+    ]);
+    expect(check).toEqual({ ok: true, moves: "L' U' L U' L' U2 L" });
   });
 
   it("knows a set-up or finishing turn of the top doesn't make a new algorithm", () => {

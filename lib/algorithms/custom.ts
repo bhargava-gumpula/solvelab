@@ -8,7 +8,6 @@
  * r or Rw, and turns run together (RUR'U').
  */
 import type { CaseEntry } from "@/data/algorithms/types";
-import { canonicalKey } from "@/lib/algorithms/canonical";
 import { checkAlgorithm, CASE_KINDS, type CaseKind } from "@/lib/cube/case-check";
 import { formatAlgorithm, parseAlgorithm } from "@/lib/cube/notation";
 import { cancel, expand } from "@/lib/cube/written";
@@ -33,10 +32,11 @@ export function checkCustomAlgorithm(
   const moves = formatAlgorithm(cancel(parsed.moves));
   if (!moves) return { ok: false, error: "Those turns cancel out to nothing." };
 
-  // The same algorithm written from another side counts as the same, except
-  // for pair cases, where turning the cube moves the slot.
+  // The same moves with a turn of the top added count as the same. A left-hand
+  // version, or the idea done from another face, is a different algorithm to
+  // perform, so it can be added.
   const keyOf = (written: string) =>
-    CASE_KINDS[kind].slotCase ? written : canonicalKey(withoutTopTurns(written));
+    CASE_KINDS[kind].slotCase ? written : withoutTopTurns(written);
   const key = keyOf(moves);
   const same = existing.find((written) => keyOf(written) === key);
   if (same !== undefined) {

@@ -15,6 +15,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { getExercise } from "@/data/exercises";
 import type { AlgorithmSetData } from "@/data/algorithms/types";
 import { useAlgorithmProgress } from "@/hooks/use-algorithms";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useSettings } from "@/hooks/use-local-data";
 import { caseScramble } from "@/lib/algorithms/case-scramble";
 import { groupCases, kindFor } from "@/lib/algorithms/catalog";
@@ -402,10 +403,9 @@ function FlashcardSession({
   const [revealed, setRevealed] = useState(false);
   const [tally, setTally] = useState({ known: 0, missed: 0 });
   const current = dealt.item;
-  if (!current) return null;
-  const kind = kindFor(set, current.entry);
 
   const answer = async (known: boolean) => {
+    if (!current) return;
     try {
       await getRepositories().algorithms.recordRecall({
         caseId: current.caseId,
@@ -424,6 +424,19 @@ function FlashcardSession({
       round: now.round + 1,
     }));
   };
+
+  useHotkeys(
+    revealed
+      ? [
+          { key: "1", run: () => void answer(true) },
+          { key: "2", run: () => void answer(false) },
+        ]
+      : [{ key: "Enter", run: () => setRevealed(true) }],
+    Boolean(current),
+  );
+
+  if (!current) return null;
+  const kind = kindFor(set, current.entry);
 
   return (
     <div className="grid gap-4" data-testid="flashcards">
@@ -451,6 +464,7 @@ function FlashcardSession({
                 <X /> Missed it
               </Button>
             </div>
+            <p className="mt-1 text-xs text-muted-foreground">Keys: 1 knew it · 2 missed it</p>
           </div>
         ) : (
           <div className="grid gap-3">
@@ -460,6 +474,7 @@ function FlashcardSession({
             <Button onClick={() => setRevealed(true)} data-testid="flash-reveal">
               <Eye /> Show it
             </Button>
+            <p className="text-xs text-muted-foreground">Or press Enter</p>
           </div>
         )}
       </section>

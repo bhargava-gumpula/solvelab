@@ -15,7 +15,6 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { algorithmsFor, caseStateFor, getAlgorithmSet, kindFor } from "@/lib/algorithms/catalog";
 import { caseStateOf, checkAlgorithm, type CaseKind } from "@/lib/cube/case-check";
-import { canonicalKey } from "@/lib/algorithms/canonical";
 import { finishesUpright, length, levelled, readMoves, spellings, text } from "./normalise";
 
 interface OtherRecord {
@@ -45,9 +44,9 @@ function key(
     } catch {
       continue;
     }
-    // Written round the cube another way is the same algorithm, except for Winter
-    // Variation, where turning the cube changes which slot the pair goes into.
-    return { written, key: kind === "wv" ? written : canonicalKey(written) };
+    // The left-hand version, or the same idea from another face, is a different
+    // algorithm to perform, so only the same spelling counts as the same.
+    return { written, key: written };
   }
   return null;
 }
@@ -57,23 +56,6 @@ interface Found {
   spellings: Map<string, Set<string>>;
   sources: Set<string>;
   votes: number;
-}
-
-/** Moves that make you reach round the cube: fewer is easier to hold. */
-const awkward = (moves: string) => ({
-  frontBack: moves.split(" ").filter((move) => /^[FBfb]/.test(move)).length,
-  leftDown: moves.split(" ").filter((move) => /^[LDld]/.test(move)).length,
-});
-
-/** The spelling to show: the one most sources use, then the one easiest to hold. */
-function spellingOf(algorithm: Found): string {
-  return [...algorithm.spellings].sort(
-    ([a, aSources], [b, bSources]) =>
-      bSources.size - aSources.size ||
-      awkward(a).frontBack - awkward(b).frontBack ||
-      awkward(a).leftDown - awkward(b).leftDown ||
-      a.localeCompare(b),
-  )[0]![0];
 }
 
 /** An extra algorithm's id comes from its key, so it survives new sources and a new order. */
@@ -136,7 +118,7 @@ for (const [name, setId] of Object.entries(SET_IDS)) {
   const extra = cases.reduce((sum, known) => sum + known.added.size, 0);
   for (const known of cases) {
     const ranked = [...known.added.values()]
-      .map((algorithm) => ({ ...algorithm, moves: spellingOf(algorithm) }))
+      .map((algorithm) => ({ ...algorithm, moves: algorithm.key }))
       .sort(
         (a, b) =>
           b.sources.size - a.sources.size ||

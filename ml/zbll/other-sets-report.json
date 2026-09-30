@@ -2,16 +2,16 @@
   "pll": {
     "cases": 21,
     "records": 2520,
-    "existing": 69,
-    "found": 1506,
-    "extra": 1506,
+    "existing": 72,
+    "found": 1683,
+    "extra": 1683,
     "trimmed": 0,
     "firstFoundIn": {
-      "speedcubedb": 1133,
-      "speedsolving-wiki": 313,
+      "speedcubedb": 1241,
+      "speedsolving-wiki": 377,
       "alg-trainer pll": 1,
       "alg-trainer ohpll": 27,
-      "jperm": 3,
+      "jperm": 8,
       "cuber-pro": 29
     },
     "dropped": {
@@ -23,17 +23,17 @@
   "oll": {
     "cases": 57,
     "records": 12709,
-    "existing": 104,
-    "found": 10497,
-    "extra": 2638,
-    "trimmed": 7859,
+    "existing": 115,
+    "found": 11134,
+    "extra": 2912,
+    "trimmed": 8222,
     "firstFoundIn": {
-      "speedcubedb": 1608,
-      "speedsolving-wiki": 8812,
+      "speedcubedb": 1774,
+      "speedsolving-wiki": 9280,
       "alg-trainer oll": 1,
-      "alg-trainer oholl": 26,
+      "alg-trainer oholl": 28,
       "jperm": 5,
-      "cuber-pro": 45
+      "cuber-pro": 46
     },
     "dropped": {
       "speedsolving-wiki": 4,
@@ -43,16 +43,16 @@
   "coll": {
     "cases": 40,
     "records": 10170,
-    "existing": 142,
-    "found": 8688,
-    "extra": 8688,
+    "existing": 152,
+    "found": 9064,
+    "extra": 9064,
     "trimmed": 0,
     "firstFoundIn": {
-      "speedcubedb": 257,
-      "speedsolving-wiki": 8394,
+      "speedcubedb": 277,
+      "speedsolving-wiki": 8745,
       "alg-trainer coll": 6,
       "alg-trainer coll-tao": 5,
-      "cuber-pro": 26
+      "cuber-pro": 31
     },
     "dropped": {
       "speedsolving-wiki": 178

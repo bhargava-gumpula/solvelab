@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Pencil, Search } from "lucide-react";
 import { CaseDetail } from "@/components/algorithms/case-detail";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
@@ -26,6 +27,9 @@ import {
   searchCases,
 } from "@/lib/algorithms/catalog";
 import { EXTRA_CHUNKS_FOR_SET, useExtraAlgorithms } from "@/lib/algorithms/extras";
+import { caseTimes } from "@/lib/algorithms/trainer";
+import { getRepositories } from "@/lib/storage";
+import { useStorageStatus } from "@/components/layout/storage-provider";
 import { CASE_LABELS, countLabels, type CaseLabel } from "@/lib/algorithms/labels";
 import { casePicture } from "@/lib/algorithms/orientation";
 import { cn } from "@/lib/utils";
@@ -48,6 +52,13 @@ export function CaseBrowser({
 }) {
   const { loaded, progress, labels } = useAlgorithmProgress();
   useExtraAlgorithms(EXTRA_CHUNKS_FOR_SET[set.id] ?? []);
+  // Your times from the algorithm trainer, shown on each case you've timed.
+  const ready = useStorageStatus().status === "ready";
+  const attempts = useLiveQuery(
+    async () => (ready ? await getRepositories().algorithms.trainerAttempts() : undefined),
+    [ready],
+  );
+  const times = useMemo(() => caseTimes(attempts ?? []), [attempts]);
   const [query, setQuery] = useState("");
   // Nothing picked means everything shows; otherwise any mix of the three.
   const [shown, setShown] = useState<CaseLabel[]>([]);
@@ -169,11 +180,18 @@ export function CaseBrowser({
                       <p className="truncate font-mono text-[11px] text-muted-foreground">
                         {chosen.moves}
                       </p>
-                      <LabelBadge
-                        label={label}
-                        className="mt-2"
-                        data-testid={`case-state-${entry.id}`}
-                      />
+                      <span className="mt-2 flex flex-wrap items-center gap-2">
+                        <LabelBadge label={label} data-testid={`case-state-${entry.id}`} />
+                        {times.get(caseId)?.medianMs != null ? (
+                          <span
+                            className="font-mono tabular text-[11px] text-muted-foreground"
+                            title="Median of your times in the algorithm trainer"
+                            data-testid={`case-time-${entry.id}`}
+                          >
+                            {(times.get(caseId)!.medianMs! / 1000).toFixed(2)} s
+                          </span>
+                        ) : null}
+                      </span>
                     </button>
                     {/*
                      * A button rather than a right-click: a context menu is

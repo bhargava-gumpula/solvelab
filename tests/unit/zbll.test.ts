@@ -1,7 +1,6 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { SET_SOURCES } from "@/data/algorithms/sources";
-import { canonicalKey } from "@/lib/algorithms/canonical";
 import { zbll } from "@/data/algorithms/sets/zbll-data";
 import { ZBLL_PROGRESS_IDS, ZBLL_SUMMARY } from "@/data/algorithms/sets/zbll-summary";
 import {
@@ -112,12 +111,10 @@ describe("the ZBLL set", () => {
 
   it("keeps each algorithm once, with an id from its normalised moves", () => {
     for (const entry of own) {
-      // Not twice, not even written round the cube another way.
-      const keys = entry.algorithms.map((algorithm) => canonicalKey(algorithm.moves));
-      expect(new Set(keys).size, entry.id).toBe(keys.length);
+      const moves = entry.algorithms.map((algorithm) => algorithm.moves);
+      expect(new Set(moves).size, entry.id).toBe(moves.length);
       for (const algorithm of entry.algorithms) {
-        const key = canonicalKey(algorithm.moves);
-        const hash = createHash("sha256").update(key).digest("hex").slice(0, 10);
+        const hash = createHash("sha256").update(algorithm.moves).digest("hex").slice(0, 10);
         expect(algorithm.id).toBe(`zb-${hash}`);
         // The set-up turn of the top belongs to the picture, not the algorithm.
         expect(algorithm.moves, entry.id).not.toMatch(/^(U|U2|U')( |$)/);

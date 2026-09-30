@@ -6,7 +6,6 @@ import { EXTRAS as PLL } from "@/data/algorithms/sets/extras/pll";
 import { EXTRA_COUNTS } from "@/data/algorithms/sets/extras/summary";
 import { EXTRAS as WV } from "@/data/algorithms/sets/extras/wv";
 import type { CaseEntry } from "@/data/algorithms/types";
-import { canonicalKey } from "@/lib/algorithms/canonical";
 import {
   ALGORITHM_SETS,
   algorithmsFor,
@@ -69,19 +68,17 @@ describe("the extra algorithms for PLL, OLL, COLL and WV", () => {
 
   it("come after the bank's own, which stay first and unchanged", () => {
     for (const [caseId, extras] of Object.entries(EXTRA_ALGORITHMS)) {
-      const { entry, setId } = owners.get(caseId)!;
+      const { entry } = owners.get(caseId)!;
       const all = algorithmsFor(entry);
       expect(all.slice(0, ownAlgorithmCount(entry))).toEqual(entry.algorithms);
       expect(all.slice(ownAlgorithmCount(entry))).toEqual(extras);
-      // Nothing repeats: not the bank's own, not written round the cube (except
-      // WV, where turning the cube changes the slot).
-      const keyOf = (moves: string) => (setId === "winter-variation" ? moves : canonicalKey(moves));
-      const own = new Set(entry.algorithms.map((algorithm) => keyOf(algorithm.moves)));
-      const keys = extras.map((algorithm) => keyOf(algorithm.moves));
+      // Nothing repeats the bank's own or another extra.
+      const own = new Set(entry.algorithms.map((algorithm) => algorithm.moves));
+      const keys = extras.map((algorithm) => algorithm.moves);
       expect(new Set(keys).size, caseId).toBe(keys.length);
       for (const key of keys) expect(own.has(key), `${caseId} ${key}`).toBe(false);
       for (const algorithm of extras) {
-        const hash = createHash("sha256").update(keyOf(algorithm.moves)).digest("hex").slice(0, 10);
+        const hash = createHash("sha256").update(algorithm.moves).digest("hex").slice(0, 10);
         expect(algorithm.id).toBe(`ex-${hash}`);
       }
     }
