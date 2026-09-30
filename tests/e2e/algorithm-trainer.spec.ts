@@ -140,6 +140,7 @@ test.describe("the algorithm trainer", () => {
       await page.getByTestId("flash-known").click();
     }
     await page.getByRole("button", { name: "Mark it known" }).click();
+    await expect(page.getByText("T marked as known")).toBeVisible();
     await page.goto("/algorithms/pll/");
     await expect(page.getByTestId("case-state-pll-t")).toHaveText("Know it", { timeout: 20_000 });
   });

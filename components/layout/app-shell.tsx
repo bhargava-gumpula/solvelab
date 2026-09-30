@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Command as CommandIcon, Keyboard, Palette, Settings2 } from "lucide-react";
+import { Command as CommandIcon, Keyboard, Layers3, Palette, Settings2, Timer } from "lucide-react";
 import { AccountButton } from "@/components/auth/account-button";
 import { AppBackground } from "@/components/appearance/app-background";
 import { AppearanceSheet } from "@/components/appearance/appearance-sheet";
@@ -11,6 +11,7 @@ import { useAppearance } from "@/components/appearance/appearance-provider";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRegisterCommands } from "@/hooks/use-commands";
+import { algorithmSets } from "@/data/algorithms/sets";
 import { useDailyCheckDue } from "@/hooks/use-daily-checks";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { brand } from "@/lib/config/brand";
@@ -83,6 +84,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         icon: item.icon,
         run: () => router.push(item.href),
       })),
+      // Every algorithm set, and practising it on a real cube.
+      ...algorithmSets.flatMap((set) => [
+        {
+          id: `algorithms-${set.id}`,
+          label: `Algorithms: ${set.name}`,
+          group: "Navigate" as const,
+          icon: Layers3,
+          keywords: ["algorithm", "cases", set.id],
+          run: () => router.push(`/algorithms/${set.id}/`),
+        },
+        // Fundamentals is a list of triggers, with no cases to set up.
+        ...(set.category === "fundamentals"
+          ? []
+          : [
+              {
+                id: `practise-${set.id}`,
+                label: `Practise ${set.name} on your cube`,
+                group: "Navigate" as const,
+                icon: Timer,
+                keywords: ["trainer", "practise", "practice", "drill", set.id],
+                run: () => router.push(`/algorithms/${set.id}/train/`),
+              },
+            ]),
+      ]),
       {
         id: "appearance",
         label: "Open appearance",

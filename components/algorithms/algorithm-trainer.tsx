@@ -469,7 +469,11 @@ function FlashcardSession({
       toast(`${entry.name}: known ${running} times running`, {
         action: {
           label: "Mark it known",
-          onClick: () => void algorithmActions.setLabel(caseId, "known"),
+          onClick: () =>
+            void algorithmActions
+              .setLabel(caseId, "known")
+              .then(() => toast.success(`${entry.name} marked as known`))
+              .catch(() => toast.error("Couldn’t mark it known.")),
         },
       });
     }

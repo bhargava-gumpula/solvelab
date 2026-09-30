@@ -120,6 +120,14 @@ test("command palette runs actions", async ({ page }) => {
   await page.keyboard.type("go to stats");
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/stats\/?$/);
+
+  // Every algorithm set can be practised from the palette.
+  await page.keyboard.press("ControlOrMeta+k");
+  await expect(palette).toBeVisible();
+  await palette.locator("input").fill("practise zbll");
+  await expect(palette.getByRole("option", { name: /Practise ZBLL on your cube/ })).toBeVisible();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/\/algorithms\/zbll\/train\/$/);
 });
 
 test("mobile navigation, case search and empty results", async ({ page }) => {
