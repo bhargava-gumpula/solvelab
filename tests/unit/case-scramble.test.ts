@@ -48,6 +48,8 @@ const CASES: { setId: string; caseId: string; moves?: string }[] = [
   { setId: "oll", caseId: "oll-44", moves: "f R U R' U' f'" },
   { setId: "coll", caseId: "coll-t1" },
   { setId: "winter-variation", caseId: "wv-1" },
+  { setId: "f2l", caseId: "f2l-8" },
+  { setId: "f2l", caseId: "f2l-30" },
 ];
 
 describe("scrambles that set up a case", () => {
@@ -65,7 +67,8 @@ describe("scrambles that set up a case", () => {
       expect(fromSolver, caseId).toBe(true);
       expect(scramble, caseId).toMatch(/^([UDLRFB]['2]? ?)+$/);
       const state = scrambled(scramble);
-      const intact = kind === "wv" ? otherSlotsSolved(state) : firstTwoLayersSolved(state);
+      const intact =
+        kind === "wv" || kind === "f2l" ? otherSlotsSolved(state) : firstTwoLayersSolved(state);
       expect(intact, `${caseId}: ${scramble}`).toBe(true);
       expect(checkAlgorithm(state, algorithm, kind).ok, `${caseId}: ${scramble}`).toBe(true);
     }

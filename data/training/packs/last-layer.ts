@@ -33,7 +33,7 @@ export const ollExecution: AspectPack = {
       body: [
         "On 2-look OLL you read the top twice, and neither read needs a particular angle. First the edges: no yellow edges on top is a dot, two opposite each other is a line, and two side by side is an L. Then, with the cross made, the corners: count how many corners have their yellow facing up. None means H or Pi, one means Sune or Antisune, and two means Headlights, T or Bowtie. The side stickers then decide between them.",
         "The common failure is learning each case the way it is drawn and then turning the cube round in your hands until it matches the picture. With two looks a solve, that can be two rotations a solve. The count tells you the family from any side; the angle only tells you which way to turn the top layer before you start, and turning the top is a flick where a rotation is a regrip.",
-        "So practise it on purpose rather than hoping normal solving covers it. Set up a case, turn the top a random amount, and name the case and the turn you need before touching the cube. Normal solving gives each angle a quarter of the reps and lets you rotate out of the awkward ones. The habit carries straight over if you learn full OLL later.",
+        "So practise it on purpose rather than hoping normal solving covers it. Set up a case, turn the top a random amount, and name the case and the turn you need before touching the cube. The algorithm trainer in the algorithm bank does the setting up for you, at a random angle each time. Normal solving gives each angle a quarter of the reps and lets you rotate out of the awkward ones. The habit carries straight over if you learn full OLL later.",
       ],
     },
     {
@@ -74,6 +74,7 @@ export const ollExecution: AspectPack = {
         "Removes the rotation-to-recognise habit, which normal solving will never remove on its own.",
       rules: [
         "Pick one case. Set it up and solve it. Then set it up rotated by a quarter turn and solve it again, without rotating the cube back.",
+        "Or let the algorithm trainer (\"Practise on your cube\" on the OLL page) do the setting up: it scrambles each case at a random angle, so the angles come without you choosing them.",
         "All four angles for each case.",
         "Start with the cases you know you rotate for.",
       ],

@@ -225,7 +225,7 @@ export const advancedF2lCases: LevelPack = {
         "Turns your weakest stuck case from something you work out into something you recognise and do, by repeating it away from full solves.",
       rules: [
         "Pick the one or two stuck cases you fumble most. Set each one up by doing its algorithm backwards on a solved cube, white on the bottom.",
-        "Solve it, set it up again, and repeat: ten to twenty reps per case, slowly at first, then at full speed.",
+        "Solve it, set it up again, and repeat: ten to twenty reps per case, slowly at first, then at full speed. Or mark the cases Learning in the F2L set and practise them with the algorithm trainer, which scrambles each one for you.",
         "Once it's smooth, mix it with two cases you already know, so you have to recognise it rather than just repeat it.",
         "Then do a set of the Single pair test and let the case turn up among the others.",
       ],
