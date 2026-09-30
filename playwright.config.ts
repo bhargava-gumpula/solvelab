@@ -1,11 +1,17 @@
 import { defineConfig } from "@playwright/test";
+
+/**
+ * The static export is served on this port. Set E2E_PORT when something else
+ * on the machine already uses 4173: Playwright reuses whatever answers there.
+ */
+const port = process.env.E2E_PORT ?? "4173";
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
   workers: 2,
   timeout: 30000,
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: `http://127.0.0.1:${port}`,
     browserName: "chromium",
     headless: true,
     trace: "retain-on-failure",
@@ -14,8 +20,8 @@ export default defineConfig({
   },
   webServer: {
     command: "node scripts/serve-static.mjs",
-    env: { PORT: "4173" },
-    url: "http://127.0.0.1:4173/timer/",
+    env: { PORT: port },
+    url: `http://127.0.0.1:${port}/timer/`,
     reuseExistingServer: !process.env.CI,
   },
 });

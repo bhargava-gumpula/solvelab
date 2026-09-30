@@ -162,7 +162,7 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 
 - **Layout flash on phones:** `useMediaQuery("(min-width: 1024px)", true)` renders the desktop layout first on phones until hydration. A CSS-driven layout would avoid this.
 - **Performance:** glass `backdrop-filter` on many panels may be heavy on low-end devices. Initial JS size hasn't been re-measured since the overhaul (it was ~320 KB gzip for `/timer` at V1).
-- **Offline:** a conservative service worker (`public/sw.js`, production builds only) lets the timer reload without a network; `features.offline` switches it off and removes it. Playwright blocks workers except in `offline.spec.ts`. If e2e results look like an old build, check nothing else is serving port 4173 (Playwright reuses an existing server there).
+- **Offline:** a conservative service worker (`public/sw.js`, production builds only) lets the timer reload without a network; `features.offline` switches it off and removes it. Playwright blocks workers except in `offline.spec.ts`. If e2e results look like an old build, something else is serving port 4173 (Playwright reuses an existing server there): run with another port, e.g. `E2E_PORT=4391 npx playwright test --workers=1`.
 - **Test browsers:** e2e runs Chromium only.
 
 ## 10. Waiting on the owner (ask; don't assume)
