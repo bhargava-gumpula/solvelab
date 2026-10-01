@@ -42,7 +42,9 @@ export function CoachDashboard() {
     return (
       <div className="grid gap-5">
         <CoachMessage>
-          <h2 className="text-xl font-semibold tracking-tight">What time are you aiming for?</h2>
+          <h2 className="font-display text-[1.9rem] leading-tight">
+            What time are you aiming for?
+          </h2>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
             {averageText
               ? `Your timer average is ${averageText}. `
@@ -75,7 +77,9 @@ export function CoachDashboard() {
             {averageText ? (
               <>
                 Your average:{" "}
-                <span className="font-mono tabular text-foreground">{averageText}</span>
+                <span className="font-display text-lg text-foreground tabular-nums">
+                  {averageText}
+                </span>
               </>
             ) : (
               "No timer average yet"
@@ -86,7 +90,10 @@ export function CoachDashboard() {
             <GoalSelect value={goal.id} />
           </div>
         </div>
-        <h2 className="mt-3 text-xl font-semibold tracking-tight" data-testid="coach-headline">
+        <h2
+          className="mt-3 font-display text-[clamp(1.9rem,3.2vw,2.6rem)] leading-[1.02] text-balance"
+          data-testid="coach-headline"
+        >
           {headline(profile, goal.label, next)}
         </h2>
         {next ? (
@@ -139,9 +146,10 @@ export function CoachDashboard() {
       ) : null}
 
       {slow.length > 0 ? (
-        <section aria-labelledby="work-on-heading" className="rounded-3xl p-5 glass md:p-6">
-          <h2 id="work-on-heading" className="text-base font-semibold">
-            What to work on first
+        <section aria-labelledby="work-on-heading" className="tile p-5 md:p-6">
+          <p className="eyebrow">The short list</p>
+          <h2 id="work-on-heading" className="mt-1 font-display text-[1.9rem] leading-none">
+            What to work on <span className="text-primary italic">first</span>
           </h2>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {slow.map((aspect) => (
@@ -166,7 +174,7 @@ export function CoachDashboard() {
 
 function CoachMessage({ children }: { children: React.ReactNode }) {
   return (
-    <section className="flex gap-4 rounded-3xl p-6 glass md:p-8" data-testid="coach-message">
+    <section className="tile flex gap-4 p-6 md:p-8" data-testid="coach-message">
       <span
         className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/15 text-primary"
         aria-hidden
@@ -183,7 +191,7 @@ function Tips({ aspect }: { aspect: AspectResult }) {
   const pack = packForAspect(aspect.id);
   if (!help) return null;
   return (
-    <div className="grid gap-2 rounded-2xl border border-dashed px-4 py-3 text-xs text-muted-foreground">
+    <div className="grid gap-2 rounded-[1.1rem] border border-dashed border-[var(--hairline)] px-4 py-3 text-xs text-muted-foreground">
       <p>{help.why}</p>
       <ul className="list-disc space-y-1 pl-4">
         {help.tips.map((tip) => (

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { ArrowRight, BookOpen, Timer } from "lucide-react";
+import { CoverArt } from "@/components/hub/cover-art";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PackCard } from "@/components/train/pack-card";
@@ -47,21 +48,22 @@ export function TrainDashboard() {
   return (
     <div className="grid gap-8">
       <section
-        className="flex flex-wrap items-center justify-between gap-4 rounded-3xl p-6 glass"
+        className="tile flex flex-wrap items-center justify-between gap-4 p-6"
         data-testid="train-intro"
       >
         <div className="min-w-0">
-          <p className="text-sm text-muted-foreground">
+          <p className="eyebrow">Your stretch</p>
+          <p className="mt-1.5 font-display text-[clamp(1.8rem,3.4vw,2.6rem)] leading-none">
             {band ? (
               <>
-                You&apos;re on the{" "}
-                <span className="font-medium text-foreground">{bandLabel(band)}</span> stretch.
+                You&apos;re on the <span className="text-primary italic">{bandLabel(band)}</span>{" "}
+                stretch.
               </>
             ) : (
               "Take the tests on Coach and this page will know where you are."
             )}
           </p>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-muted-foreground">
             The packs recommended for you — and every other one — are on Learn.
           </p>
         </div>
@@ -75,26 +77,41 @@ export function TrainDashboard() {
       <AlgorithmsToPractise />
 
       {nothingYet ? (
-        <section className="rounded-3xl border border-dashed p-6" data-testid="train-empty">
-          <h2 className="text-base font-semibold">Nothing on the go yet.</h2>
-          <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-            Open a pack on Learn, read a lesson, and choose <em>Practise this</em> on a drill — it
-            lands here, with its rules and a timer, ready for your next session.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Button asChild size="sm">
-              <Link href="/learn/#packs">See your recommended packs</Link>
-            </Button>
-            <Button asChild variant="outline" size="sm">
-              <Link href="/coach/">Take the tests on Coach</Link>
-            </Button>
+        <section
+          className="tile grid items-center gap-6 overflow-hidden p-5 sm:grid-cols-[11rem_minmax(0,1fr)] md:p-6"
+          data-testid="train-empty"
+        >
+          <CoverArt
+            hue={265}
+            index={6}
+            number="Nº 00"
+            label="Your practice"
+            className="aspect-square max-w-44 rounded-[1.2rem] shadow-[var(--shadow-float)]"
+          />
+          <div className="min-w-0">
+            <p className="eyebrow">This week&apos;s practice</p>
+            <h2 className="mt-1.5 font-display text-[clamp(2rem,3.6vw,2.8rem)] leading-none">
+              Nothing on the <span className="italic">go</span> yet.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm text-pretty text-muted-foreground">
+              Open a pack on Learn, read a lesson, and choose <em>Practise this</em> on a drill — it
+              lands here, with its rules and a timer, ready for your next session.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-2">
+              <Button asChild className="rounded-full">
+                <Link href="/learn/#packs">See your recommended packs</Link>
+              </Button>
+              <Button asChild variant="outline" className="rounded-full">
+                <Link href="/coach/">Take the tests on Coach</Link>
+              </Button>
+            </div>
           </div>
         </section>
       ) : null}
 
       {drills.length > 0 ? (
         <section aria-labelledby="drills-heading" data-testid="train-drills">
-          <h2 id="drills-heading" className="text-base font-semibold">
+          <h2 id="drills-heading" className="font-display text-[2rem] leading-none">
             Your drills
           </h2>
           <p className="mt-1 mb-3 text-sm text-muted-foreground">
@@ -118,8 +135,8 @@ export function TrainDashboard() {
 
       {started.length > 0 ? (
         <section aria-labelledby="started-heading" data-testid="train-started">
-          <h2 id="started-heading" className="mb-3 text-base font-semibold">
-            Packs you&apos;ve started
+          <h2 id="started-heading" className="mb-4 font-display text-[2rem] leading-none">
+            Packs you&apos;ve <span className="italic">started</span>
           </h2>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {started.map((pack) => (

@@ -7,191 +7,215 @@
 /*
  * Design tokens. Components use these through Tailwind color utilities
  * (bg-card, text-muted-foreground, …); nothing hard-codes colors.
- *
- * Each theme preset sets the tokens under [data-theme="…"]. The animated
- * background colors for each preset live in lib/appearance/themes.ts.
- * :root holds the Sencha (matcha) values so the page is styled
- * before JS runs. Preset palettes are unchanged.
  */
-[data-theme="nebula"] {
-  --background: #0b0a1a;
-  --foreground: #efecff;
-  --card: rgb(22 19 48 / 0.58);
-  --card-foreground: #efecff;
-  --popover: rgb(20 17 42 / 0.96);
-  --popover-foreground: #efecff;
-  --primary: #a594ff;
-  --primary-foreground: #150f33;
-  --secondary: rgb(255 255 255 / 0.07);
-  --secondary-foreground: #efecff;
-  --muted: rgb(255 255 255 / 0.06);
-  --muted-foreground: #aaa5cc;
-  --accent: rgb(165 148 255 / 0.16);
-  --accent-foreground: #d9d1ff;
-  --accent-2: #3ee6c8;
-  --destructive: #ff7a93;
-  --success: #5ef2b0;
-  --warning: #ffd479;
-  --border: rgb(255 255 255 / 0.09);
-  --input: rgb(255 255 255 / 0.14);
-  --ring: #a594ff;
-  --glow: rgb(165 148 255 / 0.45);
-  --backdrop: #0b0a1a;
-
-  --timer-idle: #e4ddff;
-  --timer-holding: #ff7a93;
-  --timer-armed: #5ef2b0;
-  --timer-inspection: #ffd479;
-
-  --chart-1: #3987e5;
-  --chart-2: #d95926;
-  --chart-3: #199e70;
-  --chart-4: #c98500;
-  --chart-5: #d55181;
-  --chart-muted: #5a5680;
-}
-
-[data-theme="ember"] {
-  --background: #120806;
-  --foreground: #fff1ea;
-  --card: rgb(44 18 11 / 0.55);
-  --card-foreground: #fff1ea;
-  --popover: rgb(34 14 9 / 0.96);
-  --popover-foreground: #fff1ea;
-  --primary: #ff9457;
-  --primary-foreground: #2a0e04;
-  --muted-foreground: #d2ada0;
-  --accent: rgb(255 148 87 / 0.16);
-  --accent-foreground: #ffd2b8;
-  --accent-2: #ff5c8a;
-  --ring: #ff9457;
-  --glow: rgb(255 148 87 / 0.45);
-  --backdrop: #120806;
-  --timer-idle: #ffe6d8;
-  --chart-muted: #6b4a40;
-}
-
-[data-theme="glacier"] {
-  --background: #06101c;
-  --foreground: #e8f5ff;
-  --card: rgb(10 32 54 / 0.55);
-  --card-foreground: #e8f5ff;
-  --popover: rgb(8 24 42 / 0.96);
-  --popover-foreground: #e8f5ff;
-  --primary: #62cdff;
-  --primary-foreground: #03192a;
-  --muted-foreground: #9fbad0;
-  --accent: rgb(98 205 255 / 0.15);
-  --accent-foreground: #c7ecff;
-  --accent-2: #9d8cff;
-  --ring: #62cdff;
-  --glow: rgb(98 205 255 / 0.45);
-  --backdrop: #06101c;
-  --timer-idle: #dcf2ff;
-  --chart-muted: #3f5a72;
-}
-
+/*
+ * STUDIO themes. One light paper (Linen) and four after-dark inks. Every preset
+ * sets the full token set; the Studio extras (--tile, --hairline, --spot,
+ * --dot, --gold, shadows) drive bento tiles, the dot grid and the spotlight.
+ * :root holds Linen so the page is styled before JS runs.
+ */
 :root,
-[data-theme="matcha"] {
-  --background: #060c08;
-  --foreground: #e8ffec;
-  --card: rgb(14 36 22 / 0.55);
-  --card-foreground: #e8ffec;
-  --popover: rgb(10 26 16 / 0.96);
-  --popover-foreground: #e8ffec;
-  --primary: #74f294;
-  --primary-foreground: #04200d;
-  --secondary: rgb(255 255 255 / 0.07);
-  --secondary-foreground: #e8ffec;
-  --muted: rgb(255 255 255 / 0.06);
-  --muted-foreground: #9dbfa4;
-  --accent: rgb(116 242 148 / 0.14);
-  --accent-foreground: #c8ffd4;
-  --accent-2: #d6ff63;
-  --destructive: #ff7a93;
-  --success: #5ef2b0;
-  --warning: #ffd479;
-  --border: rgb(255 255 255 / 0.09);
+[data-theme="paper"] {
+  --background: #f2eee6;
+  --foreground: #17150f;
+  --card: rgb(255 253 249 / 0.8);
+  --card-foreground: #17150f;
+  --popover: #fffdf9;
+  --popover-foreground: #17150f;
+  --primary: #2a44e8;
+  --primary-foreground: #ffffff;
+  --secondary: rgb(23 21 15 / 0.05);
+  --secondary-foreground: #17150f;
+  --muted: rgb(23 21 15 / 0.045);
+  --muted-foreground: #6b665c;
+  --accent: rgb(42 68 232 / 0.09);
+  --accent-foreground: #1f33b8;
+  --accent-2: #f0531c;
+  --destructive: #c8233f;
+  --success: #1e7f4e;
+  --warning: #9a6410;
+  --border: rgb(23 21 15 / 0.09);
+  --input: rgb(23 21 15 / 0.14);
+  --ring: #2a44e8;
+  --glow: rgb(42 68 232 / 0.22);
+  --backdrop: #f2eee6;
+
+  --timer-idle: #17150f;
+  --timer-holding: #c8233f;
+  --timer-armed: #1e7f4e;
+  --timer-inspection: #9a6410;
+
+  --chart-1: #2a44e8;
+  --chart-2: #f0531c;
+  --chart-3: #1e9e6a;
+  --chart-4: #d69a12;
+  --chart-5: #c2479a;
+  --chart-muted: #cfc8ba;
+
+  --tile: rgb(255 253 249 / 0.84);
+  --tile-strong: #fffdf9;
+  --hairline: rgb(23 21 15 / 0.075);
+  --spot: rgb(42 68 232 / 0.07);
+  --spot-edge: rgb(42 68 232 / 0.5);
+  --dot: rgb(23 21 15 / 0.12);
+  --dot-lit: rgb(42 68 232 / 0.75);
+  --gold: #b8871b;
+  --grain-opacity: 0.12;
+  --grain-blend: multiply;
+  --shadow-tile:
+    0 1px 0 0 rgb(255 255 255 / 0.9) inset, 0 1px 2px rgb(23 21 15 / 0.035),
+    0 10px 28px -20px rgb(23 21 15 / 0.12);
+  --shadow-float:
+    0 1px 0 0 rgb(255 255 255 / 0.85) inset, 0 2px 6px rgb(23 21 15 / 0.05),
+    0 24px 60px -24px rgb(23 21 15 / 0.28);
+}
+
+/* The after-dark inks share one surface recipe. */
+html.dark {
+  --secondary: rgb(255 255 255 / 0.06);
+  --muted: rgb(255 255 255 / 0.05);
+  --border: rgb(255 255 255 / 0.085);
   --input: rgb(255 255 255 / 0.14);
-  --ring: #74f294;
-  --glow: rgb(116 242 148 / 0.4);
-  --backdrop: #060c08;
-
-  --timer-idle: #dcffe3;
-  --timer-holding: #ff7a93;
-  --timer-armed: #b7ff5c;
-  --timer-inspection: #ffd479;
-
-  --chart-1: #3987e5;
-  --chart-2: #d95926;
-  --chart-3: #199e70;
-  --chart-4: #c98500;
-  --chart-5: #d55181;
-  --chart-muted: #3f5a46;
+  --destructive: #ff6b81;
+  --success: #5fe3a1;
+  --warning: #f2c14e;
+  --timer-holding: #ff6b81;
+  --timer-armed: #5fe3a1;
+  --timer-inspection: #f2c14e;
+  --chart-3: #3fcf8e;
+  --chart-4: #f2b53a;
+  --chart-5: #e77ab8;
+  --hairline: rgb(255 255 255 / 0.07);
+  --dot: rgb(255 255 255 / 0.1);
+  --gold: #f0c35a;
+  --grain-opacity: 0.12;
+  --grain-blend: overlay;
+  --shadow-tile:
+    0 1px 0 0 rgb(255 255 255 / 0.05) inset, 0 1px 2px rgb(0 0 0 / 0.25),
+    0 12px 32px -22px rgb(0 0 0 / 0.55);
+  --shadow-float:
+    0 1px 0 0 rgb(255 255 255 / 0.07) inset, 0 2px 8px rgb(0 0 0 / 0.35),
+    0 28px 64px -24px rgb(0 0 0 / 0.8);
 }
 
 [data-theme="carbon"] {
-  --background: #101113;
-  --foreground: #eeeeef;
-  --card: rgb(28 29 33 / 0.92);
-  --card-foreground: #eeeeef;
-  --popover: #1f2125;
-  --popover-foreground: #eeeeef;
-  --primary: #e8916e;
-  --primary-foreground: #24150f;
-  --muted-foreground: #9a9da5;
-  --accent: rgb(232 145 110 / 0.14);
-  --accent-foreground: #f2b59c;
-  --accent-2: #83a8da;
-  --ring: #e8916e;
-  --glow: rgb(232 145 110 / 0.35);
-  --backdrop: #101113;
-  --timer-idle: #f3f3f5;
-  --timer-holding: #f17f89;
-  --timer-armed: #6fcf97;
-  --timer-inspection: #e5b85c;
-  --chart-muted: #4a4e56;
+  --background: #0a0e15;
+  --foreground: #f3f0ea;
+  --card: rgb(17 24 35 / 0.8);
+  --card-foreground: #f3f0ea;
+  --popover: #111a27;
+  --popover-foreground: #f3f0ea;
+  --primary: #5aa9ff;
+  --primary-foreground: #04162e;
+  --secondary-foreground: #f3f0ea;
+  --muted-foreground: #94a0b0;
+  --accent: rgb(90 169 255 / 0.14);
+  --accent-foreground: #bcdcff;
+  --accent-2: #ff7847;
+  --ring: #5aa9ff;
+  --glow: rgb(90 169 255 / 0.35);
+  --backdrop: #0a0e15;
+  --timer-idle: #f3f0ea;
+  --chart-1: #5aa9ff;
+  --chart-2: #ff7847;
+  --chart-muted: #2c3747;
+  --tile: rgb(15 22 32 / 0.82);
+  --tile-strong: #111a27;
+  --spot: rgb(90 169 255 / 0.08);
+  --spot-edge: rgb(90 169 255 / 0.55);
+  --dot-lit: rgb(90 169 255 / 0.8);
 }
 
-[data-theme="paper"] {
-  --background: #f3efe6;
-  --foreground: #23201b;
-  --card: rgb(255 253 248 / 0.72);
-  --card-foreground: #23201b;
-  --popover: #fffdf8;
-  --popover-foreground: #23201b;
-  --primary: #c2410c;
-  --primary-foreground: #fff7ed;
-  --secondary: rgb(0 0 0 / 0.05);
-  --secondary-foreground: #23201b;
-  --muted: rgb(0 0 0 / 0.045);
-  --muted-foreground: #6c665b;
-  --accent: rgb(194 65 12 / 0.1);
-  --accent-foreground: #9a3412;
-  --accent-2: #0f766e;
-  --destructive: #be123c;
-  --success: #15803d;
-  --warning: #a16207;
-  --border: rgb(0 0 0 / 0.09);
-  --input: rgb(0 0 0 / 0.14);
-  --ring: #c2410c;
-  --glow: rgb(194 65 12 / 0.25);
-  --backdrop: #f3efe6;
-  --timer-idle: #23201b;
-  --timer-holding: #be123c;
-  --timer-armed: #15803d;
-  --timer-inspection: #a16207;
-  --chart-1: #2a78d6;
-  --chart-2: #eb6834;
-  --chart-3: #1baf7a;
-  --chart-4: #eda100;
-  --chart-5: #e87ba4;
-  --chart-muted: #c6c0b4;
+[data-theme="nebula"] {
+  --background: #0a0b1a;
+  --foreground: #ecebff;
+  --card: rgb(20 20 44 / 0.78);
+  --card-foreground: #ecebff;
+  --popover: #15152e;
+  --popover-foreground: #ecebff;
+  --primary: #b4a6ff;
+  --primary-foreground: #160f3a;
+  --secondary-foreground: #ecebff;
+  --muted-foreground: #a3a1c8;
+  --accent: rgb(180 166 255 / 0.15);
+  --accent-foreground: #dcd4ff;
+  --accent-2: #5ce1e6;
+  --ring: #b4a6ff;
+  --glow: rgb(180 166 255 / 0.4);
+  --backdrop: #0a0b1a;
+  --timer-idle: #ecebff;
+  --chart-1: #b4a6ff;
+  --chart-2: #5ce1e6;
+  --chart-muted: #3a3960;
+  --tile: rgb(18 18 40 / 0.8);
+  --tile-strong: #15152e;
+  --spot: rgb(180 166 255 / 0.09);
+  --spot-edge: rgb(180 166 255 / 0.55);
+  --dot-lit: rgb(92 225 230 / 0.8);
+}
+
+[data-theme="matcha"] {
+  --background: #0c120e;
+  --foreground: #ecf3ec;
+  --card: rgb(20 31 24 / 0.8);
+  --card-foreground: #ecf3ec;
+  --popover: #142019;
+  --popover-foreground: #ecf3ec;
+  --primary: #8fd3a3;
+  --primary-foreground: #06200f;
+  --secondary-foreground: #ecf3ec;
+  --muted-foreground: #a8b9ab;
+  --accent: rgb(143 211 163 / 0.15);
+  --accent-foreground: #c9ecd3;
+  --accent-2: #e6a75a;
+  --ring: #8fd3a3;
+  --glow: rgb(143 211 163 / 0.36);
+  --backdrop: #0c120e;
+  --timer-idle: #ecf3ec;
+  --chart-1: #8fd3a3;
+  --chart-2: #e6a75a;
+  --chart-muted: #33443a;
+  --tile: rgb(19 30 23 / 0.52);
+  --tile-strong: #132019;
+  --spot: rgb(143 211 163 / 0.08);
+  --spot-edge: rgb(143 211 163 / 0.55);
+  --dot-lit: rgb(143 211 163 / 0.8);
+}
+
+[data-theme="ember"] {
+  --background: #15100d;
+  --foreground: #f7ede4;
+  --card: rgb(36 26 21 / 0.8);
+  --card-foreground: #f7ede4;
+  --popover: #221914;
+  --popover-foreground: #f7ede4;
+  --primary: #ff8c5a;
+  --primary-foreground: #2a0e04;
+  --secondary-foreground: #f7ede4;
+  --muted-foreground: #c2ada0;
+  --accent: rgb(255 140 90 / 0.15);
+  --accent-foreground: #ffd2b8;
+  --accent-2: #e8c46a;
+  --ring: #ff8c5a;
+  --glow: rgb(255 140 90 / 0.38);
+  --backdrop: #15100d;
+  --timer-idle: #f7ede4;
+  --chart-1: #ff8c5a;
+  --chart-2: #e8c46a;
+  --chart-muted: #4a3a32;
+  --tile: rgb(34 25 20 / 0.52);
+  --tile-strong: #221914;
+  --spot: rgb(255 140 90 / 0.08);
+  --spot-edge: rgb(255 140 90 / 0.55);
+  --dot-lit: rgb(255 140 90 / 0.8);
 }
 
 :root {
-  --radius: 0.9rem;
-  --blur: 18px;
+  --radius: 1rem;
+  --blur: 14px;
+  --tile-radius: 1.6rem;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: linear(0, 0.18 5%, 0.6 15%, 0.92 26%, 1.04 37%, 1.03 48%, 1 62%, 1);
 
   --sidebar: var(--card);
   --sidebar-foreground: var(--foreground);
@@ -230,8 +254,8 @@
   --learning-foreground: #1f1300;
 }
 
-/* The light theme needs darker versions to hold contrast on cream. */
-[data-theme="paper"] {
+/* Light themes need darker versions to hold contrast on paper. */
+html.light {
   --known: #047857;
   --known-foreground: #ffffff;
   --learning: #b45309;
@@ -254,6 +278,7 @@
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-2: var(--accent-2);
+  --color-gold: var(--gold);
   --color-destructive: var(--destructive);
   --color-danger: var(--destructive);
   --color-success: var(--success);
@@ -290,10 +315,13 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --font-lcd: var(--font-dseg), var(--font-geist-mono), monospace;
-  --font-dot: var(--font-doto), var(--font-geist-mono), monospace;
+  --font-sans: var(--font-studio-sans), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-studio-serif), ui-serif, Georgia, serif;
+  /* Two families site-wide: "mono" places (scramble, notation, keys) use the grotesk too. */
+  --font-mono: var(--font-studio-sans), ui-sans-serif, system-ui, sans-serif;
+  /* Optional digit faces, downloaded only when chosen in Appearance. */
+  --font-lcd: var(--font-dseg), var(--font-studio-sans), sans-serif;
+  --font-dot: var(--font-doto), var(--font-studio-sans), sans-serif;
 }
 
 @layer base {
@@ -304,18 +332,20 @@
   html {
     -webkit-text-size-adjust: 100%;
     background: var(--backdrop);
-    color-scheme: dark;
+    color-scheme: light;
   }
 
-  html.light {
-    color-scheme: light;
+  html.dark {
+    color-scheme: dark;
   }
 
   body {
     min-height: 100svh;
+    /* Full-bleed rows (the course shelf) never cause a sideways scroll; clip keeps sticky working. */
+    overflow-x: clip;
     background: transparent;
     color: var(--foreground);
-    font-family: var(--font-sans);
+    font-family: var(--font-studio-sans), ui-sans-serif, system-ui, sans-serif;
     font-feature-settings: "ss01", "cv11";
   }
 
@@ -330,10 +360,31 @@
     outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
+  /* Text links and bare buttons get the same rounded halo as everything else. */
+  a:not([class*="rounded"]):focus-visible,
+  button:not([class*="rounded"]):focus-visible {
+    border-radius: 6px;
+    outline-offset: 3px;
+  }
 
   ::selection {
     background: var(--primary);
     color: var(--primary-foreground);
+  }
+
+  /* Editorial headlines: page titles are set in the display serif. */
+  main h1 {
+    font-family: var(--font-studio-serif), ui-serif, Georgia, serif;
+    font-weight: 400;
+    font-synthesis: none;
+    letter-spacing: 0;
+    text-wrap: balance;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 }
 
@@ -343,23 +394,24 @@
   font-feature-settings: "tnum";
 }
 
+/* A quiet label: sentence case, no tracking (Round 2 — calmer than the old uppercase eyebrow). */
 @utility eyebrow {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--muted-foreground);
 }
 
-/* Frosted panel used for every floating surface. */
+/*
+ * Studio surface used for every panel on the site: warm paper tile, hairline
+ * edge, inset top highlight and a long soft shadow. A light blur keeps the
+ * studio light alive behind it.
+ */
+/* v6: no glass. Panels are an outline on the swirl; nothing fills or blurs them. */
 @utility glass {
-  background: var(--card);
-  border: 1px solid var(--border);
-  backdrop-filter: blur(var(--blur)) saturate(140%);
-  -webkit-backdrop-filter: blur(var(--blur)) saturate(140%);
-  box-shadow:
-    0 1px 0 0 rgb(255 255 255 / 0.05) inset,
-    0 20px 50px -24px rgb(0 0 0 / 0.55);
+  background: transparent;
+  border: 1px solid var(--hairline);
 }
 
 @media (pointer: coarse) {
@@ -369,22 +421,127 @@
 }
 
 /*
- * Plain panels where the blur would cost more than it gives: machines with no
+ * Plain chrome where the blur would cost more than it gives: machines with no
  * hardware renderer (set by the appearance provider) and people who asked
- * their system for less transparency. The card colour is made nearly solid so
- * text stays readable over the background (the panel is made more solid, not opaque).
+ * their system for less transparency. Panels are outlines with no blur since
+ * v6, so this now applies to the liquid-glass nav, dock and utility capsules:
+ * they go nearly solid so their text stays readable.
  */
-html[data-effects="low"] .glass {
+html[data-effects="low"] .liquid-glass {
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  background: color-mix(in srgb, var(--card), var(--background) 35%);
+  background: color-mix(in srgb, var(--tile-strong), var(--background) 12%);
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .glass {
+  .liquid-glass {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    background: color-mix(in srgb, var(--card), var(--background) 35%);
+    background: color-mix(in srgb, var(--tile-strong), var(--background) 12%);
+  }
+}
+
+/* Bento tile: an outline at the studio radius, squircle where supported. v6 dropped the glass fill and blur. */
+@utility tile {
+  position: relative;
+  border-radius: var(--tile-radius);
+  background: transparent;
+  border: 1px solid var(--hairline);
+}
+
+@supports (corner-shape: squircle) {
+  .tile {
+    corner-shape: squircle;
+    border-radius: calc(var(--tile-radius) * 1.6);
+  }
+}
+
+/*
+ * Liquid glass for floating chrome (nav capsule, dock, utility capsule):
+ * clear, bright glass with a specular rim. Chromium also bends what is
+ * behind it through the #studio-lens SVG filter (see components/fx/liquid-glass.tsx).
+ */
+@utility liquid-glass {
+  background: color-mix(in oklab, var(--tile-strong) 70%, transparent);
+  border: 1px solid color-mix(in oklab, var(--tile-strong) 70%, transparent);
+  backdrop-filter: blur(16px) saturate(185%) brightness(1.03);
+  -webkit-backdrop-filter: blur(16px) saturate(185%) brightness(1.03);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.75),
+    inset 0 -1px 0 0 rgb(0 0 0 / 0.04),
+    0 0 0 1px var(--hairline),
+    0 10px 30px -14px rgb(23 21 15 / 0.28),
+    0 2px 6px -2px rgb(23 21 15 / 0.08);
+}
+
+html.dark .liquid-glass {
+  background: color-mix(in oklab, var(--tile-strong) 62%, transparent);
+  border-color: rgb(255 255 255 / 0.08);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.1),
+    inset 0 -1px 0 0 rgb(0 0 0 / 0.3),
+    0 0 0 1px rgb(0 0 0 / 0.4),
+    0 14px 36px -14px rgb(0 0 0 / 0.8);
+}
+
+html[data-lens] .liquid-glass {
+  backdrop-filter: url(#studio-lens) blur(14px) saturate(185%) brightness(1.03);
+}
+
+/* No lens on the dock: text scrolling under it should stay calm. */
+html [data-dock] .liquid-glass {
+  background: color-mix(in oklab, var(--tile-strong) 97%, transparent);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.7),
+    0 0 0 1px var(--hairline),
+    0 -6px 24px -10px rgb(23 21 15 / 0.22),
+    0 12px 30px -12px rgb(23 21 15 / 0.3);
+}
+
+html.dark [data-dock] .liquid-glass {
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+    0 0 0 1px rgb(255 255 255 / 0.06),
+    0 -6px 24px -10px rgb(0 0 0 / 0.6),
+    0 14px 36px -14px rgb(0 0 0 / 0.8);
+}
+
+/*
+ * One shared backdrop behind the sticky header and the section index: solid
+ * paper down to just below the index's rule, then a 24 px fade, so scrolled
+ * content never ghosts through the navigation.
+ */
+.studio-topbar {
+  /* Frosted, not solid: the living light shows through, and scrolled content blurs under it. */
+  background: linear-gradient(
+    to bottom,
+    color-mix(in oklab, var(--background) 55%, transparent),
+    color-mix(in oklab, var(--background) 20%, transparent)
+  );
+  -webkit-backdrop-filter: blur(18px) saturate(1.25);
+  backdrop-filter: blur(18px) saturate(1.25);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 28px), transparent 100%);
+}
+
+/* Horizontal strips hint that they scroll by fading an end on phones, only
+   where there is more to see (section-nav.tsx sets the attributes). */
+@media (max-width: 639px) {
+  .fade-x[data-more-end] {
+    mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent 100%);
+  }
+  .fade-x[data-more-start] {
+    mask-image: linear-gradient(to right, transparent 0, #000 14px);
+  }
+  .fade-x[data-more-start][data-more-end] {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 14px,
+      #000 calc(100% - 36px),
+      transparent 100%
+    );
   }
 }
 
@@ -414,6 +571,12 @@ html[data-effects="low"] .glass {
   transition: opacity 200ms ease;
 }
 
+/* Phones: a band of page colour behind the floating nav (components/layout/app-shell.tsx). */
+.dock-scrim {
+  height: calc(7.25rem + env(safe-area-inset-bottom));
+  background: linear-gradient(to bottom, transparent, var(--backdrop) 1.9rem);
+}
+
 /*
  * A card around a timer (skill tests, daily check) drops its frame while a
  * solve is timed. Its backdrop blur would otherwise keep the full-screen
@@ -427,12 +590,263 @@ html[data-effects="low"] .glass {
   -webkit-backdrop-filter: none;
 }
 
-/* The timer takes over the viewport so the digits sit dead center. */
-[data-timer-focus="true"] [data-timer-surface] {
+/*
+ * The timer takes over the viewport so the digits sit dead center. The Studio
+ * timer tile (data-morph) does this itself from React so its frame can morph.
+ */
+[data-timer-focus="true"] [data-timer-surface]:not([data-morph]) {
   position: fixed;
   inset: 0;
   z-index: 60;
   border-radius: 0;
+}
+
+/*
+ * Progressive reveal (Round 2): secondary controls and captions marked
+ * data-reveal="<scope>" appear when you point at, or tab into, the element
+ * marked data-reveal-scope="<scope>". Touch screens (no hover) always show them.
+ */
+@media (hover: hover) and (pointer: fine) {
+  [data-reveal] {
+    opacity: 0;
+    transition: opacity 240ms ease;
+  }
+  [data-reveal-scope="headline"]:is(:hover, :focus-within) [data-reveal="headline"],
+  [data-reveal-scope="cube"]:is(:hover, :focus-within) [data-reveal="cube"],
+  [data-reveal-scope="figures"]:is(:hover, :focus-within) [data-reveal="figures"],
+  [data-reveal-scope="today"]:is(:hover, :focus-within) [data-reveal="today"],
+  [data-reveal-scope="aspect"]:is(:hover, :focus-within) [data-reveal="aspect"],
+  [data-reveal]:focus-visible,
+  [data-reveal]:has(:focus-visible) {
+    opacity: 1;
+  }
+}
+
+/* Phones keep figure captions for the Stats page. */
+@media (max-width: 767px) {
+  [data-reveal="figures"] {
+    display: none;
+  }
+}
+
+/* ─── Studio background layers (components/appearance/app-background.tsx) ─── */
+.studio-grain {
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.09  0 0 0 0 0.08  0 0 0 0 0.06  1.1 0 0 0 -0.5'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  background-size: 240px 240px;
+}
+
+html.dark .studio-grain {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.1 0 0 0 -0.55'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+}
+
+/* Calm behind the scramble: a soft pool of the backdrop colour so the moves read on the swirl (no panel). */
+.scramble-calm {
+  position: relative;
+  isolation: isolate;
+}
+
+.scramble-calm::before {
+  content: "";
+  position: absolute;
+  /* Phones: stay inside the screen (a wider pool made the page scroll sideways). */
+  inset: -1rem 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in oklab, var(--background) 88%, transparent) 0%,
+    color-mix(in oklab, var(--background) 66%, transparent) 60%,
+    transparent 100%
+  );
+}
+
+@media (min-width: 768px) {
+  .scramble-calm::before {
+    inset: -1.25rem -3rem;
+  }
+}
+
+/* Small grey text keeps its edge where it crosses a bright part of the swirl. */
+html.dark .text-muted-foreground {
+  text-shadow: 0 1px 3px rgb(0 0 0 / 0.55);
+}
+
+/* Off the timer, a soft calm down the reading column so text holds on the swirl; the edges stay lively. */
+.backdrop-page-veil {
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    color-mix(in oklab, var(--background) 52%, transparent) 18%,
+    color-mix(in oklab, var(--background) 60%, transparent) 50%,
+    color-mix(in oklab, var(--background) 52%, transparent) 82%,
+    transparent 100%
+  );
+}
+
+@media (max-width: 767px) {
+  .backdrop-page-veil {
+    background: color-mix(in oklab, var(--background) 48%, transparent);
+  }
+}
+
+/* Calm behind the timer digits: the swirl fades to the backdrop colour there. */
+.backdrop-digit-veil {
+  background: radial-gradient(
+    46% 40% at 50% 40%,
+    color-mix(in oklab, var(--background) 80%, transparent) 0%,
+    color-mix(in oklab, var(--background) 45%, transparent) 55%,
+    transparent 100%
+  );
+}
+
+@media (min-width: 1024px) {
+  .backdrop-digit-veil {
+    background: radial-gradient(
+      34% 36% at 39% 50%,
+      color-mix(in oklab, var(--background) 72%, transparent) 0%,
+      color-mix(in oklab, var(--background) 35%, transparent) 55%,
+      transparent 100%
+    );
+  }
+}
+
+/* Kinetic display type. */
+@utility font-display {
+  font-family: var(--font-studio-serif), ui-serif, Georgia, serif;
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  line-height: 0.98;
+}
+
+/* Figures (times, averages, counts): the interface grotesk with tabular numerals. */
+@utility font-figures {
+  font-family: var(--font-studio-sans), ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/*
+ * Calm while timing: decorative CSS animation (marked data-fx) freezes, and
+ * data-fx-hide decorations fade out.
+ */
+[data-timer-focus="true"] [data-fx],
+[data-timer-focus="true"] [data-fx] * {
+  animation-play-state: paused !important;
+}
+
+[data-timer-focus="true"] [data-fx-hide] {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-fx-hide] {
+  transition: opacity 250ms ease;
+}
+
+/*
+ * Page transitions (components/fx/page-transition.tsx): the old page lifts
+ * away, the new one rises into place with a short blur. Header and dock stay
+ * anchored. Never used for timer state changes.
+ */
+::view-transition {
+  pointer-events: none;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
+/* The old page is gone before the new one rises, so they never double-expose. */
+::view-transition-old(.studio-page) {
+  animation: studio-page-out 140ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(.studio-page) {
+  animation: studio-page-in 420ms var(--ease-out-expo) 120ms both;
+}
+
+/* The chrome stays put above both pages: the paper band behind the header
+   (its snapshot has no backdrop to blur, so it gets a solid fill), the
+   section index and the header itself. */
+::view-transition-group(site-topbar),
+::view-transition-group(site-sections),
+::view-transition-group(site-header),
+::view-transition-group(site-dock) {
+  animation: none;
+  z-index: 100;
+}
+::view-transition-group(site-topbar) {
+  z-index: 98;
+}
+::view-transition-group(site-sections) {
+  z-index: 99;
+}
+
+::view-transition-old(site-topbar),
+::view-transition-old(site-sections),
+::view-transition-old(site-header),
+::view-transition-old(site-dock) {
+  display: none;
+}
+
+::view-transition-new(site-topbar),
+::view-transition-new(site-sections),
+::view-transition-new(site-header),
+::view-transition-new(site-dock) {
+  animation: none;
+}
+::view-transition-new(site-topbar) {
+  background: var(--background);
+  mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - 24px), transparent 100%);
+}
+
+/* Theme change: the new theme grows out of the click (components/appearance/theme-reveal.ts). */
+html[data-theme-reveal] * {
+  view-transition-name: none !important;
+}
+
+html[data-theme-reveal]::view-transition-old(root) {
+  animation: none;
+}
+
+html[data-theme-reveal]::view-transition-new(root) {
+  animation: theme-reveal 620ms var(--ease-out-expo) both;
+}
+
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--reveal-x, 50%) var(--reveal-y, 0));
+  }
+  to {
+    clip-path: circle(var(--reveal-r, 150vmax) at var(--reveal-x, 50%) var(--reveal-y, 0));
+  }
+}
+
+@keyframes studio-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes studio-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }
 
 @keyframes solvelab-shimmer {
@@ -530,5 +944,841 @@ html[data-effects="low"] .glass {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Studio timer (components/timer/timer-tile.tsx, timer-stage.tsx) ─── */
+
+/* The digits' box is exactly one em tall, so the cover number and its rule sit where they look. */
+[data-testid="timer-display"] {
+  line-height: 1;
+}
+
+/*
+ * One numeral system for the time (council fixes): the same face, weight and
+ * tabular figures at idle, hold, ready, inspection, running and stopped, so the
+ * number never changes style or width. State shows in colour, the meter and
+ * the field (see .timer-plate below), never in the type.
+ */
+.time-fraction {
+  /* Hundredths at three quarters of the seconds: sub-10 solvers read them most. */
+  font-size: 0.75em;
+}
+
+/* The morphing frame behind the digits: an outline at rest (no glass, v6), the whole page while timing. */
+.timer-plate {
+  background: transparent;
+  border: 1px solid var(--hairline);
+}
+
+.timer-plate[data-focused="true"] {
+  /* A dim veil, not a plain colour: the swirl stays in view behind the digits (owner, 2026-10-01). */
+  background: color-mix(in oklab, var(--tile-strong) 40%, transparent);
+  border-color: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/*
+ * Ready is unmistakable (council fixes, borrowed from Orbit): once a hold arms,
+ * the whole field takes a green wash under the green digits and full green bar.
+ * Holding stays on the plain field. No ornament, just the tint.
+ */
+.timer-plate {
+  transition:
+    background-color 140ms ease,
+    border-color 140ms ease;
+}
+
+[data-timer-tile]:has([data-testid="timer-display"][data-tone="armed"]) > .timer-plate {
+  background: color-mix(in oklab, var(--timer-armed) 12%, var(--tile-strong));
+}
+
+/* Dark themes: mixed into the warm plate the wash turned olive; into a neutral dark it reads as a clear green. */
+html.dark [data-timer-tile]:has([data-testid="timer-display"][data-tone="armed"]) > .timer-plate {
+  background: color-mix(in oklab, var(--timer-armed) 14%, #0d1210);
+}
+
+[data-timer-tile]:has([data-testid="timer-display"][data-tone="armed"])
+  > .timer-plate:not([data-focused="true"]) {
+  border-color: color-mix(in oklab, var(--timer-armed) 32%, transparent);
+}
+
+/* The small "Release to start" label needs a deeper green to hold AA contrast on the light washes. */
+html.light .timer-cue-armed {
+  color: color-mix(in oklab, var(--timer-armed) 85%, black);
+}
+
+/* Everything but the timer recedes while a solve is timed. */
+[data-bento-fade] {
+  transition:
+    opacity 220ms ease,
+    transform 420ms var(--ease-out-expo);
+}
+
+[data-timer-focus="true"] [data-bento-fade] {
+  opacity: 0;
+  transform: scale(0.985);
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    transform 260ms ease;
+}
+
+/* Ghost pace: a hairline that fills in the time of your current average. */
+.ghost-track {
+  background: color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.ghost-fill {
+  transform-origin: left center;
+  animation: ghost-run var(--ghost-ms, 15000ms) linear both;
+}
+
+@keyframes ghost-run {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Scramble moves arrive one after another out of a soft blur. */
+@media (prefers-reduced-motion: no-preference) {
+  .scramble-move {
+    animation: scramble-move-in 460ms var(--ease-out-expo) both;
+    animation-delay: calc(var(--i, 0) * 16ms);
+  }
+}
+
+@keyframes scramble-move-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.28em);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* The preview cube floats a little (its contact shadow floats with it). */
+@media (prefers-reduced-motion: no-preference) {
+  .cube-float {
+    animation: cube-float 6s ease-in-out infinite;
+  }
+}
+
+@keyframes cube-float {
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Celebration chips rise in once the frame has settled after a stop. */
+@media (prefers-reduced-motion: no-preference) {
+  .chip-rise {
+    animation: chip-rise 520ms var(--ease-out-expo) 260ms both;
+  }
+}
+
+@keyframes chip-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Bento tiles blur in once, in order (--d). Backwards fill only, so focus mode can still fade them. */
+@media (prefers-reduced-motion: no-preference) {
+  .bento-in {
+    animation: bento-in 640ms var(--ease-out-expo) backwards;
+    animation-delay: calc(var(--d, 0) * 55ms + 60ms);
+  }
+}
+
+@keyframes bento-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(8px);
+  }
+}
+
+@supports (corner-shape: squircle) {
+  .timer-plate {
+    corner-shape: squircle;
+  }
+}
+
+/*
+ * Studio timer bento (components/timer/timer-workspace.tsx), Round 2: three
+ * surfaces. The cover (scramble headline, the time, one story line, ruled
+ * figures) with one insight strip under it, and the times list on the right:
+ *   tim times / ins times
+ * A session with fewer than five solves shows "Your first five" instead of the strip.
+ */
+@media (min-width: 1024px) {
+  .studio-bento {
+    grid-template-columns: minmax(0, 1fr) clamp(16.5rem, 20vw, 19.5rem);
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "tim times"
+      "ins times";
+  }
+  .studio-bento[data-onboarding] {
+    grid-template-areas:
+      "tim times"
+      "first times";
+  }
+  .studio-bento > .bento-tim {
+    grid-area: tim;
+  }
+  .studio-bento > .bento-times {
+    grid-area: times;
+  }
+  .studio-bento > .bento-ins {
+    grid-area: ins;
+    min-height: clamp(7.5rem, 16svh, 9.5rem);
+  }
+  .studio-bento > .bento-first {
+    grid-area: first;
+  }
+  /* The cover number: bigger than a tile's digits, never scaled by the focus morph. */
+  .timer-cover {
+    --digit-size: clamp(6rem, min(16.5vw, 23.5svh), 13.75rem);
+  }
+  /* Captions hang under the figures (in the cover's bottom padding) so the row stays short. */
+  .timer-cover [data-reveal="figures"] {
+    position: absolute;
+    left: 50%;
+    translate: -50% 0;
+  }
+}
+
+/*
+ * Short laptop screens (1280 × 720): a smaller cover number and a slimmer
+ * strip; the cover keeps the same centred foot as on a desktop.
+ */
+@media (min-width: 1024px) and (max-height: 820px) {
+  .timer-cover {
+    --digit-size: clamp(5rem, min(13vw, 16svh), 9.5rem);
+  }
+  .studio-bento > .bento-ins {
+    min-height: 6.25rem;
+  }
+  .timer-cover .cover-foot-actions {
+    padding-bottom: 0.4rem;
+  }
+  .timer-cover .cover-foot-figures {
+    padding-top: 0.6rem;
+  }
+}
+
+/* The times card below a short list: faint ruled lines that fade out. */
+.times-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 32px,
+    color-mix(in oklab, var(--foreground) 6%, transparent) 32px 33px
+  );
+  mask-image: linear-gradient(to bottom, #000 30%, transparent);
+}
+
+/* Phones and tablets: the cover keeps room for the digits between headline and figures. */
+@media (max-width: 1023px) {
+  .timer-cover [data-timer-surface]:not([data-focused]) {
+    min-height: clamp(9.5rem, 24svh, 15rem);
+  }
+}
+
+/* ─── Personal best: a typographic event ─── */
+
+/* Gold digits (same face and weight as always) and a gold rule drawn once. */
+[data-testid="timer-display"][data-pb] {
+  color: color-mix(in oklab, var(--gold) 88%, var(--foreground));
+  text-shadow: 0 0 60px color-mix(in oklab, var(--gold) 22%, transparent);
+  transition: color 500ms ease;
+}
+
+/* An ink-bleed rule under the digits: gold, drawn left to right once. */
+.pb-rule {
+  position: absolute;
+  left: 0.04em;
+  right: 0.04em;
+  bottom: 4%;
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--gold) 90%, var(--foreground)),
+    var(--gold) 60%,
+    color-mix(in oklab, var(--gold) 30%, transparent)
+  );
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pb-rule {
+    animation: pb-rule 1100ms var(--ease-out-expo) 180ms both;
+  }
+}
+
+@keyframes pb-rule {
+  from {
+    transform: scaleX(0);
+    filter: blur(3px);
+  }
+  to {
+    transform: scaleX(1);
+    filter: none;
+  }
+}
+
+/* A gold line that runs once around the whole cover, then settles to a soft glow. */
+.gold-lap rect {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  opacity: 0.55;
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--gold) 60%, transparent));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .gold-lap rect {
+    animation: gold-lap 1700ms cubic-bezier(0.65, 0, 0.35, 1) 120ms both;
+  }
+}
+
+@keyframes gold-lap {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  75% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.55;
+  }
+}
+
+/* The pull quote rises word-block by word-block after the frame settles. */
+@media (prefers-reduced-motion: no-preference) {
+  .pb-quote > * {
+    animation: story-rise 760ms var(--ease-out-expo) both;
+  }
+  .pb-quote > :nth-child(1) {
+    animation-delay: 240ms;
+  }
+  .pb-quote > :nth-child(2) {
+    animation-delay: 340ms;
+  }
+  .pb-quote > :nth-child(3) {
+    animation-delay: 480ms;
+  }
+  .pb-quote > :nth-child(4) {
+    animation-delay: 600ms;
+  }
+  .story-rise {
+    animation: story-rise 620ms var(--ease-out-expo) 200ms both;
+  }
+  .slot-fill {
+    animation: slot-fill 560ms var(--ease-spring, var(--ease-out-expo)) both;
+  }
+}
+
+@keyframes story-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+    filter: blur(6px);
+  }
+}
+
+@keyframes slot-fill {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+}
+
+/* ─── Stage C: magazine Hub, Stats bento, dialogs and states ─── */
+
+/* Album-cover art (components/hub/cover-art.tsx): numerals scale with the cover, paper grain on top. */
+.cover-art {
+  container-type: inline-size;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.22);
+}
+
+.cover-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.2 0 0 0 -0.45'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  background-size: 160px 160px;
+}
+
+/* Untested stages in the time budget are hatched rather than coloured. */
+.stage-untested {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    color-mix(in oklab, var(--foreground) 12%, transparent) 0 4px,
+    transparent 4px 8px
+  ) !important;
+}
+
+/*
+ * Overlays in the studio: dialogs, sheets and menus are paper cards that rise
+ * over a softly blurred page. Unlayered so they win over the shadcn defaults
+ * without touching each primitive.
+ */
+[data-slot="dialog-overlay"],
+[data-slot="alert-dialog-overlay"],
+[data-slot="sheet-overlay"],
+[data-slot="drawer-overlay"] {
+  background: color-mix(in oklab, var(--background) 38%, rgb(12 11 9 / 0.32));
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+}
+
+[data-slot="dialog-content"],
+[data-slot="alert-dialog-content"] {
+  background: color-mix(in oklab, var(--tile-strong) 95%, transparent);
+  border: 1px solid var(--hairline);
+  border-radius: var(--tile-radius);
+  box-shadow:
+    var(--shadow-float),
+    inset 0 1px 0 rgb(255 255 255 / 0.5);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+
+html.dark [data-slot="dialog-content"],
+html.dark [data-slot="alert-dialog-content"] {
+  box-shadow:
+    var(--shadow-float),
+    inset 0 1px 0 rgb(255 255 255 / 0.06);
+}
+
+[data-slot="dialog-title"],
+[data-slot="alert-dialog-title"],
+[data-slot="sheet-title"],
+[data-slot="empty-title"] {
+  font-family: var(--font-studio-serif), ui-serif, Georgia, serif;
+  font-weight: 400;
+  font-size: 1.85rem;
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+[data-slot="sheet-content"] {
+  background: color-mix(in oklab, var(--tile-strong) 96%, transparent);
+  border-color: var(--hairline);
+  box-shadow: var(--shadow-float);
+  backdrop-filter: blur(22px) saturate(160%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+}
+
+[data-slot="popover-content"],
+[data-slot="dropdown-menu-content"],
+[data-slot="select-content"],
+[data-slot="hover-card-content"] {
+  background: color-mix(in oklab, var(--tile-strong) 96%, transparent);
+  border: 1px solid var(--hairline);
+  border-radius: 1.1rem;
+  box-shadow: var(--shadow-float);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+/* Toasts (sonner): small paper slips with the studio shadow. */
+[data-sonner-toast][data-styled="true"] {
+  background: color-mix(in oklab, var(--tile-strong) 96%, transparent) !important;
+  border: 1px solid var(--hairline) !important;
+  border-radius: 1.1rem !important;
+  box-shadow: var(--shadow-float) !important;
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  font-family: var(--font-studio-sans), ui-sans-serif, sans-serif;
+}
+
+[data-sonner-toast][data-styled="true"] [data-title] {
+  font-weight: 600;
+}
+
+/* Loading: a slow sheen across paper instead of a pulse. */
+[data-slot="skeleton"] {
+  background: color-mix(in oklab, var(--foreground) 6%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-slot="skeleton"] {
+    animation: none;
+    background-image: linear-gradient(
+      100deg,
+      transparent 20%,
+      color-mix(in oklab, var(--tile-strong) 80%, transparent) 50%,
+      transparent 80%
+    );
+    background-size: 220% 100%;
+    background-repeat: no-repeat;
+    animation: studio-sheen 1.6s var(--ease-out-expo, ease) infinite;
+  }
+}
+
+@keyframes studio-sheen {
+  from {
+    background-position: 130% 0;
+  }
+  to {
+    background-position: -30% 0;
+  }
+}
+
+/* Empty states: an editorial note rather than a boxed icon. */
+[data-slot="empty-icon"] {
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+
+/* ─── Round 2: the interactive Hub ─── */
+
+/* Shared-element morphs (React <ViewTransition share="morph">): a cover on the
+   shelf or the spine preview becomes the cover of the page it opens. */
+::view-transition-group(.morph) {
+  animation-duration: 560ms;
+  animation-timing-function: cubic-bezier(0.2, 0.85, 0.2, 1);
+  z-index: 60;
+}
+/* Both snapshots fill the flying box and crop to it, so a wide preview cover
+   and a square page cover blend as one shape instead of two offset cards. */
+::view-transition-old(.morph),
+::view-transition-new(.morph) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* One shape in flight: the pair is clipped to the flying box (so a wider
+   snapshot never shows around it), the old cover is gone in 120 ms and the new
+   one flies at full opacity (no crossfade dip, no filter that would isolate
+   the pair). The shadow rides on the group, not inside the snapshots. */
+::view-transition-image-pair(.morph) {
+  overflow: clip;
+  border-radius: 1.4rem;
+  isolation: auto;
+}
+::view-transition-group(.morph) {
+  border-radius: 1.4rem;
+  box-shadow: var(--shadow-float);
+}
+::view-transition-old(.morph) {
+  animation: studio-morph-old 120ms linear both;
+}
+::view-transition-new(.morph) {
+  animation: none;
+  opacity: 1;
+}
+@keyframes studio-morph-old {
+  to {
+    opacity: 0;
+  }
+}
+/* The covers' lift (shadow, ring) sits on a wrapper outside the named
+   snapshot. While a page transition runs it rides on the flying group, so the
+   pages' own snapshots never show an empty shadow where a cover left or will
+   land. */
+html:active-view-transition:not([data-theme-reveal]) .morph-lift {
+  box-shadow: none;
+}
+
+/* The course shelf: native scroll snap for touch and trackpads; the mouse drag
+   (components/hub/course-shelf.tsx) turns snapping off while it glides. */
+.course-shelf {
+  --shelf-item: clamp(10rem, 17vw, 13.5rem);
+  /* The page's content edge inside a full-bleed shelf (see .page-frame). */
+  --shelf-gutter: max(var(--page-gutter), calc((100vw - 1232px) / 2));
+  scroll-snap-type: x mandatory;
+  cursor: grab;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 var(--fade-l, 0px),
+    #000 calc(100% - var(--fade-r, 0px)),
+    transparent 100%
+  );
+}
+/* Resting places for each cover (set from course-shelf.tsx). */
+.course-shelf-anchor {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  scroll-snap-align: start;
+  pointer-events: none;
+}
+.course-shelf[data-dragging] {
+  scroll-snap-type: none;
+  cursor: grabbing;
+  user-select: none;
+}
+.course-shelf[data-dragging] a {
+  pointer-events: none;
+}
+.course-shelf-card {
+  transform-origin: 50% 60%;
+  backface-visibility: hidden;
+}
+.course-shelf a:focus-visible .cover-art {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+}
+
+/* Pages (not the timer): content at most 1232 px wide, with a gutter that grows
+   with the window, so a laptop keeps the same calm margins as a desktop. */
+:root {
+  --page-gutter: 1rem;
+}
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: clamp(24px, 5vw, 104px);
+  }
+}
+.page-frame {
+  width: 100%;
+  max-width: calc(1232px + 2 * var(--page-gutter));
+  padding-inline: var(--page-gutter);
+}
+
+/* On phones the masthead cover is a small tile beside the title: no label pill. */
+@media (max-width: 767.98px) {
+  .masthead-cover .cover-label {
+    display: none;
+  }
+}
+
+/* The course spine: a hairline track, the ink that draws in on scroll, nodes. */
+.spine-track {
+  background: var(--hairline);
+}
+.spine-ink {
+  background: color-mix(in oklab, var(--foreground) 62%, transparent);
+}
+/* Where the browser has scroll-driven animations, the ink is drawn by the
+   compositor from the list's own view timeline (no work on the main thread). */
+@supports (animation-timeline: view()) {
+  .course-spine {
+    view-timeline: --spine block;
+  }
+  .spine-ink[data-drawn="scroll"] {
+    animation: spine-draw linear both;
+    animation-timeline: --spine;
+    animation-range: cover 35vh cover calc(100% - 55vh);
+  }
+}
+@keyframes spine-draw {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+.spine-node-current::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 999px;
+  border: 1px solid var(--primary);
+  opacity: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .spine-node-current::after {
+    animation: spine-ping 2.8s var(--ease-out-expo) infinite;
+  }
+}
+@keyframes spine-ping {
+  0% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: scale(2.1);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .unit-row[data-pointed] .spine-node {
+    transform: scale(1.14);
+  }
+}
+.unit-link:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 4px;
+  border-radius: 6px;
+}
+
+/* The live cube sits on a soft studio floor and breathes a little. */
+.cube-stage {
+  background:
+    radial-gradient(
+      70% 60% at 50% 40%,
+      color-mix(in oklab, var(--foreground) 5%, transparent),
+      transparent 72%
+    ),
+    color-mix(in oklab, var(--foreground) 2.5%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .lesson-cube-body {
+    animation: cube-float 7s ease-in-out infinite;
+  }
+}
+.fade-x-edges {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 10px,
+    #000 calc(100% - 14px),
+    transparent
+  );
+}
+
+/* Where your time goes: bars change width inside their own layout box only. */
+.budget-bar {
+  contain: layout paint;
+}
+.budget-aim {
+  appearance: none;
+  height: 22px;
+  background: transparent;
+  cursor: pointer;
+}
+.budget-aim::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(
+    to right,
+    var(--foreground) var(--aim, 50%),
+    color-mix(in oklab, var(--foreground) 14%, transparent) var(--aim, 50%)
+  );
+}
+.budget-aim::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--foreground) 14%, transparent);
+}
+.budget-aim::-moz-range-progress {
+  height: 2px;
+  background: var(--foreground);
+}
+.budget-aim::-webkit-slider-thumb {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  margin-top: -7px;
+  border-radius: 999px;
+  background: var(--background);
+  border: 2px solid var(--foreground);
+  box-shadow: 0 2px 8px -2px rgb(0 0 0 / 0.3);
+  transition: transform 160ms var(--ease-out-expo);
+}
+.budget-aim::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--background);
+  border: 2px solid var(--foreground);
+}
+.budget-aim:hover::-webkit-slider-thumb,
+.budget-aim:active::-webkit-slider-thumb {
+  transform: scale(1.2);
+}
+.budget-aim:focus-visible {
+  outline: none;
+}
+.budget-aim:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 45%, transparent);
+}
+
+/* Pocket check: the right answer fills with ink before the card turns over. */
+.pocket-sweep {
+  transition: transform 560ms var(--ease-out-expo);
+}
+
+/* Welcome: the loose stack of covers fans out when you point at it. */
+.welcome-fan-card {
+  rotate: var(--rest);
+  transition:
+    rotate 700ms var(--ease-out-expo),
+    translate 700ms var(--ease-out-expo);
+}
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .welcome-fan:hover .welcome-fan-card {
+    rotate: var(--fan);
+    translate: var(--fan-x) var(--fan-y);
+  }
+}
+
+/* Lesson player: the pile of cards still to come sits under the current one. */
+.lesson-sheet {
+  box-shadow: none;
+  transform-origin: 50% 0;
+}
+
+/* The swipeable lesson cards stay solid so the pile under them doesn't show through. */
+.lesson-sheet,
+.lesson-card {
+  background: var(--background);
+}
+
+/* Navigations and in-page jumps land below the fixed top bar, not under it. */
+html {
+  scroll-padding-top: 7.5rem;
+}
+
+/* Solve profile: Slow / Average / Fast in the summary pick those parts out below. */
+[data-pace-row] {
+  transition: opacity 320ms var(--ease-out-expo);
+}
+[data-pace-filter="slow"] [data-pace-row]:not([data-pace-row="slow"]),
+[data-pace-filter="average"] [data-pace-row]:not([data-pace-row="average"]),
+[data-pace-filter="fast"] [data-pace-row]:not([data-pace-row="fast"]) {
+  opacity: 0.26;
+}
+
+/* Spine contents: one lit row at a time. The row you point at or tab to wins;
+   "Up next" keeps its label but gives up its fill. */
+.step-list:has(.step-row:is(:hover, :focus-visible))
+  .step-row[data-state="next"]:not(:hover):not(:focus-visible) {
+  background: transparent;
+}
+
+/* A loading outline that waits 300 ms before it shows, and never pulses. */
+.quiet-placeholder {
+  animation: quiet-placeholder-in 240ms ease 300ms both;
+}
+@keyframes quiet-placeholder-in {
+  from {
+    opacity: 0;
   }
 }

@@ -122,7 +122,7 @@ export function TestTimerCard({
     <section
       aria-label="Timer"
       data-focus-shell
-      className="grid gap-3 rounded-3xl p-3 glass transition-[background-color,border-color,box-shadow] duration-200 sm:p-4"
+      className="tile grid gap-3 p-3 transition-[background-color,border-color,box-shadow] duration-200 sm:p-4"
     >
       {given ? (
         <ScrambleBar

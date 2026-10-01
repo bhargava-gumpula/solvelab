@@ -1,5 +1,6 @@
 "use client";
 
+import { MotionConfig } from "motion/react";
 import { AppearanceProvider } from "@/components/appearance/appearance-provider";
 import { AppearanceSync } from "@/components/appearance/appearance-sync";
 import { AuthProvider } from "@/components/auth/auth-provider";
@@ -15,20 +16,23 @@ import { TrainingDataSync } from "@/components/training-data/training-data-sync"
 export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <AppearanceProvider>
-      <TooltipProvider delayDuration={250}>
-        <AuthProvider>
-          <SignInReturn />
-          <StorageProvider>
-            <AppearanceSync />
-            <TrainingDataSync />
-            <TimerDeviceProvider>
-              <AccountSyncProvider>{children}</AccountSyncProvider>
-            </TimerDeviceProvider>
-          </StorageProvider>
-        </AuthProvider>
-        <Toaster position="bottom-center" />
-        <ServiceWorker />
-      </TooltipProvider>
+      {/* Reduced motion drops movement site-wide and keeps fades. */}
+      <MotionConfig reducedMotion="user">
+        <TooltipProvider delayDuration={250}>
+          <AuthProvider>
+            <SignInReturn />
+            <StorageProvider>
+              <AppearanceSync />
+              <TrainingDataSync />
+              <TimerDeviceProvider>
+                <AccountSyncProvider>{children}</AccountSyncProvider>
+              </TimerDeviceProvider>
+            </StorageProvider>
+          </AuthProvider>
+          <Toaster position="bottom-center" />
+          <ServiceWorker />
+        </TooltipProvider>
+      </MotionConfig>
     </AppearanceProvider>
   );
 }

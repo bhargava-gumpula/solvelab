@@ -41,27 +41,45 @@ describe("appearance preferences", () => {
   });
 
   it("resolves Match system to a dark or light preset", () => {
-    expect(resolveTheme("system", true)).toBe("matcha");
+    // v6: Terracotta is the dark default (owner, 2026-09-30).
+    expect(resolveTheme("system", true)).toBe("ember");
     expect(resolveTheme("system", false)).toBe("paper");
-    expect(resolveTheme("glacier", false)).toBe("glacier");
+    expect(resolveTheme("paper", true)).toBe("paper");
+  });
+
+  it("opens a saved Porcelain as Linen (the theme was removed)", () => {
+    expect(parseAppearance(JSON.stringify({ theme: "glacier", digitFont: "dot" }))).toMatchObject({
+      theme: "paper",
+      digitFont: "dot",
+    });
+    // Only real retired ids map; anything else still falls back to the defaults.
+    expect(parseAppearance(JSON.stringify({ theme: "constructor" }))).toEqual(DEFAULT_APPEARANCE);
+  });
+
+  it("draws Sage after dark and Linen as the one light paper", () => {
+    expect(THEMES.find((theme) => theme.id === "matcha")?.mode).toBe("dark");
+    expect(THEMES.filter((theme) => theme.mode === "light").map((theme) => theme.id)).toEqual([
+      "paper",
+    ]);
   });
 
   it("defines every preset exactly once with a usable background", () => {
     expect(new Set(THEMES.map((theme) => theme.id)).size).toBe(THEMES.length);
     for (const theme of THEMES) {
-      if (theme.background.kind === "mesh")
-        expect(theme.background.colors.length).toBeGreaterThanOrEqual(4);
+      if (theme.background.kind === "studio") {
+        expect(theme.background.aurora).toHaveLength(2);
+        expect(theme.background.rayStrength).toBeGreaterThan(0);
+      }
     }
   });
 
   it("shows unique labels for every preset", () => {
     expect(THEMES.map((theme) => theme.label)).toEqual([
-      "Ion",
-      "Forge",
-      "Fjord",
-      "Sencha",
-      "Graphite",
       "Linen",
+      "Sage",
+      "Ink",
+      "Nocturne",
+      "Terracotta",
     ]);
   });
 });
@@ -88,8 +106,23 @@ describe("appearance boot script", () => {
     delete document.documentElement.dataset.theme;
     localStorage.setItem(APPEARANCE_STORAGE_KEY, "{broken");
     runBootScript(true);
+    // Corrupt storage falls back to the default theme, Terracotta (dark).
+    expect(document.documentElement.dataset.theme).toBe("ember");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+  });
+
+  it("opens a saved Porcelain as Linen and Sage dark, with no light flash for Sage", () => {
+    localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify({ theme: "glacier" }));
+    runBootScript(true);
     expect(document.documentElement.dataset.theme).toBe("paper");
     expect(document.documentElement.classList.contains("light")).toBe(true);
+
+    document.documentElement.className = "";
+    localStorage.setItem(APPEARANCE_STORAGE_KEY, JSON.stringify({ theme: "matcha" }));
+    runBootScript(false);
+    expect(document.documentElement.dataset.theme).toBe("matcha");
+    expect(document.documentElement.classList.contains("dark")).toBe(true);
+    expect(document.documentElement.classList.contains("light")).toBe(false);
   });
 });
 

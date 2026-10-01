@@ -28,6 +28,7 @@ import {
   type ImportMode,
 } from "@/lib/export/backup";
 import { getRepositories } from "@/lib/storage";
+import { plural } from "@/lib/utils";
 import { DATABASE_VERSION } from "@/lib/storage/database";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useSettings } from "@/hooks/use-local-data";
@@ -54,7 +55,7 @@ export function DataSection() {
       link.download = backupFileName();
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      toast.success(`Exported ${backup.data.solves.length} solves`);
+      toast.success(`Exported ${plural(backup.data.solves.length, "solve")}`);
     } catch {
       toast.error("The backup couldn’t be created");
     }
@@ -79,7 +80,7 @@ export function DataSection() {
     try {
       const summary = await restoreBackup(getRepositories().db, pending, mode);
       toast.success(
-        `Imported ${summary.solvesAdded} solves and ${summary.sessionsAdded} sessions` +
+        `Imported ${plural(summary.solvesAdded, "solve")} and ${plural(summary.sessionsAdded, "session")}` +
           (summary.solvesSkipped ? ` · ${summary.solvesSkipped} already present` : ""),
       );
       setPending(null);
@@ -161,7 +162,7 @@ export function DataSection() {
             <AlertDialogTitle>Import this backup?</AlertDialogTitle>
             <AlertDialogDescription>
               {pending &&
-                `${pending.data.solves.length} solves in ${pending.data.sessions.length} sessions, exported ${new Date(
+                `${plural(pending.data.solves.length, "solve")} in ${plural(pending.data.sessions.length, "session")}, exported ${new Date(
                   pending.exportedAt,
                 ).toLocaleString()}.`}
             </AlertDialogDescription>

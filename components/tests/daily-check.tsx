@@ -209,14 +209,14 @@ function DailyCheckBody({
 
   return (
     <div className="grid gap-4">
-      <section className="rounded-3xl p-5 glass md:p-6" data-focus-hide>
+      <section className="tile p-5 md:p-6" data-focus-hide>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="max-w-2xl min-w-0">
             <p className="eyebrow text-primary">
               Daily check · test {index + 1} of {DAILY_TESTS.length}
             </p>
             <h1
-              className="mt-1 text-2xl font-semibold tracking-tight"
+              className="mt-1 font-display text-[2.4rem] leading-[1.02]"
               data-testid="daily-test-title"
             >
               {testId ? testTitle(testId) : "All done"}
@@ -312,9 +312,9 @@ function DailyIntro({
 
   return (
     <div className="grid gap-4">
-      <section className="rounded-3xl p-6 glass md:p-8" data-testid="daily-intro">
+      <section className="tile p-6 md:p-8" data-testid="daily-intro">
         <p className="eyebrow text-primary">About 5 minutes</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">Daily check</h1>
+        <h1 className="mt-1 font-display text-[2.4rem] leading-[1.02]">Daily check</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           Two attempts of each test, one after another. You’ll see how today compares with your
           solve profile, and your attempts feed into it a little at a time: each check joins the
@@ -352,7 +352,7 @@ function DailyIntro({
 
 export function ReminderToggle({ settings }: { settings: UserSettings }) {
   return (
-    <section className="flex items-start justify-between gap-6 rounded-3xl p-5 glass">
+    <section className="tile flex items-start justify-between gap-6 p-5">
       <div>
         <Label htmlFor="daily-reminder" className="text-sm font-medium">
           Remind me each day
@@ -383,11 +383,7 @@ function DailyAttempts({
 }) {
   const { formatTime } = useTimeFormat();
   return (
-    <section
-      aria-labelledby="daily-attempts-heading"
-      className="rounded-3xl p-4 glass md:p-5"
-      data-focus-hide
-    >
+    <section aria-labelledby="daily-attempts-heading" className="tile p-4 md:p-5" data-focus-hide>
       <h2 id="daily-attempts-heading" className="text-sm font-semibold">
         Your attempts
       </h2>
@@ -465,9 +461,9 @@ function DailyResults({
 
   return (
     <div className="grid gap-4" data-testid="daily-results">
-      <section className="rounded-3xl p-6 glass md:p-8">
+      <section className="tile p-6 md:p-8">
         <p className="eyebrow text-primary">Daily check done · {dayLabel(check.day, today)}</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+        <h1 className="mt-1 font-display text-[2.4rem] leading-[1.02]">
           {compared.length === 0
             ? "Here’s today’s read."
             : `Better than your profile on ${better} of ${compared.length} parts.`}
@@ -484,7 +480,7 @@ function DailyResults({
         ) : null}
       </section>
 
-      <section aria-labelledby="daily-compare-heading" className="rounded-3xl p-4 glass md:p-5">
+      <section aria-labelledby="daily-compare-heading" className="tile p-4 md:p-5">
         <h2 id="daily-compare-heading" className="px-1 text-base font-semibold">
           Today vs your profile
         </h2>
@@ -509,7 +505,7 @@ function DailyResults({
         </ul>
       </section>
 
-      <section className="flex flex-wrap items-center gap-2 rounded-3xl p-5 glass">
+      <section className="tile flex flex-wrap items-center gap-2 p-5">
         <Button asChild size="lg">
           <Link href={PROFILE_HREF}>See your solve profile</Link>
         </Button>

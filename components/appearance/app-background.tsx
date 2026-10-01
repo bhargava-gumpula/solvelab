@@ -1,89 +1,83 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
+import { useBackdropVariant } from "@/hooks/use-backdrop-variant";
 import { useIsTimerFocused } from "@/hooks/use-focus-mode";
 import { supportsHardwareWebGL } from "@/lib/appearance/gpu";
-import { cn } from "@/lib/utils";
 import { useAppearance } from "./appearance-provider";
 
 /*
- * Animated mesh-gradient background (WebGL, from @paper-design/shaders — the
- * shader used by 21st.dev's shader background components). A CSS gradient of
- * the same colors sits underneath as the fallback and first paint.
+ * The Studio background, back to front:
+ *   1. a static CSS paint of the theme's swirl tints (first paint, no
+ *      hardware WebGL, reduced motion, or animation turned off);
+ *   2. the swirl shader (components/fx/swirl-backdrop.tsx), ?bg= picks one;
+ *   3. on the timer, a soft veil of the backdrop colour behind the digits;
+ *   4. static paper grain;
+ *   5. a scrim that dims everything while a solve is held or timed.
+ * The shader stops completely (speed 0) the moment a solve is held and stays
+ * stopped while it runs; the browser pauses it when the tab is hidden.
+ * Nothing in the background reacts to the pointer.
  */
-const MeshGradient = dynamic(
-  () => import("@paper-design/shaders-react").then((module) => module.MeshGradient),
+const SwirlBackdrop = dynamic(
+  () => import("@/components/fx/swirl-backdrop").then((module) => module.SwirlBackdrop),
   { ssr: false },
 );
 
 export function AppBackground() {
   const { theme, preferences, reducedMotion, ready } = useAppearance();
   const focused = useIsTimerFocused();
+  const variant = useBackdropVariant();
+  const pathname = usePathname();
+  const onTimer = pathname === "/" || pathname.startsWith("/timer");
+  // The Learning Hub keeps the original look (no reading veil); lessons keep the calm column.
+  const inHub = pathname.startsWith("/hub") && !pathname.startsWith("/hub/lesson");
   const background = theme.background;
+  const studio = background.kind === "studio" ? background : null;
+  const base = theme.swatch[0];
   const useShader =
     ready &&
-    background.kind === "mesh" &&
+    studio !== null &&
     preferences.animatedBackground &&
     !reducedMotion &&
     supportsHardwareWebGL();
-  const paused = Boolean(preferences.pauseBackgroundWhileSolving && focused);
 
-  const fallback =
-    background.kind === "mesh"
-      ? `radial-gradient(60% 50% at 20% 20%, ${background.colors[1]} 0%, transparent 70%),
-         radial-gradient(50% 45% at 85% 30%, ${background.colors[2]} 0%, transparent 70%),
-         radial-gradient(60% 55% at 60% 90%, ${background.colors[3]} 0%, transparent 70%),
-         ${background.colors[0]}`
-      : undefined;
+  const fallback = studio
+    ? `radial-gradient(60% 55% at 12% 6%, ${studio.swirl[1]} 0%, transparent 72%),
+       radial-gradient(55% 50% at 92% 90%, ${studio.swirl[3]} 0%, transparent 70%),
+       radial-gradient(50% 45% at 80% 12%, ${studio.swirl[2]} 0%, transparent 70%),
+       radial-gradient(70% 60% at 30% 95%, ${studio.swirl[0]} 0%, transparent 75%),
+       ${base}`
+    : undefined;
 
   return (
     <div
       aria-hidden
+      data-studio-backdrop
+      data-backdrop-variant={useShader ? variant : "static"}
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-background"
     >
-      {ready && background.kind === "mesh" && (
-        <>
-          <div className="absolute inset-0" style={{ background: fallback }} />
-          {useShader ? (
-            <MeshGradient
-              key={theme.id}
-              className="absolute inset-0 h-full w-full"
-              colors={background.colors}
-              distortion={background.distortion}
-              swirl={background.swirl}
-              grainMixer={0}
-              grainOverlay={background.grain}
-              speed={paused ? 0 : background.speed}
-              // A soft gradient loses nothing at lower resolution; this keeps GPU cost small.
-              maxPixelCount={960 * 540}
-              minPixelRatio={1}
-            />
-          ) : null}
-        </>
-      )}
-      {ready && background.kind === "solid" && (
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(80% 60% at 50% 0%, rgb(255 255 255 / 0.05), transparent 70%)",
-          }}
+      {ready ? <div className="absolute inset-0" style={{ background: fallback }} /> : null}
+      {useShader && studio ? (
+        <SwirlBackdrop
+          key={`${theme.id}-${variant}`}
+          variant={variant}
+          base={base}
+          tints={studio.swirl}
+          paused={focused}
+          className="absolute inset-0 h-full w-full animate-in duration-1000 fade-in"
         />
+      ) : null}
+      {onTimer ? (
+        <div className="backdrop-digit-veil absolute inset-0" />
+      ) : inHub ? null : (
+        <div className="backdrop-page-veil absolute inset-0" />
       )}
-      {/* Vignette keeps text readable over bright spots and dims during a solve. */}
+      <div className="studio-grain absolute inset-0" />
       <div
-        className={cn(
-          "absolute inset-0 transition-opacity duration-500",
-          theme.mode === "dark"
-            ? "bg-[radial-gradient(120%_90%_at_50%_45%,transparent_40%,rgb(0_0_0/0.55)_100%)]"
-            : "bg-[radial-gradient(120%_90%_at_50%_45%,transparent_50%,rgb(0_0_0/0.06)_100%)]",
-        )}
-      />
-      <div
-        className={cn(
-          "absolute inset-0 bg-background transition-opacity duration-500",
-          focused ? "opacity-45" : "opacity-0",
-        )}
+        data-backdrop-scrim
+        className="absolute inset-0 bg-background transition-opacity duration-200"
+        style={{ opacity: focused && preferences.pauseBackgroundWhileSolving ? 0.2 : 0 }}
       />
     </div>
   );

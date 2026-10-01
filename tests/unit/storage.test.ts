@@ -625,13 +625,23 @@ describe("settings", () => {
 
   it("adopts this device's appearance once, without making the settings look newer", async () => {
     const before = await db.settings.get("preferences");
-    await repos.settings.adoptAppearance({ ...DEFAULT_APPEARANCE, theme: "glacier" });
+    await repos.settings.adoptAppearance({ ...DEFAULT_APPEARANCE, theme: "matcha" });
     const adopted = await db.settings.get("preferences");
-    expect(adopted?.appearance?.theme).toBe("glacier");
+    expect(adopted?.appearance?.theme).toBe("matcha");
     expect(adopted?.updatedAt).toBe(before?.updatedAt);
 
     await repos.settings.adoptAppearance({ ...DEFAULT_APPEARANCE, theme: "paper" });
-    expect((await repos.settings.get()).appearance?.theme).toBe("glacier");
+    expect((await repos.settings.get()).appearance?.theme).toBe("matcha");
+  });
+
+  it("reads a stored Porcelain appearance as Linen instead of dropping it", async () => {
+    await db.settings.update("preferences", {
+      appearance: {
+        ...DEFAULT_APPEARANCE,
+        theme: "glacier",
+      } as unknown as typeof DEFAULT_APPEARANCE,
+    });
+    expect((await repos.settings.get()).appearance?.theme).toBe("paper");
   });
 });
 

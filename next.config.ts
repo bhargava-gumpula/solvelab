@@ -17,6 +17,7 @@ const basePath = process.env.SOLVELAB_BASE_PATH?.replace(/\/$/, "") || "";
 const nextConfig: NextConfig = {
   output: "export",
   trailingSlash: true,
+  devIndicators: false,
   basePath: basePath || undefined,
   env: { NEXT_PUBLIC_BASE_PATH: basePath, NEXT_PUBLIC_APP_VERSION: version },
 };

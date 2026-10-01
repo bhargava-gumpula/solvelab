@@ -16,8 +16,8 @@ export default function LearnPage() {
       <div className="grid gap-10">
         <LearnLibrary />
         <section aria-labelledby="lessons-heading">
-          <h2 id="lessons-heading" className="mb-1 text-base font-semibold">
-            The method itself
+          <h2 id="lessons-heading" className="mb-1 font-display text-[2rem] leading-none">
+            The method <span className="italic">itself</span>
           </h2>
           <p className="mb-4 text-sm text-muted-foreground">
             Short lessons for learning to solve the cube and then learning CFOP. If you already

@@ -134,13 +134,14 @@ export function RecognitionDrill({
       <Shell title={title} backHref={backHref}>
         <div className="grid gap-5 text-center" data-testid="recognition-intro">
           <motion.span
-            className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary/15 text-primary"
-            animate={{ scale: [1, 1.08, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+            className="mx-auto grid size-14 place-items-center rounded-full bg-primary/10 text-primary"
+            initial={{ scale: 0.6, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 220, damping: 16 }}
           >
-            <Eye className="size-8" />
+            <Eye className="size-6" />
           </motion.span>
-          <h1 className="text-3xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="font-display text-[2.9rem] leading-[0.98]">{title}</h1>
           <p className="mx-auto max-w-md text-muted-foreground">
             {DECK_SIZE} cases, one at a time.{" "}
             {copy.allSides
@@ -180,7 +181,7 @@ export function RecognitionDrill({
             >
               <Trophy className="size-8" />
             </motion.span>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight">
+            <h1 className="mt-4 font-display text-[2.9rem] leading-[0.98]">
               {right.length} of {results.length} right
             </h1>
           </div>
@@ -221,7 +222,7 @@ export function RecognitionDrill({
   return (
     <Shell title={title} backHref={backHref}>
       <div className="mb-4 flex items-center gap-3">
-        <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-muted">
+        <div className="h-[3px] flex-1 overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)]">
           <motion.div
             className="h-full rounded-full bg-primary"
             animate={{ width: `${(position / deck.length) * 100}%` }}
@@ -243,14 +244,35 @@ export function RecognitionDrill({
           className="grid gap-5"
           data-testid="recognition-card"
         >
-          <div className="mx-auto w-56 rounded-3xl p-4 glass">
-            <CaseDiagram
-              facelets={card!.facelets}
-              kind={card!.kind}
-              showArrows={false}
-              hiddenSides={copy.allSides ? [] : OUT_OF_VIEW}
-              title={copy.prompt}
-            />
+          <div className="relative mx-auto w-56">
+            <div className="tile p-4">
+              <CaseDiagram
+                facelets={card!.facelets}
+                kind={card!.kind}
+                showArrows={false}
+                hiddenSides={copy.allSides ? [] : OUT_OF_VIEW}
+                title={copy.prompt}
+              />
+            </div>
+            {/* How long that one took, the moment you answer. */}
+            <AnimatePresence>
+              {chosen !== null && results.length ? (
+                <motion.span
+                  initial={{ opacity: 0, y: 6, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  className={cn(
+                    "absolute -top-3 -right-3 rounded-full px-2.5 py-1 font-figures tabular text-xs shadow-[var(--shadow-tile)]",
+                    chosen === card!.answer
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-foreground text-background",
+                  )}
+                  aria-live="polite"
+                >
+                  {(results[results.length - 1]!.ms / 1000).toFixed(2)} s
+                </motion.span>
+              ) : null}
+            </AnimatePresence>
           </div>
           <div className="grid grid-cols-2 gap-2.5">
             {card!.options.map((option, choice) => {
@@ -269,13 +291,12 @@ export function RecognitionDrill({
                     answered && choice === chosen && !isAnswer ? { x: [0, -8, 8, -4, 0] } : {}
                   }
                   className={cn(
-                    "flex items-center gap-2 rounded-2xl border-2 px-3 py-3 text-left text-sm font-semibold transition-colors",
-                    !answered && "hover:border-primary/60 hover:bg-primary/5",
-                    answered && isAnswer && "border-[var(--known)] bg-[var(--known)]/15",
-                    answered &&
-                      choice === chosen &&
-                      !isAnswer &&
-                      "border-destructive bg-destructive/10",
+                    "flex items-center gap-2 rounded-2xl border px-3 py-3 text-left text-sm font-medium transition-colors",
+                    !answered &&
+                      "border-[var(--hairline)] hover:border-foreground/30 hover:bg-[color-mix(in_oklab,var(--foreground)_3%,transparent)]",
+                    answered && isAnswer && "border-primary bg-primary/10",
+                    answered && choice === chosen && !isAnswer && "border-foreground/60",
+                    answered && choice !== chosen && !isAnswer && "opacity-45",
                   )}
                 >
                   <span className="grid size-6 place-items-center rounded-lg border text-xs">
@@ -311,16 +332,16 @@ function Shell({
           <ArrowLeft /> Back
         </Link>
       </Button>
-      <section className="rounded-3xl p-6 glass md:p-8">{children}</section>
+      <section className="tile p-6 md:p-8">{children}</section>
     </div>
   );
 }
 
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border bg-background/40 p-4 text-center">
+    <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--tile-strong)] p-4 text-center">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{children}</p>
+      <p className="mt-1 font-display tabular text-[2rem] leading-tight">{children}</p>
     </div>
   );
 }
@@ -341,7 +362,7 @@ function CaseRow({
         {results.map((result, index) => (
           <div
             key={`${result.card.caseId}-${index}`}
-            className="rounded-2xl border bg-background/40 p-2 text-center"
+            className="rounded-2xl border border-[var(--hairline)] bg-[var(--tile-strong)] p-2 text-center"
           >
             <CaseDiagram
               facelets={result.card.facelets}

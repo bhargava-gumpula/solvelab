@@ -9,9 +9,8 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { DIGIT_FONTS, TIME_DECIMALS } from "@/lib/appearance/preferences";
 import { THEMES } from "@/lib/appearance/themes";
 import { cn } from "@/lib/utils";
+import { revealOrigin, revealTheme } from "./theme-reveal";
 import { useAppearance } from "./appearance-provider";
-
-export const PANEL_LAYOUT_RESET_EVENT = "solvelab:reset-panels";
 
 const DIGIT_CLASS: Record<string, string> = {
   clean: "font-mono",
@@ -43,20 +42,59 @@ export function AppearanceControls() {
                 role="radio"
                 aria-checked={selected}
                 aria-label={option.label}
-                onClick={() => update({ theme: option.id })}
+                onClick={(event) =>
+                  revealTheme(option.id, revealOrigin(event), () => update({ theme: option.id }))
+                }
                 className={cn(
                   "group relative overflow-hidden rounded-xl border text-left transition-transform hover:-translate-y-0.5",
                   selected ? "border-primary ring-2 ring-primary/50" : "border-border",
                 )}
               >
+                {/* A tiny studio: the paper, its light, one tile and the accent. */}
                 <span
                   aria-hidden
-                  className="block h-16 w-full"
+                  className="relative block h-16 w-full overflow-hidden"
                   style={{
-                    background: `radial-gradient(70% 90% at 25% 30%, ${option.swatch[1]} 0%, transparent 70%),
-                      radial-gradient(60% 80% at 85% 80%, ${option.swatch[2]} 0%, transparent 70%), ${option.swatch[0]}`,
+                    background: `radial-gradient(60% 70% at 50% -20%, ${
+                      option.mode === "light" ? "#ffffff" : "rgb(255 255 255 / 0.18)"
+                    } 0%, transparent 70%),
+                      radial-gradient(55% 80% at 10% 10%, color-mix(in oklab, ${option.swatch[1]} 22%, transparent) 0%, transparent 70%),
+                      radial-gradient(55% 80% at 95% 95%, color-mix(in oklab, ${option.swatch[2]} 26%, transparent) 0%, transparent 70%), ${option.swatch[0]}`,
                   }}
-                />
+                >
+                  <span
+                    className="absolute top-3 left-3 flex h-10 w-[58%] flex-col justify-center gap-1.5 rounded-lg px-2.5 transition-transform duration-300 group-hover:-translate-y-0.5"
+                    style={{
+                      background:
+                        option.mode === "light"
+                          ? "rgb(255 253 249 / 0.9)"
+                          : "rgb(255 255 255 / 0.07)",
+                      boxShadow:
+                        option.mode === "light"
+                          ? "0 6px 14px -8px rgb(0 0 0 / 0.25)"
+                          : "inset 0 1px 0 rgb(255 255 255 / 0.08)",
+                    }}
+                  >
+                    <span
+                      className="block h-1.5 w-3/4 rounded-full"
+                      style={{
+                        background: option.mode === "light" ? "#17150f" : "#f3f0ea",
+                        opacity: 0.85,
+                      }}
+                    />
+                    <span
+                      className="block h-1 w-1/2 rounded-full"
+                      style={{
+                        background: option.mode === "light" ? "#17150f" : "#f3f0ea",
+                        opacity: 0.3,
+                      }}
+                    />
+                  </span>
+                  <span
+                    className="absolute right-3 bottom-3 block h-3 w-7 rounded-full"
+                    style={{ background: option.swatch[1] }}
+                  />
+                </span>
                 <span className="flex items-center justify-between gap-2 bg-card px-2.5 py-2">
                   <span className="min-w-0">
                     <span className="block text-sm font-medium">{option.label}</span>
@@ -82,7 +120,9 @@ export function AppearanceControls() {
           role="radio"
           aria-checked={preferences.theme === "system"}
           aria-label="Match system"
-          onClick={() => update({ theme: "system" })}
+          onClick={(event) =>
+            revealTheme("system", revealOrigin(event), () => update({ theme: "system" }))
+          }
           className={cn(
             "mt-2.5 flex w-full items-center gap-3 rounded-xl border px-3 py-2.5 text-left text-sm transition-colors hover:bg-muted",
             preferences.theme === "system"
@@ -94,7 +134,7 @@ export function AppearanceControls() {
           <span className="flex-1">
             Match system
             <span className="block text-[11px] text-muted-foreground">
-              Sencha when dark, Linen when light
+              Ink when dark, Linen when light
             </span>
           </span>
           {preferences.theme === "system" && <Check className="size-4 text-primary" />}
@@ -242,13 +282,6 @@ export function AppearanceControls() {
             </ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <button
-          type="button"
-          onClick={() => window.dispatchEvent(new Event(PANEL_LAYOUT_RESET_EVENT))}
-          className="justify-self-start text-sm text-primary underline-offset-4 hover:underline"
-        >
-          Reset panel positions
-        </button>
       </section>
     </div>
   );

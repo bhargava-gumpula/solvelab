@@ -196,10 +196,10 @@ await shoot("timer-ember-lcd", {
   appearance: { theme: "ember", digitFont: "lcd" },
   run: timer,
 });
-await shoot("timer-glacier-dot", {
+await shoot("timer-paper-dot", {
   width: 1440,
   height: 900,
-  appearance: { theme: "glacier", digitFont: "dot" },
+  appearance: { theme: "paper", digitFont: "dot" },
   run: timer,
 });
 await shoot("timer-paper", {

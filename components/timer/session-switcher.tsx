@@ -15,13 +15,21 @@ import {
 import { useSessions } from "@/hooks/use-local-data";
 import { eventInfo } from "@/lib/cube/events";
 import { getRepositories } from "@/lib/storage";
+import { cn } from "@/lib/utils";
 import type { Session } from "@/types/domain";
 import { SessionManagerDialog } from "./session-manager-dialog";
 
 export const SESSION_MENU_EVENT = "solvelab:session-menu";
 export const NEW_SESSION_EVENT = "solvelab:new-session";
 
-export function SessionSwitcher({ active }: { active: Session | undefined }) {
+export function SessionSwitcher({
+  active,
+  className = "glass",
+}: {
+  active: Session | undefined;
+  /** Surface classes for the trigger (a glass chip by default). */
+  className?: string;
+}) {
   const sessions = useSessions();
   const [managerOpen, setManagerOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -61,10 +69,9 @@ export function SessionSwitcher({ active }: { active: Session | undefined }) {
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className="h-9 max-w-64 justify-between gap-2 rounded-full px-3.5 glass"
+            className={cn("h-9 max-w-64 justify-between gap-2 rounded-full px-3.5", className)}
             aria-label="Current session"
           >
-            <span className="size-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
             <span className="truncate">{active?.name ?? "Loading…"}</span>
             <ChevronsUpDown className="text-muted-foreground" />
           </Button>

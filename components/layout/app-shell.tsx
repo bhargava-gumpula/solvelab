@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Command as CommandIcon, Keyboard, Layers3, Palette, Settings2, Timer } from "lucide-react";
+import { Keyboard, Layers3, Palette, Search, Settings2, Timer } from "lucide-react";
 import { AccountButton } from "@/components/auth/account-button";
 import { AppBackground } from "@/components/appearance/app-background";
 import { AppearanceSheet } from "@/components/appearance/appearance-sheet";
@@ -28,7 +28,10 @@ import { useAuth } from "@/components/auth/auth-provider";
 import type { Command } from "@/lib/commands/registry";
 import { THEMES } from "@/lib/appearance/themes";
 import { cn } from "@/lib/utils";
+import { revealTheme } from "@/components/appearance/theme-reveal";
 import { LegalLinks } from "@/components/legal/legal-links";
+import { LensFilter } from "@/components/fx/liquid-glass";
+import { PageTransition } from "@/components/fx/page-transition";
 import { BrandMark } from "./brand-mark";
 import { CommandPalette } from "./command-palette";
 import { NavPill } from "./nav-pill";
@@ -47,6 +50,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const dailyDue = useDailyCheckDue();
   const navAlerts = dailyDue ? { "/hub": "Today’s daily check is waiting" } : undefined;
   const tab = tabOf(pathname);
+  // The lesson player has its own bar and a close button; no second bar under it on phones.
+  const inLesson = pathname.startsWith("/hub/lesson/");
 
   // The site reopens on the tab you were last on, on this device only.
   useEffect(() => {
@@ -129,7 +134,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         label: `Theme: ${theme.label}`,
         group: "Appearance" as const,
         keywords: ["theme", "color", theme.description],
-        run: () => update({ theme: theme.id }),
+        run: () => revealTheme(theme.id, null, () => update({ theme: theme.id })),
       })),
     ],
     [router, update],
@@ -139,11 +144,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AppBackground />
-      {/* Content fades out under the floating navigation instead of colliding with it. */}
+      <LensFilter />
+      {/* One frosted backdrop behind the header and section index; scrolled content fades under it. */}
       <div
         aria-hidden
         data-focus-hide
-        className="pointer-events-none fixed inset-x-0 top-0 z-20 h-28 bg-gradient-to-b from-background via-background/75 to-transparent"
+        style={{ viewTransitionName: "site-topbar" }}
+        className={cn(
+          "studio-topbar pointer-events-none fixed inset-x-0 top-0 z-20",
+          tab ? "h-[8rem]" : "h-[5.1rem]",
+        )}
       />
       <a
         href="#main-content"
@@ -154,20 +164,26 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <header
         data-focus-hide
-        className="sticky top-0 z-40 flex h-16 items-center justify-between gap-3 px-3 sm:px-5"
+        style={{ viewTransitionName: "site-header" }}
+        className="sticky top-0 z-40 grid h-16 grid-cols-[1fr_auto] items-center gap-3 px-4 sm:px-6 md:grid-cols-[1fr_auto_1fr]"
       >
         <Link
           href="/timer"
-          className="flex items-center gap-2 rounded-full px-2 py-1 text-base font-semibold tracking-tight"
+          aria-label={`${brand.name} home`}
+          className="group flex items-center gap-2.5 justify-self-start rounded-full py-1 pr-2"
         >
-          <BrandMark className="size-6 text-primary drop-shadow-[0_0_12px_var(--glow)]" />
-          <span>
+          <span className="grid size-8 place-items-center rounded-[10px] bg-foreground text-background shadow-[0_6px_14px_-6px_rgb(0_0_0/0.5),inset_0_1px_0_rgb(255_255_255/0.15)] transition-transform duration-300 ease-out group-hover:-rotate-6">
+            <BrandMark className="size-[18px]" />
+          </span>
+          <span aria-hidden className="text-[17px] leading-none font-semibold tracking-[-0.02em]">
             {brand.name.slice(0, 5)}
-            <span className="text-primary">{brand.name.slice(5)}</span>
+            <span className="font-display text-[21px] text-primary italic">
+              {brand.name.slice(5)}
+            </span>
           </span>
         </Link>
 
-        <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
+        <div className="hidden md:block">
           <NavPill
             items={navigation}
             pathname={pathname}
@@ -179,25 +195,43 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           />
         </div>
 
-        <div className="flex items-center gap-0.5 rounded-full p-1 glass">
-          <AccountButton />
-          <HeaderButton label="Command palette" shortcut="⌘K" onClick={() => setPaletteOpen(true)}>
-            <CommandIcon />
-          </HeaderButton>
-          <HeaderButton label="Appearance" shortcut="T" onClick={() => setAppearanceOpen(true)}>
-            <Palette />
+        {/* Quiet utilities: plain icons, no capsule. Shortcuts stay on "?" and in ⌘K. */}
+        <div className="flex items-center gap-1 justify-self-end">
+          <button
+            type="button"
+            aria-label="Command palette"
+            onClick={() => setPaletteOpen(true)}
+            className="hidden h-8 items-center gap-2 rounded-full pr-1.5 pl-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-foreground/[0.05] hover:text-foreground lg:flex"
+          >
+            <Search aria-hidden className="size-3.5" />
+            <kbd className="rounded-md bg-foreground/[0.05] px-1.5 py-px font-mono text-[10px] text-muted-foreground">
+              ⌘K
+            </kbd>
+          </button>
+          <HeaderButton
+            label="Command palette"
+            shortcut="⌘K"
+            onClick={() => setPaletteOpen(true)}
+            className="lg:hidden"
+          >
+            <Search />
           </HeaderButton>
           <HeaderButton
-            label="Keyboard shortcuts"
-            shortcut="?"
-            onClick={() => setShortcutsOpen(true)}
+            label="Appearance"
+            shortcut="T"
+            onClick={() => setAppearanceOpen(true)}
             className="hidden sm:inline-flex"
           >
-            <Keyboard />
+            <Palette />
           </HeaderButton>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button asChild variant="ghost" size="icon-sm" className="rounded-full">
+              <Button
+                asChild
+                variant="ghost"
+                size="icon-sm"
+                className="rounded-full text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground"
+              >
                 <Link
                   href={settingsNavigation.href}
                   aria-label="Settings"
@@ -211,6 +245,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </TooltipTrigger>
             <TooltipContent>Settings</TooltipContent>
           </Tooltip>
+          <span aria-hidden className="mx-1 h-5 w-px bg-[var(--hairline)]" />
+          <AccountButton />
         </div>
       </header>
       {tab ? <SectionNav tab={tab} pathname={pathname} /> : null}
@@ -220,33 +256,49 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         tabIndex={-1}
         className={cn(
           "relative w-full outline-none",
-          fullBleed
-            ? "px-3 pb-24 sm:px-5 md:pb-0"
-            : "mx-auto max-w-[1280px] px-4 pt-4 pb-28 md:px-6 md:pb-12",
+          fullBleed ? "px-3 pb-32 sm:px-5 md:pb-0" : "page-frame mx-auto pt-5 pb-36 md:pb-14",
         )}
       >
         <StorageAlert />
-        {children}
-        {hideLegal ? null : (
-          <div data-focus-hide>
-            <LegalLinks className="mt-10" />
-          </div>
-        )}
+        <PageTransition>
+          {children}
+          {hideLegal ? null : (
+            <div data-focus-hide>
+              <LegalLinks className="mt-12" />
+            </div>
+          )}
+        </PageTransition>
       </main>
 
+      {/* Phones: the page fades out above the floating nav, so nothing ever sits under it. */}
+      <div
+        aria-hidden
+        data-focus-hide
+        className={cn(
+          "dock-scrim pointer-events-none fixed inset-x-0 bottom-0 z-30 md:hidden",
+          inLesson && "hidden",
+        )}
+      />
       <div
         data-focus-hide
-        className="fixed inset-x-3 bottom-[calc(0.5rem+env(safe-area-inset-bottom))] z-40 md:hidden"
+        data-dock
+        style={{ viewTransitionName: "site-dock" }}
+        className={cn(
+          "fixed inset-x-0 bottom-[calc(0.75rem+env(safe-area-inset-bottom))] z-40 flex justify-center px-4 md:hidden",
+          inLesson && "hidden",
+        )}
       >
-        <NavPill
-          items={navigation}
-          pathname={pathname}
-          layoutId="nav-bottom"
-          variant="bottom"
-          label="Mobile navigation"
-          alerts={navAlerts}
-          lockedHrefs={lockedHrefs}
-        />
+        <div className="w-full max-w-[340px]">
+          <NavPill
+            items={navigation}
+            pathname={pathname}
+            layoutId="nav-bottom"
+            variant="bottom"
+            label="Mobile navigation"
+            alerts={navAlerts}
+            lockedHrefs={lockedHrefs}
+          />
+        </div>
       </div>
 
       <CommandPalette open={paletteOpen} onOpenChange={setPaletteOpen} />
@@ -275,7 +327,10 @@ function HeaderButton({
         <Button
           variant="ghost"
           size="icon-sm"
-          className={cn("rounded-full", className)}
+          className={cn(
+            "rounded-full text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground",
+            className,
+          )}
           aria-label={label}
           onClick={onClick}
         >

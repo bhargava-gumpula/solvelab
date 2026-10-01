@@ -14,31 +14,37 @@ export default function OverviewPage() {
         the timer.
       </p>
 
-      {shipped.map((release) => (
-        <section key={release.version}>
-          <h2>
-            {release.version} — {release.title}
-          </h2>
-          <ul>
-            {release.items.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
-      ))}
-
-      <h2>Planned</h2>
-      {planned.map((release) => (
-        <section key={release.version}>
-          <h2>
-            {release.version} — {release.title}
-          </h2>
-          <ul>
-            {release.items.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </section>
+      {[
+        { heading: "In this issue", releases: shipped },
+        { heading: "Planned", releases: planned },
+      ].map(({ heading, releases }) => (
+        <div key={heading} className="!mt-12">
+          <h2 className="!mt-0 border-b border-[var(--hairline)] pb-3">{heading}</h2>
+          {releases.map((release) => (
+            <section
+              key={release.version}
+              className="grid gap-x-8 gap-y-2 border-b border-[var(--hairline)] py-6 sm:grid-cols-[7rem_minmax(0,1fr)]"
+            >
+              <p
+                aria-hidden
+                className="font-display text-[3rem] leading-[0.9] text-foreground italic"
+              >
+                {release.version}
+              </p>
+              <div className="min-w-0">
+                <h3 className="font-display text-[1.5rem] leading-tight text-foreground">
+                  <span className="sr-only">{release.version} — </span>
+                  {release.title}
+                </h3>
+                <ul className="mt-3">
+                  {release.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+          ))}
+        </div>
       ))}
     </LegalDocument>
   );

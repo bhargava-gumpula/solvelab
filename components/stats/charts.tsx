@@ -8,6 +8,7 @@
  * Color follows the entity, never the chart: Ao5, Ao12 and Ao100 keep the same
  * validated categorical slot everywhere, and singles are always neutral.
  */
+import { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -15,6 +16,7 @@ import {
   ComposedChart,
   Line,
   LineChart,
+  ReferenceLine,
   Scatter,
   XAxis,
   YAxis,
@@ -28,16 +30,18 @@ import {
 } from "@/components/ui/chart";
 import type { BestSoFarPoint, HistogramBin, ProgressPoint } from "@/lib/stats/series";
 import { downsample } from "@/lib/stats/series";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useTimeFormat } from "@/hooks/use-time-format";
+import { cn } from "@/lib/utils";
 import type { TimeDecimals } from "@/lib/timer/format";
 import { formatTime } from "@/lib/timer/format";
 
 const SERIES_COLOR: Record<string, string> = {
   single: "var(--foreground)",
   singleDots: "var(--chart-muted)",
-  ao5: "var(--chart-1)",
-  ao12: "var(--chart-2)",
-  ao100: "var(--chart-3)",
+  ao5: "color-mix(in oklab, var(--foreground) 72%, transparent)",
+  ao12: "var(--primary)",
+  ao100: "var(--foreground)",
 };
 const colorFor = (key: string) => SERIES_COLOR[key] ?? "var(--chart-4)";
 const labelFor = (key: string) => (key === "single" ? "Single" : key.replace("ao", "Ao"));
@@ -45,7 +49,7 @@ const labelFor = (key: string) => (key === "single" ? "Single" : key.replace("ao
 const AXIS_PROPS = {
   tickLine: false,
   axisLine: false,
-  tick: { fill: "var(--muted-foreground)", fontSize: 11 },
+  tick: { fill: "color-mix(in oklab, var(--foreground) 65%, transparent)", fontSize: 12 },
 } as const;
 const GRID_PROPS = { vertical: false, stroke: "var(--border)" } as const;
 
@@ -120,10 +124,29 @@ interface ProgressChartProps {
   rollingSizes: readonly number[];
 }
 
+/** Above this many solves the ao5 line is noise at chart scale; it starts hidden. */
+const BUSY_SERIES = 200;
+
 export function ProgressChart({ points, rollingSizes }: ProgressChartProps) {
   const { decimals, formatAverage, formatTime } = useTimeFormat();
-  const averageKeys = rollingSizes.map((size) => `ao${size}`);
-  const data = downsample(points).map((point) => ({
+  const phone = useMediaQuery("(max-width: 639px)");
+  const busy = points.length > BUSY_SERIES;
+  // The viewer's own choice wins; until then long histories and phones start calm.
+  const [chosen, setChosen] = useState<readonly number[] | null>(null);
+  const shown =
+    chosen ??
+    rollingSizes.filter((size) =>
+      phone && busy ? size === rollingSizes.at(-1) : !busy || size !== rollingSizes[0],
+    );
+  const toggle = (size: number) =>
+    setChosen(
+      shown.includes(size)
+        ? shown.filter((entry) => entry !== size)
+        : [...shown, size].sort((a, b) => a - b),
+    );
+  const averageKeys = shown.map((size) => `ao${size}`);
+  // About one point per pixel column: phones get fewer.
+  const data = downsample(points, phone ? 360 : busy ? 900 : undefined).map((point) => ({
     solve: point.solve,
     single: point.single,
     ...Object.fromEntries(rollingSizes.map((size) => [`ao${size}`, point.rolling[size]])),
@@ -139,80 +162,117 @@ export function ProgressChart({ points, rollingSizes }: ProgressChartProps) {
   };
 
   return (
-    <ChartContainer config={config} className="aspect-auto h-72 w-full md:h-80">
-      <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
-        <CartesianGrid {...GRID_PROPS} />
-        <XAxis
-          dataKey="solve"
-          type="number"
-          domain={["dataMin", "dataMax"]}
-          {...AXIS_PROPS}
-          tickMargin={8}
-        />
-        <YAxis
-          {...AXIS_PROPS}
-          width={44}
-          domain={scale?.domain ?? ["auto", "auto"]}
-          ticks={scale?.ticks}
-          allowDataOverflow
-          tickFormatter={(ms: number) => secondsTick(ms, decimals)}
-        />
-        <ChartTooltip
-          cursor={{ stroke: "var(--muted-foreground)", strokeWidth: 1 }}
-          content={({ active, payload }: TooltipProps) => {
-            const row = payload?.[0]?.payload as Record<string, number | null> | undefined;
-            if (!active || !row) return null;
-            return (
-              <TooltipCard
-                title={`Solve ${row.solve}`}
-                rows={[
-                  {
-                    label: "Single",
-                    value: row.single === null ? "DNF" : formatTime(row.single),
-                    color: SERIES_COLOR.singleDots,
-                  },
-                  ...averageKeys.map((key) => ({
-                    label: labelFor(key),
-                    value: formatAverage(row[key] ?? null),
-                    color: colorFor(key),
-                  })),
-                ]}
+    <div className="grid gap-2">
+      <div role="group" aria-label="Averages shown" className="flex flex-wrap items-center gap-1.5">
+        {rollingSizes.map((size) => {
+          const key = `ao${size}`;
+          const on = shown.includes(size);
+          return (
+            <button
+              key={size}
+              type="button"
+              aria-pressed={on}
+              onClick={() => toggle(size)}
+              className={cn(
+                "flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs transition-colors",
+                on
+                  ? "bg-foreground/[0.07] text-foreground"
+                  : "text-muted-foreground hover:bg-foreground/[0.05] hover:text-foreground",
+              )}
+            >
+              <span
+                aria-hidden
+                className={cn("h-0.5 w-3 rounded-full", !on && "opacity-35")}
+                style={{ background: colorFor(key) }}
               />
-            );
-          }}
-        />
-        <Scatter
-          dataKey="single"
-          fill={SERIES_COLOR.singleDots}
-          shape={<DotShape />}
-          isAnimationActive={false}
-        />
-        {averageKeys.map((key) => (
-          <Line
-            key={key}
-            dataKey={key}
-            stroke={colorFor(key)}
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--card)" }}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            isAnimationActive={false}
-            connectNulls={false}
+              {labelFor(key)}
+            </button>
+          );
+        })}
+        <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+          <span aria-hidden className="size-1.5 rounded-full bg-[var(--chart-muted)]" />
+          Singles
+        </span>
+      </div>
+      <ChartContainer config={config} className="aspect-auto h-72 w-full md:h-80">
+        <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
+          <CartesianGrid {...GRID_PROPS} />
+          <XAxis
+            dataKey="solve"
+            type="number"
+            domain={["dataMin", "dataMax"]}
+            {...AXIS_PROPS}
+            tickMargin={8}
           />
-        ))}
-        <ChartLegend
-          content={<ChartLegendContent />}
-          itemSorter={legendOrder(["single", ...averageKeys])}
-        />
-      </ComposedChart>
-    </ChartContainer>
+          <YAxis
+            {...AXIS_PROPS}
+            width={44}
+            domain={scale?.domain ?? ["auto", "auto"]}
+            ticks={scale?.ticks}
+            allowDataOverflow
+            tickFormatter={(ms: number) => secondsTick(ms, decimals)}
+          />
+          <ChartTooltip
+            cursor={{ stroke: "var(--muted-foreground)", strokeWidth: 1 }}
+            content={({ active, payload }: TooltipProps) => {
+              const row = payload?.[0]?.payload as Record<string, number | null> | undefined;
+              if (!active || !row) return null;
+              return (
+                <TooltipCard
+                  title={`Solve ${row.solve}`}
+                  rows={[
+                    {
+                      label: "Single",
+                      value: row.single === null ? "DNF" : formatTime(row.single),
+                      color: SERIES_COLOR.singleDots,
+                    },
+                    ...averageKeys.map((key) => ({
+                      label: labelFor(key),
+                      value: formatAverage(row[key] ?? null),
+                      color: colorFor(key),
+                    })),
+                  ]}
+                />
+              );
+            }}
+          />
+          <Scatter
+            dataKey="single"
+            fill={SERIES_COLOR.singleDots}
+            shape={<DotShape faint={busy} />}
+            isAnimationActive={false}
+          />
+          {averageKeys.map((key) => (
+            <Line
+              key={key}
+              dataKey={key}
+              stroke={colorFor(key)}
+              strokeWidth={key === averageKeys.at(-1) ? 3 : 2.25}
+              dot={false}
+              activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--card)" }}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              isAnimationActive={false}
+              connectNulls={false}
+            />
+          ))}
+        </ComposedChart>
+      </ChartContainer>
+    </div>
   );
 }
 
-function DotShape(props: { cx?: number; cy?: number }) {
+function DotShape(props: { cx?: number; cy?: number; faint?: boolean }) {
   if (props.cx === undefined || props.cy === undefined) return null;
-  return <circle cx={props.cx} cy={props.cy} r={2} fill={SERIES_COLOR.singleDots} />;
+  return (
+    <circle
+      cx={props.cx}
+      cy={props.cy}
+      r={props.faint ? 1.8 : 3}
+      fill={SERIES_COLOR.singleDots}
+      fillOpacity={props.faint ? 0.35 : 1}
+    />
+  );
 }
 
 interface BestChartProps {
@@ -293,13 +353,33 @@ export function PersonalBestChart({ points, averageSizes }: BestChartProps) {
   );
 }
 
-export function DistributionChart({ bins }: { bins: HistogramBin[] }) {
+export interface HistogramMarker {
+  value: number;
+  label: string;
+  color: string;
+}
+
+export function DistributionChart({
+  bins,
+  markers = [],
+}: {
+  bins: HistogramBin[];
+  /** Vertical rules for your best, mean, current average and so on. */
+  markers?: HistogramMarker[];
+}) {
   const { decimals, formatTime } = useTimeFormat();
   const data = bins.map((bin) => ({ ...bin, label: secondsTick(bin.startMs, decimals) }));
   const config: ChartConfig = { count: { label: "Solves", color: "var(--chart-1)" } };
+  // A categorical axis: each marker sits on the bin that holds it.
+  const placed = new Map<string, HistogramMarker[]>();
+  for (const marker of markers) {
+    const bin = data.find((entry) => marker.value >= entry.startMs && marker.value < entry.endMs);
+    if (!bin) continue;
+    placed.set(bin.label, [...(placed.get(bin.label) ?? []), marker]);
+  }
   return (
     <ChartContainer config={config} className="aspect-auto h-64 w-full">
-      <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -16 }} barCategoryGap={2}>
+      <BarChart data={data} margin={{ top: 22, right: 8, bottom: 0, left: -4 }} barCategoryGap={2}>
         <CartesianGrid {...GRID_PROPS} />
         <XAxis dataKey="label" {...AXIS_PROPS} tickMargin={8} interval="preserveStartEnd" />
         <YAxis {...AXIS_PROPS} width={40} allowDecimals={false} />
@@ -319,10 +399,28 @@ export function DistributionChart({ bins }: { bins: HistogramBin[] }) {
         <Bar
           dataKey="count"
           fill="var(--chart-1)"
+          fillOpacity={0.85}
           radius={[4, 4, 0, 0]}
           maxBarSize={24}
           isAnimationActive={false}
         />
+        {[...placed].map(([label, group]) => (
+          <ReferenceLine
+            key={label}
+            x={label}
+            stroke={group[0]!.color}
+            strokeWidth={1.5}
+            strokeDasharray="3 3"
+            ifOverflow="extendDomain"
+            label={{
+              value: group.map((marker) => marker.label).join(" · "),
+              position: "top",
+              fill: group[0]!.color,
+              fontSize: 10,
+              fontWeight: 600,
+            }}
+          />
+        ))}
       </BarChart>
     </ChartContainer>
   );

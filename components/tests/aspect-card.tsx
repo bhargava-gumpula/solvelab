@@ -32,11 +32,11 @@ export function AspectCard({
 
   return (
     <article
-      className="flex flex-col gap-2 rounded-2xl border bg-background/30 p-4"
+      className="flex flex-col gap-2 rounded-[1.25rem] border border-[var(--hairline)] bg-[var(--tile-strong)]/60 p-4"
       data-testid={`aspect-card-${aspect.id}`}
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-sm font-semibold">{aspect.definition.label}</h3>
+        <h3 className="font-display text-[1.4rem] leading-tight">{aspect.definition.label}</h3>
         {measured ? (
           aspect.tag ? (
             <PaceBadge tag={aspect.tag} />
@@ -48,7 +48,7 @@ export function AspectCard({
       <p className="text-sm text-muted-foreground">{aspect.definition.description}</p>
       {measured ? (
         <>
-          <p className="font-mono tabular text-2xl font-semibold">
+          <p className="font-display text-[2.6rem] leading-none tabular-nums">
             {formatAspectValue(kind, aspect.value, decimals)}
           </p>
           {math ? (

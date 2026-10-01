@@ -17,9 +17,20 @@ interface AnimatedTimeProps {
   className?: string;
   /** Test id for the plain-text value (NumberFlow's own DOM isn't plain text). */
   testId?: string;
+  /** Roll the digits to a new value (Studio stat tiles) instead of swapping instantly. */
+  roll?: boolean;
 }
 
-export function AnimatedTime({ ms, rounding = "round", className, testId }: AnimatedTimeProps) {
+const ROLL_TIMING = { duration: 720, easing: "cubic-bezier(0.16, 1, 0.3, 1)" } as const;
+const INSTANT = { duration: 0 } as const;
+
+export function AnimatedTime({
+  ms,
+  rounding = "round",
+  className,
+  testId,
+  roll = false,
+}: AnimatedTimeProps) {
   const { preferences } = useAppearance();
   const decimals = preferences.timeDecimals;
   const text = formatTime(ms, rounding, decimals);
@@ -46,19 +57,32 @@ export function AnimatedTime({ ms, rounding = "round", className, testId }: Anim
           maximumFractionDigits: decimals,
           useGrouping: false,
         }}
-        transformTiming={{ duration: 0 }}
-        spinTiming={{ duration: 0 }}
-        opacityTiming={{ duration: 0 }}
+        transformTiming={roll ? ROLL_TIMING : INSTANT}
+        spinTiming={roll ? ROLL_TIMING : INSTANT}
+        opacityTiming={roll ? { duration: 350, easing: "ease-out" } : INSTANT}
       />
     </span>
   );
 }
 
-export function AnimatedCount({ value, className }: { value: number; className?: string }) {
+export function AnimatedCount({
+  value,
+  className,
+  roll = false,
+}: {
+  value: number;
+  className?: string;
+  roll?: boolean;
+}) {
   return (
     <span className={cn("tabular", className)}>
       <span className="sr-only">{value}</span>
-      <NumberFlow aria-hidden value={value} transformTiming={{ duration: 0 }} spinTiming={{ duration: 0 }} />
+      <NumberFlow
+        aria-hidden
+        value={value}
+        transformTiming={roll ? ROLL_TIMING : INSTANT}
+        spinTiming={roll ? ROLL_TIMING : INSTANT}
+      />
     </span>
   );
 }

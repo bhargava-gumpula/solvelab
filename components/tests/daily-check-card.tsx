@@ -21,10 +21,13 @@ export function DailyCheckCard({ className }: { className?: string }) {
 
   return (
     <div
-      className={cn("flex flex-col gap-2 rounded-2xl border bg-background/40 p-4", className)}
+      className={cn(
+        "flex flex-col gap-2 rounded-[1.4rem] border border-[var(--hairline)] bg-[var(--tile-strong)] p-5",
+        className,
+      )}
       data-testid="daily-check-card"
     >
-      <p className="flex items-center gap-2 text-xs text-muted-foreground">
+      <p className="flex items-center gap-2 eyebrow">
         <CalendarCheck className="size-3.5" aria-hidden /> Daily check
         {streak > 0 ? (
           <span className="ml-auto inline-flex items-center gap-1 text-primary">
@@ -32,7 +35,7 @@ export function DailyCheckCard({ className }: { className?: string }) {
           </span>
         ) : null}
       </p>
-      <p className="font-semibold">
+      <p className="font-display text-[1.6rem] leading-tight">
         {done
           ? "Today’s check is done"
           : check

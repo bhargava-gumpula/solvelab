@@ -3,21 +3,11 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { useLiveQuery } from "dexie-react-hooks";
-import {
-  ArrowRight,
-  Bot,
-  CircleHelp,
-  Eye,
-  Sparkles,
-  Timer,
-  TrendingDown,
-  TrendingUp,
-} from "lucide-react";
+import { ArrowRight, Bot, CircleHelp, Eye, Timer, TrendingDown, TrendingUp } from "lucide-react";
 import { useStorageStatus } from "@/components/layout/storage-provider";
 import { CaseDiagram } from "@/components/algorithms/case-diagram";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { SolveProfileView } from "@/components/stats/solve-profile";
-import { Button } from "@/components/ui/button";
 import { useHub } from "@/hooks/use-hub";
 import { caseStateFor, getAlgorithmSet, kindFor } from "@/lib/algorithms/catalog";
 import { caseTimes, slowestOnTheCube } from "@/lib/algorithms/trainer";
@@ -25,6 +15,7 @@ import { getRepositories } from "@/lib/storage";
 import { compareWithProfile } from "@/lib/hub/intro";
 import { caseLabel } from "@/lib/hub/recognition";
 import { recognitionStats, type RecognitionStats } from "@/lib/hub/recognition-stats";
+import { Button } from "@/components/ui/button";
 import { RECOGNITION_LABEL, recognitionHref, type RecognitionSet } from "@/lib/hub/units";
 import type { AlgorithmAttempt } from "@/types/domain";
 
@@ -52,45 +43,51 @@ export function HubProfile() {
   const hub = useHub();
   const rows = hub.profile && hub.intro ? compareWithProfile(hub.intro, hub.profile) : [];
   return (
-    <div className="grid gap-5">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-5">
       {hub.loaded && !hub.intro?.completedAt ? (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-center gap-3 rounded-2xl border border-primary/40 bg-primary/10 p-4"
+          className="flex flex-wrap items-center gap-x-4 gap-y-2 border-y border-[var(--hairline)] py-3"
           data-testid="profile-setup-banner"
         >
-          <Sparkles className="size-5 text-primary" />
-          <p className="flex-1 text-sm">
+          <span aria-hidden className="size-1.5 rounded-full bg-primary" />
+          <p className="flex-1 text-sm text-muted-foreground">
             {hub.intro
               ? "You're partway through finding your level."
               : "Answer a few questions so your path fits you."}
           </p>
-          <Button asChild size="sm" className="rounded-full">
-            <Link href="/hub/start/">
-              {hub.intro ? "Continue" : "Find my level"} <ArrowRight />
-            </Link>
-          </Button>
+          <Link
+            href="/hub/start/"
+            className="group inline-flex items-center gap-1 text-sm font-medium text-primary"
+          >
+            {hub.intro ? "Continue" : "Find my level"}
+            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
         </motion.div>
       ) : null}
+      <SolveProfileView />
       {rows.length ? (
-        <section className="rounded-2xl p-5 glass" data-testid="said-vs-measured">
-          <h2 className="text-sm font-semibold">What you said, and what we measured</h2>
-          <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+        <section className="tile p-6 md:p-7" data-testid="said-vs-measured">
+          <p className="eyebrow">Your answers against the tests</p>
+          <h2 className="mt-1.5 font-display text-[2rem] leading-none">
+            What you said, and what we <em className="text-primary">measured</em>
+          </h2>
+          <ul className="mt-4 grid gap-x-8 sm:grid-cols-2">
             {rows.map((row, index) => (
               <motion.li
                 key={row.aspectId}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
-                className="flex items-center gap-3 rounded-xl border bg-background/40 px-3 py-2 text-sm"
+                className="flex items-center gap-3 border-t border-[var(--hairline)] py-3 text-sm"
               >
                 {row.agreement === "fine" ? (
-                  <TrendingUp className="size-4 shrink-0 text-[var(--known)]" />
+                  <TrendingUp className="size-4 shrink-0 text-primary" />
                 ) : row.agreement === "unmeasured" ? (
                   <CircleHelp className="size-4 shrink-0 text-muted-foreground" />
                 ) : (
-                  <TrendingDown className="size-4 shrink-0 text-destructive" />
+                  <TrendingDown className="size-4 shrink-0 text-foreground" />
                 )}
                 <span className="flex-1">
                   <span className="font-medium">{row.label}</span>
@@ -98,7 +95,7 @@ export function HubProfile() {
                     {WORDS[row.agreement]}
                   </span>
                 </span>
-                {row.tag ? <PaceBadge tag={row.tag} /> : null}
+                {row.tag ? <PaceBadge tag={row.tag} quiet /> : null}
               </motion.li>
             ))}
           </ul>
@@ -108,10 +105,10 @@ export function HubProfile() {
       <SlowestOnTheCube />
       <Link
         href="/hub/ask/"
-        className="group flex items-center gap-3 rounded-2xl p-4 glass transition-transform hover:-translate-y-0.5"
+        className="group tile flex items-center gap-3 p-4 transition-transform hover:-translate-y-0.5"
         data-testid="profile-ask-ai"
       >
-        <span className="grid size-10 place-items-center rounded-xl bg-primary/15 text-primary transition-transform group-hover:rotate-6">
+        <span className="grid size-10 place-items-center rounded-full bg-primary/10 text-primary transition-transform group-hover:-rotate-6">
           <Bot className="size-5" />
         </span>
         <span className="flex-1">
@@ -122,7 +119,6 @@ export function HubProfile() {
         </span>
         <ArrowRight className="size-4 text-primary" />
       </Link>
-      <SolveProfileView />
     </div>
   );
 }
@@ -141,7 +137,7 @@ function SlowestOnTheCube() {
   const rows = slowestOnTheCube(caseTimes(attempts ?? []));
   if (!rows.length) return null;
   return (
-    <section className="rounded-2xl p-5 glass" data-testid="slowest-on-the-cube">
+    <section className="tile p-5 md:p-6" data-testid="slowest-on-the-cube">
       <h2 className="text-sm font-semibold">Slowest on your cube</h2>
       <p className="mt-1 text-xs text-muted-foreground">
         From the algorithm trainer: the median of your times for each case.
@@ -173,7 +169,7 @@ function SlowestCases({ attempts }: { attempts: readonly AlgorithmAttempt[] }) {
   );
   if (!drilled.length) return null;
   return (
-    <section className="rounded-2xl p-5 glass" data-testid="slowest-cases">
+    <section className="tile p-5 md:p-6" data-testid="slowest-cases">
       <h2 className="text-sm font-semibold">Cases you know on sight</h2>
       <p className="mt-1 text-xs text-muted-foreground">
         From the recognition drills. A case is known once you get it right twice running.

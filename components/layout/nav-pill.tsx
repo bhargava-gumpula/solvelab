@@ -1,14 +1,15 @@
 "use client";
 
 /*
- * Floating navigation with a sliding "tubelight" indicator, inspired by the
- * Tubelight Navbar on 21st.dev (https://21st.dev/@ayushmxxn/components/tubelight-navbar)
- * and rebuilt on motion's shared layout animation.
+ * The two top-level places (Timer, Learning Hub) in a faint tray (a
+ * liquid-glass dock on phones).
+ * The active place wears an ink pill that slides between items (motion
+ * shared layout). Top variant on desktop, bottom dock on phones.
  */
 import Link from "next/link";
 import { motion } from "motion/react";
 import { Lock } from "lucide-react";
-import { isActiveItem, type NavigationItem } from "@/lib/config/navigation";
+import { isActiveItem, LAST_TAB_KEY, TABS, type NavigationItem } from "@/lib/config/navigation";
 import { cn } from "@/lib/utils";
 
 interface NavPillProps {
@@ -23,6 +24,19 @@ interface NavPillProps {
   lockedHrefs?: readonly string[];
 }
 
+const INK_SPRING = { type: "spring", stiffness: 420, damping: 34 } as const;
+
+/** Remember the place as it's chosen, so reopening the site finds it even before the page has drawn. */
+function rememberTab(href: string) {
+  const tab = TABS.find((item) => item.href === href);
+  if (!tab) return;
+  try {
+    localStorage.setItem(LAST_TAB_KEY, tab.id);
+  } catch {
+    // Private windows can refuse storage; the app shell tries again once the page is up.
+  }
+}
+
 export function NavPill({
   items,
   pathname,
@@ -32,15 +46,13 @@ export function NavPill({
   alerts,
   lockedHrefs,
 }: NavPillProps) {
+  const bottom = variant === "bottom";
   return (
     <nav aria-label={label}>
       <ul
         className={cn(
-          "flex items-center gap-1 rounded-full p-1",
-          // Content scrolls under the phone tab bar, so it gets a solid surface instead of glass.
-          variant === "top"
-            ? "glass"
-            : "justify-between border bg-background shadow-[0_12px_40px_-12px_rgb(0_0_0/0.6)]",
+          "flex items-center gap-0.5 rounded-full p-1",
+          bottom ? "justify-between p-1.5 liquid-glass" : "bg-foreground/[0.045]",
         )}
       >
         {items.map((item) => {
@@ -50,9 +62,10 @@ export function NavPill({
           const alert = alerts?.[href];
           const locked = lockedHrefs?.includes(href) ?? false;
           return (
-            <li key={href} className={cn(variant === "bottom" && "flex-1")}>
+            <li key={href} className={cn(bottom && "flex-1")}>
               <Link
                 href={href}
+                onClick={() => rememberTab(href)}
                 aria-current={active ? "page" : undefined}
                 aria-description={
                   locked
@@ -70,41 +83,36 @@ export function NavPill({
                 }
                 data-preview={preview ? "true" : undefined}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors",
-                  variant === "top" ? "px-3.5 py-1.5" : "flex-col gap-0.5 px-2 py-1.5 text-[11px]",
+                  "group/nav relative flex items-center justify-center gap-2 rounded-full font-medium outline-primary transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-3",
+                  bottom ? "h-11 px-4 text-[13px]" : "h-8 px-3.5 text-[13px]",
                   active
-                    ? "text-foreground"
+                    ? "text-background"
                     : preview
                       ? "text-muted-foreground/70 hover:text-muted-foreground"
                       : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                {active && (
+                {active ? (
                   <motion.span
                     layoutId={layoutId}
-                    className="absolute inset-0 -z-0 rounded-full bg-accent"
-                    transition={{ type: "spring", stiffness: 380, damping: 32 }}
-                  >
-                    <span
-                      aria-hidden
-                      className={cn(
-                        "absolute left-1/2 h-1 w-8 -translate-x-1/2 rounded-full bg-primary",
-                        variant === "top" ? "-top-1" : "-bottom-1",
-                      )}
-                    >
-                      <span className="absolute -inset-x-2 -inset-y-2 rounded-full bg-primary/30 blur-md" />
-                    </span>
-                  </motion.span>
+                    // Only a change of tab moves the pill; a route change inside
+                    // the tab (while the page scrolls to the top) must not.
+                    layoutDependency={href}
+                    aria-hidden
+                    className="absolute inset-0 rounded-full bg-foreground shadow-[0_4px_10px_-6px_rgb(0_0_0/0.4),inset_0_1px_0_rgb(255_255_255/0.12)]"
+                    transition={INK_SPRING}
+                  />
+                ) : (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 rounded-full bg-foreground/0 transition-colors duration-200 group-hover/nav:bg-foreground/[0.05]"
+                  />
                 )}
                 <span className="relative">
                   <Icon
                     aria-hidden
-                    className={cn(
-                      "size-4",
-                      variant === "bottom" && "size-5",
-                      !active && "opacity-80",
-                      preview && "opacity-55",
-                    )}
+                    strokeWidth={1.75}
+                    className={cn("size-4", bottom && "size-[18px]", preview && "opacity-55")}
                   />
                   {locked ? (
                     <Lock
@@ -115,17 +123,15 @@ export function NavPill({
                   ) : null}
                   {alert && !locked ? (
                     <span
-                      className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary ring-2 ring-background"
+                      className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-accent-2 ring-2 ring-background"
                       data-testid={`nav-alert-${href.replace(/\W/g, "")}`}
                     >
                       <span className="sr-only">{alert}</span>
                     </span>
                   ) : null}
                 </span>
-                <span className={cn("relative", variant === "top" && "sr-only lg:not-sr-only")}>
-                  {itemLabel}
-                </span>
-                {preview && variant === "top" ? (
+                <span className="relative tracking-[-0.01em]">{itemLabel}</span>
+                {preview && !bottom ? (
                   <span
                     aria-hidden
                     className="relative hidden text-[10px] font-normal text-muted-foreground xl:inline"

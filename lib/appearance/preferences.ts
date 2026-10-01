@@ -1,8 +1,10 @@
 import { z } from "zod";
 import {
   DEFAULT_THEME,
+  LIGHT_THEMES,
   SYSTEM_DARK_THEME,
   SYSTEM_LIGHT_THEME,
+  RETIRED_THEMES,
   getTheme,
   type ThemeId,
 } from "./themes";
@@ -29,10 +31,17 @@ export const TIME_DECIMALS = [
 
 export type TimeDecimalsPreference = (typeof TIME_DECIMALS)[number]["id"];
 
-const themeIds = ["nebula", "ember", "glacier", "matcha", "carbon", "paper"] as const;
+const themeIds = ["nebula", "ember", "matcha", "carbon", "paper"] as const;
 
 export const appearanceSchema = z.object({
-  theme: z.enum([...themeIds, "system"]),
+  // A removed theme saved in settings, a backup or the synced copy opens as its replacement.
+  theme: z.preprocess(
+    (value) =>
+      typeof value === "string" && Object.hasOwn(RETIRED_THEMES, value)
+        ? RETIRED_THEMES[value]
+        : value,
+    z.enum([...themeIds, "system"]),
+  ),
   digitFont: z.enum(["clean", "lcd", "dot"]),
   timerScale: z.number().min(0.7).max(1.4),
   timeDecimals: z.union([z.literal(2), z.literal(3)]),
@@ -90,8 +99,8 @@ export function resolveTheme(theme: AppearancePreferences["theme"], prefersDark:
  */
 export const APPEARANCE_BOOT_SCRIPT = `(function(){try{var p=JSON.parse(localStorage.getItem(${JSON.stringify(
   APPEARANCE_STORAGE_KEY,
-)})||"{}");var t=p.theme||${JSON.stringify(DEFAULT_THEME)};if(t==="system"){t=matchMedia("(prefers-color-scheme: dark)").matches?${JSON.stringify(
+)})||"{}");var t=p.theme||${JSON.stringify(DEFAULT_THEME)};var o=${JSON.stringify(RETIRED_THEMES)};if(Object.prototype.hasOwnProperty.call(o,t))t=o[t];if(t==="system"){t=matchMedia("(prefers-color-scheme: dark)").matches?${JSON.stringify(
   SYSTEM_DARK_THEME,
-)}:${JSON.stringify(SYSTEM_LIGHT_THEME)}}var d=document.documentElement;d.dataset.theme=t;d.classList.add(t==="paper"?"light":"dark");d.dataset.digits=p.digitFont||"clean"}catch(e){var r=document.documentElement;r.dataset.theme=${JSON.stringify(DEFAULT_THEME)};r.classList.add(${JSON.stringify(
+)}:${JSON.stringify(SYSTEM_LIGHT_THEME)}}var d=document.documentElement;d.dataset.theme=t;d.classList.add(${JSON.stringify(LIGHT_THEMES)}.indexOf(t)>=0?"light":"dark");d.dataset.digits=p.digitFont||"clean"}catch(e){var r=document.documentElement;r.dataset.theme=${JSON.stringify(DEFAULT_THEME)};r.classList.add(${JSON.stringify(
   getTheme(DEFAULT_THEME).mode,
 )})}})();`;

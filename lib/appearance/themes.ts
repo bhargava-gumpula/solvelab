@@ -1,18 +1,34 @@
 /**
- * Theme presets. Surface/text tokens live in app/globals.css under
- * [data-theme="…"]; this file holds what JavaScript needs: the animated
- * background recipe and picker swatches.
+ * Theme presets (Studio direction). Surface/text tokens live in
+ * app/globals.css under [data-theme="…"]; this file holds what JavaScript
+ * needs: the studio light recipe for the animated background and the picker
+ * swatches. The ids are unchanged so saved preferences keep working.
  */
 
-export type ThemeId = "nebula" | "ember" | "glacier" | "matcha" | "carbon" | "paper";
+export type ThemeId = "nebula" | "ember" | "matcha" | "carbon" | "paper";
 
-export interface MeshBackground {
-  kind: "mesh";
-  colors: string[];
-  distortion: number;
-  swirl: number;
-  speed: number;
-  grain: number;
+/** Removed theme ids and what a saved one opens as now (Porcelain was too close to Linen). */
+export const RETIRED_THEMES: Readonly<Record<string, ThemeId>> = { glacier: "paper" };
+
+/**
+ * The Studio background: soft skylight rays from the top edge, a slow aurora
+ * wash, a dot grid that lights up around the cursor, and paper grain.
+ */
+export interface StudioBackground {
+  kind: "studio";
+  /** Colour of the light rays. */
+  rays: string;
+  /** Two aurora tints. */
+  aurora: [string, string];
+  /** Ray strength, 0–1. */
+  rayStrength: number;
+  /** Aurora strength, 0–1. */
+  auroraStrength: number;
+  /**
+   * The swirl background's tints, deepest first; the theme backdrop sits
+   * behind them. Kept close to the backdrop so the swirl never gets busy.
+   */
+  swirl: [string, string, string, string];
 }
 
 export interface SolidBackground {
@@ -26,100 +42,97 @@ export interface ThemeDefinition {
   mode: "dark" | "light";
   /** Colors for the picker preview, backdrop first. */
   swatch: [string, string, string];
-  background: MeshBackground | SolidBackground;
+  background: StudioBackground | SolidBackground;
 }
 
 export const THEMES: readonly ThemeDefinition[] = [
   {
-    id: "nebula",
-    label: "Ion",
-    description: "Violet and teal aurora",
-    mode: "dark",
-    swatch: ["#0b0a1a", "#6d4df2", "#1bb89f"],
+    id: "paper",
+    label: "Linen",
+    description: "Warm paper, studio blue",
+    mode: "light",
+    swatch: ["#f2eee6", "#2a44e8", "#f0531c"],
     background: {
-      kind: "mesh",
-      colors: ["#0b0a1a", "#3a1e9c", "#0d6f73", "#231356", "#120d33"],
-      distortion: 0.85,
-      swirl: 0.35,
-      speed: 0.22,
-      grain: 0.06,
-    },
-  },
-  {
-    id: "ember",
-    label: "Forge",
-    description: "Warm orange glow",
-    mode: "dark",
-    swatch: ["#120806", "#d9591a", "#b3264f"],
-    background: {
-      kind: "mesh",
-      colors: ["#120806", "#7a2208", "#c4521a", "#5a0f2b", "#1f0a06"],
-      distortion: 0.8,
-      swirl: 0.3,
-      speed: 0.2,
-      grain: 0.06,
-    },
-  },
-  {
-    id: "glacier",
-    label: "Fjord",
-    description: "Cold blue depths",
-    mode: "dark",
-    swatch: ["#06101c", "#1b7fb3", "#5b4bd6"],
-    background: {
-      kind: "mesh",
-      colors: ["#06101c", "#0b3d6b", "#1a78ad", "#221a66", "#08182b"],
-      distortion: 0.75,
-      swirl: 0.4,
-      speed: 0.18,
-      grain: 0.05,
+      kind: "studio",
+      rays: "#ffffff",
+      aurora: ["#a9b5ff", "#ffbb98"],
+      rayStrength: 0.7,
+      auroraStrength: 0.38,
+      // Lavender and apricot strong enough to read as a moving background, still pale behind text.
+      swirl: ["#cfd3fb", "#f9c3a0", "#bcc5fb", "#fbd3b6"],
     },
   },
   {
     id: "matcha",
-    label: "Sencha",
-    description: "Terminal green",
+    label: "Sage",
+    description: "Deep green, after dark",
     mode: "dark",
-    swatch: ["#060c08", "#2f7a3a", "#8fb31f"],
+    swatch: ["#0c120e", "#8fd3a3", "#e6a75a"],
     background: {
-      kind: "mesh",
-      colors: ["#050b07", "#0f3b1e", "#2a6f35", "#3b4a0c", "#07120a"],
-      distortion: 0.7,
-      swirl: 0.25,
-      speed: 0.16,
-      grain: 0.07,
+      kind: "studio",
+      rays: "#d4f2dc",
+      aurora: ["#1f6b45", "#6b5a18"],
+      rayStrength: 0.16,
+      auroraStrength: 0.4,
+      swirl: ["#10221a", "#1f6a42", "#3d4316", "#2f7a4f"],
     },
   },
   {
     id: "carbon",
-    label: "Graphite",
-    description: "Still and minimal",
+    label: "Ink",
+    description: "Midnight blue, after dark",
     mode: "dark",
-    swatch: ["#101113", "#26282d", "#e8916e"],
-    background: { kind: "solid" },
+    swatch: ["#0a0e15", "#5aa9ff", "#ff7847"],
+    background: {
+      kind: "studio",
+      rays: "#b5d6ff",
+      aurora: ["#1c5fd0", "#8a3a22"],
+      rayStrength: 0.08,
+      auroraStrength: 0.24,
+      swirl: ["#0f1a2b", "#143f78", "#3b2320", "#0f2d58"],
+    },
   },
   {
-    id: "paper",
-    label: "Linen",
-    description: "Light and warm",
-    mode: "light",
-    swatch: ["#f3efe6", "#f0cfae", "#bfe0d6"],
+    id: "nebula",
+    label: "Nocturne",
+    description: "Indigo midnight",
+    mode: "dark",
+    swatch: ["#0a0b1a", "#b4a6ff", "#5ce1e6"],
     background: {
-      kind: "mesh",
-      colors: ["#f3efe6", "#f3d7bd", "#e9e2cf", "#cfe6dc", "#f6f1e7"],
-      distortion: 0.6,
-      swirl: 0.2,
-      speed: 0.12,
-      grain: 0.03,
+      kind: "studio",
+      rays: "#cdc4ff",
+      aurora: ["#4b33c9", "#127a86"],
+      rayStrength: 0.1,
+      auroraStrength: 0.3,
+      swirl: ["#141236", "#2f2380", "#0f3d48", "#3a2a9a"],
+    },
+  },
+  {
+    id: "ember",
+    label: "Terracotta",
+    description: "Warm clay, after hours",
+    mode: "dark",
+    swatch: ["#15100d", "#ff8c5a", "#e8c46a"],
+    background: {
+      kind: "studio",
+      rays: "#ffd2b0",
+      aurora: ["#9c3514", "#7a5212"],
+      rayStrength: 0.2,
+      auroraStrength: 0.42,
+      swirl: ["#2a1710", "#6e2a13", "#4a3013", "#9a4520"],
     },
   },
 ];
 
-export const DEFAULT_THEME: ThemeId = "paper";
+export const DEFAULT_THEME: ThemeId = "ember";
 /** Used by "Match system" when the device prefers dark. */
-export const SYSTEM_DARK_THEME: ThemeId = "matcha";
+export const SYSTEM_DARK_THEME: ThemeId = "ember";
 /** Used by "Match system" when the device prefers light. */
 export const SYSTEM_LIGHT_THEME: ThemeId = "paper";
+/** Themes drawn on a light surface (the boot script needs these before JS). */
+export const LIGHT_THEMES: readonly ThemeId[] = THEMES.filter((t) => t.mode === "light").map(
+  (t) => t.id,
+);
 
 export function getTheme(id: ThemeId): ThemeDefinition {
   return THEMES.find((theme) => theme.id === id) ?? THEMES[0];

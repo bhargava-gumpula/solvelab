@@ -101,11 +101,11 @@ function SolveDetailForm({
     <form onSubmit={save} className="grid gap-5">
       <DialogHeader>
         <DialogTitle className="flex items-baseline gap-3">
-          <span className="font-mono tabular text-3xl">
+          <span className="font-figures text-[3.2rem] leading-none font-medium tracking-[-0.02em]">
             {formatSolve(solve.rawTimeMs, solve.penalty)}
           </span>
           {solveNumber !== undefined && (
-            <span className="text-sm font-normal text-muted-foreground">Solve {solveNumber}</span>
+            <span className="font-sans eyebrow">Solve {solveNumber}</span>
           )}
         </DialogTitle>
         <DialogDescription>

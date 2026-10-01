@@ -22,6 +22,7 @@ import {
 } from "@/lib/hub/drills";
 import { getRepositories } from "@/lib/storage";
 import { formatTime } from "@/lib/timer/format";
+import { cn } from "@/lib/utils";
 import type { DrillRun } from "@/types/domain";
 import { celebrate } from "./fx";
 
@@ -97,24 +98,16 @@ export function DrillSession({
         <p className="flex items-center gap-2 eyebrow text-primary">
           <Dumbbell className="size-4" /> Drill
         </p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">{drill.title}</h1>
+        <h1 className="mt-1 font-display text-[2.9rem] leading-[0.98]">{drill.title}</h1>
         <p className="mt-1 max-w-2xl text-muted-foreground">{drill.purpose}</p>
       </header>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1fr)_340px]">
         <div className="grid min-w-0 content-start gap-3">
           {/* On a phone the rules would sit below the timer, out of sight; keep them in view. */}
-          <ol
-            className="grid gap-1 rounded-2xl border-2 border-primary/40 bg-primary/5 p-3 text-sm lg:hidden"
-            aria-label="The rules"
-          >
-            {drill.rules.map((rule, index) => (
-              <li key={rule} className="flex gap-2">
-                <span className="tabular text-xs text-muted-foreground">{index + 1}.</span>
-                <span>{rule}</span>
-              </li>
-            ))}
-          </ol>
+          <div className="tile p-4 lg:hidden" aria-label="The rules" role="group">
+            <RuleChecklist rules={drill.rules} />
+          </div>
           {holdNote && !saved ? (
             <p className="text-sm text-muted-foreground" data-testid="drill-hold">
               {holdNote}
@@ -139,45 +132,17 @@ export function DrillSession({
               onDeleteLast={() => setTimes((current) => current.slice(0, -1))}
             />
           )}
-          <ol
-            className="flex flex-wrap gap-1.5"
-            aria-label="This session's times"
-            data-testid="drill-times"
-          >
-            <AnimatePresence initial={false}>
-              {times.map((ms, index) => (
-                <motion.li
-                  key={`${index}-${ms}`}
-                  initial={{ opacity: 0, scale: 0.6, y: 6 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.6 }}
-                  className="rounded-full border bg-background/40 px-2.5 py-1 tabular text-xs"
-                >
-                  {formatTime(ms, "round", 2)}
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </ol>
+          <AttemptStrip times={times} />
         </div>
 
         <aside className="grid content-start gap-3">
-          <section
-            className="hidden rounded-2xl border-2 border-primary/40 bg-primary/5 p-4 lg:block"
-            data-testid="drill-rules"
-          >
-            <p className="flex items-center gap-2 text-sm font-semibold text-primary">
-              <Flag className="size-4" /> The rule is the point
+          <section className="tile hidden p-5 lg:block" data-testid="drill-rules">
+            <p className="flex items-center gap-2 eyebrow">
+              <Flag className="size-3.5" /> The rule is the point
             </p>
-            <ol className="mt-2 grid gap-1.5 text-sm">
-              {drill.rules.map((rule, index) => (
-                <li key={rule} className="flex gap-2">
-                  <span className="tabular text-xs text-muted-foreground">{index + 1}.</span>
-                  <span>{rule}</span>
-                </li>
-              ))}
-            </ol>
+            <RuleChecklist rules={drill.rules} />
           </section>
-          <section className="grid gap-2 rounded-2xl p-4 text-sm glass">
+          <section className="grid gap-2 border-y border-[var(--hairline)] py-3 text-sm">
             <p>
               <span className="text-xs text-muted-foreground">How much · </span>
               {drill.dose}
@@ -250,9 +215,9 @@ export function DrillSession({
 
 function Stat({ label, value, note }: { label: string; value: string; note: string }) {
   return (
-    <div className="rounded-2xl border bg-background/40 p-3">
+    <div className="tile p-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-0.5 tabular text-lg font-semibold">{value}</p>
+      <p className="mt-0.5 font-display tabular text-[1.7rem] leading-tight">{value}</p>
       <p className="text-[11px] text-muted-foreground">{note}</p>
     </div>
   );
@@ -262,7 +227,7 @@ function Stat({ label, value, note }: { label: string; value: string; note: stri
 function RoundCounter({ rounds, onRound }: { rounds: number; onRound: () => void }) {
   return (
     <section
-      className="grid place-items-center gap-4 rounded-3xl p-8 text-center glass"
+      className="tile grid place-items-center gap-4 p-8 text-center"
       data-testid="drill-rounds"
     >
       <p className="text-xs text-muted-foreground">Rounds this session</p>
@@ -275,6 +240,138 @@ function RoundCounter({ rounds, onRound }: { rounds: number; onRound: () => void
         you have done the dose.
       </p>
     </section>
+  );
+}
+
+/**
+ * The drill's rules as a checklist you tick off while you run it (kept for
+ * this visit only): a small, physical way to keep the rule in mind.
+ */
+function RuleChecklist({ rules }: { rules: readonly string[] }) {
+  const [ticked, setTicked] = useState<ReadonlySet<number>>(new Set());
+  return (
+    <ol className="mt-2 grid gap-0.5 text-sm">
+      {rules.map((rule, index) => {
+        const done = ticked.has(index);
+        return (
+          <li key={rule}>
+            <button
+              type="button"
+              aria-pressed={done}
+              onClick={() =>
+                setTicked((current) => {
+                  const next = new Set(current);
+                  if (next.has(index)) next.delete(index);
+                  else next.add(index);
+                  return next;
+                })
+              }
+              className="group flex w-full items-start gap-2.5 rounded-lg px-1.5 py-1.5 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--foreground)_4%,transparent)]"
+            >
+              <span
+                className={cn(
+                  "mt-0.5 grid size-4 shrink-0 place-items-center rounded-full border transition-colors duration-200",
+                  done
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-foreground/25",
+                )}
+              >
+                <motion.svg
+                  viewBox="0 0 16 16"
+                  className={cn("size-2.5 transition-opacity", !done && "opacity-0")}
+                  aria-hidden
+                >
+                  <motion.path
+                    d="M3.5 8.5l3 3 6-7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={false}
+                    animate={{ pathLength: done ? 1 : 0 }}
+                    transition={{ duration: 0.3 }}
+                  />
+                </motion.svg>
+              </span>
+              <span className={cn("transition-colors", done && "text-muted-foreground")}>
+                <span className="mr-1 tabular text-xs text-muted-foreground">{index + 1}.</span>
+                {rule}
+              </span>
+            </button>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+/**
+ * Every attempt of this session as a bar that springs up as you finish it,
+ * scaled to the slowest so far, with the session mean as a hairline.
+ */
+function AttemptStrip({ times }: { times: number[] }) {
+  const slowest = Math.max(1, ...times);
+  const mean = times.length ? times.reduce((sum, ms) => sum + ms, 0) / times.length : null;
+  return (
+    <div className="tile px-4 pt-4 pb-3">
+      <div className="flex items-baseline justify-between text-xs text-muted-foreground">
+        <span>This session</span>
+        <span className="tabular">
+          {times.length
+            ? `${times.length} ${times.length === 1 ? "attempt" : "attempts"}`
+            : "Your attempts appear here"}
+        </span>
+      </div>
+      <div className="relative mt-3 h-24">
+        {times.length === 0 ? (
+          <p className="absolute inset-0 grid place-items-center border-b border-dashed border-[var(--hairline)] text-center text-xs text-muted-foreground">
+            Each attempt lands here as a bar, so you can see the session take shape.
+          </p>
+        ) : null}
+        {mean !== null ? (
+          <motion.span
+            aria-hidden
+            className="absolute inset-x-0 border-t border-dashed border-primary/60"
+            initial={false}
+            animate={{ bottom: `${(mean / slowest) * 100}%` }}
+            transition={{ type: "spring", stiffness: 160, damping: 24 }}
+          />
+        ) : null}
+        <ol
+          className="absolute inset-0 no-scrollbar flex items-end gap-1.5 overflow-x-auto"
+          aria-label="This session's times"
+          data-testid="drill-times"
+        >
+          <AnimatePresence initial={false}>
+            {times.map((ms, index) => (
+              <motion.li
+                key={`${index}-${ms}`}
+                className="group relative flex h-full w-7 shrink-0 flex-col justify-end"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                title={`${formatTime(ms, "round", 2)} s`}
+              >
+                <motion.span
+                  className={cn(
+                    "block w-full origin-bottom rounded-t-md rounded-b-sm",
+                    index === times.length - 1 ? "bg-primary" : "bg-foreground/70",
+                  )}
+                  style={{ height: `${Math.max(6, (ms / slowest) * 100)}%` }}
+                  initial={{ scaleY: 0 }}
+                  animate={{ scaleY: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                />
+                <span className="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 rounded bg-foreground px-1 tabular text-[10px] text-background opacity-0 transition-opacity group-hover:opacity-100">
+                  {formatTime(ms, "round", 2)}
+                </span>
+              </motion.li>
+            ))}
+          </AnimatePresence>
+        </ol>
+      </div>
+    </div>
   );
 }
 
@@ -293,23 +390,25 @@ function SessionSummaryCard({
     before?.meanMs != null && today.meanMs != null ? today.meanMs - before.meanMs : null;
   return (
     <motion.section
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      className="grid gap-4 rounded-3xl p-6 text-center glass"
+      initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      className="tile grid gap-4 p-7 text-center"
       data-testid="drill-summary"
     >
       <motion.span
-        className="mx-auto grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground"
-        initial={{ rotate: -90, scale: 0 }}
-        animate={{ rotate: 0, scale: 1 }}
-        transition={{ type: "spring", stiffness: 200, damping: 12 }}
+        className="mx-auto grid size-12 place-items-center rounded-full bg-primary/10 text-primary"
+        initial={{ scale: 0.4, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 220, damping: 16 }}
       >
-        <Target className="size-7" />
+        <Target className="size-6" />
       </motion.span>
-      <h2 className="text-2xl font-semibold">Session saved</h2>
+      <h2 className="font-display text-[2.4rem] leading-none">
+        Session <em className="text-primary">saved</em>
+      </h2>
       {untimed ? (
         <>
-          <p className="tabular text-4xl font-bold text-primary">
+          <p className="font-display tabular text-[3.4rem] leading-none text-primary">
             {today.count} {today.count === 1 ? "round" : "rounds"}
           </p>
           <p className="text-sm text-muted-foreground">
@@ -318,7 +417,9 @@ function SessionSummaryCard({
         </>
       ) : (
         <>
-          <p className="tabular text-4xl font-bold text-primary">{secondsText(today.meanMs)}</p>
+          <p className="font-display tabular text-[3.4rem] leading-none">
+            {secondsText(today.meanMs)}
+          </p>
           <p className="text-sm text-muted-foreground">
             Mean of {today.count} · best {secondsText(today.bestMs)}
             {change !== null
@@ -327,7 +428,7 @@ function SessionSummaryCard({
           </p>
         </>
       )}
-      <p className="mx-auto max-w-md rounded-xl bg-background/40 p-3 text-sm">
+      <p className="mx-auto max-w-md border-l-2 border-primary pl-3 text-left text-sm">
         <span className="font-medium">What to look for:</span> {signal}
       </p>
     </motion.section>

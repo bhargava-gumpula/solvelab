@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Timer } from "lucide-react";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Play, RotateCcw, Timer } from "lucide-react";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { PageHeading } from "@/components/layout/page-heading";
 import { DailyCheckCard } from "@/components/tests/daily-check-card";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CORE_TESTS, EXTRA_TESTS, getExercise, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
@@ -42,6 +44,8 @@ import type { DiagnosticRun } from "@/types/domain";
 export function SolveProfileView() {
   const { loaded, profile, settings, runs } = useSolveProfile();
   const goalId = settings?.targetMilestone ?? null;
+  // Pick Slow, Average or Fast in the summary to pick those parts out below.
+  const [pace, setPace] = useState<"slow" | "average" | "fast" | null>(null);
 
   const heading = (
     <PageHeading
@@ -77,14 +81,20 @@ export function SolveProfileView() {
   return (
     <>
       {heading}
-      <div className="grid gap-5">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-5" data-pace-filter={pace ?? undefined}>
         <TrainingDataNotice />
         {goal ? (
-          <NextStep profile={profile} runs={runs} goalLabel={goal.label} />
+          <NextStep
+            profile={profile}
+            runs={runs}
+            goalLabel={goal.label}
+            pace={pace}
+            onPace={(tag) => setPace((current) => (current === tag ? null : tag))}
+          />
         ) : (
-          <section className="rounded-3xl p-6 glass md:p-8" data-testid="pick-goal">
+          <section className="tile p-6 md:p-8" data-testid="pick-goal">
             <p className="eyebrow text-primary">Step 1 of 2</p>
-            <h2 className="mt-1 text-xl font-semibold tracking-tight">
+            <h2 className="mt-2 font-display text-[2.2rem] leading-[1.02]">
               What time are you aiming for?
             </h2>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
@@ -126,10 +136,14 @@ function NextStep({
   profile,
   runs,
   goalLabel,
+  pace,
+  onPace,
 }: {
   profile: SolveProfile;
   runs: DiagnosticRun[];
   goalLabel: string;
+  pace: "slow" | "average" | "fast" | null;
+  onPace: (tag: "slow" | "average" | "fast") => void;
 }) {
   const complete = profile.complete;
   const next = complete ? null : profile.nextTest;
@@ -140,11 +154,11 @@ function NextStep({
   const { coreDone, coreTotal } = profile;
 
   return (
-    <section className="rounded-3xl p-6 glass md:p-8" data-testid="profile-summary">
-      <div className="flex flex-wrap items-start justify-between gap-6">
+    <section className="tile p-6 md:p-8" data-testid="profile-summary">
+      <div className="flex flex-wrap items-center justify-between gap-6">
         <div className="max-w-xl min-w-0">
           <p className="eyebrow text-primary">{started ? `Goal: ${goalLabel}` : "Step 2 of 2"}</p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight">
+          <h2 className="mt-2 font-display text-[2.2rem] leading-[1.02]">
             {!started
               ? "Find out what’s slowing you down"
               : complete
@@ -159,15 +173,24 @@ function NextStep({
                 : "Keep going to fill in the rest. Every part below updates as you finish tests."}
           </p>
           {started ? (
-            <ul className="mt-5 flex flex-wrap gap-3" aria-label="Summary">
-              <SummaryCount tag="slow" count={profile.counts.slow} />
-              <SummaryCount tag="average" count={profile.counts.average} />
-              <SummaryCount tag="fast" count={profile.counts.fast} />
+            <ul
+              className="mt-5 flex flex-wrap gap-3"
+              aria-label="Summary: pick one to find those parts"
+            >
+              {(["slow", "average", "fast"] as const).map((tag) => (
+                <SummaryCount
+                  key={tag}
+                  tag={tag}
+                  count={profile.counts[tag]}
+                  pressed={pace === tag}
+                  onPress={() => onPace(tag)}
+                />
+              ))}
             </ul>
           ) : null}
           {started && !complete ? (
             <div
-              className="mt-4 h-2 max-w-sm overflow-hidden rounded-full bg-muted"
+              className="mt-4 h-[3px] max-w-sm overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--foreground)_10%,transparent)]"
               role="progressbar"
               aria-label="Tests done"
               aria-valuemin={0}
@@ -185,7 +208,7 @@ function NextStep({
         {complete ? (
           <DailyCheckCard className="w-full max-w-sm" />
         ) : next && test && status ? (
-          <div className="w-full max-w-sm rounded-2xl border bg-background/40 p-4">
+          <div className="w-full max-w-sm rounded-[1.4rem] border border-[var(--hairline)] bg-[var(--tile-strong)] p-5">
             <p className="text-xs text-muted-foreground">Up next</p>
             <p className="mt-0.5 font-semibold">{testTitle(next)}</p>
             <p className="mt-1 text-sm text-muted-foreground">{test.whatItShows}</p>
@@ -209,11 +232,36 @@ function NextStep({
   );
 }
 
-function SummaryCount({ tag, count }: { tag: "slow" | "average" | "fast"; count: number }) {
+function SummaryCount({
+  tag,
+  count,
+  pressed,
+  onPress,
+}: {
+  tag: "slow" | "average" | "fast";
+  count: number;
+  pressed: boolean;
+  onPress: () => void;
+}) {
   return (
-    <li className="flex items-center gap-2.5 rounded-xl border bg-background/40 px-4 py-2">
-      <span className="font-mono tabular text-xl font-semibold">{count}</span>
-      <PaceBadge tag={tag} className="rounded-lg px-2.5 py-1 text-sm" />
+    <li>
+      <button
+        type="button"
+        onClick={onPress}
+        aria-pressed={pressed}
+        aria-label={`${count} ${tag}: ${pressed ? "show every part" : `pick out the ${tag} parts`}`}
+        className={cn(
+          "flex items-center gap-2.5 rounded-full border py-1.5 pr-2 pl-4 transition-[transform,border-color,box-shadow] duration-200 hover:-translate-y-px active:scale-[0.97]",
+          pressed
+            ? "border-foreground shadow-[var(--shadow-tile)]"
+            : "border-[var(--hairline)] bg-[var(--tile-strong)]",
+        )}
+      >
+        <span className="font-figures text-[1.55rem] leading-none tracking-[-0.015em]">
+          {count}
+        </span>
+        <PaceBadge tag={tag} className="rounded-lg px-2.5 py-1 text-sm" />
+      </button>
     </li>
   );
 }
@@ -233,12 +281,13 @@ function AspectGroupSection({
 }) {
   const { decimals } = useTimeFormat();
   return (
-    <section aria-label={title} className="rounded-3xl p-4 glass md:p-5">
-      <h2 className="px-1 text-base font-semibold">{title}</h2>
+    <section aria-label={title} className="tile p-4 md:p-5">
+      <h2 className="font-display text-[1.8rem] leading-none">{title}</h2>
       <Accordion type="multiple" className="mt-1">
         {aspects.map((aspect) => (
           <AspectRow
             key={aspect.id}
+            groupTitle={title}
             aspect={aspect}
             profile={profile}
             runs={runs}
@@ -252,12 +301,15 @@ function AspectGroupSection({
 }
 
 function AspectRow({
+  groupTitle,
   aspect,
   profile,
   runs,
   goalLabel,
   decimals,
 }: {
+  /** The section's heading: a row with the same name doesn't repeat it (wider screens). */
+  groupTitle: string;
   aspect: AspectResult;
   profile: SolveProfile;
   runs: DiagnosticRun[];
@@ -272,29 +324,50 @@ function AspectRow({
   const trend = trendOf(aspect);
 
   return (
-    <AccordionItem value={aspect.id} data-testid={`aspect-row-${aspect.id}`}>
-      <div className="grid items-center gap-x-3 gap-y-1 pb-2 sm:grid-cols-[minmax(0,1fr)_15rem] sm:pb-0">
-        <AccordionTrigger className="min-w-0 flex-1 items-center py-3 hover:no-underline">
-          <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[minmax(0,1fr)_7rem_9rem_5.5rem]">
+    <AccordionItem
+      value={aspect.id}
+      data-testid={`aspect-row-${aspect.id}`}
+      data-pace-row={aspect.tag ?? "untested"}
+      data-reveal-scope="aspect"
+    >
+      <div className="grid items-center gap-x-3 gap-y-1 pb-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:pb-0">
+        <AccordionTrigger className="min-w-0 flex-1 items-center py-3.5 hover:no-underline">
+          <div className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 sm:grid-cols-[minmax(0,1fr)_8.5rem_6rem]">
             <div className="min-w-0">
-              <p className="font-semibold">{aspect.definition.label}</p>
-              <p className="hidden truncate text-xs font-normal text-muted-foreground md:block">
+              <p
+                className={cn(
+                  "font-display text-[1.3rem] leading-tight",
+                  aspect.definition.label === groupTitle && "md:sr-only",
+                )}
+              >
+                {aspect.definition.label}
+              </p>
+              <p
+                className={cn(
+                  "hidden truncate text-xs font-normal text-muted-foreground md:block",
+                  aspect.definition.label === groupTitle && "md:text-sm md:text-foreground/80",
+                )}
+              >
                 {aspect.definition.description}
               </p>
             </div>
-            <p
-              className="flex items-center justify-end gap-1 font-mono tabular text-base font-semibold sm:justify-start"
-              data-testid="aspect-value"
-            >
-              {measured ? formatAspectValue(kind, aspect.value, decimals) : "—"}
-              {trend ? <TrendIcon {...trend} /> : null}
-            </p>
-            <p className="text-xs font-normal text-muted-foreground">
-              {aspect.target === null
-                ? "No goal"
-                : `Goal ${formatAspectGoal(kind, aspect.target, decimals)}`}
-            </p>
-            <div className="flex justify-end sm:justify-start">
+            <div className="text-right sm:text-left">
+              <p
+                className="flex items-baseline justify-end gap-1 font-figures text-[1.6rem] leading-none tracking-[-0.015em] sm:justify-start"
+                data-testid="aspect-value"
+              >
+                <AspectFigure
+                  text={measured ? formatAspectValue(kind, aspect.value, decimals) : "—"}
+                />
+                {trend ? <TrendIcon {...trend} /> : null}
+              </p>
+              <p className="mt-1 text-[11px] font-normal text-muted-foreground">
+                {aspect.target === null
+                  ? "No goal"
+                  : `goal ${formatAspectGoal(kind, aspect.target, decimals).replace(/^Under/, "under")}`}
+              </p>
+            </div>
+            <div className="col-span-2 flex justify-start sm:col-span-1">
               <PaceBadge tag={measured && aspect.tag ? aspect.tag : "untested"} />
             </div>
           </div>
@@ -355,16 +428,7 @@ function AspectAction({
 }) {
   if (timerBased) {
     return (
-      <Button
-        asChild
-        size="sm"
-        variant="ghost"
-        className="h-auto min-h-8 w-full py-1.5 whitespace-normal"
-      >
-        <Link href="/timer/">
-          <Timer /> Solve on the timer
-        </Link>
-      </Button>
+      <CompactAction href="/timer/" label="Solve on the timer" short="Timer" icon={Timer} reveal />
     );
   }
   const testId = aspect.nextTest;
@@ -372,30 +436,83 @@ function AspectAction({
   const state = testStatus(runs, testId).state;
   const taken = profile.testsTaken.includes(testId);
   const primary = aspect.value === null || aspect.missingTests.length > 0;
+  const label = testActionLabel(testId, state === "new" && taken ? "done" : state);
+  const verb = label.split(" ")[0];
   return (
-    <Button
-      asChild
-      size="sm"
-      variant={primary ? "outline" : "ghost"}
-      className="h-auto min-h-8 w-full py-1.5 whitespace-normal"
-    >
-      <Link href={testHref(testId)} data-testid={`aspect-action-${aspect.id}`}>
-        {testActionLabel(testId, state === "new" && taken ? "done" : state)}
-      </Link>
-    </Button>
+    <CompactAction
+      href={testHref(testId)}
+      label={label}
+      short={verb === "Retake" ? "Retest" : verb === "Take" ? "Take test" : verb!}
+      icon={verb === "Retake" ? RotateCcw : Play}
+      primary={primary}
+      reveal={!primary}
+      testId={`aspect-action-${aspect.id}`}
+    />
+  );
+}
+
+/** A small pill with an icon and one word; the full action is its name and tooltip. */
+function CompactAction({
+  href,
+  label,
+  short,
+  icon: Icon,
+  primary = false,
+  reveal = false,
+  testId,
+}: {
+  href: string;
+  label: string;
+  short: string;
+  icon: React.ComponentType<{ className?: string }>;
+  primary?: boolean;
+  /** Secondary actions (retest, timer) show when you point at or tab into their row. */
+  reveal?: boolean;
+  testId?: string;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          asChild
+          size="sm"
+          variant={primary ? "default" : "outline"}
+          className="h-8 justify-self-start rounded-full px-3 sm:justify-self-end"
+          data-reveal={reveal ? "aspect" : undefined}
+        >
+          <Link href={href} aria-label={label} data-testid={testId}>
+            <Icon className="size-3.5" />
+            {short}
+          </Link>
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/** "2.05 s" → a serif figure with a small unit; the text stays whole for copy and tests. */
+function AspectFigure({ text }: { text: string }) {
+  const match = /^([\d.:]+)(.*)$/.exec(text);
+  if (!match) return <>{text}</>;
+  return (
+    <>
+      {match[1]}
+      <span className="font-sans text-xs font-medium text-muted-foreground">{match[2]}</span>
+    </>
   );
 }
 
 function AllTests({ runs }: { runs: DiagnosticRun[] }) {
   return (
-    <section aria-labelledby="all-tests-heading" className="rounded-3xl p-4 glass md:p-5">
-      <h2 id="all-tests-heading" className="px-1 text-base font-semibold">
+    <section aria-labelledby="all-tests-heading" className="tile p-4 md:p-5">
+      <h2 id="all-tests-heading" className="px-1 font-display text-[1.8rem] leading-none">
         All tests
       </h2>
       <p className="mt-0.5 px-1 text-sm text-muted-foreground">
         Take them in any order. Your latest finished run of each test is used.
       </p>
-      <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <ul className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {CORE_TESTS.map((testId) => (
           <TestCard key={testId} testId={testId} runs={runs} />
         ))}
@@ -405,7 +522,7 @@ function AllTests({ runs }: { runs: DiagnosticRun[] }) {
         Optional. They add detail to cross → F2L and lookahead but aren’t needed for a complete
         profile.
       </p>
-      <ul className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <ul className="mt-3 grid grid-cols-[minmax(0,1fr)] gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {EXTRA_TESTS.map((testId) => (
           <TestCard key={testId} testId={testId} runs={runs} />
         ))}
@@ -425,16 +542,17 @@ function TestCard({ testId, runs }: { testId: string; runs: DiagnosticRun[] }) {
   const average = estimate(times)?.mean ?? null;
   return (
     <li
-      className="flex flex-col gap-2 rounded-2xl border bg-background/30 p-4"
+      className="flex flex-col gap-2 rounded-[1.25rem] border border-[var(--hairline)] bg-[var(--tile-strong)]/60 p-4"
       data-testid={`test-card-${testId}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="font-semibold">{testTitle(testId)}</p>
+        <p className="font-display text-[1.35rem] leading-tight">{testTitle(testId)}</p>
         <span
           className={cn(
-            "shrink-0 rounded-md px-2 py-0.5 text-[11px] font-medium",
-            status.state === "done" && "bg-primary/15 text-primary",
-            status.state === "in_progress" && "bg-amber-500/15 text-amber-800 dark:text-amber-300",
+            "shrink-0 rounded-full px-2 py-0.5 text-[11px] font-medium",
+            status.state === "done" && "bg-primary/12 text-primary",
+            status.state === "in_progress" &&
+              "bg-gold/15 text-[color-mix(in_oklab,var(--gold)_78%,var(--foreground))]",
             status.state === "new" && "bg-muted text-muted-foreground",
           )}
         >
@@ -445,22 +563,27 @@ function TestCard({ testId, runs }: { testId: string; runs: DiagnosticRun[] }) {
               : "Not taken"}
         </span>
       </div>
-      <p className="text-sm text-muted-foreground">{test.whatItShows}</p>
-      {average !== null ? (
-        <p className="text-xs text-muted-foreground">
-          Last result:{" "}
-          <span className="font-mono tabular text-foreground">{formatTime(average, "round")}</span>{" "}
-          average of {times.length}
-        </p>
-      ) : null}
-      <Button
-        asChild
-        size="sm"
-        variant={status.state === "done" ? "ghost" : "outline"}
-        className="mt-auto self-start"
-      >
-        <Link href={testHref(testId)}>{testActionLabel(testId, status.state)}</Link>
-      </Button>
+      <p className="text-sm text-pretty text-muted-foreground">{test.whatItShows}</p>
+      <div className="mt-auto flex items-end justify-between gap-3 pt-1">
+        {average !== null ? (
+          <p className="text-[11px] text-muted-foreground">
+            <span className="block font-figures text-[1.7rem] leading-none tracking-[-0.015em] text-foreground">
+              {formatTime(average, "round")}
+            </span>
+            last result · average of {times.length}
+          </p>
+        ) : (
+          <span />
+        )}
+        <Button
+          asChild
+          size="sm"
+          variant={status.state === "done" ? "outline" : "default"}
+          className="h-8 shrink-0 rounded-full px-3.5"
+        >
+          <Link href={testHref(testId)}>{testActionLabel(testId, status.state)}</Link>
+        </Button>
+      </div>
     </li>
   );
 }

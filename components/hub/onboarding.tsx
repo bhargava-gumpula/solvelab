@@ -17,7 +17,6 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
-import { PaceBadge } from "@/components/coach/pace-badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { COURSES } from "@/data/hub/courses";
@@ -38,6 +37,8 @@ import {
 } from "@/lib/hub/intro";
 import { courseForRung } from "@/data/hub/courses";
 import { cn } from "@/lib/utils";
+import { Tilt } from "@/components/fx/tilt";
+import { CoverArt } from "./cover-art";
 import type { CubingMethod, HubIntro, KnownAlgorithms } from "@/types/domain";
 import { celebrate, CountUp } from "./fx";
 
@@ -162,7 +163,7 @@ function OnboardingFlow({ hub }: { hub: Hub }) {
           {STEPS.slice(1).map((item, dot) => (
             <motion.span
               key={item}
-              className="h-2 flex-1 rounded-full"
+              className="h-[3px] flex-1 rounded-full"
               initial={false}
               animate={{
                 backgroundColor: dot < index ? "var(--primary)" : "var(--muted)",
@@ -181,7 +182,7 @@ function OnboardingFlow({ hub }: { hub: Hub }) {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: direction * -50 }}
           transition={{ type: "spring", stiffness: 260, damping: 26 }}
-          className="rounded-3xl p-6 glass md:p-8"
+          className="tile p-6 md:p-8"
           data-testid={`onboarding-${step}`}
         >
           {questionNumber >= 0 ? (
@@ -344,20 +345,26 @@ function Intro({ onStart }: { onStart: () => void }) {
   ];
   return (
     <div className="grid gap-5">
-      <h1 className="text-3xl font-semibold tracking-tight">Let&apos;s find your level</h1>
-      <ul className="grid gap-2.5">
+      <h1 className="font-display text-[2.9rem] leading-[0.98]">Let&apos;s find your level</h1>
+      <p className="-mt-2 text-muted-foreground">
+        About ten minutes. The solves and tests can wait if you&apos;re short of time.
+      </p>
+      <ul className="grid">
         {parts.map((part, index) => (
           <motion.li
             key={part.text}
             initial={{ opacity: 0, x: -12 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 + index * 0.1 }}
-            className="flex items-center gap-3 rounded-2xl border bg-background/40 p-3"
+            className="flex items-center gap-4 border-t border-[var(--hairline)] py-3 first:border-t-0"
           >
-            <span className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary">
+            <span className="font-display text-2xl leading-none text-primary italic">
+              {index + 1}.
+            </span>
+            <span className="grid size-9 place-items-center rounded-full bg-primary/10 text-primary">
               <part.icon className="size-4.5" />
             </span>
-            <span className="text-sm">{part.text}</span>
+            <span className="text-[15px]">{part.text}</span>
           </motion.li>
         ))}
       </ul>
@@ -377,7 +384,7 @@ function Question({
 }) {
   return (
     <div>
-      <h1 className="text-2xl font-semibold tracking-tight text-balance">{title}</h1>
+      <h1 className="font-display text-[2.4rem] leading-[1.02] text-balance">{title}</h1>
       {hint ? <p className="mt-1 text-sm text-muted-foreground">{hint}</p> : null}
       <div className="mt-5">{children}</div>
     </div>
@@ -506,7 +513,7 @@ function SolvesStep({
       <p className="eyebrow text-primary">Step 2 · the timer</p>
       {enough ? (
         <>
-          <h1 className="text-2xl font-semibold tracking-tight">Your timer says</h1>
+          <h1 className="font-display text-[2.4rem] leading-[1.02]">Your timer says</h1>
           <p className="text-6xl font-bold tracking-tight text-primary">
             <CountUp value={Math.round(average / 100) / 10} decimals={1} suffix=" s" />
           </p>
@@ -524,7 +531,7 @@ function SolvesStep({
         </>
       ) : (
         <>
-          <h1 className="text-2xl font-semibold tracking-tight">
+          <h1 className="font-display text-[2.4rem] leading-[1.02]">
             Do {MIN_TIMER_SOLVES - count} more {MIN_TIMER_SOLVES - count === 1 ? "solve" : "solves"}{" "}
             on the timer
           </h1>
@@ -580,7 +587,7 @@ function TestsStep({
   return (
     <div className="grid gap-4">
       <p className="eyebrow text-primary">Step 3 · the tests</p>
-      <h1 className="text-2xl font-semibold tracking-tight">
+      <h1 className="font-display text-[2.4rem] leading-[1.02]">
         {coreDone === coreTotal ? "Every test done" : `${coreDone} of ${coreTotal} tests done`}
       </h1>
       <p className="text-muted-foreground">
@@ -663,17 +670,35 @@ function Results({ hub, onStart }: { hub: ReturnType<typeof useHub>; onStart: ()
   return (
     <div className="grid gap-6">
       <div className="text-center">
-        <motion.span
-          className="mx-auto grid size-16 place-items-center rounded-2xl bg-primary text-primary-foreground"
-          initial={{ scale: 0, rotate: -120 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 200, damping: 12 }}
-        >
-          <PartyPopper className="size-8" />
-        </motion.span>
+        {course ? (
+          <motion.div
+            className="mx-auto w-40"
+            initial={{ scale: 0.6, rotate: -14, opacity: 0 }}
+            animate={{ scale: 1, rotate: -4, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 180, damping: 14 }}
+          >
+            <Tilt className="rounded-[1.2rem]">
+              <CoverArt
+                hue={course.hue}
+                index={COURSES.indexOf(course) * 3 + 1}
+                number={`Nº ${String(COURSES.indexOf(course) + 1).padStart(2, "0")}`}
+                className="aspect-square rounded-[1.2rem] shadow-[var(--shadow-float)]"
+              />
+            </Tilt>
+          </motion.div>
+        ) : (
+          <motion.span
+            className="mx-auto grid size-16 place-items-center rounded-full bg-primary text-primary-foreground"
+            initial={{ scale: 0, rotate: -120 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 200, damping: 12 }}
+          >
+            <PartyPopper className="size-7" />
+          </motion.span>
+        )}
         <p className="mt-4 eyebrow text-primary">Your course</p>
         <motion.h1
-          className="mt-1 text-5xl font-bold tracking-tight"
+          className="mt-2 font-display text-[4.2rem] leading-none"
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.25, type: "spring", stiffness: 220, damping: 14 }}
@@ -681,43 +706,57 @@ function Results({ hub, onStart }: { hub: ReturnType<typeof useHub>; onStart: ()
         >
           {course?.title ?? "Pick any course"}
         </motion.h1>
-        {course ? <p className="mt-2 text-muted-foreground">{course.tagline}</p> : null}
+        {course ? (
+          <p className="mt-3 font-display text-[1.4rem] text-muted-foreground italic">
+            {course.tagline}
+          </p>
+        ) : null}
       </div>
 
       {agreements.length ? (
         <section>
-          <h2 className="mb-2 text-sm font-semibold">What you said, and what we measured</h2>
+          <h2 className="mb-3 eyebrow">What you said, and what we measured</h2>
+          {/* One line per verdict, not one per part: "Cross and F2L didn't feel slow, but they are." */}
           <ul className="grid gap-2" data-testid="agreements">
-            {agreements.map((row, index) => (
-              <motion.li
-                key={row.aspectId}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.08 }}
-                className="flex items-center gap-3 rounded-xl border bg-background/40 px-3 py-2 text-sm"
-              >
-                {row.agreement === "fine" ? (
-                  <TrendingUp className="size-4 text-[var(--known)]" />
-                ) : row.agreement === "unmeasured" ? (
-                  <CircleHelp className="size-4 text-muted-foreground" />
-                ) : (
-                  <TrendingDown className="size-4 text-destructive" />
-                )}
-                <span className="flex-1">
-                  <span className="font-medium">{row.label}</span>{" "}
-                  <span className="text-muted-foreground">
-                    {row.agreement === "agreed"
-                      ? "— you were right, it's slow."
-                      : row.agreement === "fine"
-                        ? "— felt slow, but it's on pace. Good news."
-                        : row.agreement === "hidden"
-                          ? "— didn't feel slow, but it is."
-                          : "— you said it's slow; not measured yet."}
+            {(["hidden", "agreed", "fine", "unmeasured"] as const).map((kind, index) => {
+              const rows = agreements.filter((row) => row.agreement === kind);
+              if (!rows.length) return null;
+              const many = rows.length > 1;
+              const names = rows.map((row) => row.label);
+              const list =
+                names.length < 2
+                  ? names[0]
+                  : `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+              return (
+                <motion.li
+                  key={kind}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + index * 0.08 }}
+                  className="flex items-start gap-3 border-t border-[var(--hairline)] px-1 py-2.5 text-sm"
+                >
+                  {kind === "fine" ? (
+                    <TrendingUp className="mt-0.5 size-4 shrink-0 text-primary" />
+                  ) : kind === "unmeasured" ? (
+                    <CircleHelp className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
+                  ) : (
+                    <TrendingDown className="mt-0.5 size-4 shrink-0 text-foreground" />
+                  )}
+                  <span className="flex-1 text-pretty">
+                    <span className="font-medium">{list}</span>{" "}
+                    <span className="text-muted-foreground">
+                      {kind === "agreed"
+                        ? `— you were right, ${many ? "they're" : "it's"} slow.`
+                        : kind === "fine"
+                          ? `— felt slow, but ${many ? "they're" : "it's"} on pace. Good news.`
+                          : kind === "hidden"
+                            ? `— didn't feel slow, but ${many ? "they are" : "it is"}.`
+                            : `— you said ${many ? "they're" : "it's"} slow; not measured yet.`}
+                    </span>
                   </span>
-                </span>
-                {row.tag ? <PaceBadge tag={row.tag} /> : null}
-              </motion.li>
-            ))}
+                </motion.li>
+              );
+            })}
           </ul>
         </section>
       ) : measured.length === 0 ? (

@@ -1,8 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { MessageSquareText, Sparkles, Trash2 } from "lucide-react";
-import { BorderBeam } from "@/components/ui/border-beam";
+import { MessageSquareText, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Solve } from "@/types/domain";
 import { PenaltyToggle } from "./penalty-toggle";
@@ -10,66 +9,51 @@ import { setSolvePenalty } from "./solve-actions";
 
 interface LastSolveBarProps {
   solve: Solve | undefined;
-  isPersonalBest: boolean;
   onOpenDetails: (solve: Solve) => void;
   onDelete: (solve: Solve) => void;
 }
 
-/** Quick actions for the most recent solve, directly under the timer. */
-export function LastSolveBar({
-  solve,
-  isPersonalBest,
-  onOpenDetails,
-  onDelete,
-}: LastSolveBarProps) {
+/** Quick actions for the most recent solve: quiet text buttons at the end of the figures. */
+export function LastSolveBar({ solve, onOpenDetails, onDelete }: LastSolveBarProps) {
+  if (!solve) return null;
   return (
-    <div className="flex min-h-0 justify-center" data-focus-hide>
-      {solve && (
-        <motion.div
-          key={solve.id}
-          role="group"
-          aria-label="Last solve actions"
-          initial={{ opacity: 0, y: 10, scale: 0.98 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ type: "spring", stiffness: 360, damping: 30 }}
-          className="relative flex flex-wrap items-center justify-center gap-1.5 rounded-full px-2 py-1.5 glass"
-        >
-          {isPersonalBest && (
-            <>
-              <BorderBeam size={70} duration={4} />
-              <span className="flex items-center gap-1 rounded-full bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary">
-                <Sparkles className="size-3.5" aria-hidden />
-                New best single
-              </span>
-            </>
-          )}
-          <PenaltyToggle
-            value={solve.penalty}
-            onChange={(penalty) => setSolvePenalty(solve, penalty)}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="rounded-full"
-            onClick={() => onOpenDetails(solve)}
-            aria-label={solve.notes ? "Edit note" : "Add note"}
-            onMouseUp={(event) => event.currentTarget.blur()}
-          >
-            <MessageSquareText />
-            <span className="hidden sm:inline">{solve.notes ? "Note" : "Note"}</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="rounded-full hover:text-destructive"
-            onClick={() => onDelete(solve)}
-            aria-label="Delete last solve"
-            onMouseUp={(event) => event.currentTarget.blur()}
-          >
-            <Trash2 />
-          </Button>
-        </motion.div>
-      )}
-    </div>
+    <motion.div
+      key={solve.id}
+      role="group"
+      aria-label="Last solve actions"
+      data-focus-hide
+      initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+      animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.18 }}
+      className="flex items-center gap-0.5"
+    >
+      <PenaltyToggle
+        quiet
+        value={solve.penalty}
+        onChange={(penalty) => setSolvePenalty(solve, penalty)}
+      />
+      <span aria-hidden className="mx-0.5 h-5 w-px bg-[var(--hairline)]" />
+      <Button
+        variant="ghost"
+        size="sm"
+        className="rounded-full text-[12px] text-muted-foreground hover:text-foreground"
+        onClick={() => onOpenDetails(solve)}
+        aria-label={solve.notes ? "Edit note" : "Add note"}
+        onMouseUp={(event) => event.currentTarget.blur()}
+      >
+        <MessageSquareText />
+        <span className="hidden sm:inline">Note</span>
+      </Button>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        className="rounded-full text-muted-foreground hover:text-destructive"
+        onClick={() => onDelete(solve)}
+        aria-label="Delete last solve"
+        onMouseUp={(event) => event.currentTarget.blur()}
+      >
+        <Trash2 />
+      </Button>
+    </motion.div>
   );
 }

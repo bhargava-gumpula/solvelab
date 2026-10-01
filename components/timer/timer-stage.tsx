@@ -15,18 +15,29 @@ const TONE_CLASS: Record<DisplayTone, string> = {
   result: "text-timer-idle",
   running: "text-timer-idle",
   holding: "text-timer-holding",
-  armed: "text-timer-armed text-glow",
+  armed: "text-timer-armed",
   inspection: "text-timer-inspection",
 };
 
+/*
+ * One numeral system (council fixes): the Clean face is the interface grotesk
+ * at one weight with tabular figures in every state, so the time never changes
+ * style or width. State is carried by colour, the meter and the field.
+ */
 const FONT_CLASS = {
-  clean: "font-mono tracking-tight",
-  lcd: "font-lcd tracking-normal",
-  dot: "font-dot tracking-normal",
+  clean: "font-figures font-medium tracking-[-0.02em]",
+  lcd: "font-lcd font-semibold tracking-normal",
+  dot: "font-dot font-semibold tracking-normal",
 } as const;
 
 const DIGIT_BASE =
-  "tabular leading-none font-semibold select-none text-[length:calc(clamp(4.25rem,16vw,11.5rem)*var(--timer-scale))]";
+  "tabular leading-none select-none text-[length:calc(var(--digit-size,clamp(4.5rem,min(30vw,19svh),11.5rem))*var(--timer-scale))]";
+
+/** "12.34" → ["12", ".34", ""]; "1:02.34+" → ["1:02", ".34", "+"]. Anything else stays whole. */
+function splitTime(text: string): [string, string, string] | null {
+  const match = /^(\d[\d:]*)(\.\d+)(\+?)$/.exec(text);
+  return match ? [match[1], match[2], match[3]] : null;
+}
 
 /**
  * Doto draws "." as a small plus, which reads like a +2 penalty, so the
@@ -59,6 +70,12 @@ interface TimerStageProps {
   hideWhileRunning: boolean;
   liveAverages: { ao5: number | null; ao12: number | null } | null;
   hint: React.ReactNode;
+  /** Shown above the live averages between solves (delta or personal-best chip). */
+  badge?: React.ReactNode;
+  /** Where the digits sit between solves (the Studio cover sets them left on desktops). */
+  align?: "center" | "start";
+  /** The shown result is a new personal best: gold digits and an ink-bleed rule. */
+  personalBest?: boolean;
 }
 
 /**
@@ -72,6 +89,9 @@ export function TimerStage({
   hideWhileRunning,
   liveAverages,
   hint,
+  badge,
+  align = "center",
+  personalBest = false,
 }: TimerStageProps) {
   const { preferences } = useAppearance();
   const { state, now } = useTimerClock(store);
@@ -82,6 +102,7 @@ export function TimerStage({
   });
   const isWord = !/\d/.test(display.text);
   const font = preferences.digitFont;
+  const clean = font === "clean" && !isWord;
 
   const holdProgress =
     state.phase === "ready" && state.holdStartedAt !== null
@@ -90,11 +111,19 @@ export function TimerStage({
         : Math.min(1, (now - state.holdStartedAt) / config.holdToStartMs)
       : null;
   const inspectionElapsed = inspectionElapsedMs(state, now);
+  const atRest = state.phase === "idle" || state.phase === "stopped";
+  const pb = personalBest && state.phase === "stopped" && display.tone === "result";
+  const start = align === "start" && atRest;
+  const parts = clean ? splitTime(display.text) : null;
 
   return (
     <div
-      className="flex flex-col items-center"
-      style={{ "--timer-scale": preferences.timerScale } as React.CSSProperties}
+      className={cn("flex flex-col", start ? "items-start" : "items-center")}
+      style={
+        {
+          "--timer-scale": preferences.timerScale,
+        } as React.CSSProperties
+      }
     >
       <div className="relative">
         {font === "lcd" && !isWord && (
@@ -113,24 +142,44 @@ export function TimerStage({
         <motion.div
           data-testid="timer-display"
           data-tone={display.tone}
+          data-pb={pb ? "" : undefined}
           key={state.phase === "stopped" ? `result-${state.stoppedAt}` : "live"}
-          initial={state.phase === "stopped" ? { scale: 1.04 } : false}
+          initial={state.phase === "stopped" && !clean ? { scale: 1.04 } : false}
           animate={{ scale: 1 }}
           transition={{ type: "spring", stiffness: 420, damping: 24 }}
           className={cn(
             "relative transition-colors duration-100",
             isWord
-              ? "font-sans text-[length:calc(clamp(3rem,10vw,6rem)*var(--timer-scale))] leading-none font-semibold tracking-tight select-none"
+              ? "font-display text-[length:calc(clamp(3rem,10vw,6rem)*var(--timer-scale))] leading-none tracking-tight italic select-none"
               : cn(DIGIT_BASE, FONT_CLASS[font]),
             TONE_CLASS[display.tone],
           )}
         >
-          {font === "dot" && !isWord ? <DotMatrixText text={display.text} /> : display.text}
+          {font === "dot" && !isWord ? (
+            <DotMatrixText text={display.text} />
+          ) : parts ? (
+            <>
+              {parts[0]}
+              <span className="time-fraction">{parts[1]}</span>
+              {parts[2] ? <span className="time-fraction">{parts[2]}</span> : null}
+            </>
+          ) : (
+            display.text
+          )}
         </motion.div>
+        {pb ? <span aria-hidden className="pb-rule" /> : null}
       </div>
 
       {/* Feedback strip: hold meter, inspection bar, or live averages. */}
-      <div className="mt-5 flex h-10 w-full max-w-md flex-col items-center justify-start gap-2">
+      <div
+        className={cn(
+          "flex w-full max-w-md flex-col justify-start gap-2",
+          start ? "items-start" : "items-center",
+          atRest && !badge && !hint && !liveAverages
+            ? "mt-0"
+            : "mt-[clamp(0.75rem,2.4svh,1.6rem)] min-h-10",
+        )}
+      >
         {holdProgress !== null && inspectionElapsed === null && config.holdToStartMs > 0 && (
           <Meter
             progress={holdProgress}
@@ -146,30 +195,46 @@ export function TimerStage({
           />
         )}
         {state.phase !== "running" && inspectionElapsed === null && holdProgress === null && (
-          <div data-focus-hide className="flex flex-col items-center gap-2">
-            {liveAverages && (
-              <p
-                className="flex items-center gap-4 text-sm text-muted-foreground"
-                aria-label="Live averages"
-              >
-                <span>
-                  ao5{" "}
-                  <AnimatedTime
-                    ms={liveAverages.ao5}
-                    className="ml-1 font-mono font-medium text-foreground"
-                  />
-                </span>
-                <span aria-hidden className="size-1 rounded-full bg-border" />
-                <span>
-                  ao12{" "}
-                  <AnimatedTime
-                    ms={liveAverages.ao12}
-                    className="ml-1 font-mono font-medium text-foreground"
-                  />
-                </span>
+          <div
+            data-focus-hide
+            className={cn("flex flex-col gap-2.5", start ? "items-start" : "items-center")}
+          >
+            <div
+              className={cn(
+                "flex flex-wrap items-center gap-x-4 gap-y-2",
+                start ? "justify-start" : "justify-center",
+              )}
+            >
+              {badge}
+              {liveAverages && (
+                <p
+                  className="flex items-baseline gap-4 text-[13px] text-muted-foreground"
+                  aria-label="Live averages"
+                >
+                  <span className="flex items-baseline gap-1.5">
+                    <span className="text-[13px]">ao5</span>
+                    <AnimatedTime
+                      ms={liveAverages.ao5}
+                      className="font-figures text-[15px] font-semibold text-foreground"
+                    />
+                  </span>
+                  <span aria-hidden className="size-1 self-center rounded-full bg-foreground/15" />
+                  <span className="flex items-baseline gap-1.5">
+                    <span className="text-[13px]">ao12</span>
+                    <AnimatedTime
+                      ms={liveAverages.ao12}
+                      className="font-figures text-[15px] font-semibold text-foreground"
+                    />
+                  </span>
+                </p>
+              )}
+            </div>
+            {hint ? (
+              // A soft pill of the backdrop colour so the one instruction holds over the swirl.
+              <p className="rounded-full bg-background/55 px-3.5 py-1 text-[14.5px] text-foreground/85">
+                {hint}
               </p>
-            )}
-            <p className="text-xs text-muted-foreground">{hint}</p>
+            ) : null}
           </div>
         )}
       </div>
@@ -191,19 +256,24 @@ function Meter({
   label: string;
 }) {
   return (
-    <div className="flex w-56 flex-col items-center gap-1.5">
-      <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+    <div className="flex w-80 max-w-full flex-col items-center gap-3.5">
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-foreground/12">
         <div
           className={cn(
-            "h-full rounded-full transition-colors",
-            tone === "armed"
-              ? "bg-timer-armed shadow-[0_0_16px_var(--timer-armed)]"
-              : "bg-timer-holding",
+            "absolute inset-y-0 left-0 rounded-full transition-colors",
+            tone === "armed" ? "bg-timer-armed" : "bg-timer-holding",
           )}
           style={{ width: `${progress * 100}%` }}
         />
       </div>
-      <span className="text-[11px] text-muted-foreground">{label}</span>
+      <span
+        className={cn(
+          "text-[19px] font-semibold tracking-wide",
+          tone === "armed" ? "timer-cue-armed text-timer-armed" : "text-timer-holding",
+        )}
+      >
+        {label}
+      </span>
     </div>
   );
 }
@@ -220,8 +290,8 @@ function InspectionBar({
   const total = limit + INSPECTION_GRACE_MS;
   const remaining = Math.max(0, 1 - elapsed / limit);
   return (
-    <div className="flex w-72 flex-col items-center gap-1.5">
-      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
+    <div className="flex w-80 max-w-full flex-col items-center gap-3.5">
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-foreground/12">
         <div
           className={cn(
             "h-full rounded-full",
@@ -242,8 +312,8 @@ function InspectionBar({
       </div>
       <span
         className={cn(
-          "text-[11px]",
-          cue ? "font-medium text-timer-inspection" : "text-muted-foreground",
+          "text-[15px] font-medium",
+          cue ? "text-timer-inspection" : "text-muted-foreground",
         )}
       >
         {elapsed > limit

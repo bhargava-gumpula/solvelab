@@ -105,7 +105,7 @@ function LessonReader({
 }) {
   const steps = useMemo(() => lesson.steps, [lesson]);
   return (
-    <article className="rounded-3xl p-6 glass md:p-8" data-testid="lesson-reader">
+    <article className="tile p-6 md:p-8" data-testid="lesson-reader">
       <button
         type="button"
         className="text-xs text-muted-foreground hover:text-foreground"
@@ -114,7 +114,7 @@ function LessonReader({
         ← All lessons
       </button>
       <p className="mt-3 eyebrow">{lesson.minutes} min</p>
-      <h2 className="mt-1 text-2xl font-semibold tracking-tight">{lesson.title}</h2>
+      <h2 className="mt-1 font-display text-[2.4rem] leading-[1.02]">{lesson.title}</h2>
       <p className="mt-2 text-sm text-muted-foreground">{lesson.summary}</p>
       <div className="mt-6 grid gap-4">
         {steps.map((step) => (

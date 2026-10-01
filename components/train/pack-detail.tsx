@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Check, CircleAlert, Dumbbell, Timer } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ArrowRight, Check, ChevronDown, CircleAlert, Dumbbell, Timer } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -22,7 +24,19 @@ import { usePackProgress } from "@/hooks/use-training-progress";
 import { drillHref } from "@/lib/hub/drills";
 import { cn } from "@/lib/utils";
 
-export function PackDetail({ pack }: { pack: TrainingPack }) {
+export function PackDetail({
+  pack,
+  variant = "full",
+}: {
+  pack: TrainingPack;
+  /**
+   * "unit" is the Hub unit page, which already shows the lessons as cards and
+   * the retest in its own header: no second lesson list or retest here, and
+   * the drills as one compact list with one open at a time.
+   */
+  variant?: "full" | "unit";
+}) {
+  const unitPage = variant === "unit";
   const { loaded, progress, setDone } = usePackProgress(pack);
   // A pack written for a level rather than one part of the solve has no
   // measurement of its own to show.
@@ -41,29 +55,34 @@ export function PackDetail({ pack }: { pack: TrainingPack }) {
     : 0;
 
   return (
-    <div className="grid gap-6">
-      <section className="rounded-3xl p-6 glass md:p-8">
+    <div className={cn("grid", unitPage ? "gap-12" : "gap-6")}>
+      <section className={unitPage ? "border-b border-[var(--hairline)] pb-10" : "tile p-6 md:p-8"}>
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Calling it "why this is slow" would be wrong for someone whose own
               measurement says this part is fine. */}
-          <p className="eyebrow text-primary">
+          <p className="eyebrow">
             {!definition
               ? `Why it matters at ${packBandLabel(pack)}`
               : aspect?.tag && aspect.tag !== "slow"
                 ? "What this is about"
                 : "Why this is slow"}
           </p>
-          {definition && aspect?.tag ? (
+          {definition && aspect?.tag && !unitPage ? (
             <span className="flex items-center gap-2 text-xs text-muted-foreground">
               Your {definition.label.toLowerCase()} <PaceBadge tag={aspect.tag} />
             </span>
           ) : null}
         </div>
-        <p className="mt-3 max-w-3xl leading-relaxed">{pack.why}</p>
+        <p className="mt-3 max-w-3xl font-display text-[1.45rem] leading-snug text-pretty md:text-[1.65rem]">
+          {pack.why}
+        </p>
         {loaded ? (
           <div className="mt-5 flex items-center gap-3">
-            <Progress value={readPercent} className="h-1.5 max-w-xs" aria-label="Lessons read" />
-            <span className="text-xs text-muted-foreground" data-testid="pack-progress">
+            <Progress value={readPercent} className="h-1 max-w-xs" aria-label="Lessons read" />
+            <span
+              className="text-xs whitespace-nowrap text-muted-foreground"
+              data-testid="pack-progress"
+            >
               {progress.lessonsDone}/{progress.lessonTotal} lessons read
             </span>
           </div>
@@ -72,69 +91,80 @@ export function PackDetail({ pack }: { pack: TrainingPack }) {
         )}
       </section>
 
-      <section aria-labelledby="lessons-heading">
-        <h2 id="lessons-heading" className="mb-3 text-base font-semibold">
-          Lessons
-        </h2>
-        <Accordion type="multiple" className="grid gap-3">
-          {pack.lessons.map((lesson) => (
-            <LessonBlock
-              key={lesson.id}
-              lesson={lesson}
-              done={progress.isLessonDone(lesson.id)}
-              loaded={loaded}
-              onToggle={(done) => setDone("lesson", lesson.id, done)}
-            />
-          ))}
-        </Accordion>
-      </section>
+      {unitPage ? null : (
+        <section aria-labelledby="lessons-heading">
+          <h2 id="lessons-heading" className="mb-3 font-display text-[2rem] leading-none">
+            Lessons
+          </h2>
+          <Accordion type="multiple" className="grid gap-3">
+            {pack.lessons.map((lesson) => (
+              <LessonBlock
+                key={lesson.id}
+                lesson={lesson}
+                done={progress.isLessonDone(lesson.id)}
+                loaded={loaded}
+                onToggle={(done) => setDone("lesson", lesson.id, done)}
+              />
+            ))}
+          </Accordion>
+        </section>
+      )}
 
-      <section aria-labelledby="drills-heading">
-        <h2 id="drills-heading" className="mb-1 text-base font-semibold">
-          Drills
-        </h2>
-        <p className="mb-3 text-sm text-muted-foreground">
-          Practice with a rule attached. The rule is the point — it forces the thing the lessons
-          describe, which ordinary solving lets you avoid. Choose <em>Practise this</em> and the
-          drill goes on your{" "}
-          <Link href="/train/" className="underline underline-offset-4">
-            Train
-          </Link>{" "}
-          page.
-        </p>
-        <div className="grid gap-3">
-          {pack.drills.map((drill) => (
-            <DrillBlock
-              key={drill.id}
-              packId={pack.id}
-              drill={drill}
-              done={progress.isDrillDone(drill.id)}
-              loaded={loaded}
-              onToggle={(done) => setDone("drill", drill.id, done)}
-            />
-          ))}
-        </div>
-      </section>
+      {unitPage ? (
+        <UnitDrills
+          packId={pack.id}
+          drills={pack.drills}
+          loaded={loaded}
+          isDone={progress.isDrillDone}
+          onToggle={(id, done) => setDone("drill", id, done)}
+        />
+      ) : (
+        <section aria-labelledby="drills-heading">
+          <h2 id="drills-heading" className="mb-1 font-display text-[2rem] leading-none">
+            Drills
+          </h2>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Practice with a rule attached. The rule is the point — it forces the thing the lessons
+            describe, which ordinary solving lets you avoid. Choose <em>Practise this</em> and the
+            drill goes on your{" "}
+            <Link href="/train/" className="underline underline-offset-4">
+              Train
+            </Link>{" "}
+            page.
+          </p>
+          <div className="grid gap-3">
+            {pack.drills.map((drill) => (
+              <DrillBlock
+                key={drill.id}
+                packId={pack.id}
+                drill={drill}
+                done={progress.isDrillDone(drill.id)}
+                loaded={loaded}
+                onToggle={(done) => setDone("drill", drill.id, done)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
-      <section className="rounded-2xl border border-dashed p-5">
-        <h2 className="flex items-center gap-2 text-sm font-semibold">
+      <section aria-labelledby="mistakes-heading">
+        <h2
+          id="mistakes-heading"
+          className="flex items-center gap-2 font-display text-[1.6rem] leading-none"
+        >
           <CircleAlert className="size-4 text-muted-foreground" aria-hidden /> What keeps this slow
         </h2>
-        <ul className="mt-2 grid gap-1.5 text-sm text-muted-foreground">
+        <ul className="mt-3 grid border-t border-[var(--hairline)] text-sm text-muted-foreground">
           {pack.mistakes.map((mistake) => (
-            <li key={mistake} className="flex gap-2">
-              <span
-                className="mt-2 size-1 shrink-0 rounded-full bg-muted-foreground/50"
-                aria-hidden
-              />
-              <span>{mistake}</span>
+            <li key={mistake} className="border-b border-[var(--hairline)] py-2.5 text-pretty">
+              {mistake}
             </li>
           ))}
         </ul>
       </section>
 
-      {aspect?.nextTest ? (
-        <section className="rounded-2xl p-5 glass">
+      {aspect?.nextTest && !unitPage ? (
+        <section className="tile p-5">
           <h2 className="text-sm font-semibold">
             {aspect.value === null ? "Get a number for this first" : "See whether it worked"}
           </h2>
@@ -152,8 +182,8 @@ export function PackDetail({ pack }: { pack: TrainingPack }) {
       ) : null}
 
       <section>
-        <h2 className="text-sm font-semibold">Where this comes from</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h2 className="text-xs text-muted-foreground">Where this comes from</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
           Written in our own words from these. Worth reading if you want the longer version.
         </p>
         <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
@@ -340,5 +370,140 @@ export function DrillBlock({
         </Link>
       </Button>
     </article>
+  );
+}
+
+/**
+ * The Hub unit page's drills: one quiet list, one drill open at a time, one
+ * action (run it) on the open drill. Keeps the drill test ids of DrillBlock.
+ */
+function UnitDrills({
+  packId,
+  drills,
+  loaded,
+  isDone,
+  onToggle,
+}: {
+  packId: string;
+  drills: readonly PackDrill[];
+  loaded: boolean;
+  isDone: (drillId: string) => boolean;
+  onToggle: (drillId: string, done: boolean) => void;
+}) {
+  const [openId, setOpenId] = useState<string | null>(drills[0]?.id ?? null);
+  if (!drills.length) return null;
+  return (
+    <section aria-labelledby="drills-heading">
+      <div className="mb-4">
+        <h2 id="drills-heading" className="font-display text-[2.2rem] leading-none">
+          Drills
+        </h2>
+        <p className="mt-1.5 max-w-2xl text-xs text-muted-foreground">
+          Practice with a rule attached: the rule forces what the lessons describe. Tick{" "}
+          <em>Practise this</em> and it joins your{" "}
+          <Link href="/train/" className="underline underline-offset-4">
+            practice
+          </Link>
+          .
+        </p>
+      </div>
+      <ol className="tile divide-y divide-[var(--hairline)] overflow-hidden">
+        {drills.map((drill, index) => {
+          const open = drill.id === openId;
+          const done = isDone(drill.id);
+          return (
+            <li key={drill.id} data-testid={`drill-${drill.id}`}>
+              <button
+                type="button"
+                aria-expanded={open}
+                onClick={() => setOpenId(open ? null : drill.id)}
+                className="group grid w-full grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 px-5 py-4 text-left transition-colors hover:bg-[color-mix(in_oklab,var(--foreground)_3%,transparent)] md:px-6"
+              >
+                <span className="font-display tabular text-lg leading-none text-muted-foreground italic">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-display text-[1.35rem] leading-tight">
+                    {drill.title}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">{drill.dose}</span>
+                </span>
+                <span className="flex items-center gap-3 text-xs text-muted-foreground">
+                  {done ? (
+                    <span className="inline-flex items-center gap-1 text-primary">
+                      <Check className="size-3.5" /> Practising
+                    </span>
+                  ) : null}
+                  <ChevronDown
+                    className={cn("size-4 transition-transform duration-300", open && "rotate-180")}
+                  />
+                </span>
+              </button>
+              <AnimatePresence initial={false}>
+                {open ? (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+                    className="overflow-hidden"
+                  >
+                    <div className="grid gap-4 px-5 pb-5 pl-[3.75rem] md:px-6 md:pl-[4.25rem]">
+                      <p className="max-w-2xl text-sm text-pretty">{drill.purpose}</p>
+                      <ol className="grid gap-1.5 text-sm">
+                        {drill.rules.map((rule, at) => (
+                          <li key={rule} className="flex gap-2.5">
+                            <span className="tabular text-xs text-muted-foreground">{at + 1}.</span>
+                            <span className="text-pretty">{rule}</span>
+                          </li>
+                        ))}
+                      </ol>
+                      <p className="max-w-2xl text-xs text-muted-foreground">
+                        <span className="text-foreground">It&apos;s working when</span>{" "}
+                        {drill.signal}
+                      </p>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <Button asChild className="rounded-full">
+                          <Link
+                            href={drillHref(packId, drill.id)}
+                            data-testid={`drill-run-${drill.id}`}
+                          >
+                            {drill.untimed ? (
+                              <>
+                                <Dumbbell /> Start the drill
+                              </>
+                            ) : (
+                              <>
+                                <Timer /> Run a timed session
+                              </>
+                            )}
+                          </Link>
+                        </Button>
+                        <button
+                          type="button"
+                          disabled={!loaded}
+                          aria-pressed={done}
+                          onClick={() => onToggle(drill.id, !done)}
+                          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground disabled:opacity-50"
+                          data-testid={`drill-done-${drill.id}`}
+                        >
+                          {done ? (
+                            <>
+                              <Check className="size-3.5 text-primary" /> Practising
+                            </>
+                          ) : (
+                            "Practise this"
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }

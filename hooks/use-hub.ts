@@ -26,7 +26,7 @@ import type { HubIntro, UserSettings } from "@/types/domain";
  * coach model makes of it, lesson progress, the questionnaire, and from those
  * the course you belong in and the order of its units.
  */
-export function useHub() {
+export function useHub(): Hub {
   const ready = useStorageStatus().status === "ready";
   const { loaded, profile, settings, runs, solves, snapshots } = useSolveProfile();
   const { loaded: progressLoaded, byPack } = useTrainingProgress();
@@ -90,7 +90,7 @@ export function useHub() {
 
   usePersistPasses(derived?.current ?? null);
 
-  return {
+  const hub = {
     loaded: loaded && progressLoaded && derived !== null,
     profile,
     settings,
@@ -104,6 +104,13 @@ export function useHub() {
     current: derived?.current ?? null,
     testPlan: derived?.testPlan ?? null,
   };
+  // Remember the last complete result, so a Hub page you navigate to renders
+  // finished on its first frame (the cover morph lands on a real page) while
+  // its own queries catch up a moment later.
+  useEffect(() => {
+    if (hub.loaded) lastHub = hub;
+  });
+  return !hub.loaded && lastHub ? lastHub : hub;
 }
 
 /** Set once this browser has worked out passes, so the first time stays quiet. */
@@ -177,6 +184,24 @@ function usePersistPasses(state: CourseState | null) {
     });
   }, [state]);
 }
+
+type Hub = {
+  loaded: boolean;
+  profile: ReturnType<typeof useSolveProfile>["profile"];
+  settings: ReturnType<typeof useSolveProfile>["settings"];
+  intro: HubIntro | undefined;
+  solves: ReturnType<typeof useSolveProfile>["solves"];
+  runs: ReturnType<typeof useSolveProfile>["runs"];
+  attempts: Awaited<
+    ReturnType<ReturnType<typeof getRepositories>["algorithms"]["recognitionAttempts"]>
+  >;
+  average: number | null;
+  input: PathInput | null;
+  placement: ReturnType<typeof placeInCourse> | null;
+  current: ReturnType<typeof courseState> | null;
+  testPlan: ReturnType<typeof planTests> | null;
+};
+let lastHub: Hub | null = null;
 
 /** Saves the questionnaire, and the goal and method it asked about. */
 export function saveHubIntro(

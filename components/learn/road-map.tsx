@@ -39,8 +39,16 @@ export function RoadMap({
             ? "No timer average yet, so this opens at the stretch that leads to your goal."
             : "Do a few timed solves and this will open at where you are."}
       </p>
-      <Accordion type="multiple" defaultValue={here ? [here.level.id] : []} className="grid gap-3">
-        {LEVELS.map((level) => {
+      <Accordion
+        type="multiple"
+        defaultValue={here ? [here.level.id] : []}
+        className="relative grid gap-1"
+      >
+        <span
+          aria-hidden
+          className="absolute top-6 bottom-6 left-[1.35rem] w-px bg-[linear-gradient(to_bottom,var(--hairline),color-mix(in_oklab,var(--primary)_40%,var(--hairline)),var(--hairline))]"
+        />
+        {LEVELS.map((level, index) => {
           const isHere = level.id === here?.level.id;
           return (
             <AccordionItem
@@ -48,24 +56,40 @@ export function RoadMap({
               value={level.id}
               data-testid={`level-${level.id}`}
               className={cn(
-                "rounded-2xl border px-5 last:border-b",
-                isHere && "border-primary/50 bg-primary/[0.03]",
+                "relative rounded-[1.4rem] border-b-0 pr-4 pl-16 transition-colors",
+                isHere &&
+                  "bg-[var(--tile)] shadow-[var(--shadow-tile)] ring-1 ring-[var(--hairline)]",
               )}
             >
+              <span
+                aria-hidden
+                className={cn(
+                  "absolute top-3.5 left-0 grid size-11 place-items-center rounded-full border font-display text-lg italic",
+                  isHere
+                    ? "border-transparent bg-primary text-primary-foreground shadow-[0_8px_24px_-10px_var(--primary)]"
+                    : "border-[var(--hairline)] bg-[var(--tile-strong)] text-muted-foreground",
+                )}
+              >
+                {String(index + 1).padStart(2, "0")}
+              </span>
               <AccordionTrigger className="text-left hover:no-underline">
-                <span className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-1">
-                  {isHere ? (
-                    <MapPin className="size-4 shrink-0 text-primary" aria-hidden />
-                  ) : (
-                    <span className="size-4 shrink-0" aria-hidden />
-                  )}
-                  <span className="font-medium">{level.label}</span>
+                <span className="flex min-w-0 flex-1 flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <span className="font-display text-[1.55rem] leading-tight font-normal md:text-[1.8rem]">
+                    {level.label}
+                  </span>
                   <span className="text-sm font-normal text-muted-foreground">{level.range}</span>
-                  {isHere ? <Badge variant="outline">You are here</Badge> : null}
+                  {isHere ? (
+                    <Badge className="gap-1 rounded-full bg-primary/10 text-primary hover:bg-primary/10">
+                      <MapPin className="size-3" aria-hidden />
+                      You are here
+                    </Badge>
+                  ) : null}
                 </span>
               </AccordionTrigger>
               <AccordionContent className="pb-6">
-                <p className="text-base font-medium">{level.headline}</p>
+                <p className="font-display text-[1.35rem] leading-snug text-balance italic">
+                  {level.headline}
+                </p>
                 <LevelDetails level={level} />
                 <div className="mt-5 flex flex-wrap gap-2">
                   {packsForIds(level.packs).map((pack) => (

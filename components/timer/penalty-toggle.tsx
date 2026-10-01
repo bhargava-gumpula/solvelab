@@ -13,13 +13,15 @@ interface PenaltyToggleProps {
   value: Penalty;
   onChange: (penalty: Penalty) => void;
   size?: "sm" | "default";
+  /** Borderless text buttons (the timer cover). */
+  quiet?: boolean;
 }
 
-export function PenaltyToggle({ value, onChange, size = "sm" }: PenaltyToggleProps) {
+export function PenaltyToggle({ value, onChange, size = "sm", quiet = false }: PenaltyToggleProps) {
   return (
     <ToggleGroup
       type="single"
-      variant="outline"
+      variant={quiet ? "default" : "outline"}
       size={size}
       value={value}
       aria-label="Penalty"
@@ -34,7 +36,11 @@ export function PenaltyToggle({ value, onChange, size = "sm" }: PenaltyTogglePro
           key={option.value}
           value={option.value}
           aria-label={option.description}
-          className="min-w-12 font-mono tabular"
+          className={
+            quiet
+              ? "h-8 min-w-11 rounded-full font-mono tabular text-[13px] text-foreground/75 data-[state=on]:bg-foreground/[0.1] data-[state=on]:text-foreground"
+              : "min-w-12 font-mono tabular"
+          }
         >
           {option.label}
         </ToggleGroupItem>

@@ -35,7 +35,7 @@ export function CubeModeToggle() {
           className={cn(
             "rounded-full px-1.5 py-0.5 uppercase transition-colors",
             preferences.cubePreview === mode
-              ? "bg-primary text-primary-foreground"
+              ? "bg-foreground text-background"
               : "text-muted-foreground hover:text-foreground",
           )}
         >

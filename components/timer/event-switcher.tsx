@@ -14,15 +14,18 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CUBE_EVENTS, EVENT_GROUPS, eventInfo } from "@/lib/cube/events";
 import { getRepositories } from "@/lib/storage";
+import { cn } from "@/lib/utils";
 import type { CubeEvent, Session } from "@/types/domain";
 
 interface EventSwitcherProps {
   session: Session | undefined;
   disabled?: boolean;
+  /** Surface classes for the trigger (a glass chip by default). */
+  className?: string;
 }
 
 /** Puzzle-type picker. Switching events never mixes times in a session that already has solves. */
-export function EventSwitcher({ session, disabled }: EventSwitcherProps) {
+export function EventSwitcher({ session, disabled, className = "glass" }: EventSwitcherProps) {
   const current = session ? eventInfo(session.event) : eventInfo("333");
 
   const select = async (event: CubeEvent) => {
@@ -40,11 +43,11 @@ export function EventSwitcher({ session, disabled }: EventSwitcherProps) {
         <Button
           variant="ghost"
           disabled={disabled || !session}
-          className="h-9 justify-between gap-2 rounded-full px-3.5 glass"
+          className={cn("h-9 justify-between gap-2 rounded-full px-3.5", className)}
           aria-label="Puzzle type"
           data-testid="event-switcher"
         >
-          <Box className="size-4 text-primary" aria-hidden />
+          <Box className="size-4 text-muted-foreground" aria-hidden />
           {current.shortLabel}
           <ChevronsUpDown className="text-muted-foreground" />
         </Button>

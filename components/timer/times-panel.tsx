@@ -19,11 +19,30 @@ import { useTimeFormat } from "@/hooks/use-time-format";
 import { useViewPreference } from "@/hooks/use-view-preference";
 import { getRepositories } from "@/lib/storage";
 import { getAverage, type SessionStatistics } from "@/lib/stats";
-import { cn } from "@/lib/utils";
+import { heatOf, type Heat } from "@/lib/studio/insights";
+import { cn, plural } from "@/lib/utils";
 import type { Solve, ViewPreferences } from "@/types/domain";
 
 type SortKey = ViewPreferences["timesSort"];
 const PAGE = 100;
+
+/* Heat ticks beside each solve (Round 2: one accent): fast in studio blue, slow in ink. */
+const HEAT_TICK: Record<Heat, string> = {
+  [-2]: "bg-primary",
+  [-1]: "bg-primary/35",
+  0: "bg-transparent",
+  1: "bg-foreground/15",
+  2: "bg-foreground/35",
+  3: "bg-destructive/60",
+};
+const HEAT_LABEL: Record<Heat, string> = {
+  [-2]: "much faster than usual",
+  [-1]: "faster than usual",
+  0: "about usual",
+  1: "slower than usual",
+  2: "much slower than usual",
+  3: "DNF",
+};
 
 interface TimesPanelBodyProps {
   solves: Solve[];
@@ -70,7 +89,7 @@ export function TimesPanelBody({
     try {
       onCleared?.();
       const removed = await getRepositories().solves.clearSession(sessionId);
-      toast(`Cleared ${removed.length} solves`, {
+      toast(`Cleared ${plural(removed.length, "solve")}`, {
         action: { label: "Undo", onClick: () => void getRepositories().solves.restore(removed) },
       });
     } catch {
@@ -93,11 +112,14 @@ export function TimesPanelBody({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain" data-testid="times-scroll">
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <div
+        className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain"
+        data-testid="times-scroll"
+      >
         <table className="w-full text-sm">
           <caption className="sr-only">Solves in this session</caption>
-          <thead className="sticky top-0 z-10 bg-popover/90 text-[11px] text-muted-foreground backdrop-blur">
+          <thead className="sticky top-0 z-10 bg-[var(--tile-strong)]/90 text-[12px] text-muted-foreground backdrop-blur">
             <tr>
               <SortHeader
                 label="#"
@@ -110,22 +132,36 @@ export function TimesPanelBody({
               <SortHeader label="Ao12" active={sort === "ao12"} onClick={() => toggle("ao12")} />
             </tr>
           </thead>
-          <tbody className="font-mono tabular">
+          <tbody className="font-figures tabular">
             {order.slice(0, visible).map((index) => {
               const solve = solves[index];
+              const heat = heatOf(stats.values[index], stats);
               return (
                 <tr
                   key={solve.id}
-                  className="group border-t border-border/60 transition-colors hover:bg-accent"
+                  className={cn(
+                    "group border-t border-[var(--hairline)] transition-colors hover:bg-foreground/[0.035]",
+                    // The solve you just did stands out a little.
+                    index === solves.length - 1 && "bg-primary/[0.07]",
+                  )}
                 >
-                  <td className="py-1 pl-3 text-[11px] text-muted-foreground">{index + 1}</td>
-                  <td className="py-1 text-right">
+                  <td className="py-1.5 pl-3 text-[12px] text-muted-foreground">
+                    <span className="flex items-center gap-2">
+                      <span
+                        className={cn("h-3 w-[2px] rounded-full", HEAT_TICK[heat])}
+                        title={HEAT_LABEL[heat]}
+                        aria-hidden
+                      />
+                      {index + 1}
+                    </span>
+                  </td>
+                  <td className="py-1.5 text-right text-[15px]">
                     <button
                       type="button"
                       onClick={() => onSelect(solve)}
                       className={cn(
-                        "inline-flex items-center gap-1 rounded px-1 py-0.5 hover:text-primary",
-                        index === best && "font-semibold text-primary",
+                        "inline-flex items-center gap-1 rounded px-1 py-0.5 font-medium hover:text-primary",
+                        index === best && "font-semibold text-gold",
                         index === worst && stats.count > 2 && "text-muted-foreground",
                         solve.penalty === "dnf" && "text-destructive",
                       )}
@@ -136,7 +172,7 @@ export function TimesPanelBody({
                       )}
                       {personalBestIndices.has(index) && index !== best && (
                         <span
-                          className="size-1.5 rounded-full bg-primary/70"
+                          className="size-1.5 rounded-full bg-gold/70"
                           aria-hidden
                           title="Was a personal best"
                         />
@@ -144,10 +180,10 @@ export function TimesPanelBody({
                       {formatSolve(solve.rawTimeMs, solve.penalty)}
                     </button>
                   </td>
-                  <td className="py-1 text-right text-muted-foreground">
+                  <td className="py-1.5 text-right text-[14.5px] text-foreground/75">
                     {formatAverage(ao5[index] ?? null)}
                   </td>
-                  <td className="py-1 pr-3 text-right text-muted-foreground">
+                  <td className="py-1.5 pr-3 text-right text-[14.5px] text-foreground/75">
                     {formatAverage(ao12[index] ?? null)}
                   </td>
                 </tr>
@@ -162,8 +198,17 @@ export function TimesPanelBody({
             </Button>
           </div>
         )}
+        {/* A short session: the rest of the card is ruled like the list, quietly. */}
+        <div aria-hidden className="times-ruled min-h-0 flex-1 shrink-0">
+          {/* Under five, the "Your first five" band already counts them down. */}
+          {solves.length >= 5 && solves.length < 12 ? (
+            <p className="border-t border-[var(--hairline)] px-3 py-2 text-center text-[12px] text-muted-foreground">
+              {12 - solves.length} more for your first ao12
+            </p>
+          ) : null}
+        </div>
       </div>
-      <footer className="flex items-center justify-between border-t px-2 py-1.5">
+      <footer className="flex items-center justify-between border-t border-[var(--hairline)] px-2 py-1.5">
         <Button asChild variant="ghost" size="xs">
           <Link href="/stats">
             <ListOrdered /> All solves
@@ -184,8 +229,8 @@ export function TimesPanelBody({
           <AlertDialogHeader>
             <AlertDialogTitle>Clear “{sessionName ?? "this session"}”?</AlertDialogTitle>
             <AlertDialogDescription>
-              Removes all {solves.length} solves in this session. You can undo right after; the
-              session itself stays.
+              Removes {solves.length === 1 ? "the one solve" : `all ${solves.length} solves`} in
+              this session. You can undo right after; the session itself stays.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

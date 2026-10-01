@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, ViewTransition } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import {
+  ArrowUpRight,
   CalendarCheck,
   Dumbbell,
   FlaskConical,
@@ -12,13 +13,20 @@ import {
   MessagesSquare,
   Search,
 } from "lucide-react";
+import { ProgressRing } from "@/components/fx/progress-ring";
+import { Reveal } from "@/components/fx/reveal";
+import { Tilt } from "@/components/fx/tilt";
 import { DAILY_HREF } from "@/components/tests/daily-check-card";
+import { useAlgorithmProgress } from "@/hooks/use-algorithms";
+import { countLabels } from "@/lib/algorithms/labels";
 import { Input } from "@/components/ui/input";
 import { COURSES } from "@/data/hub/courses";
 import { TEST_ORDER, testHref, testTitle } from "@/data/exercises";
-import { ALGORITHM_SETS } from "@/lib/algorithms/catalog";
+import { ALGORITHM_SETS, progressIdFor } from "@/lib/algorithms/catalog";
 import { ALL_UNITS, courseHref, courseUnits, coursesWithUnit, unitHref } from "@/lib/hub/units";
-import { cn } from "@/lib/utils";
+import { cn, plural } from "@/lib/utils";
+import { CoverArt } from "./cover-art";
+import { courseCoverName } from "./course-shelf";
 
 /** Everything in the Learning Hub, to browse freely. */
 export function Library() {
@@ -42,10 +50,8 @@ export function Library() {
   return (
     <div className="grid grid-cols-1 gap-10">
       <section aria-labelledby="library-courses">
-        <h2 id="library-courses" className="mb-3 text-base font-semibold">
-          Courses
-        </h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <SectionTitle id="library-courses" kicker="The shelf" title="Courses" />
+        <div className="grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-6">
           {COURSES.map((course, index) => {
             // Count the main line; optional units are off it, so they're shown apart.
             const courseUnitList = courseUnits(course);
@@ -53,29 +59,31 @@ export function Library() {
             const optional = courseUnitList.length - mainLine.length;
             const lessons = mainLine.reduce((total, unit) => total + unit.lessons.length, 0);
             return (
-              <motion.div
-                key={course.id}
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                whileHover={{ y: -4, rotate: -0.5 }}
-              >
+              <Reveal key={course.id} delay={index * 0.04}>
                 <Link
                   href={courseHref(course)}
                   data-testid={`library-course-${course.id}`}
-                  className="flex h-full flex-col rounded-3xl p-5 text-white shadow-lg"
-                  style={{
-                    background: `linear-gradient(145deg, oklch(0.58 0.18 ${course.hue}), oklch(0.36 0.13 ${course.hue + 45}))`,
-                  }}
+                  className="group block"
                 >
-                  <span className="text-2xl font-bold tracking-tight">{course.title}</span>
-                  <span className="mt-1 text-sm opacity-90">{course.tagline}</span>
-                  <span className="mt-auto pt-4 text-xs opacity-80">
-                    {mainLine.length} units · {lessons} lessons
-                    {optional ? ` · +${optional} optional` : null}
+                  <Tilt className="morph-lift rounded-[1.3rem] shadow-[var(--shadow-tile)] transition-shadow duration-500 group-hover:shadow-[var(--shadow-float)]">
+                    <ViewTransition name={courseCoverName(course.id)} share="morph" default="none">
+                      <CoverArt
+                        hue={course.hue}
+                        index={index * 3 + 1}
+                        number={`Nº ${String(index + 1).padStart(2, "0")}`}
+                        label={`${mainLine.length} units · ${lessons} lessons${optional ? ` · +${optional} optional` : ""}`}
+                        className="aspect-square rounded-[1.3rem]"
+                      />
+                    </ViewTransition>
+                  </Tilt>
+                  <span className="mt-3 block font-display text-[1.6rem] leading-none md:text-[1.9rem]">
+                    {course.title}
+                  </span>
+                  <span className="mt-1.5 block text-sm text-pretty text-muted-foreground">
+                    {course.tagline}
                   </span>
                 </Link>
-              </motion.div>
+              </Reveal>
             );
           })}
         </div>
@@ -83,9 +91,17 @@ export function Library() {
 
       <section aria-labelledby="library-units">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-          <h2 id="library-units" className="text-base font-semibold">
-            Every unit <span className="text-muted-foreground">({units.length})</span>
-          </h2>
+          <SectionTitle
+            id="library-units"
+            kicker="The index"
+            title={
+              <>
+                Every unit{" "}
+                <span className="font-figures text-lg text-muted-foreground">{units.length}</span>
+              </>
+            }
+            className="mb-0"
+          />
           <div className="relative w-full sm:w-64">
             <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -128,22 +144,26 @@ export function Library() {
                 <Link
                   href={unitHref(unit)}
                   data-testid={`library-unit-${unit.id}`}
-                  className="flex h-full flex-col rounded-2xl p-4 glass transition-transform hover:-translate-y-0.5"
+                  className="tile flex h-full flex-col p-5 transition-transform duration-300 hover:-translate-y-0.5"
                 >
-                  <span className="font-semibold">{unit.title}</span>
+                  <span className="font-display text-[1.45rem] leading-tight">{unit.title}</span>
                   <span className="mt-1 text-sm text-muted-foreground">{unit.summary}</span>
                   <span className="mt-auto flex flex-wrap gap-1.5 pt-3">
                     {coursesWithUnit(unit.id).map((course) => (
                       <span
                         key={course.id}
-                        className="rounded-full px-2 py-0.5 text-[11px] font-medium text-white"
-                        style={{ background: `oklch(0.47 0.14 ${course.hue})` }}
+                        className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_oklab,var(--foreground)_5%,transparent)] px-2 py-0.5 text-[11px] font-medium text-muted-foreground"
                       >
+                        <span
+                          aria-hidden
+                          className="size-1.5 rounded-full"
+                          style={{ background: `oklch(0.6 0.17 ${course.hue})` }}
+                        />
                         {course.title}
                       </span>
                     ))}
-                    <span className="rounded-full border px-2 py-0.5 text-[11px] text-muted-foreground">
-                      {unit.lessons.length} {unit.lessons.length === 1 ? "lesson" : "lessons"}
+                    <span className="rounded-full px-1 py-0.5 text-[11px] text-muted-foreground">
+                      {plural(unit.lessons.length, "lesson")}
                     </span>
                   </span>
                 </Link>
@@ -155,10 +175,8 @@ export function Library() {
 
       <section aria-labelledby="library-more" className="grid gap-6 lg:grid-cols-2">
         <div>
-          <h2 id="library-more" className="mb-3 text-base font-semibold">
-            Tools and pages
-          </h2>
-          <div className="grid gap-2">
+          <SectionTitle id="library-more" kicker="Around the studio" title="Tools and pages" />
+          <div className="tile divide-y divide-[var(--hairline)] px-1">
             <ToolLink
               href="/learn/"
               icon={MapIcon}
@@ -186,26 +204,14 @@ export function Library() {
           </div>
         </div>
         <div>
-          <h2 className="mb-3 text-base font-semibold">Algorithm sets</h2>
-          <div className="grid grid-cols-2 gap-2">
-            {ALGORITHM_SETS.map((set) => (
-              <ToolLink
-                key={set.id}
-                href={`/algorithms/${set.id}/`}
-                icon={Layers3}
-                title={set.name}
-                text={`${set.cases.length} cases`}
-              />
-            ))}
-          </div>
+          <SectionTitle kicker="Your collection" title="Algorithm sets" />
+          <AlgorithmShelf />
         </div>
       </section>
 
       <section aria-labelledby="library-tests">
-        <h2 id="library-tests" className="mb-3 text-base font-semibold">
-          Tests
-        </h2>
-        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+        <SectionTitle id="library-tests" kicker="Measure" title="Tests" />
+        <div className="tile grid divide-y divide-[var(--hairline)] px-1 sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-3">
           {TEST_ORDER.map((testId) => (
             <ToolLink
               key={testId}
@@ -242,18 +248,28 @@ function FilterChip({
       aria-pressed={active}
       data-testid={testId}
       className={cn(
-        "shrink-0 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors",
+        "relative flex shrink-0 items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors duration-300",
         active
-          ? cn("border-transparent", hue === undefined ? "text-primary-foreground" : "text-white")
-          : "bg-background/40 text-muted-foreground hover:text-foreground",
+          ? "border-transparent text-background"
+          : "border-[var(--hairline)] bg-[var(--tile)] text-muted-foreground hover:text-foreground",
       )}
-      style={
-        active
-          ? { background: hue === undefined ? "var(--primary)" : `oklch(0.5 0.16 ${hue})` }
-          : undefined
-      }
     >
-      {children}
+      {/* One ink pill slides to whichever filter is on. */}
+      {active ? (
+        <motion.span
+          layoutId="library-filter-pill"
+          className="absolute inset-0 -z-0 rounded-full bg-foreground"
+          transition={{ type: "spring", stiffness: 420, damping: 34 }}
+        />
+      ) : null}
+      {hue !== undefined ? (
+        <span
+          aria-hidden
+          className="relative size-2 rounded-full"
+          style={{ background: `oklch(0.6 0.17 ${hue})` }}
+        />
+      ) : null}
+      <span className="relative">{children}</span>
     </motion.button>
   );
 }
@@ -272,15 +288,76 @@ function ToolLink({
   return (
     <Link
       href={href}
-      className="group flex items-start gap-3 rounded-2xl p-3.5 glass transition-transform hover:-translate-y-0.5"
+      className="group flex items-start gap-3 rounded-[1.2rem] px-4 py-3.5 transition-colors hover:bg-[color-mix(in_oklab,var(--foreground)_4%,transparent)]"
     >
-      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary transition-transform group-hover:rotate-6">
-        <Icon className="size-4.5" />
+      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary transition-transform duration-300 group-hover:-rotate-6">
+        <Icon className="size-4" />
       </span>
-      <span className="min-w-0">
+      <span className="min-w-0 flex-1">
         <span className="block text-sm font-semibold">{title}</span>
         <span className="block text-xs text-muted-foreground">{text}</span>
       </span>
+      <ArrowUpRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
     </Link>
+  );
+}
+
+function SectionTitle({
+  id,
+  kicker,
+  title,
+  className,
+}: {
+  id?: string;
+  kicker: string;
+  title: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cn("mb-5", className)}>
+      <p className="eyebrow">{kicker}</p>
+      <h2 id={id} className="mt-1.5 font-display text-[2.1rem] leading-none md:text-[2.5rem]">
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+/** Each algorithm set as a ring: how much of it you know, and how much you're learning. */
+function AlgorithmShelf() {
+  const { labels } = useAlgorithmProgress();
+  return (
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      {ALGORITHM_SETS.map((set) => {
+        const counts = countLabels(
+          set.cases.map((entry) => progressIdFor(entry)),
+          labels,
+        );
+        const known = counts.total ? counts.known / counts.total : 0;
+        return (
+          <Link
+            key={set.id}
+            href={`/algorithms/${set.id}/`}
+            className="group tile flex flex-col items-center gap-2 px-3 py-4 text-center transition-transform duration-300 hover:-translate-y-0.5"
+          >
+            <ProgressRing
+              value={known}
+              size={58}
+              stroke={4}
+              label={`${set.name}: ${counts.known} of ${counts.total} known`}
+            >
+              <span className="font-figures tabular text-[13px] font-semibold">
+                {counts.known}
+                <span className="text-muted-foreground">/{counts.total}</span>
+              </span>
+            </ProgressRing>
+            <span className="text-sm leading-tight font-semibold">{set.name}</span>
+            <span className="text-[11px] text-muted-foreground">
+              {counts.learning ? `${counts.learning} learning` : `${set.cases.length} cases`}
+            </span>
+          </Link>
+        );
+      })}
+    </div>
   );
 }

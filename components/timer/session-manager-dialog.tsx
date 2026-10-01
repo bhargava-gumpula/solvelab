@@ -37,6 +37,7 @@ import { eventInfo } from "@/lib/cube/events";
 import { getRepositories } from "@/lib/storage";
 import { MAX_SESSION_NAME_LENGTH } from "@/lib/storage/schemas";
 import type { Session } from "@/types/domain";
+import { plural } from "@/lib/utils";
 
 function errorMessage(error: unknown): string {
   if (error instanceof ZodError) return error.issues[0]?.message ?? "Check the session name.";
@@ -246,8 +247,8 @@ export function SessionManagerDialog({
             <AlertDialogTitle>Delete “{pendingDelete?.name}”?</AlertDialogTitle>
             <AlertDialogDescription>
               This permanently removes the session and its{" "}
-              {counts?.get(pendingDelete?.id ?? "") ?? 0} solves from this device. Export a backup
-              first if you might want them later.
+              {plural(counts?.get(pendingDelete?.id ?? "") ?? 0, "solve")} from this device. Export
+              a backup first if you might want them later.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

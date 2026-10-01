@@ -2,7 +2,6 @@
 
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { LegalLinks } from "@/components/legal/legal-links";
 import { AUTH_NOT_CONFIGURED } from "@/lib/auth/config";
 import { googleSignInErrorMessage, signInWithGoogle } from "@/lib/auth/actions";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -65,7 +64,6 @@ export function AccountSection() {
           </Button>
         </div>
       )}
-      <LegalLinks className="mt-4" />
       {signOut.dialog}
     </SettingsSection>
   );

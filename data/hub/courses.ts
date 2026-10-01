@@ -60,7 +60,7 @@ export const COURSES: readonly CourseDefinition[] = [
       },
       { id: "set-up-your-cube", optional: true },
     ],
-    hue: 200,
+    hue: 213,
   },
   {
     id: "sub-60",
@@ -93,7 +93,7 @@ export const COURSES: readonly CourseDefinition[] = [
       { id: "colour-neutral-plan", optional: true },
       { id: "competing", optional: true },
     ],
-    hue: 170,
+    hue: 184,
   },
   {
     id: "sub-45",
@@ -124,7 +124,7 @@ export const COURSES: readonly CourseDefinition[] = [
         recognition: false,
       },
     ],
-    hue: 140,
+    hue: 190,
   },
   {
     id: "sub-30",
@@ -165,7 +165,7 @@ export const COURSES: readonly CourseDefinition[] = [
         drills: ["oll-isolated", "oll-slow-clean"],
       },
     ],
-    hue: 95,
+    hue: 47,
   },
   {
     id: "sub-20",
@@ -227,7 +227,7 @@ export const COURSES: readonly CourseDefinition[] = [
       },
       { id: "xcross-properly", lessons: ["xc-ladder"], drills: [], optional: true },
     ],
-    hue: 45,
+    hue: 53,
   },
   {
     id: "sub-15",
