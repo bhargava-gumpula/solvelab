@@ -11,7 +11,8 @@
  *   Roadmap  — the course as a road of numbered stops; pick a stop to see its lessons.
  *   Board    — every unit as a card with its progress; your current unit is the big one.
  *
- * Chosen with ?hub=focus|roadmap|board (remembered) or the switch at the top.
+ * The site ships the Trail. The other layouts stay reachable for comparison with
+ * ?hub=plan|chapter|focus|roadmap|board (the owner hid the switch row before release 5).
  */
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
@@ -34,7 +35,6 @@ const LAYOUTS: { id: HubLayout; label: string; group: "new" | "earlier" }[] = [
   { id: "board", label: "Board", group: "earlier" },
 ];
 const DEFAULT_LAYOUT: HubLayout = "trail";
-const KEY = "solvelab.draft.hubLayout";
 const listeners = new Set<() => void>();
 
 function isLayout(value: string | null): value is HubLayout {
@@ -44,12 +44,7 @@ function isLayout(value: string | null): value is HubLayout {
 function readLayout(): HubLayout {
   try {
     const fromUrl = new URL(window.location.href).searchParams.get("hub");
-    if (isLayout(fromUrl)) {
-      localStorage.setItem(KEY, fromUrl);
-      return fromUrl;
-    }
-    const saved = localStorage.getItem(KEY);
-    return isLayout(saved) ? saved : DEFAULT_LAYOUT;
+    return isLayout(fromUrl) ? fromUrl : DEFAULT_LAYOUT;
   } catch {
     return DEFAULT_LAYOUT;
   }
@@ -66,9 +61,9 @@ export function useHubLayout(): [HubLayout, (next: HubLayout) => void] {
   );
   const set = (next: HubLayout) => {
     try {
-      localStorage.setItem(KEY, next);
       const url = new URL(window.location.href);
-      url.searchParams.delete("hub");
+      if (next === DEFAULT_LAYOUT) url.searchParams.delete("hub");
+      else url.searchParams.set("hub", next);
       window.history.replaceState(null, "", url);
     } catch {}
     listeners.forEach((listener) => listener());
@@ -76,7 +71,7 @@ export function useHubLayout(): [HubLayout, (next: HubLayout) => void] {
   return [layout, set];
 }
 
-/** The draft switch between the six layouts. */
+/** The draft switch between the six layouts (no longer rendered; kept for the drafts). */
 export function HubLayoutSwitch() {
   const [layout, setLayout] = useHubLayout();
   const group = (which: "new" | "earlier") =>
@@ -660,7 +655,6 @@ export function HubVariant({
   const New = isNew ? NEW_LAYOUTS[layout] : null;
   return (
     <div className="grid min-w-0 grid-cols-1 gap-8 md:gap-10" data-hub-layout={layout}>
-      <HubLayoutSwitch />
       {New ? (
         <New state={state} averageMs={averageMs} placedBy={placedBy} />
       ) : (
