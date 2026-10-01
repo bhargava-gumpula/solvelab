@@ -1,5 +1,32 @@
 # Validation report
 
+## Release 5: the v7 design merged with the course content (dev log 190, awaiting review)
+
+Run on 2026-10-01 on branch `release-5` against the static export (headless Chromium, one Playwright
+worker on a spare port, Firebase blocked, dev server stopped first).
+
+| Check           | Command                                         | Result                                  |
+| --------------- | ----------------------------------------------- | --------------------------------------- |
+| Full validation | `npm run validate`                              | Pass (typecheck, lint, prettier, build) |
+| Unit tests      | `npm test`                                      | 1014 passed (75 files)                  |
+| End-to-end      | `E2E_PORT=4391 npx playwright test --workers=1` | 103 passed, 1 pre-existing failure      |
+
+First full run: 101 passed, 3 failed. Two were stale expectations, updated (not removed) and re-run
+green: `data.spec` expected "1 sessions" (the merged dialog pluralises), and `hub.spec` looked for a
+passed unit's badge inside a run of passed stops the Trail folds into one row (the test now opens
+the fold first, as a person would; hub 10/10, data 3/3, phase3-courses 8/8). The third,
+`timer.spec` "switches scramble type to PLL (OLL solved)", fails the same way on `learning-hub` and
+on every UI draft, so it is not from this merge.
+
+What the merge was checked for beyond the suites: every conflicted file was resolved by hand with
+both sides read in full (dev log 190 lists each decision); the typecheck caught the Hub layouts'
+use of two fields the real repo had renamed (`testedOut` → `status === "passed"`, `unitsDone` →
+`unitsFinished`); the saved-theme mapping has unit tests for `parseAppearance`, the stored settings
+record and the boot script. Screenshots of every route (timer at rest / holding / running /
+stopped, Stats, Hub home, a course, a unit, a lesson, a drill, the algorithm bank, a set, the
+trainer set-up and session, Fundamentals, the profile, Settings) in Terracotta and Linen, plus the
+phone width, are in `~/Projects/solvelab-ui-drafts/shots/release-5/`.
+
 ## Overnight 2026-09-30: trainer, left-hand versions, timer fix (dev logs 175–187, awaiting review)
 
 Static export, headless Chromium, one Playwright worker on a spare port (`E2E_PORT=4391`),
