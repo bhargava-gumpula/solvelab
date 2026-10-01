@@ -96,7 +96,7 @@ test("stats range, analyzed session and times sort survive a reload", async ({ p
 test("a backup carries appearance and view choices", async ({ page }) => {
   await page.goto("/settings/");
   await expect(page.getByText("Local database ready")).toBeVisible({ timeout: 20_000 });
-  await page.getByRole("radio", { name: "Forge" }).click();
+  await page.getByRole("radio", { name: "Terracotta" }).click();
   await expect
     .poll(async () => ((await savedSettings(page))?.appearance as { theme?: string })?.theme)
     .toBe("ember");

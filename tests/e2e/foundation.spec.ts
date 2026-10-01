@@ -59,21 +59,24 @@ test("theme presets persist across reload and Match system follows the browser",
   await page.goto("/settings/");
   await expect(page.getByText("Local database ready")).toBeVisible();
   const html = page.locator("html");
-  // Linen is the default.
-  await expect(html).toHaveAttribute("data-theme", "paper");
-  await expect(html).toHaveClass(/light/);
+  // Terracotta is the default (owner, v6), drawn dark.
+  await expect(html).toHaveAttribute("data-theme", "ember");
+  await expect(html).toHaveClass(/dark/);
+  // Porcelain was removed (too close to Linen); Sage is now a dark theme.
+  await expect(page.getByRole("radio", { name: "Porcelain" })).toHaveCount(0);
+  await expect(page.getByRole("radio", { name: "Sage" })).toBeVisible();
 
-  await page.getByRole("radio", { name: "Sencha" }).click();
-  await expect(html).toHaveAttribute("data-theme", "matcha");
+  await page.getByRole("radio", { name: "Ink" }).click();
+  await expect(html).toHaveAttribute("data-theme", "carbon");
   await expect(html).toHaveClass(/dark/);
   await page.reload();
   // The boot script applies the saved theme before the app hydrates.
-  await expect(html).toHaveAttribute("data-theme", "matcha");
-  await expect(page.getByRole("radio", { name: "Sencha" })).toHaveAttribute("aria-checked", "true");
+  await expect(html).toHaveAttribute("data-theme", "carbon");
+  await expect(page.getByRole("radio", { name: "Ink" })).toHaveAttribute("aria-checked", "true");
 
   await page.getByRole("radio", { name: "Match system" }).click();
   await page.emulateMedia({ colorScheme: "dark" });
-  await expect(html).toHaveAttribute("data-theme", "matcha");
+  await expect(html).toHaveAttribute("data-theme", "ember");
   await expect(html).toHaveClass(/dark/);
   await page.emulateMedia({ colorScheme: "light" });
   await expect(html).toHaveAttribute("data-theme", "paper");
@@ -85,7 +88,7 @@ test("appearance sheet switches themes and digit styles from the keyboard", asyn
   await page.keyboard.press("t");
   const sheet = page.getByRole("dialog", { name: "Appearance" });
   await expect(sheet).toBeVisible();
-  await sheet.getByRole("radio", { name: "Forge" }).click();
+  await sheet.getByRole("radio", { name: "Terracotta" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "ember");
   await sheet.getByRole("radio", { name: "LCD" }).click();
   await page.keyboard.press("Escape");

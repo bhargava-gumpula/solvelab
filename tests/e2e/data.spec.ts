@@ -34,7 +34,7 @@ test("exports a backup and restores it into a fresh browser profile", async ({ b
   await fresh.goto("/settings/");
   await expect(fresh.getByText("Local database ready")).toBeVisible();
   await fresh.getByTestId("backup-file-input").setInputFiles(path);
-  await expect(fresh.getByRole("alertdialog")).toContainText("2 solves in 1 sessions");
+  await expect(fresh.getByRole("alertdialog")).toContainText("2 solves in 1 session");
   await fresh.getByRole("button", { name: "Merge backup" }).click();
   await expect(fresh.getByText(/Imported 2 solves/)).toBeVisible();
 

@@ -318,7 +318,8 @@ test.describe("interactive timer controls", () => {
     await expect(page.getByTestId("solve-count")).toHaveText("2/2");
   });
 
-  test("sorts times and remembers dragged panel positions", async ({ page }) => {
+  // The Studio bento has fixed tiles (no draggable panels).
+  test("sorts times", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 900 });
     await openTimer(page);
     for (const ms of [600, 200, 400]) await keyboardSolve(page, ms);
@@ -326,48 +327,6 @@ test.describe("interactive timer controls", () => {
     await expect(rows.first()).toContainText("3");
     await page.getByRole("button", { name: /Sort by Time/ }).click();
     await expect(rows.first().locator("td").first()).toHaveText("2");
-
-    const handle = page.getByRole("button", { name: "Move the session stats" });
-    const panel = page.locator("section", { has: handle });
-    const start = await panel.boundingBox();
-    const grip = await handle.boundingBox();
-    if (!start || !grip) throw new Error("panel not visible");
-    await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(grip.x - 200, grip.y + 60, { steps: 12 });
-    await page.mouse.up();
-    const moved = await panel.boundingBox();
-    expect(moved!.x).toBeLessThan(start.x - 150);
-    await expect
-      .poll(() => page.evaluate(() => localStorage.getItem("solvelab.panels.v4") ?? ""))
-      .toContain('"stats"');
-    await expect
-      .poll(() =>
-        page.evaluate(async () => {
-          const db = await new Promise<IDBDatabase>((resolve, reject) => {
-            const req = indexedDB.open("speedcubing-local");
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject(req.error);
-          });
-          const settings = await new Promise<Record<string, unknown> | undefined>(
-            (resolve, reject) => {
-              const tx = db.transaction("settings", "readonly");
-              const req = tx.objectStore("settings").get("preferences");
-              req.onsuccess = () => resolve(req.result as Record<string, unknown> | undefined);
-              req.onerror = () => reject(req.error);
-            },
-          );
-          db.close();
-          return JSON.stringify(
-            (settings as { panelOffsets?: unknown } | undefined)?.panelOffsets ?? null,
-          );
-        }),
-      )
-      .toContain('"stats"');
-
-    await page.reload();
-    await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });
-    await expect.poll(async () => (await panel.boundingBox())!.x).toBeLessThan(start.x - 150);
   });
 });
 

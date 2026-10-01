@@ -137,7 +137,7 @@ export async function importCoreTests(
   });
   await page.getByRole("radio", { name: /Replace/ }).click();
   await page.getByRole("button", { name: "Replace my data" }).click();
-  await expect(page.getByText(/Imported 1 solves/)).toBeVisible();
+  await expect(page.getByText(/Imported 1 solve\b/)).toBeVisible();
 }
 
 /** Tests that start with 15-second inspection. */

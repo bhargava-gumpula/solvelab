@@ -94,7 +94,7 @@ test.describe("the Learning Hub", () => {
 
     await page.getByRole("link", { name: "Your path" }).click();
     await expect(page.getByTestId("course-progress")).toHaveText(/^1\//);
-    await expect(page.getByTestId("continue-lesson")).toContainText("Continue");
+    await expect(page.getByTestId("continue-lesson")).toContainText("Start lesson");
   });
 
   test("a wrong answer gets another go, and the lesson isn't read until it's right", async ({
@@ -144,6 +144,9 @@ test.describe("the Learning Hub", () => {
     await importCoreTests(page);
     await page.goto("/hub/");
     await expect(page.getByTestId("course-title")).toHaveText("Sub-20");
+    // The Trail folds a run of passed stops into one row; open it, as a person would.
+    const folded = page.getByTestId("path-show-passed");
+    if (await folded.count()) await folded.first().click();
     // Every core test is taken, which is what "Where 20 seconds goes" asks for.
     await expect(page.getByTestId("status-sub-20-budget")).toHaveText("Passed");
     await expect(page.getByTestId("course-units")).toContainText(/\d+ of \d+ units finished/);
