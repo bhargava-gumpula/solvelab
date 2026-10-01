@@ -75,7 +75,7 @@ export function CaseBrowser({
 
   return (
     <div className="grid gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3 glass">
+      <div className="tile flex flex-wrap items-center justify-between gap-3 px-5 py-4">
         <div className="grid min-w-52 flex-1 gap-2">
           <p className="text-sm text-muted-foreground" data-testid="set-progress">
             {loaded ? (
@@ -132,7 +132,7 @@ export function CaseBrowser({
       {!loaded ? (
         <Skeleton className="h-64" />
       ) : matching.length === 0 ? (
-        <p className="rounded-2xl px-4 py-8 text-center text-sm text-muted-foreground glass">
+        <p className="tile px-5 py-8 text-center text-sm text-muted-foreground">
           No case here matches that.
         </p>
       ) : (

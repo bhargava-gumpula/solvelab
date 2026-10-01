@@ -35,7 +35,7 @@ export function TriggerList() {
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-2 rounded-2xl px-4 py-3 glass">
+      <div className="tile grid gap-2 px-5 py-4">
         <p className="text-sm text-muted-foreground" data-testid="set-progress">
           {loaded ? (
             <>
@@ -77,7 +77,7 @@ export function TriggerList() {
                 return (
                   <li
                     key={trigger.id}
-                    className="grid content-start gap-3 rounded-2xl border p-4 glass"
+                    className="tile grid content-start gap-3 p-5"
                     data-testid={`trigger-${trigger.id}`}
                     data-label={label}
                   >

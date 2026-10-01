@@ -250,7 +250,7 @@ function Conversation({
 
   return (
     <>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl px-4 py-3 glass">
+      <div className="tile flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-4">
         <CoachAvatar size="lg" thinking={typing !== null} />
         <div className="min-w-0 flex-1">
           <p className="leading-tight font-semibold">{COACH_NAME}</p>
@@ -304,7 +304,7 @@ function Conversation({
 function ChatComposer() {
   return (
     <div className="grid gap-1.5" data-testid="coach-composer">
-      <div className="flex items-center gap-2 rounded-2xl px-4 py-2.5 glass">
+      <div className="tile flex items-center gap-2 px-5 py-3">
         <input
           disabled
           aria-label="Message your coach — coming later"
@@ -526,7 +526,7 @@ function SummaryCard({ summary, decimals }: { summary: Summary; decimals: TimeDe
   const others = summary.aspects.filter((aspect) => !aspect.weak);
   const label = goalLabel(summary.goalMilestoneId);
   return (
-    <section className="rounded-3xl p-5 glass md:p-6" aria-labelledby="summary-heading">
+    <section className="tile p-5 md:p-6" aria-labelledby="summary-heading">
       <p className="eyebrow text-primary">Your summary</p>
       <h2 id="summary-heading" className="mt-1 text-xl font-semibold tracking-tight">
         {summaryHeadline(summary, label)}
@@ -745,10 +745,7 @@ function SummaryActions({
 }) {
   const weak = focusAspects(summary).length;
   return (
-    <section
-      className="flex flex-wrap items-center gap-2 rounded-2xl p-4 glass"
-      aria-label="What next"
-    >
+    <section className="tile flex flex-wrap items-center gap-2 p-4" aria-label="What next">
       {weak > 0 ? (
         <Button onClick={onRetest} data-testid="coach-retest">
           <Target /> Retest my weak spots
@@ -769,7 +766,7 @@ function SummaryActions({
 
 function EarlierSummaries({ threads }: { threads: CoachThread[] }) {
   return (
-    <details className="rounded-2xl px-4 py-3 glass">
+    <details className="tile px-5 py-4">
       <summary className="cursor-pointer text-sm font-medium">Earlier summaries</summary>
       <ul className="mt-3 grid gap-2 text-sm">
         {threads.map((thread) => {

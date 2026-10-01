@@ -141,7 +141,7 @@ export function AlgorithmTrainer({
           onStop={() => setRunning(false)}
         />
       ) : (
-        <section className="grid gap-4 rounded-2xl p-4 glass" data-testid="trainer-setup">
+        <section className="tile grid gap-4 p-5" data-testid="trainer-setup">
           <div>
             <p className="text-sm font-medium">Which cases?</p>
             <ToggleGroup
@@ -346,7 +346,7 @@ function TrainerSession({
 
   return (
     <div className="grid gap-4" data-testid="trainer-session">
-      <section className="grid grid-cols-[auto_1fr] items-center gap-3 rounded-2xl p-3 glass sm:p-4">
+      <section className="tile grid grid-cols-[auto_1fr] items-center gap-3 p-4 sm:p-5">
         {current && mode === "execution" ? (
           <>
             <CaseDiagram
@@ -388,7 +388,7 @@ function TrainerSession({
         scramble={{ value: scramble, onNext: () => deal(current?.caseId ?? null) }}
       />
 
-      <section className="grid gap-3 rounded-2xl p-4 glass" data-testid="trainer-stats">
+      <section className="tile grid gap-3 p-5" data-testid="trainer-stats">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <p className="text-sm">
             This session: <span className="font-mono tabular">{session.length}</span> solved, mean{" "}
@@ -515,7 +515,7 @@ function FlashcardSession({
 
   return (
     <div className="grid gap-4" data-testid="flashcards">
-      <section className="grid justify-items-center gap-4 rounded-2xl p-6 text-center glass">
+      <section className="tile grid justify-items-center gap-4 p-7 text-center">
         <CaseDiagram
           key={dealt.round}
           facelets={casePicture(current.entry, kind, current.algorithm.moves).facelets}
@@ -553,7 +553,7 @@ function FlashcardSession({
           </div>
         )}
       </section>
-      <section className="flex flex-wrap items-center justify-between gap-2 rounded-2xl p-4 glass">
+      <section className="tile flex flex-wrap items-center justify-between gap-2 p-5">
         <p className="text-sm" data-testid="flash-tally">
           This session: <span className="font-mono tabular">{tally.known}</span> known,{" "}
           <span className="font-mono tabular">{tally.missed}</span> missed

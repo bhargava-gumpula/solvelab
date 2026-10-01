@@ -33,7 +33,7 @@ export function AlgorithmSetList() {
             <li key={definition.id}>
               <Link
                 href={`/algorithms/${definition.id}/`}
-                className="block rounded-2xl border p-4 glass transition-colors hover:border-primary/40"
+                className="tile block p-5 transition-colors hover:border-primary/40"
                 data-testid={`set-${definition.id}`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -60,7 +60,7 @@ export function AlgorithmSetList() {
             <li key={definition.id}>
               <Link
                 href={`/algorithms/${definition.id}/`}
-                className="block rounded-2xl border p-4 glass transition-colors hover:border-primary/40"
+                className="tile block p-5 transition-colors hover:border-primary/40"
                 data-testid={`set-${definition.id}`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -87,11 +87,11 @@ export function AlgorithmSetList() {
           return (
             <li
               key={definition.id}
-              className="rounded-2xl border p-4 opacity-70 glass"
+              className="tile p-6 opacity-60"
               data-testid={`set-${definition.id}`}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="font-medium">{definition.name}</p>
+                <p className="font-display text-[1.9rem] leading-none">{definition.name}</p>
                 <Badge variant="outline">Coming later</Badge>
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{definition.description}</p>
@@ -112,15 +112,18 @@ export function AlgorithmSetList() {
           <li key={set.id}>
             <Link
               href={`/algorithms/${set.id}/`}
-              className="block rounded-2xl border p-4 glass transition-colors hover:border-primary/40"
+              className="group tile block p-6 transition-transform duration-300 hover:-translate-y-0.5"
               data-testid={`set-${set.id}`}
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="font-medium">{definition.name}</p>
-                <ArrowRight className="size-4 text-muted-foreground" aria-hidden />
+                <p className="font-display text-[1.9rem] leading-none">{definition.name}</p>
+                <ArrowRight
+                  className="size-4 text-muted-foreground transition-transform group-hover:translate-x-1"
+                  aria-hidden
+                />
               </div>
               <p className="mt-1 text-sm text-muted-foreground">{definition.description}</p>
-              <p className="mt-3 text-sm">
+              <p className="mt-4 eyebrow">
                 {counts.total} cases · {algorithms} algorithms
               </p>
               {loaded ? (

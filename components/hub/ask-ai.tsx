@@ -141,14 +141,14 @@ export function AskAi() {
         <p className="flex items-center gap-2 eyebrow text-primary">
           <Bot className="size-4" /> Your AI coach
         </p>
-        <h1 className="mt-1 text-3xl font-semibold tracking-tight">Ask about your solves</h1>
+        <h1 className="mt-1 font-display text-[2.9rem] leading-[0.98]">Ask about your solves</h1>
         <p className="mt-1 max-w-2xl text-muted-foreground">
           Your own AI, told what your profile shows and which packs and tests exist, so its advice
           fits you and points at things you can do here.
         </p>
       </header>
 
-      <section className="grid gap-3 rounded-3xl p-5 glass md:p-6">
+      <section className="tile grid gap-3 p-5 md:p-6">
         <label htmlFor="ai-question" className="text-sm font-semibold">
           Your question
         </label>
@@ -226,7 +226,7 @@ export function AskAi() {
               whileTap={{ scale: 0.97 }}
               onClick={() => void send(target)}
               data-testid={`ai-open-${target}`}
-              className="flex items-center gap-3 rounded-2xl p-4 text-left glass"
+              className="tile flex items-center gap-3 p-4 text-left"
             >
               <span className="grid size-10 place-items-center rounded-xl bg-primary/15 text-primary">
                 <ExternalLink className="size-5" />
@@ -399,11 +399,7 @@ function ChatHere({ systemPrompt, question }: { systemPrompt: string; question: 
   };
 
   return (
-    <section
-      className="grid gap-3 rounded-3xl p-5 glass md:p-6"
-      aria-labelledby="ai-chat"
-      data-testid="ai-chat"
-    >
+    <section className="tile grid gap-3 p-5 md:p-6" aria-labelledby="ai-chat" data-testid="ai-chat">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h2 id="ai-chat" className="text-base font-semibold">

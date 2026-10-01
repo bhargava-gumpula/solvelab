@@ -21,7 +21,7 @@ export function ZbllBrowser() {
   }, []);
   if (failed) {
     return (
-      <p className="rounded-2xl px-4 py-8 text-center text-sm text-muted-foreground glass">
+      <p className="tile px-5 py-8 text-center text-sm text-muted-foreground">
         Couldn&apos;t load the ZBLL cases. Check your connection and reload the page.
       </p>
     );

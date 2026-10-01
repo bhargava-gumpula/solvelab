@@ -46,7 +46,7 @@ export function TestSession({ testId }: { testId: string }) {
 
   if (!test || !isTestId(testId)) {
     return (
-      <section className="rounded-3xl p-6 glass">
+      <section className="tile p-6">
         <h1 className="text-xl font-semibold">That test doesn’t exist.</h1>
         <Button asChild className="mt-4" variant="outline">
           <Link href={PROFILE_HREF}>
@@ -189,7 +189,7 @@ function TestSessionBody({
         onDeleteLast={() => deleteAttempt(latestTimes.current.length - 1)}
       />
       <div
-        className="grid gap-4 rounded-3xl p-4 glass md:grid-cols-[1fr_auto] md:items-end md:p-5"
+        className="tile grid gap-4 p-4 md:grid-cols-[1fr_auto] md:items-end md:p-5"
         data-focus-hide
       >
         <AttemptList times={times} onDelete={deleteAttempt} />
@@ -237,7 +237,7 @@ function TestHeader({
   const testTarget = targets ? testGoal(test.id, targets) : null;
 
   return (
-    <section className="rounded-3xl p-5 glass md:p-6" data-focus-hide>
+    <section className="tile p-5 md:p-6" data-focus-hide>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="max-w-2xl min-w-0">
           <Link
@@ -246,7 +246,7 @@ function TestHeader({
           >
             <ArrowLeft className="size-3.5" aria-hidden /> Solve profile
           </Link>
-          <h1 className="text-2xl font-semibold tracking-tight">{testTitle(test.id)}</h1>
+          <h1 className="font-display text-[2.4rem] leading-[1.02]">{testTitle(test.id)}</h1>
           <p className="mt-1 text-sm text-muted-foreground">{test.whatItShows}</p>
           {goal && testTarget ? (
             <p className="mt-2 text-sm">
@@ -329,9 +329,9 @@ function TestResults({
 
   return (
     <div className="grid gap-4" data-testid="test-results">
-      <section className="rounded-3xl p-6 glass md:p-8">
+      <section className="tile p-6 md:p-8">
         <p className="eyebrow text-primary">Test complete</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-tight">{testTitle(test.id)}</h1>
+        <h1 className="mt-1 font-display text-[2.4rem] leading-[1.02]">{testTitle(test.id)}</h1>
         <div className="mt-5 flex flex-wrap items-end gap-x-10 gap-y-3">
           <div>
             <p className="text-xs text-muted-foreground">Your average</p>
@@ -365,7 +365,7 @@ function TestResults({
       <CourseUnitsForTest testId={test.id} />
 
       {aspects.length > 0 ? (
-        <section aria-labelledby="shows-heading" className="rounded-3xl p-5 glass md:p-6">
+        <section aria-labelledby="shows-heading" className="tile p-5 md:p-6">
           <h2 id="shows-heading" className="text-base font-semibold">
             What this shows
           </h2>
@@ -383,7 +383,7 @@ function TestResults({
         </section>
       ) : null}
 
-      <section className="flex flex-wrap items-center gap-2 rounded-3xl p-5 glass">
+      <section className="tile flex flex-wrap items-center gap-2 p-5">
         {profile?.complete ? (
           <p className="w-full pb-2 text-sm" data-testid="profile-complete">
             <span className="font-semibold">Your solve profile is complete.</span>{" "}
@@ -423,7 +423,7 @@ function TestResults({
         </Button>
       </section>
 
-      <section className="rounded-3xl p-5 glass">
+      <section className="tile p-5">
         <AttemptList times={times} onDelete={onDelete} showShortcut={false} />
         <p className="mt-2 text-xs text-muted-foreground">
           Deleting an attempt updates these results.
@@ -458,7 +458,7 @@ function CourseUnitsForTest({ testId }: { testId: string }) {
     return [now, pass ? `pass line ${pass}` : ""].filter(Boolean).join(" · ");
   };
   return (
-    <section className="rounded-3xl p-5 glass md:p-6" data-testid="test-course-units">
+    <section className="tile p-5 md:p-6" data-testid="test-course-units">
       <h2 className="text-base font-semibold">In your {state.course.title} course</h2>
       <p className="mt-1 text-xs text-muted-foreground">
         This test is the measure for {units.length === 1 ? "this unit" : "these units"}. A unit

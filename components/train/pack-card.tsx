@@ -4,7 +4,6 @@ import { packBandLabel, packHref } from "@/data/training";
 import { packMinutes, type TrainingPack } from "@/data/training/types";
 import type { PackProgress } from "@/lib/training/progress";
 import { PaceBadge } from "@/components/coach/pace-badge";
-import { GlowingEffect } from "@/components/ui/glowing-effect";
 import type { PaceTag } from "@/types/domain";
 
 interface PackCardProps {
@@ -24,9 +23,8 @@ export function PackCard({ pack, progress, reason, tag, testIdPrefix }: PackCard
     <Link
       href={packHref(pack)}
       data-testid={`${testIdPrefix}-${pack.id}`}
-      className="relative flex flex-col rounded-2xl p-5 text-left glass transition-transform duration-300 hover:-translate-y-0.5"
+      className="tile relative flex flex-col p-5 text-left transition-transform duration-300 hover:-translate-y-0.5"
     >
-      <GlowingEffect />
       <div className="mb-4 flex items-start justify-between gap-3">
         <span className="grid size-9 place-items-center rounded-xl bg-primary/15 text-primary shadow-[0_0_24px_-6px_var(--glow)]">
           {progress?.complete ? (
