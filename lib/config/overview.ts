@@ -1,6 +1,18 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "5.0",
+    title: "The Learning Hub",
+    items: [
+      "Two places: the Timer and the Learning Hub. The Hub places you on a course from Learn to solve to Sub-10 and walks a path of units: lessons with a question each, drills with a rule, recognition and timed sessions",
+      "Units pass on a measured result: a retest against your course's line, not just reading",
+      "The algorithm trainer: practise any set on a real cube from a case scramble that doesn't give the algorithm away, with the name shown, recognised yourself, or as flashcards; your slowest cases surface in the profile",
+      "ZBLL (472 cases) and thousands more published algorithms for PLL, OLL, COLL and WV, including wide-move starts; your own algorithms, checked on the cube; the Fundamentals (triggers)",
+      "Ask your own AI: hand-off links, OpenRouter sign-in or an API key, with the coach allowed to name only SolveLab's real packs and tests",
+      "A new look: outline tiles on an animated swirl, a cover-style timer, five themes (Linen, Terracotta, Ink, Nocturne and dark Sage), and the timer reloads offline",
+    ],
+  },
+  {
     version: "4.1",
     title: "Training packs",
     items: [
@@ -75,11 +87,11 @@ export const shipped = [
 
 export const planned = [
   {
-    version: "4.2",
-    title: "Connect your own AI",
+    version: "5.1",
+    title: "More content, deeper at the fast end",
     items: [
-      "Ask the coach questions in your own words, using your own AI account or a model on your computer",
-      "The chat sees only your solve profile, and can only point you at tests and packs that exist",
+      "More packs and drills for sub-15 and sub-10 solvers, and cases for other methods",
+      "Several Hub layouts tried against each other, and whichever wins kept",
     ],
   },
 ] as const;

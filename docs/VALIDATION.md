@@ -1,5 +1,15 @@
 # Validation report
 
+## 5.0 release (dev log 191)
+
+Run on 2026-10-01 on branch `release-5` at the release commit, against the static export (headless Chromium, one Playwright worker on port 4391, Firebase blocked, dev server stopped first).
+
+| Check           | Command                                         | Result                                  |
+| --------------- | ----------------------------------------------- | --------------------------------------- |
+| Full validation | `npm run validate`                              | Pass (typecheck, lint, prettier, build) |
+| Unit tests      | `npm test`                                      | 1014 passed (75 files)                  |
+| End-to-end      | `E2E_PORT=4391 npx playwright test --workers=1` | 103 passed, 1 pre-existing failure      |
+
 ## Release 5: the v7 design merged with the course content (dev log 190, awaiting review)
 
 Run on 2026-10-01 on branch `release-5` against the static export (headless Chromium, one Playwright

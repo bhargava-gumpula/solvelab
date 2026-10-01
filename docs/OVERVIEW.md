@@ -12,7 +12,7 @@ A cuber picks a goal (for example sub-20). SolveLab then measures every part of 
 - **Owner:** Bhargava Gumpula. Live at <https://solvelab.bhargava-gumpula.com>.
 - **Principles:** local-first (works offline; the timer needs no account, while the parts that keep your own data — Coach, Stats, Train and Learn — need one), keyboard-first timer (Space only; the mouse never starts or stops it), honest numbers (show how each number is worked out, say "likely" when a number is an estimate), and everything a person customizes is saved and synced.
 
-## What it does today (3.1 — Solve profile)
+## What it does today (5.0 — The Learning Hub)
 
 **Timer.** WCA-style timer with optional 15-second inspection, random-state scrambles from cubing.js, sessions, penalties, notes, stats (Ao5/12/50/100, bests, σ, streaks, charts), themes and digit styles, a command palette and keyboard shortcuts, draggable panels, a 3D/2D scramble preview, and a Bluetooth timer path.
 
@@ -63,17 +63,19 @@ Next.js 16 static export (webpack), React 19, TypeScript (strict), Tailwind 4, s
 
 ## Plan
 
-| Release | What                                                                                          | Status          |
-| ------- | --------------------------------------------------------------------------------------------- | --------------- |
-| 3.1     | Save and sync everything; skill tests; solve profile; daily check; coach training data (1–2)  | Shipped         |
-| 4.0     | Algorithm bank: 2-look OLL/PLL, OLL, PLL, F2L, COLL, WV — verified options per case (phase 4) | Live            |
-| 4.1     | Training packs, the road from two minutes to sub-10, Train and Learn on (phase 5)             | Awaiting review |
-| 4.2     | Connect your own AI: ask the coach questions in your own words (phase 6)                      | Planned         |
+| Release | What                                                                                          | Status  |
+| ------- | --------------------------------------------------------------------------------------------- | ------- |
+| 3.1     | Save and sync everything; skill tests; solve profile; daily check; coach training data (1–2)  | Shipped |
+| 4.0     | Algorithm bank: 2-look OLL/PLL, OLL, PLL, F2L, COLL, WV — verified options per case (phase 4) | Live    |
+| 4.1     | Training packs, the road from two minutes to sub-10, Train and Learn on (phase 5)             | Live    |
+| 5.0     | The Learning Hub, measured completion, the algorithm trainer, ZBLL, your own AI, the new look | Live    |
+| 5.1     | More content, deeper at the fast end; several Hub layouts compared                            | Planned |
 
 The conversational coach built in phase 3 is parked: the owner preferred the guided page, and the conversation returns when there is a real AI behind it in 4.2. Everything is broken down in [NEXT_STEPS.md](NEXT_STEPS.md).
 
 ## Release history
 
+- **5.0 — The Learning Hub.** Courses from Learn to solve to Sub-10 with measured completion, the algorithm trainer, ZBLL and the extra algorithms, your own AI, and the Studio look with five themes.
 - **4.1 — Training packs.** Fifteen teaching packs, the two-minutes-to-sub-10 road, Train and Learn on.
 - **4.0 — Algorithm bank.** 233 cases and 463 algorithms, each checked against a cube; three labels per case.
 - **3.1 — Solve profile.** Skill tests, solve profile, daily check, full sync, coach training data.
