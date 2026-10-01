@@ -1,16 +1,19 @@
 import type { User } from "firebase/auth";
 import type { Firestore } from "firebase/firestore";
-import { isAuthConfigured } from "@/lib/auth/config";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { accountBackend, isAuthConfigured } from "@/lib/auth/config";
 import { getRepositories } from "@/lib/storage";
 import { buildContributionPayload, needsContribution, type ContributionPayload } from "./payload";
+import { contributionRow } from "./row";
 
 /**
  * Shares finished tests for coach training, under the signed-in account or,
- * signed out, an anonymous Firebase id that holds nothing else. Everything
- * shared can be deleted again by turning the setting off.
+ * signed out, an anonymous id that holds nothing else. Everything shared can be
+ * deleted again by turning the setting off. Works on either account service
+ * (lib/auth/config.ts); the shape shared is the same.
  */
 
-const CONTRIBUTORS_KEY = "solvelab.trainingContributors.v1";
+export const CONTRIBUTORS_KEY = "solvelab.trainingContributors.v1";
 const WITHDRAW_PENDING_KEY = "solvelab.trainingWithdrawPending.v1";
 const APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "dev";
 const MAX_ROUNDS = 5;
@@ -18,7 +21,8 @@ const MAX_ROUNDS = 5;
 /** Set when sharing can't work on this site (e.g. anonymous sign-in or rules not set up). */
 let unavailable = false;
 
-function readUids(): string[] {
+/** The ids this browser has shared under, so withdrawing covers all of them. */
+export function readUids(): string[] {
   try {
     const parsed: unknown = JSON.parse(localStorage.getItem(CONTRIBUTORS_KEY) ?? "[]");
     return Array.isArray(parsed)
@@ -29,7 +33,7 @@ function readUids(): string[] {
   }
 }
 
-function writeUids(uids: string[]): void {
+export function writeUids(uids: string[]): void {
   try {
     if (uids.length === 0) localStorage.removeItem(CONTRIBUTORS_KEY);
     else localStorage.setItem(CONTRIBUTORS_KEY, JSON.stringify([...new Set(uids)]));
@@ -62,44 +66,121 @@ function errorCode(error: unknown): string {
 }
 
 /** Errors that won't go away by retrying on this page load. */
-function isSetupError(error: unknown): boolean {
+export function isSetupError(error: unknown): boolean {
   const code = errorCode(error);
   return (
     code === "auth/admin-restricted-operation" ||
     code === "auth/operation-not-allowed" ||
     code === "permission-denied" ||
-    code === "firestore/permission-denied"
+    code === "firestore/permission-denied" ||
+    // Supabase: anonymous sign-in off, a grant or policy missing, a CHECK failing.
+    code === "anonymous_provider_disabled" ||
+    code === "42501" ||
+    code === "23514" ||
+    code === "42P01"
   );
 }
 
-async function firebase() {
+// ---------------------------------------------------------------- the two services
+
+interface Target {
+  uid: string;
+  upload(runId: string, payload: ContributionPayload): Promise<void>;
+  /** Deletes everything this id shared. */
+  withdraw(): Promise<void>;
+}
+
+async function firebaseTarget(forUpload: boolean): Promise<Target | null> {
   const [{ getFirebaseAuth }, { getAccountFirestore }] = await Promise.all([
     import("@/lib/auth/firebase"),
     import("@/lib/sync/firestore"),
   ]);
   const auth = getFirebaseAuth();
-  const db = getAccountFirestore();
+  const db: Firestore | null = getAccountFirestore();
   if (!auth || !db) return null;
   await auth.authStateReady();
-  return { auth, db };
+  let user: User | null = auth.currentUser;
+  if (!user) {
+    if (!forUpload) return null;
+    const { signInAnonymously } = await import("firebase/auth");
+    user = (await signInAnonymously(auth)).user;
+  }
+  const uid = user.uid;
+  return {
+    uid,
+    async upload(runId, payload) {
+      const { doc, setDoc } = await import("firebase/firestore");
+      await setDoc(doc(db, "trainingContributions", uid, "runs", runId), payload);
+    },
+    async withdraw() {
+      const { collection, getDocs, writeBatch } = await import("firebase/firestore");
+      const snapshot = await getDocs(collection(db, "trainingContributions", uid, "runs"));
+      for (let start = 0; start < snapshot.docs.length; start += 400) {
+        const batch = writeBatch(db);
+        snapshot.docs.slice(start, start + 400).forEach((item) => batch.delete(item.ref));
+        await batch.commit();
+      }
+    },
+  };
 }
 
-async function contributor(): Promise<{ user: User; db: Firestore } | null> {
-  const services = await firebase();
-  if (!services) return null;
-  const { auth, db } = services;
-  if (auth.currentUser) return { user: auth.currentUser, db };
-  const { signInAnonymously } = await import("firebase/auth");
-  const { user } = await signInAnonymously(auth);
-  return { user, db };
+function failure(error: { message: string; code?: string }): Error & { code?: string } {
+  const wrapped = new Error(error.message) as Error & { code?: string };
+  wrapped.code = error.code;
+  return wrapped;
 }
+
+/** The Supabase side, with the client injectable for tests. */
+export function supabaseTarget(client: SupabaseClient, uid: string): Target {
+  return {
+    uid,
+    async upload(runId, payload) {
+      const { error } = await client
+        .from("training_contributions")
+        .upsert(contributionRow(uid, runId, payload), { onConflict: "owner,run_id" });
+      if (error) throw failure(error);
+    },
+    async withdraw() {
+      // Row level security scopes this to the caller's rows; the filter says so.
+      const { error } = await client.from("training_contributions").delete().eq("user_id", uid);
+      if (error) throw failure(error);
+    },
+  };
+}
+
+/** A Supabase session to share under: the current one, or a new anonymous one. */
+export async function supabaseSessionUser(
+  client: SupabaseClient,
+  createIfMissing: boolean,
+): Promise<string | null> {
+  const {
+    data: { session },
+  } = await client.auth.getSession();
+  if (session?.user) return session.user.id;
+  if (!createIfMissing) return null;
+  const { data, error } = await client.auth.signInAnonymously();
+  if (error) throw failure(error);
+  return data.user?.id ?? null;
+}
+
+async function target(forUpload: boolean): Promise<Target | null> {
+  const backend = accountBackend();
+  if (backend === "firebase") return firebaseTarget(forUpload);
+  if (backend !== "supabase") return null;
+  const { getSupabaseClient } = await import("@/lib/supabase/client");
+  const client = getSupabaseClient();
+  if (!client) return null;
+  const uid = await supabaseSessionUser(client, forUpload);
+  return uid ? supabaseTarget(client, uid) : null;
+}
+
+// ---------------------------------------------------------------- sharing
 
 async function upload(runId: string, payload: ContributionPayload): Promise<void> {
-  const target = await contributor();
-  if (!target) return;
-  const { doc, setDoc } = await import("firebase/firestore");
-  writeUids([...readUids(), target.user.uid]);
-  await setDoc(doc(target.db, "trainingContributions", target.user.uid, "runs", runId), payload);
+  const to = await target(true);
+  if (!to) return;
+  writeUids([...readUids(), to.uid]);
+  await to.upload(runId, payload);
 }
 
 let running: Promise<void> | null = null;
@@ -161,23 +242,14 @@ export interface WithdrawResult {
 export async function withdrawContributions(): Promise<WithdrawResult> {
   setWithdrawPending(true);
   if (running) await running.catch(() => undefined);
-  const services = isAuthConfigured() ? await firebase() : null;
-  const user = services?.auth.currentUser ?? null;
-  if (services && user) {
-    const { collection, getDocs, writeBatch } = await import("firebase/firestore");
-    const snapshot = await getDocs(
-      collection(services.db, "trainingContributions", user.uid, "runs"),
-    );
-    for (let start = 0; start < snapshot.docs.length; start += 400) {
-      const batch = writeBatch(services.db);
-      snapshot.docs.slice(start, start + 400).forEach((item) => batch.delete(item.ref));
-      await batch.commit();
-    }
-    writeUids(readUids().filter((uid) => uid !== user.uid));
+  const from = isAuthConfigured() ? await target(false) : null;
+  if (from) {
+    await from.withdraw();
+    writeUids(readUids().filter((uid) => uid !== from.uid));
   }
   await getRepositories().coach.clearContributionMarks();
   setWithdrawPending(false);
-  return { needsSignIn: readUids().some((uid) => uid !== user?.uid) };
+  return { needsSignIn: readUids().some((uid) => uid !== from?.uid) };
 }
 
 /**

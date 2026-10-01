@@ -4,9 +4,10 @@ import { useEffect } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { useStorageStatus } from "@/components/layout/storage-provider";
 import { useSettings } from "@/hooks/use-local-data";
-import { isAuthConfigured } from "@/lib/auth/config";
+import { accountBackend, isAuthConfigured } from "@/lib/auth/config";
 import { getRepositories } from "@/lib/storage";
 import { needsContribution } from "@/lib/training-data/payload";
+import { claimLegacyContributionsOnce } from "@/lib/training-data/legacy-claim";
 import {
   contributePendingRuns,
   withdrawContributions,
@@ -26,6 +27,13 @@ export function TrainingDataSync() {
       .filter(needsContribution)
       .map((run) => `${run.id}@${run.updatedAt ?? ""}`)
       .join(",");
+  }, [ready]);
+
+  // After the move from Firebase, shares made under an old anonymous id are
+  // re-keyed to this browser's new id once, so they can still be withdrawn.
+  useEffect(() => {
+    if (accountBackend() !== "supabase" || !ready) return;
+    void claimLegacyContributionsOnce();
   }, [ready]);
 
   useEffect(() => {

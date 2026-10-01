@@ -24,6 +24,8 @@
     "ml:coll": "node ml/scripts/run.mjs ml/build-coll.ts",
     "ml:wv": "node ml/scripts/run.mjs ml/build-wv.ts",
     "ml:export": "node ml/scripts/run.mjs ml/train/export-contributions.ts",
+    "migrate:export": "node ml/scripts/run.mjs scripts/migrate/export-firestore.ts",
+    "migrate:import": "node ml/scripts/run.mjs scripts/migrate/import-supabase.ts",
     "ml:calibrate": "node ml/scripts/run.mjs ml/train/calibrate.ts",
     "ml:sample": "node ml/scripts/run.mjs ml/train/sample-cuber.ts"
   },
@@ -31,6 +33,7 @@
     "@number-flow/react": "^0.6.2",
     "@paper-design/shaders-react": "^0.0.80",
     "@shadcn/react": "^0.3.0",
+    "@supabase/supabase-js": "2.117.2",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
@@ -54,6 +57,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.2.1",
     "@types/canvas-confetti": "^1.9.0",

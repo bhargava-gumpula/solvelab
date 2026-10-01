@@ -1,4 +1,4 @@
-import { getFirebaseConfig } from "./config";
+import { accountBackend } from "./config";
 
 export type AuthStatus = "loading" | "signedOut" | "signedIn" | "unconfigured";
 
@@ -7,6 +7,12 @@ export interface AuthUser {
   displayName: string | null;
   email: string | null;
   photoURL: string | null;
+  /**
+   * The Firebase uid this account had before the move to Supabase, when the
+   * import recorded one. It lets a browser that last synced under that id keep
+   * its copy (lib/storage/account-owner.ts).
+   */
+  legacyUid?: string;
 }
 
 export interface AuthSnapshot {
@@ -22,15 +28,17 @@ function emit() {
   listeners.forEach((listener) => listener());
 }
 
-function applyUser(
-  user: {
-    uid: string;
-    displayName: string | null;
-    email: string | null;
-    photoURL: string | null;
-    isAnonymous?: boolean;
-  } | null,
-): void {
+/** What either service tells us about who is signed in. */
+export interface ServiceUser {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  isAnonymous?: boolean;
+  legacyUid?: string;
+}
+
+export function applyUser(user: ServiceUser | null): void {
   // Anonymous ids only hold shared test results; to the app they are signed out.
   const next: AuthSnapshot =
     user && !user.isAnonymous
@@ -41,6 +49,7 @@ function applyUser(
             displayName: user.displayName,
             email: user.email,
             photoURL: user.photoURL,
+            ...(user.legacyUid ? { legacyUid: user.legacyUid } : {}),
           },
         }
       : { status: "signedOut", user: null };
@@ -57,7 +66,8 @@ function sameSnapshot(a: AuthSnapshot, b: AuthSnapshot): boolean {
     a.user.uid === b.user.uid &&
     a.user.displayName === b.user.displayName &&
     a.user.email === b.user.email &&
-    a.user.photoURL === b.user.photoURL
+    a.user.photoURL === b.user.photoURL &&
+    a.user.legacyUid === b.user.legacyUid
   );
 }
 
@@ -74,20 +84,33 @@ export function subscribeAuth(listener: () => void): () => void {
 
 export const AUTH_SERVER_SNAPSHOT: AuthSnapshot = { status: "loading", user: null };
 
+function unconfigured(): void {
+  snapshot = { status: "unconfigured", user: null };
+  emit();
+}
+
 export function startAuthListener(): void {
   if (started || typeof window === "undefined") return;
   started = true;
-  if (!getFirebaseConfig()) {
-    snapshot = { status: "unconfigured", user: null };
-    emit();
+  const backend = accountBackend();
+  if (backend === "supabase") {
+    void import("./supabase-session")
+      .then(({ startSupabaseSession }) => startSupabaseSession())
+      .catch((error: unknown) => {
+        console.error(error);
+        unconfigured();
+      });
+    return;
+  }
+  if (backend !== "firebase") {
+    unconfigured();
     return;
   }
   void import("./firebase")
     .then(async ({ getFirebaseAuth }) => {
       const auth = getFirebaseAuth();
       if (!auth) {
-        snapshot = { status: "unconfigured", user: null };
-        emit();
+        unconfigured();
         return;
       }
       const { getRedirectResult, browserPopupRedirectResolver } = await import("firebase/auth");
@@ -113,10 +136,7 @@ export function startAuthListener(): void {
       // Token changes also fire when an anonymous id is linked to Google (same uid).
       auth.onIdTokenChanged((user) => applyUser(user));
     })
-    .catch(() => {
-      snapshot = { status: "unconfigured", user: null };
-      emit();
-    });
+    .catch(() => unconfigured());
 }
 
 /** Used by unit tests. */

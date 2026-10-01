@@ -44,6 +44,8 @@ next-env.d.ts
 
 # Exported training data and backups of someone's solves
 /ml/exports/
+# Firebase → Supabase exports and import reports (account data; never committed)
+/migrate/
 /ml/data/
 solvelab-backup-*.json
 speedcubing-local-backup*.json
@@ -78,3 +80,6 @@ Thumbs.db
 /.sites-runtime/
 /outputs/
 /work/
+
+# The template of the env file is tracked; real values stay in .env.local.
+!.env.example

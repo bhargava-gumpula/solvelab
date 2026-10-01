@@ -1,5 +1,23 @@
 # Validation report
 
+## Supabase build, both services (dev log 193, branch `supabase`, awaiting the cutover sitting)
+
+Run on 2026-10-01: static exports, headless Chromium, one Playwright worker on port 4391, both
+account services blocked at the network, dev server stopped first.
+
+| Check                      | Command                                                     | Result                             |
+| -------------------------- | ----------------------------------------------------------- | ---------------------------------- |
+| Full validation            | `npm run validate`                                          | Pass (1,042 unit tests, 80 files)  |
+| Unit (after the last test) | `npm test`                                                  | 1,043 passed                       |
+| End-to-end, Firebase build | `E2E_PORT=4391 npx playwright test --workers=1`             | 103 passed, 1 pre-existing failure |
+| End-to-end, Supabase build | same, built with `NEXT_PUBLIC_SUPABASE_URL`/`_ANON_KEY` set | 103 passed, the same failure       |
+
+The one failure is "switches scramble type to PLL (OLL solved)", failing since before release 5
+(dev log 190). New coverage: the migration SQL on a real Postgres (pglite); the sync adapter's
+paging, chunking, validation and failure path against a fake client; the uploader's row mapping,
+anonymous session and setup errors; the legacy claim's outcomes; the backend switch; the return-page
+error parsing; the migration plan; the account claim across the move.
+
 ## 5.0 release (dev log 191)
 
 Run on 2026-10-01 on branch `release-5` at the release commit, against the static export (headless Chromium, one Playwright worker on port 4391, Firebase blocked, dev server stopped first).

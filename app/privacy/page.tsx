@@ -1,7 +1,33 @@
 import type { Metadata } from "next";
 import { LegalDocument } from "@/components/legal/legal-document";
 import { brand } from "@/lib/config/brand";
+import { accountBackend } from "@/lib/auth/config";
 import { legal } from "@/lib/config/legal";
+
+/**
+ * Where accounts live for this build (lib/auth/config.ts): Supabase after the
+ * move, Firebase before it. The policy names the right one.
+ */
+const SUPABASE = accountBackend() !== "firebase";
+const words = SUPABASE
+  ? {
+      store: "a Postgres database hosted by Supabase",
+      storeShort: "Supabase",
+      tree: "rows keyed by your user id",
+      authService: "Supabase Auth",
+      userId: "Supabase user id",
+      contributionsAt: "a random id in the same database",
+      rules: "Row level security",
+    }
+  : {
+      store: "Google Cloud Firestore",
+      storeShort: "Firestore",
+      tree: "users/<uid>/…",
+      authService: "Google Firebase Authentication",
+      userId: "Firebase user id",
+      contributionsAt: "a random Firebase id",
+      rules: "Firestore security rules",
+    };
 
 export const metadata: Metadata = { title: "Privacy Policy" };
 
@@ -26,10 +52,10 @@ export default function PrivacyPage() {
           <strong className="text-foreground">When you are signed in</strong>, your solves,
           sessions, settings (timer options, appearance such as theme and digit style, and view
           choices such as chart ranges), skill tests, daily checks, coach conversations and
-          summaries, training plans, finished lessons, and algorithm choices are stored in Google
-          Cloud Firestore under your Firebase user id (
-          <code className="text-foreground">users/&lt;uid&gt;/…</code>). That copy is what restores
-          them on a new device or after you clear this browser. It is not stored as a file on{" "}
+          summaries, training plans, finished lessons, and algorithm choices are stored in{" "}
+          {words.store} under your {words.userId} (
+          <code className="text-foreground">{words.tree}</code>). That copy is what restores them on
+          a new device or after you clear this browser. It is not stored as a file on{" "}
           {legal.operator}’s laptop, Raspberry Pi, or git repository.
         </li>
         <li>
@@ -47,8 +73,8 @@ export default function PrivacyPage() {
         </li>
         <li>
           <strong className="text-foreground">Google account</strong> (name, email, profile photo,
-          and a Firebase user id) is stored by Google Firebase Authentication. The browser also
-          keeps a local Firebase session so you stay signed in on this device.
+          and a {words.userId}) is stored by {words.authService}. The browser also keeps a local
+          session so you stay signed in on this device.
         </li>
       </ul>
       <p>
@@ -78,12 +104,11 @@ export default function PrivacyPage() {
           email, photo, notes, tags, scrambles, individual timer solves, and device details.
         </li>
         <li>
-          <strong className="text-foreground">Where it goes.</strong> Google Cloud Firestore, under
-          a random Firebase id (
-          <code className="text-foreground">trainingContributions/&lt;id&gt;/…</code>). Skill tests
-          need an account, so that id is your account id, and only it can read or delete the
-          results. {legal.operator} downloads the results to retrain the coach, with the ids
-          replaced by new random ones, and ships improved coaches in normal updates.
+          <strong className="text-foreground">Where it goes.</strong> {words.storeShort}, under{" "}
+          {words.contributionsAt}. Skill tests need an account, so that id is your account id, and
+          only it can read or delete the results. {legal.operator} downloads the results to retrain
+          the coach, with the ids replaced by new random ones, and ships improved coaches in normal
+          updates.
         </li>
         <li>
           <strong className="text-foreground">On by default, off anytime.</strong> Sharing starts
@@ -93,6 +118,16 @@ export default function PrivacyPage() {
           learned, but not the results themselves. Results are otherwise kept until you turn sharing
           off or email us to delete them.
         </li>
+        {SUPABASE ? (
+          <li>
+            <strong className="text-foreground">Results shared before October 2026</strong> were
+            kept by the earlier service under an anonymous id. They have moved with everything else,
+            and the browser that shared them re-attaches them to itself the first time it opens the
+            app after the move, so <em>Help improve the coach</em> still deletes them. A browser
+            whose storage was cleared in between can no longer do that itself: email us with roughly
+            when you took the tests and we will delete them.
+          </li>
+        ) : null}
       </ul>
 
       <h2>Google Sign-In</h2>
@@ -100,16 +135,16 @@ export default function PrivacyPage() {
         Coach, Stats, Train and Learn need a Google account, because they hold data of yours that
         lives on the account. The timer, Algorithms and Settings work without one. When you choose
         Sign in with Google, Google shares your basic profile (name, email, photo) with this app. We
-        use that to show your account and attach your timer data to that account in Firestore. We do
-        not post to Google on your behalf, read your Gmail, or attach your solves to Google Drive.
+        use that to show your account and attach your timer data to that account in{" "}
+        {words.storeShort}. We do not post to Google on your behalf, read your Gmail, or attach your
+        solves to Google Drive.
       </p>
 
       <h2>What we do not collect</h2>
       <p>
         {brand.name} does not run ads, does not sell personal information, and does not use
-        third-party analytics pixels. Firestore security rules allow only the signed-in user to read
-        or write their own <code className="text-foreground">users/&lt;uid&gt;</code> tree, and only
-        the id that shared a test result to read or delete it.
+        third-party analytics pixels. {words.rules} allow only the signed-in user to read or write
+        their own rows, and only the id that shared a test result to read or delete it.
       </p>
 
       <h2>Your choices</h2>

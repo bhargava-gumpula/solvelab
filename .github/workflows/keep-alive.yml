@@ -1,0 +1,42 @@
+# Keeps the free Supabase project from being paused for inactivity
+# (docs/SUPABASE_MIGRATION.md §7): one read-only request a day with the
+# publishable key, which is already public in the site's JavaScript. Row level
+# security means the request can see nothing; it only counts as activity.
+#
+# Set the two repository *variables* (Settings → Secrets and variables →
+# Actions → Variables): SUPABASE_URL and SUPABASE_ANON_KEY. They are not
+# secrets, so they live as variables; nothing secret is needed here.
+name: Keep the Supabase project awake
+
+on:
+  schedule:
+    - cron: "17 6 * * *" # daily, 06:17 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: One read-only request
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "SUPABASE_URL or SUPABASE_ANON_KEY isn't set as a repository variable; nothing to do."
+            exit 0
+          fi
+          # A select on a table the key can't read: RLS returns no rows (or 401 if the
+          # key is wrong), and either way the project has seen a request today.
+          status=$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/settings?select=user_id&limit=1")
+          echo "HTTP $status"
+          case "$status" in
+            200|401|403) exit 0 ;;
+            *) echo "Unexpected status; is the project paused?"; exit 1 ;;
+          esac

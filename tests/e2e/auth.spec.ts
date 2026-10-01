@@ -192,7 +192,8 @@ test("privacy, terms and overview are public", async ({ page }) => {
   await page.goto("/privacy/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy Policy");
   await expect(page.getByText("speedcubing-local")).toBeVisible();
-  await expect(page.getByText("Google Cloud Firestore").first()).toBeVisible();
+  // The policy names the build's account service.
+  await expect(page.getByText(/Google Cloud Firestore|hosted by Supabase/).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "How your solve data is used" })).toBeVisible();
   await page.goto("/terms/");
   await expect(page).toHaveURL(/\/terms\/?$/);

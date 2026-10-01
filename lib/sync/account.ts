@@ -2,7 +2,7 @@ import type { LocalDatabase } from "@/lib/storage/database";
 import { getRepositories } from "@/lib/storage";
 import { claimAccount, type AccountClaim } from "@/lib/storage/account-owner";
 import { getAuthSnapshot } from "@/lib/auth/session";
-import { getFirebaseConfig } from "@/lib/auth/config";
+import { isAuthConfigured } from "@/lib/auth/config";
 import {
   COLLECTION_NAMES,
   COLLECTIONS,
@@ -20,7 +20,7 @@ import {
   type Tombstone,
 } from "./merge";
 import { snapshotsEqual } from "./diff";
-import { readAccountFromCloud, writeAccountToCloud } from "./firestore";
+import { readAccountFromCloud, writeAccountToCloud } from "./cloud";
 
 const TOMBSTONE_KEY = "solvelab.sync.tombstones.v1";
 
@@ -112,7 +112,7 @@ function canSync(): boolean {
   return (
     typeof window !== "undefined" &&
     !applyingRemote &&
-    getFirebaseConfig() !== null &&
+    isAuthConfigured() &&
     getAuthSnapshot().status === "signedIn"
   );
 }
@@ -240,8 +240,12 @@ export function isOfflineSyncError(error: unknown): boolean {
       ? String((error as { code: unknown }).code)
       : "";
   if (code === "unavailable" || code === "deadline-exceeded" || code === "cancelled") return true;
+  // PostgREST's 5xx and a paused Supabase project both read as "can't reach it".
+  if (/^5\d\d$/.test(code)) return true;
   const message = error instanceof Error ? error.message : "";
-  return /network|offline|failed to fetch|err_(blocked|failed|internet)/i.test(message);
+  return /network|offline|failed to fetch|err_(blocked|failed|internet)|load failed|fetch failed|50[0-9]|5[12][0-9]|paused/i.test(
+    message,
+  );
 }
 
 /** Records that belong to a person, rather than the empty shell a fresh copy has. */
@@ -292,9 +296,12 @@ export async function decideAccountStart(
  * before any sync, so one account's data is never merged into another's — or
  * uploaded to it.
  */
-export async function startAccountSession(uid: string): Promise<"synced" | "switched"> {
+export async function startAccountSession(
+  uid: string,
+  legacyUid: string | null = null,
+): Promise<"synced" | "switched"> {
   const { db } = getRepositories();
-  const claim = await claimAccount(db, uid);
+  const claim = await claimAccount(db, uid, new Date(), legacyUid);
   const local = await localSnapshot(db);
   const start = await decideAccountStart(claim, local.records, readAccountFromCloud);
   if (start === "clear") return "switched";

@@ -1,14 +1,19 @@
 import { expect, test as base } from "@playwright/test";
 import { seedStoredAccount } from "./helpers";
 
-/** Firebase Auth and Firestore. Builds with a Firebase config would otherwise reach the real project. */
-const FIREBASE_HOSTS = /^https:\/\/(identitytoolkit|securetoken|firestore)\.googleapis\.com\//;
+/**
+ * The account services: Firebase Auth and Firestore, and Supabase (auth and
+ * the Data API). A build with either config would otherwise reach the real
+ * project. Both are blocked, whichever the build uses.
+ */
+const ACCOUNT_HOSTS =
+  /^https:\/\/((identitytoolkit|securetoken|firestore)\.googleapis\.com|[a-z0-9-]+\.supabase\.(co|in|red))\//;
 
 /**
  * Coach, Stats, Train and Learn need an account, so most tests run as a signed-in
  * person. Firebase is blocked, so the account is a stored session the app reads
  * on start-up, exactly as it would after a real sign-in on this device. Nothing
- * reaches Google; `firebaseRequests` proves it.
+ * reaches Google or Supabase; `firebaseRequests` (its historical name) proves it.
  *
  * A test that wants the signed-out site asks for it with
  * `test.use({ account: "signedOut" })`.
@@ -21,7 +26,7 @@ export const test = base.extend<{
   firebaseRequests: [
     async ({ page }, use) => {
       const requests: string[] = [];
-      await page.route(FIREBASE_HOSTS, (route) => {
+      await page.route(ACCOUNT_HOSTS, (route) => {
         const url = new URL(route.request().url());
         requests.push(`${url.host}${url.pathname}`);
         return route.abort();

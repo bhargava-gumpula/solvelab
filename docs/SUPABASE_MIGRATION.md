@@ -1,6 +1,6 @@
 # Moving accounts and sync from Firebase to Supabase
 
-Design document, written 2026-10-01 for the owner's review. **No code has been written.** Nothing here touches the live Firebase project or the live site. The branch is `supabase`, cut from `main` at 0da7527 (release 5.0).
+Design document, written 2026-10-01 and approved by the owner the same day through the lead chat, with six decisions (section 11). The build on branch `supabase` (cut from `main` at 0da7527, release 5.0) follows it; where the code settled something the document had left open, the document was updated to match. Nothing touches the live Firebase project or the live site until the cutover sitting.
 
 What stays the same: SolveLab is a static site on Cloudflare Pages with no server of its own; IndexedDB stays the working copy; the timer, the Hub and the algorithm bank work signed out; signing in with Google syncs the account's tables, merged last-write-wins with deletion tombstones; finished tests are shared for coach training under the account or an anonymous id, and can be withdrawn. Only the service behind those things changes: Supabase Auth replaces Firebase Auth, and Postgres (through Supabase's Data API) replaces Firestore.
 
@@ -143,11 +143,13 @@ create policy contributions_owner on public.training_contributions
 -- Legacy rows (user_id null) match no policy, so no client can read or change them.
 ```
 
+The claim function of section 5.4 is the one exception to "no `security definer`": it is kept small, checks the caller, is limited to 20 ids and returns a count.
+
 `for all` covers select, insert, update and delete; the `with check` on insert and update stops a user writing a row with someone else's `user_id`, and the owner-only select is what makes `update` and `delete` find rows at all (an update with no select policy silently changes nothing). The restrictive policy is ANDed with the permissive one, which is the documented way to exclude anonymous users.
 
 The shape check that Firestore did in rules is done by the CHECK constraints in section 1.3; a bad insert fails with a constraint error, which the uploader already treats as a setup error (it stops trying on that page load).
 
-**Admin reads.** Nothing in the app reads another user's rows. The only cross-user read is the ML export (`ml/train/export-contributions.ts`), which today uses the Firebase Admin SDK; it becomes a script the owner runs with the project's **secret key** (`sb_secret_…`, the successor of `service_role`) in an environment variable, reading `training_contributions` and de-identifying as `ml/export.ts` already does. The secret key bypasses RLS, lives only on the owner's machine, and is never in the repository (section 8). No `security definer` function and no view is needed; if a view is ever added, it must be `with (security_invoker = true)`.
+**Admin reads.** Nothing in the app reads another user's rows. The only cross-user read is the ML export (`ml/train/export-contributions.ts`), which today uses the Firebase Admin SDK; it becomes a script the owner runs with the project's **secret key** (`sb_secret_…`, the successor of `service_role`) in an environment variable, reading `training_contributions` and de-identifying as `ml/export.ts` already does. The secret key bypasses RLS, lives only on the owner's machine, and is never in the repository (section 8). No view is needed; if one is ever added, it must be `with (security_invoker = true)`.
 
 After the migration runs, `supabase db advisors` (or the dashboard's advisors) should show no table without RLS and no policy on `anon`.
 
@@ -168,7 +170,7 @@ After the migration runs, `supabase db advisors` (or the dashboard's advisors) s
 
 **Login CSRF.** Today a token is only accepted on `/signed-in/`, in the tab that started the sign-in, with that tab's state and nonce. PKCE gives the same guarantee by construction: a `?code=` planted in a link can't be exchanged without the verifier that only the starting browser holds. The adapter keeps the belt and braces: it only lets the exchange run on `/signed-in/`, and `rememberSignInReturn` stays as it is.
 
-**What the consent screen says.** Google's consent screen names the redirect host, so users see `<ref>.supabase.co` unless the project has a custom auth domain (a paid add-on, about $10 a month on top of the free plan). Firebase showed `solvelab-1bb6e.firebaseapp.com` for the same reason until the same-origin OIDC flow was added, so this is a small step back in polish. Decision for the owner: accept it, or budget the custom domain.
+**What the consent screen says.** Google's consent screen names the redirect host, so users see `<ref>.supabase.co` unless the project has a custom auth domain (a paid add-on, about $10 a month on top of the free plan). Firebase showed `solvelab-1bb6e.firebaseapp.com` for the same reason until the same-origin OIDC flow was added, so this is a small step back in polish. Decided: accepted, no custom domain.
 
 **The existing Google OAuth client** (`186249324171-…apps.googleusercontent.com`, created by Firebase) can be reused: add `https://<ref>.supabase.co/auth/v1/callback` to its authorised redirect URIs and paste its id and secret into Supabase's Google provider settings. The secret is in Google Cloud → the client's page; it is the owner's to copy (Aside can do it in the console with approval, but it must not pass through chat or the repository). A new client is just as good and keeps Firebase's untouched during the overlap; recommended.
 
@@ -278,14 +280,16 @@ Edge cases:
 - Two Firebase users with the same e-mail (possible if someone signed in before and after a Google account change): the report lists them; the owner decides which becomes the Supabase user. Not expected.
 - A person whose e-mail changed on Google since they last signed in: they'd get a fresh Supabase account and an empty copy. Their old data stays in `records` under the pre-created user; the owner can re-point by e-mail. Rare; documented, not automated.
 
-### 5.4 Anonymous contributions
+### 5.4 Anonymous contributions: kept, with a claim path
 
-Anonymous Firebase ids can't sign in to Supabase, so no browser could ever withdraw an imported anonymous share again. SolveLab's promise in Settings and the Privacy Policy is that turning sharing off deletes what was shared. Two honest options:
+Anonymous Firebase ids can't sign in to Supabase, yet SolveLab's promise in Settings and the Privacy Policy is that turning sharing off deletes what was shared. The owner's decision: **keep them, and let the browser that shared them claim them.**
 
-- **Drop them at cutover** (recommended if the count is small, which it should be: training data has only been collected since 2026-09-18 and no model has used real data yet). The app keeps a list of this browser's contributor ids in `localStorage`; after the move those are Firebase ids and are simply cleared.
-- **Keep them, re-keyed**, under `legacy_owner` with `user_id null`, readable only by the owner's export, and say in the Privacy Policy that shares made before 2026-10 can no longer be withdrawn from the app (a mail to the owner can delete them). This is what the nullable `user_id` in 1.3 is for.
+- The import writes them to `training_contributions` with `user_id null` and `legacy_owner` = the old Firebase uid (the `owner` key column is that id). No policy matches such rows, so no client can read or change them through the table.
+- A `security definer` function, `claim_legacy_contributions(old_ids text[])`, callable by any signed-in Supabase user (anonymous included), re-keys the rows whose `legacy_owner` is in the list to `auth.uid()` and clears `legacy_owner`. It returns only a count, never rows; it refuses with no session, takes at most 20 ids a call, runs with an empty `search_path`, and `execute` is revoked from `public` and `anon`. It is the one `security definer` object in the schema, and the unit tests (`tests/unit/supabase-schema.test.ts`) run it against a real Postgres: a claim moves exactly the ids given, a second claim finds nothing, other ids' rows stay invisible, and the usual withdraw then deletes the claimed rows.
+- The app keeps the ids it has shared under in `localStorage` (`CONTRIBUTORS_KEY`, `lib/training-data/uploader.ts`). On the first load of the Supabase build, `lib/training-data/legacy-claim.ts` takes the ids in that list that aren't Supabase uuids, signs in anonymously if there is no session, calls the function once (20 ids at a time), and replaces the list with the Supabase id. From then on the existing withdraw path covers the rows. A failure that may pass (offline, a paused project) keeps the old ids for the next load; a permanent one (the function missing, or not callable) drops them.
+- A browser that cleared its storage, or never comes back, can't claim. The Privacy Policy says so and asks for an e-mail to the owner, who deletes by date.
 
-Signed-in users' contributions are kept and move with their account. Either way, the counts go in the import report.
+Signed-in users' contributions move with their account under their new uid.
 
 ### 5.5 Dry run
 
@@ -322,8 +326,8 @@ Numbers from the pricing page on 2026-10-01: 50,000 monthly active users, 500 MB
 
 - **The timer keeps working.** It never touched the network for timing; IndexedDB is the working copy. Nothing here changes.
 - **Sync fails quietly.** Requests to a paused project fail at the network level or with a 5xx; `isOfflineSyncError` treats both as "can't reach the account" (no error toast), and the next change retries. A small, dismissable line in the account menu, "Can't reach your account right now; your times are safe on this device", replaces silence after two failed syncs in a row.
-- **Sessions don't drop.** Access tokens last an hour; when a refresh fails because the project is paused, supabase-js keeps the session for network errors but the app would see no fresh `getSession()` on a new tab. `session.ts` keeps the last known user (`AuthUser`, no tokens) in `localStorage` and shows the account areas as signed in while the auth server is unreachable, marking the state `signedIn` with a `stale: true` flag that `accessState` treats as open. A real sign-out (user action, or a 401 from the server) clears it. Without this, a paused project would lock the Hub and Stats, which is worse than the pause itself.
-- **Avoiding the pause.** Supabase offers no keep-alive on the free plan and only promises no pauses on Pro ($25 a month). Community practice is a scheduled request every few days; the owner's main website already runs a cron-capable server (the Pi), so a weekly `select 1`-style read with the publishable key would count as activity. It is cheap to try and easy to stop; the decision is the owner's.
+- **Sessions don't drop.** Access tokens last an hour; supabase-js keeps the stored session when a refresh fails for a network reason (a paused project reads as one) and signs out only when the server refuses the refresh token. `getSession()` on a new tab returns the stored session, so the account areas stay open while the project is unreachable; no extra "stale session" state was needed in the end.
+- **Avoiding the pause.** Decided: a GitHub Actions workflow (`.github/workflows/keep-alive.yml`) makes one read-only request a day with the publishable key, which is already public in the client bundle; the URL and key are repository variables, not secrets. Supabase only promises no pauses on Pro, so this is a best effort; if a pause still happens the owner restores the project from the dashboard.
 
 **Other limits.** Backups aren't downloadable on the free plan, so the owner should keep a monthly `pg_dump` (the CLI's `supabase db dump`, run with the secret key) outside the repository. Auth e-mail templates can't be customised on new free projects (2026-06-03); SolveLab sends no auth e-mails (Google only), so this doesn't matter. Egress: a full sync of a heavy user is a few MB; 5 GB a month covers thousands of syncs.
 
@@ -352,7 +356,7 @@ Builds run on the Mac and `out/` is uploaded, so Cloudflare Pages needs no varia
 - Create the Supabase account and organisation (GitHub or e-mail sign-up) and the project; choose the region (closest to most users; `eu-west` or `us-west` by the owner's call).
 - Hold the project's secret key and the database password; run the import and ML export scripts with them.
 - Run the dry-run sign-in with their own Google account (5.5).
-- Decide: custom auth domain or not (3.1), drop or keep anonymous contributions (5.4), keep-alive ping or not (7), table design (1.2).
+- Set the two repository variables for the keep-alive workflow (`SUPABASE_URL`, `SUPABASE_ANON_KEY`) once the project exists.
 
 **Aside, with the owner's approval for each step that changes something** (no passwords or keys pass through the agent):
 
@@ -388,11 +392,18 @@ Risks, most to least likely:
 6. **Rollback after real use** (section 6): data written to Supabase after cutover isn't in Firestore. Kept short by doing the cutover in one sitting.
 7. **Lock-in in the other direction**: the data is plain Postgres rows with JSON payloads and the export script exists from day one, so leaving Supabase later is the same job as leaving Firebase now.
 
-## Open questions for the owner
+## 11. Decisions (owner, 2026-10-01, through the lead chat)
 
-1. **Table design:** one `records` table with `jsonb` (recommended, 1.2) or a typed table per collection?
-2. **Anonymous contributions from before the move:** drop them (recommended) or keep them without a way to withdraw from the app (5.4)? A count from the Firestore console would settle it.
-3. **Google consent screen:** accept `<ref>.supabase.co`, or pay for a custom auth domain?
-4. **Keep-alive:** a weekly request from the Pi to stop the 7-day pause, or let it pause and restore by hand?
-5. **Region** for the project.
-6. **Timing:** the cutover needs the owner for the dry-run sign-in, the final import and the deploy approval, in one sitting of about two hours.
+1. **Table design:** one `records` table with `jsonb`, as in 1.2.
+2. **Anonymous contributions from before the move:** kept, with the claim path of 5.4.
+3. **Google consent screen:** `<ref>.supabase.co` accepted; no custom auth domain.
+4. **Keep-alive:** a daily GitHub Actions request with the publishable key; not the Pi.
+5. **Region:** West US (North California).
+6. **Cutover:** one sitting of about two hours, later; everything is prepared so that the sitting is the dry-run sign-in, the export and import scripts, and the deploy approval.
+
+## 12. What was built (branch `supabase`)
+
+- `supabase/migrations/20261001120000_accounts.sql`: the five tables, grants, RLS, the claim function, an `updated_at` trigger. `tests/unit/supabase-schema.test.ts` runs the file on pglite (Postgres 18 in WASM) with a stand-in `auth` schema and checks ownership, the anonymous exclusion, the CHECK constraints, the empty `anon` role, the hidden `legacy_accounts` and the claim.
+- `lib/auth/config.ts` (`accountBackend()`: Supabase when its vars are set, else Firebase), `lib/supabase/client.ts`, `lib/auth/supabase-session.ts`, `lib/auth/actions.ts` (PKCE sign-in, `linkIdentity` for an anonymous session, the taken-identity fallback, sign-out of this device), `lib/sync/supabase.ts` behind `lib/sync/cloud.ts` (paged reads, batched writes, Zod on every row read: `lib/sync/validate.ts`), `lib/training-data/uploader.ts` on both services, `lib/training-data/legacy-claim.ts`, the `legacyUid` carried from `app_metadata.firebase_uid` into the account claim.
+- `scripts/migrate/export-firestore.ts`, `scripts/migrate/import-supabase.ts` (with `--dry-run` and a report), the pure `scripts/migrate/plan.ts` with tests; `ml/train/export-contributions.ts` reads either service.
+- `.github/workflows/keep-alive.yml`; `.env.example`; the Privacy Policy names the build's service and the claim path; the e2e fixture blocks both services and seeds either session.

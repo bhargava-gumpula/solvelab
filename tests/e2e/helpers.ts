@@ -143,6 +143,12 @@ export async function importCoreTests(
 /** Tests that start with 15-second inspection. */
 export const INSPECTION_TESTS = new Set(["cross_only", "cross_f2l", "cross_first_pair"]);
 
+/**
+ * Plants a signed-in session the way the build's account service reads it on
+ * start-up, exactly as after a real sign-in on this device. The chunks are
+ * scanned for the service's public config; a build with neither can't sign
+ * anyone in, and doesn't lock.
+ */
 export async function seedStoredAccount(page: Page, uid = "e2e-account"): Promise<void> {
   await page.goto("/timer/");
   await page.evaluate(async (accountId) => {
@@ -151,17 +157,68 @@ export async function seedStoredAccount(page: Page, uid = "e2e-account"): Promis
       .map((entry) => entry.name)
       .filter((name) => name.includes("/_next/static/chunks/"));
     let apiKey: string | null = null;
+    let supabaseRef: string | null = null;
     for (const url of urls) {
       const source = await (await fetch(url)).text();
-      const match = /AIzaSy[A-Za-z0-9_-]{20,}/.exec(source);
-      if (match) {
-        apiKey = match[0];
+      const supabase = /https:\/\/([a-z0-9-]+)\.supabase\.(?:co|in|red)/.exec(source);
+      if (supabase) {
+        supabaseRef = supabase[1]!;
         break;
       }
+      const firebase = /AIzaSy[A-Za-z0-9_-]{20,}/.exec(source);
+      if (firebase) apiKey = firebase[0];
     }
-    // A build without Firebase config can't sign anyone in, and doesn't lock.
-    if (!apiKey) return;
     const now = Date.now();
+    if (supabaseRef) {
+      // supabase-js keeps the session under sb-<ref>-auth-token. The token is
+      // unsigned: the client doesn't verify it, and the project is blocked.
+      const encode = (value: object) =>
+        btoa(JSON.stringify(value)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+      // The test's id is used as the user id as it is; nothing client-side needs
+      // a uuid, and the project is blocked, so the tests can read it back.
+      const userId = accountId;
+      const expiresAt = Math.floor(now / 1000) + 86_400;
+      const user = {
+        id: userId,
+        aud: "authenticated",
+        role: "authenticated",
+        email: `${accountId}@example.com`,
+        email_confirmed_at: new Date(now).toISOString(),
+        app_metadata: { provider: "google", providers: ["google"] },
+        user_metadata: {
+          full_name: `Tester ${accountId}`,
+          name: `Tester ${accountId}`,
+          email: `${accountId}@example.com`,
+          avatar_url: null,
+        },
+        identities: [],
+        is_anonymous: false,
+        created_at: new Date(now).toISOString(),
+        updated_at: new Date(now).toISOString(),
+      };
+      const accessToken = `${encode({ alg: "HS256", typ: "JWT" })}.${encode({
+        sub: userId,
+        aud: "authenticated",
+        role: "authenticated",
+        email: user.email,
+        is_anonymous: false,
+        exp: expiresAt,
+        iat: Math.floor(now / 1000),
+      })}.e2e`;
+      localStorage.setItem(
+        `sb-${supabaseRef}-auth-token`,
+        JSON.stringify({
+          access_token: accessToken,
+          token_type: "bearer",
+          expires_in: 86_400,
+          expires_at: expiresAt,
+          refresh_token: `${accountId}-refresh`,
+          user,
+        }),
+      );
+      return;
+    }
+    if (!apiKey) return;
     const user = {
       uid: accountId,
       email: `${accountId}@example.com`,
