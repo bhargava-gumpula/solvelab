@@ -9,8 +9,10 @@
     "vendor": "node scripts/bundle-cubing.mjs",
     "predev": "npm run vendor",
     "dev": "next dev --webpack --hostname 127.0.0.1 --port 5173",
+    "dev:supabase": "node --env-file=.env.supabase.local node_modules/next/dist/bin/next dev --webpack --hostname 127.0.0.1 --port 5174",
     "prebuild": "npm run vendor",
     "build": "next build --webpack",
+    "build:supabase": "node --env-file=.env.supabase.local node_modules/next/dist/bin/next build --webpack",
     "start": "node scripts/serve-static.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "typecheck": "tsc --noEmit",
@@ -26,6 +28,7 @@
     "ml:export": "node ml/scripts/run.mjs ml/train/export-contributions.ts",
     "migrate:export": "node ml/scripts/run.mjs scripts/migrate/export-firestore.ts",
     "migrate:import": "node ml/scripts/run.mjs scripts/migrate/import-supabase.ts",
+    "supabase:smoke": "node --env-file=.env.supabase.local ml/scripts/run.mjs scripts/supabase-smoke.ts",
     "ml:calibrate": "node ml/scripts/run.mjs ml/train/calibrate.ts",
     "ml:sample": "node ml/scripts/run.mjs ml/train/sample-cuber.ts"
   },

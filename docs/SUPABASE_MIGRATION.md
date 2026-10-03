@@ -301,6 +301,8 @@ Before any cutover: export, import into the real Supabase project (it is empty u
 
 Then `truncate` the five tables and `auth.admin.deleteUser` the pre-created users, and the final import at cutover starts clean. The dry run also measures how long export + import take (expected: minutes).
 
+The part that needs no Google and no secret key is `npm run supabase:smoke` (`scripts/supabase-smoke.ts`, publishable key only, from `.env.supabase.local`): a visitor with no session is refused, anonymous sign-in, a shared test result written the way the uploader writes it and read back, a malformed row refused by the CHECK constraints, the claim function with a made-up old id (0) and with no ids (refused), an anonymous user's writes to `records` and `settings` refused and its reads empty, `legacy_accounts` hidden, withdraw, nothing left. It deletes its rows; the anonymous auth user it creates stays (holding nothing) because the key can't delete users. First run on the live project: section 13.
+
 ## 6. Cutover plan
 
 The site is static, so a "feature flag" is a build: the backend is chosen by which env vars the build has (`NEXT_PUBLIC_SUPABASE_URL` set → Supabase adapter; Firebase vars set and no Supabase → Firebase adapter). Both adapters live in the tree until the Firebase one is removed, which keeps a rollback to a one-line change plus a redeploy. The `supabase` branch carries the work; it merges to `main` only for the cutover deploy.
@@ -407,3 +409,57 @@ Risks, most to least likely:
 - `lib/auth/config.ts` (`accountBackend()`: Supabase when its vars are set, else Firebase), `lib/supabase/client.ts`, `lib/auth/supabase-session.ts`, `lib/auth/actions.ts` (PKCE sign-in, `linkIdentity` for an anonymous session, the taken-identity fallback, sign-out of this device), `lib/sync/supabase.ts` behind `lib/sync/cloud.ts` (paged reads, batched writes, Zod on every row read: `lib/sync/validate.ts`), `lib/training-data/uploader.ts` on both services, `lib/training-data/legacy-claim.ts`, the `legacyUid` carried from `app_metadata.firebase_uid` into the account claim.
 - `scripts/migrate/export-firestore.ts`, `scripts/migrate/import-supabase.ts` (with `--dry-run` and a report), the pure `scripts/migrate/plan.ts` with tests; `ml/train/export-contributions.ts` reads either service.
 - `.github/workflows/keep-alive.yml`; `.env.example`; the Privacy Policy names the build's service and the claim path; the e2e fixture blocks both services and seeds either session.
+
+## 13. The live project (2026-10-02)
+
+Created by the owner and set up through Aside (the lead chat's report): ref `lvmipahpadikgftmsjak`, `https://lvmipahpadikgftmsjak.supabase.co`, region us-west-1, Free plan, organisation "SolveLab". `20261001120000_accounts.sql` ran once; the five tables exist with RLS on; anonymous sign-ins and manual linking are on; the Site URL and the five redirect URLs are set. The Google provider is not yet enabled (Aside is adding the Supabase callback to the OAuth client; the owner pastes the client secret).
+
+**Security Advisor (0 errors, 5 warnings), all intended by the design:**
+
+- "Anonymous sign-ins allowed" on `records`, `settings`, `tombstones`: the restrictive `*_not_anonymous` policies (section 2) keep anonymous ids off these tables. The smoke test confirms the refusal (`42501`, policy named).
+- "Anonymous sign-ins allowed" on `training_contributions`: anonymous users must write here; that is what anonymous sign-in is for (3.3). Each sees only its own rows.
+- "SECURITY DEFINER function executable by signed-in users" on `claim_legacy_contributions`: by design (5.4). It checks the caller itself, takes 1–20 ids, updates only rows with `user_id is null` whose `legacy_owner` is in the list, returns a count, lists nothing. Execute is revoked from `public` and `anon`.
+
+**One thing the dashboard didn't show and the smoke test did:** a Supabase project has default privileges that grant every new table in `public` to `anon`, `authenticated` and `service_role`, on top of the migration's explicit grants. So a visitor with no session could `select` from all five tables (RLS returned nothing: no data was exposed, and inserts failed on RLS), and signed-in users had privileges on `legacy_accounts` (RLS again showed nothing). Follow-up migration `20261002120000_revoke_default_grants.sql` revokes the `anon` grants, `authenticated`'s grant on `legacy_accounts`, and the default privileges for future tables. `tests/unit/supabase-schema.test.ts` now sets Supabase's default privileges before running both migrations; without the follow-up it fails the two "no session" and "legacy map" tests exactly as the live project did. **To do through Aside:** run the follow-up in the SQL editor, then `npm run supabase:smoke` should pass all 13 checks (it passed 11 of 13 before it, the two failures being these grants).
+
+**Keep-alive:** repository variables `SUPABASE_URL` and `SUPABASE_ANON_KEY` are set (`gh variable set`, 2026-10-03 UTC). The workflow can't be run or scheduled until `keep-alive.yml` is on the default branch (`gh workflow run` answers 404 from `supabase`), so it starts with the cutover merge. Until then the project sees requests from the smoke test and local runs; the 7-day pause is the thing to watch if the cutover slips (one `npm run supabase:smoke` a week keeps it awake).
+
+**Local runs on the Supabase build** without touching the default Firebase build: `.env.supabase.local` (git-ignored by `.env*`) holds the two public values; `npm run dev:supabase` (port 5174, one of the redirect URLs), `npm run build:supabase` and `npm run supabase:smoke` load it with Node's `--env-file`, and `accountBackend()` prefers Supabase when both services' variables are present. `npm run dev` and `npm run build` keep reading `.env.local` and stay on Firebase until the cutover.
+
+## 14. The cutover sitting: checklist
+
+Who: **Owner** = needs the owner's identity or keys; **Aside** = dashboard clicks with the owner's approval; **Agent** = repository work. Commands run in the repository on the owner's Mac, on branch `supabase` (`git checkout supabase && git pull`). Nothing secret goes in a file in the repository: keys are typed into the command's environment and die with the shell.
+
+**A. Before the sitting (any day, in this order)**
+
+1. Aside: run `supabase/migrations/20261002120000_revoke_default_grants.sql` in the SQL editor. Agent: `npm run supabase:smoke` passes 13/13.
+2. Aside + Owner: enable the Google provider (callback `https://lvmipahpadikgftmsjak.supabase.co/auth/v1/callback` on the OAuth client; the owner pastes the client id and secret into Authentication → Providers → Google). Agent: check the Security Advisor again.
+3. Owner: the dry-run sign-in. `npm run dev:supabase`, open `http://127.0.0.1:5174/`, sign in with Google, time a solve, sign out, sign in again and see the solve. Report what happened to the agent.
+4. Owner: the dry run of the data move, no writes:
+   ```
+   GOOGLE_APPLICATION_CREDENTIALS=~/path/to/firebase-admin-key.json npm run migrate:export
+   SUPABASE_URL=https://lvmipahpadikgftmsjak.supabase.co SUPABASE_SECRET_KEY=<paste from Project settings → API keys> npm run migrate:import -- migrate/export-<date>.json --dry-run
+   ```
+   Read `migrate/export-<date>-dry-run-report.json` (the agent can read it: it holds counts and ids, no secrets). Every rejected record is a question to answer before the sitting. The key is shown once in the dashboard; the owner runs the commands themselves.
+5. Agent: `npm run validate`, `E2E_PORT=4391 npx playwright test --workers=1`, `npm run build:supabase`; the e2e suite on the Supabase build (`NEXT_PUBLIC_SUPABASE_URL`/`_ANON_KEY` set for the Playwright build) as in dev log 193.
+
+**B. The sitting (about two hours, a quiet hour for users)**
+
+1. Aside: freeze Firebase writes. Firebase console → Firestore → Rules: the current `firestore.rules` with `allow write: if false;` in both `match` blocks; Publish. (Rollback: publish the file from git again.)
+2. Owner: the real move.
+   ```
+   GOOGLE_APPLICATION_CREDENTIALS=~/path/to/firebase-admin-key.json npm run migrate:export
+   SUPABASE_URL=https://lvmipahpadikgftmsjak.supabase.co SUPABASE_SECRET_KEY=<paste> npm run migrate:import -- migrate/export-<date>.json
+   ```
+   Agent: compare `migrate/export-<date>-import-report.json` with the dry-run report (same counts, no new rejections). Aside: in the SQL editor, `select count(*) from public.records; select count(*) from auth.users; select count(*) from public.training_contributions;` match the report.
+3. Owner: sign in on `http://127.0.0.1:5174/` (`npm run dev:supabase` still up) with the Google account that has data in Firebase, and see the imported solves. This is the account-linking check (5.3): Google auto-links to the pre-created user with the confirmed e-mail, and the browser keeps its copy because `firebase_uid` travels in `app_metadata`.
+4. Agent: move the two Supabase lines from `.env.supabase.local` into `.env.local` (above the Firebase lines; both stay, Supabase wins). Merge `supabase` into `main` (`git checkout main && git merge --no-ff supabase && git push`) with the owner's word: that also puts `keep-alive.yml` on the default branch. `npm run build`; `npx playwright test -c playwright.live.config.ts` is for after the deploy.
+5. Aside: Cloudflare Pages → `solvelab` → Settings → Variables and secrets: add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` for production (public values; direct-upload deploys don't use them, but a later build there would). Then Create deployment → Production → upload the zipped `out/` → Save and deploy. Owner approves.
+6. Owner: on `https://solvelab.bhargava-gumpula.com/` sign in with Google (the consent screen names `lvmipahpadikgftmsjak.supabase.co`), see the data, time a solve, open the site on the phone and see the solve arrive. Agent: `gh workflow run keep-alive.yml` from `main` passes; `npm run supabase:smoke` passes.
+7. Agent: dev log entry, `docs/HANDOFF.md` (the live service is Supabase), tag the release.
+
+**C. After**
+
+- Firebase stays read-only for 30 days (6.8); the export folder `migrate/` (git-ignored) is the first place to look if someone reports missing data. Then Aside disables the Google provider in Firebase and deletes the Firestore data; the Firebase project can stay.
+- `ml:export` reads Supabase from now on: `SUPABASE_URL=… SUPABASE_SECRET_KEY=… npm run ml:export` (owner).
+- Rollback, any time in the 30 days: Aside rolls Cloudflare Pages back to the previous deployment and republishes the writable `firestore.rules`; the agent removes the two Supabase lines from `.env.local` for local builds. Anything written to Supabase in between is kept there and can be exported with the secret key.

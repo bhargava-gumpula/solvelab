@@ -9,7 +9,10 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
  * will run on the project: grants, row level security, the CHECK constraints
  * and the claim function.
  */
-const MIGRATION = readFileSync("supabase/migrations/20261001120000_accounts.sql", "utf8");
+const MIGRATIONS = [
+  "supabase/migrations/20261001120000_accounts.sql",
+  "supabase/migrations/20261002120000_revoke_default_grants.sql",
+].map((file) => readFileSync(file, "utf8"));
 
 const A = "11111111-1111-4111-8111-111111111111";
 const B = "22222222-2222-4222-8222-222222222222";
@@ -60,8 +63,12 @@ beforeAll(async () => {
       select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '{}')::jsonb
     $$;
     grant usage on schema public to anon, authenticated;
+    -- A Supabase project grants every new table and function in "public" to the
+    -- client roles by default; the migrations have to undo that themselves.
+    alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+    alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
   `);
-  await db.exec(MIGRATION);
+  for (const migration of MIGRATIONS) await db.exec(migration);
   await db.exec(
     `insert into auth.users (id, is_anonymous) values ('${A}', false), ('${B}', false), ('${ANON}', true)`,
   );
