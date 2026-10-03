@@ -1,0 +1,18 @@
+// Cutover freeze (docs/SUPABASE_MIGRATION.md §14 B1): the same rules as
+// firestore.rules with every write refused. Signed-in users on the old build
+// can still read their data; their new times stay in the browser until the
+// Supabase build picks them up. Rollback: publish firestore.rules again.
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId}/{document=**} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;
+    }
+
+    match /trainingContributions/{userId}/runs/{runId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow write: if false;
+    }
+  }
+}
