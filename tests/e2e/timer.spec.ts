@@ -71,7 +71,8 @@ test.describe("daily timer", () => {
       })
       .not.toBe("");
     await expect(page.getByText(/Random-move scramble/)).toHaveCount(0);
-    await expect(page.getByText("Scramble preview")).toBeVisible();
+    // Desktops show the preview as a sticker beside the scramble (no visible title).
+    await expect(page.getByRole("group", { name: "Scramble preview" })).toBeVisible();
   });
 
   test("ignores mouse clicks: they never start or stop the timer", async ({ page }) => {

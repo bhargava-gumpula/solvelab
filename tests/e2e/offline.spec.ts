@@ -5,16 +5,15 @@ test.use({ serviceWorkers: "allow" });
 
 test.describe("offline", () => {
   test("the timer reloads and times a solve with no network", async ({ page, context }) => {
-    await openTimer(page);
-    // Wait until the worker controls the page, as it would for a returning visitor.
+    // A returning visitor: the first visit installs the worker, and the next
+    // load runs under it. (Waiting for the first page to be claimed instead
+    // could hang: a page still loading when the worker activates never is.)
+    await page.goto("/timer/");
     await page.evaluate(async () => {
       await navigator.serviceWorker.ready;
-      if (!navigator.serviceWorker.controller) {
-        await new Promise((resolve) =>
-          navigator.serviceWorker.addEventListener("controllerchange", resolve, { once: true }),
-        );
-      }
     });
+    await openTimer(page);
+    expect(await page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
     await keyboardSolve(page, 800);
     await expect(page.getByTestId("solve-count")).toHaveText("1/1");
 
