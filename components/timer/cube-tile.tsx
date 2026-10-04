@@ -92,6 +92,7 @@ export function CubeSticker({ facelets, size }: { facelets: string | null; size:
   const { preferences } = useAppearance();
   return (
     <div
+      role="group"
       className="relative flex flex-col items-center gap-1.5"
       aria-label="Scramble preview"
       data-reveal-scope="cube"

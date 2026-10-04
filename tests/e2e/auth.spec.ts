@@ -150,27 +150,37 @@ test.describe("switching accounts", () => {
           try {
             left = await page.evaluate(
               async () =>
-                await new Promise<{ solves: number; threads: number; owner: string | null }>(
-                  (resolve) => {
-                    const open = indexedDB.open("speedcubing-local");
-                    open.onsuccess = () => {
-                      const db = open.result;
-                      const transaction = db.transaction(
-                        ["solves", "coachThreads", "meta"],
-                        "readonly",
-                      );
-                      const solves = transaction.objectStore("solves").count();
-                      const threads = transaction.objectStore("coachThreads").count();
-                      const owner = transaction.objectStore("meta").get("accountOwner");
-                      transaction.oncomplete = () =>
-                        resolve({
-                          solves: solves.result,
-                          threads: threads.result,
-                          owner: (owner.result as { value?: string } | undefined)?.value ?? null,
-                        });
+                await new Promise<{
+                  solves: number;
+                  threads: number;
+                  owner: string | null;
+                } | null>((resolve) => {
+                  // Read only. Opening the database between the app deleting it and
+                  // rebuilding it would create an empty one, and a connection left
+                  // open blocks the app's own delete or upgrade; either stalls it.
+                  const open = indexedDB.open("speedcubing-local");
+                  open.onupgradeneeded = () => open.transaction?.abort();
+                  open.onerror = () => resolve(null);
+                  open.onsuccess = () => {
+                    const db = open.result;
+                    db.onversionchange = () => db.close();
+                    const transaction = db.transaction(
+                      ["solves", "coachThreads", "meta"],
+                      "readonly",
+                    );
+                    const solves = transaction.objectStore("solves").count();
+                    const threads = transaction.objectStore("coachThreads").count();
+                    const owner = transaction.objectStore("meta").get("accountOwner");
+                    transaction.oncomplete = () => {
+                      db.close();
+                      resolve({
+                        solves: solves.result,
+                        threads: threads.result,
+                        owner: (owner.result as { value?: string } | undefined)?.value ?? null,
+                      });
                     };
-                  },
-                ),
+                  };
+                }),
             );
           } catch {
             // The page reloaded mid-read; try again.
