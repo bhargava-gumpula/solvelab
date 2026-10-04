@@ -63,6 +63,7 @@
     "@electric-sql/pglite": "0.5.8",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "4.2.1",
+    "@tauri-apps/cli": "^2.12.1",
     "@types/canvas-confetti": "^1.9.0",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",
