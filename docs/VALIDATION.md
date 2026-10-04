@@ -1,5 +1,21 @@
 # Validation report
 
+## Release 5.1, Supabase cutover (dev log 195, merged into `main`)
+
+Run on 2026-10-04 with `.env.local` holding the Supabase lines (the Supabase build): static export,
+headless Chromium, one Playwright worker on port 4391, account services blocked at the network,
+dev server stopped first.
+
+| Check           | Command                                         | Result                                          |
+| --------------- | ----------------------------------------------- | ----------------------------------------------- |
+| Full validation | `npm run validate`                              | Pass (1,043 unit tests, 80 files, build OK)     |
+| End-to-end      | `E2E_PORT=4391 npx playwright test --workers=1` | 103 passed, 1 pre-existing failure (full rerun) |
+
+The first e2e run had 4 failures: the pre-existing "switches scramble type to PLL (OLL solved)", a
+stale version heading (fixed), and two that passed on rerun (the trainer's slowest-cases session,
+the offline reload). Data import: 1,170 records, 2 settings, 146 tombstones, 19 + 86 contributions,
+0 failures.
+
 ## Supabase build, both services (dev log 193, branch `supabase`, awaiting the cutover sitting)
 
 Run on 2026-10-01: static exports, headless Chromium, one Playwright worker on port 4391, both
