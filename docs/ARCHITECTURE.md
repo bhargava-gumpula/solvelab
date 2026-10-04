@@ -46,6 +46,10 @@ Backups use the stable format id `speedcubing-local-backup`, version 1. Imports 
 
 Signed-in accounts also store sessions, solves, and timer settings in Cloud Firestore under `users/{uid}/`. IndexedDB remains the working copy. Merge is last-write-wins per id, with tombstones so deletes do not come back. The durable copy is Google Cloud, not a file on the operator’s machine.
 
+## Accounts and sync: two services behind one switch
+
+`lib/auth/config.ts` decides at build time which service holds accounts: Supabase when `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set, else Firebase when its four vars are, else none (nothing locks). Everything else asks `accountBackend()` or goes through a switch: `lib/auth/session.ts` starts either listener (`lib/auth/supabase-session.ts` or the Firebase one), `lib/auth/actions.ts` signs in and out on either, `lib/sync/cloud.ts` loads `lib/sync/supabase.ts` or `lib/sync/firestore.ts` behind the same `readAccountFromCloud` / `writeAccountToCloud`, and `lib/training-data/uploader.ts` shares and withdraws on either. The merge, diff and debounce in `lib/sync/account.ts` don't know which is behind them. The Supabase schema, policies and the move itself are in `docs/SUPABASE_MIGRATION.md`; the migration SQL in `supabase/migrations/` is run on a real Postgres by `tests/unit/supabase-schema.test.ts`.
+
 ## Deployment
 
 `npm run build` produces `out/`, a static site with no server requirements. `SOLVELAB_BASE_PATH` sets a sub-path at build time; links, assets, icons and the scramble worker all honor it (verified with `scripts/check-base-path.mjs`).

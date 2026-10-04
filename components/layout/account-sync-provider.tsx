@@ -30,7 +30,7 @@ export function AccountSyncProvider({ children }: { children: React.ReactNode })
     if (storage !== "ready" || !user) return;
     if (syncedUid.current === user.uid) return;
     syncedUid.current = user.uid;
-    void startAccountSession(user.uid)
+    void startAccountSession(user.uid, user.legacyUid ?? null)
       .then(async (result) => {
         if (result !== "switched") return;
         // This browser holds another account's data. Clear it before anything

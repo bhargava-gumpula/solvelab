@@ -192,13 +192,15 @@ test("privacy, terms and overview are public", async ({ page }) => {
   await page.goto("/privacy/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Privacy Policy");
   await expect(page.getByText("speedcubing-local")).toBeVisible();
-  await expect(page.getByText("Google Cloud Firestore").first()).toBeVisible();
+  // The policy names the build's account service.
+  await expect(page.getByText(/Google Cloud Firestore|hosted by Supabase/).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "How your solve data is used" })).toBeVisible();
   await page.goto("/terms/");
   await expect(page).toHaveURL(/\/terms\/?$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
   await page.goto("/overview/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("SolveLab 5.0");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("SolveLab 5.1");
+  await expect(page.getByRole("heading", { name: "5.1 — Accounts on Supabase" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "5.0 — The Learning Hub" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "4.1 — Training packs" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "4.0 — Algorithm bank" })).toBeVisible();

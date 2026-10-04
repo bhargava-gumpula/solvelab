@@ -27,9 +27,16 @@ export async function claimAccount(
   db: LocalDatabase,
   uid: string,
   now = new Date(),
+  /** The id this account had on the previous service (Firebase), if any. */
+  legacyUid: string | null = null,
 ): Promise<AccountClaim> {
   const owner = await readAccountOwner(db);
   if (owner === uid) return "same";
+  if (owner !== null && legacyUid !== null && owner === legacyUid) {
+    // The same person, under the account's new id after the move: keep the copy.
+    await db.meta.put({ key: ACCOUNT_OWNER_KEY, value: uid, updatedAt: now.toISOString() });
+    return "same";
+  }
   if (owner !== null) return "switched";
   await db.meta.put({
     key: ACCOUNT_OWNER_KEY,

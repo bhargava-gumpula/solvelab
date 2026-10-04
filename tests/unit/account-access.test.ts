@@ -143,6 +143,19 @@ describe("whose copy this browser holds", () => {
     expect(await claimAccount(db, "account-b")).toBe("switched");
     expect(await readAccountOwner(db)).toBe("account-a");
   });
+
+  it("keeps the copy for the same person under the account's new id after the move", async () => {
+    // Synced under a Firebase uid before the move; the Supabase account carries that uid.
+    expect(await claimAccount(db, "firebase-uid-a")).toBe("adopted");
+    expect(await claimAccount(db, "supabase-uuid-a", new Date(), "firebase-uid-a")).toBe("same");
+    expect(await readAccountOwner(db)).toBe("supabase-uuid-a");
+    // From then on it is simply that account's copy; another account is still refused.
+    expect(await claimAccount(db, "supabase-uuid-a")).toBe("same");
+    expect(await claimAccount(db, "supabase-uuid-b", new Date(), "firebase-uid-b")).toBe(
+      "switched",
+    );
+    expect(await readAccountOwner(db)).toBe("supabase-uuid-a");
+  });
 });
 
 describe("what counts as someone's own data", () => {

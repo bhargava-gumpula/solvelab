@@ -17,3 +17,7 @@ data/algorithms/sets/extras/pll.ts
 data/algorithms/sets/extras/oll.ts
 data/algorithms/sets/extras/coll.ts
 data/algorithms/sets/extras/wv.ts
+.arena
+graphify-out
+mempalace.yaml
+entities.json

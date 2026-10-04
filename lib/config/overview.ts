@@ -1,6 +1,14 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "5.1",
+    title: "Accounts on Supabase",
+    items: [
+      "Accounts, synced times and coach training data moved from Firebase to Supabase (Postgres with row-level security); every saved solve came across",
+      "Sign in with Google as before: your account and your browser's copy are kept, and nothing else changes on the timer",
+    ],
+  },
+  {
     version: "5.0",
     title: "The Learning Hub",
     items: [
