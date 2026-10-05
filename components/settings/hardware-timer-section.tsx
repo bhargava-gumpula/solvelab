@@ -6,6 +6,7 @@ import { useTimerDevice } from "@/components/timer/timer-device-provider";
 import { Button } from "@/components/ui/button";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { features } from "@/lib/config/features";
 import {
   BLUETOOTH_TIMER_BRANDS,
   BLUETOOTH_TIMER_BRAND_IDS,
@@ -57,6 +58,17 @@ export function HardwareTimerControls({
       });
     }
   };
+
+  if (!features.bluetoothTimer) {
+    return (
+      <div>
+        <p className="text-sm font-medium">Start and stop</p>
+        <p className="text-sm text-muted-foreground">
+          Keyboard (Space). Bluetooth timers: use the website in Chrome.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-4">

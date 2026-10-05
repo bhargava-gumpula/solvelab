@@ -12,6 +12,7 @@
     "dev:supabase": "sh -c 'set -a; . ./.env.supabase.local; set +a; exec next dev --webpack --hostname 127.0.0.1 --port 5174'",
     "prebuild": "npm run vendor",
     "build": "next build --webpack",
+    "build:desktop": "npm run vendor && NEXT_PUBLIC_SOLVELAB_TARGET=desktop next build --webpack",
     "build:supabase": "sh -c 'set -a; . ./.env.supabase.local; set +a; exec next build --webpack'",
     "start": "node scripts/serve-static.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",

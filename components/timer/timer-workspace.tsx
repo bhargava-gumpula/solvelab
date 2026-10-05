@@ -42,6 +42,7 @@ import { useTimerDevice } from "@/components/timer/timer-device-provider";
 import { getExercise } from "@/data/exercises";
 import { celebrate } from "@/lib/appearance/celebrate";
 import type { Command } from "@/lib/commands/registry";
+import { features } from "@/lib/config/features";
 import {
   computeSessionStatistics,
   currentAverage,
@@ -109,7 +110,8 @@ export function TimerWorkspace() {
   const practiceDates = useSolveDatesSince(heatSince);
   const [ghost, setGhost] = useDraftPref("ghost", "off", ["on", "off"] as const);
 
-  const inputSource = settings?.timerInput === "bluetooth" ? "bluetooth" : "keyboard";
+  const inputSource =
+    features.bluetoothTimer && settings?.timerInput === "bluetooth" ? "bluetooth" : "keyboard";
   const config = useMemo<TimerConfig>(
     () => ({
       inspectionMs: (settings?.inspectionSeconds ?? 0) * 1000,
