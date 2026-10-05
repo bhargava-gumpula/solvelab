@@ -274,7 +274,7 @@ function Setup({ children }: { children?: (model: CoachModel) => ReactNode }) {
                     </p>
                   )}
                   {pull.phase === "cancelled" && (
-                    <p>Download cancelled. Press Download to continue where it left off.</p>
+                    <p>Download cancelled. Try again to continue where it left off.</p>
                   )}
                   {pull.phase === "error" && (
                     <p className="text-destructive" role="alert">

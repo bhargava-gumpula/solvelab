@@ -86,7 +86,9 @@ export async function pullModel(
     onProgress({ status, completed, total, fraction: Math.min(1, completed / total) });
     if (status === "success") return;
   }
-  throw new Error("The download stopped before it finished. Press Download to continue.");
+  throw new Error(
+    "The download stopped before it finished. Try again to continue where it left off.",
+  );
 }
 
 // The download lives here, not in a component, so leaving the coach page doesn't stop it.
