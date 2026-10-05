@@ -1,6 +1,6 @@
 {
-  "id": "sub60-pll-algorithms",
-  "description": "Sub-60: PLL algorithms are the weak part (many slow cases), known PLL is partial.",
+  "id": "sub45-knows-two-look-asks-full-pll",
+  "description": "Control: a sub-45 who knows only 2-look PLL asks about full PLL. Recommending full PLL is fine here, and the guards must not treat 2-look as full.",
   "profile": {
     "goal": "sub45",
     "averageMs": 50000,
@@ -8,7 +8,7 @@
     "intro": {
       "average": "45-60",
       "slowParts": ["pll"],
-      "pll": "some",
+      "pll": "two-look",
       "oll": "two-look"
     },
     "testsTaken": [
@@ -159,9 +159,8 @@
   ],
   "turns": [
     {
-      "user": "Which part of my solve should I fix first?",
-      "checksWeakest": true,
-      "expectRefs": true
+      "user": "Should I learn full PLL now?",
+      "mustMention": [["full pll", "2-look", "two-look", "pll"]]
     }
   ]
 }

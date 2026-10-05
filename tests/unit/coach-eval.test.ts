@@ -25,6 +25,7 @@ import {
   ruleBreak,
   scoreTurn,
   summarise,
+  tagContradictions,
   ungroundedNumbers,
   weakestAspect,
   type EvalFixture,
@@ -529,6 +530,20 @@ describe("helpers", () => {
     expect(numbersIn("1:05.30 and 3.2 s")).toEqual([65.3, 3.2]);
   });
 
+  it("lets a rule skip questions, so a follow-up about a set is not advice", () => {
+    const rule = {
+      id: "recommends-full-oll",
+      why: "x",
+      pattern: "\\bI need to learn full OLL\\b",
+      skipQuestions: true,
+    };
+    expect(ruleBreak(rule, "Do I need to learn full OLL before improving?")).toBeNull();
+    expect(ruleBreak(rule, "I need to learn full OLL.")).not.toBeNull();
+    expect(
+      ruleBreak({ ...rule, skipQuestions: false }, "Do I need to learn full OLL?"),
+    ).not.toBeNull();
+  });
+
   it("applies a rule per sentence with its excuse", () => {
     const rule = { id: "x", why: "", pattern: "learn ZBLL", excuse: "\\bnot\\b" };
     expect(ruleBreak(rule, "Fine. Learn ZBLL now.")).toBe("Learn ZBLL now.");
@@ -590,5 +605,184 @@ describe("summarise and renderReport", () => {
     expect(report).toContain("BREAK  y #1  algorithm");
     expect(report).toContain("miss   y #1  length: 200 words");
     expect(report).toContain("RESULT: FAIL");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// The slips a real 4B model made (qwen3.5:4b on sub15-asks-zbll's profile)
+// ---------------------------------------------------------------------------
+
+describe("fixtures made from the model's real slips", () => {
+  const NEW = [
+    "sub15-asks-full-oll-or-coll",
+    "sub15-why-f2l-slow",
+    "sub15-plan-practice-30-minutes",
+    "sub15-which-drill-first",
+    "sub20-knows-pll-asks-pll-or-oll",
+    "sub10-knows-all-asks-next-set",
+    "sub10-lookahead-slow-asks-if-fine",
+    "sub20-asks-how-many-olls-known",
+    "sub30-asks-target-times",
+    "sub20-which-lesson-first",
+    "sub45-knows-two-look-asks-full-pll",
+  ];
+
+  it("has fixtures across levels for each slip", () => {
+    expect(NEW.length).toBeGreaterThanOrEqual(8);
+    for (const id of NEW) expect(byId(id), id).toBeDefined();
+    const goals = new Set(NEW.map((id) => byId(id).profile.goal));
+    expect(goals.size).toBeGreaterThanOrEqual(4);
+  });
+
+  it("scores the model's wrong answer to 'full OLL or COLL?' as a break and a missed check", () => {
+    const result = score(
+      "sub15-asks-full-oll-or-coll",
+      raw(
+        "You should focus on Full OLL because your data shows you are already solving 10% of OLLs, which is faster than the goal for COLL. Wait on COLL until your Full OLL average drops below 1.86s.",
+        [
+          { kind: "set", id: "oll" },
+          { kind: "set", id: "coll" },
+        ],
+      ),
+    );
+    expect(rules(result)).toEqual(
+      expect.arrayContaining([
+        "recommends-known-full-oll",
+        "reads-share-as-known",
+        "recommends-known-set",
+      ]),
+    );
+    expect(failed(result)).toContain("known-sets");
+  });
+
+  it("scores calling a slow pair speed average as a missed check", () => {
+    const result = score(
+      "sub15-why-f2l-slow",
+      raw(
+        "Your F2L is slow because your pair speed (1.33s) and lookahead (0.94s) are still average, even though you know all algorithms. Use the cross-for-f2l pack this week.",
+        [{ kind: "pack", id: "cross-for-f2l" }],
+      ),
+    );
+    expect(failed(result)).toContain("tags");
+    expect(rules(result)).toContain("calls-slow-pair-speed-average");
+  });
+
+  it("scores calling a pack a lesson", () => {
+    const result = score(
+      "sub15-plan-practice-30-minutes",
+      raw(
+        "With 30 minutes a day, start with the cross-for-f2l pack, then add the first-lookahead lesson to spot pairs earlier.",
+        [
+          { kind: "pack", id: "cross-for-f2l" },
+          { kind: "pack", id: "first-lookahead" },
+        ],
+      ),
+    );
+    expect(failed(result)).toContain("kind-words");
+    expect(rules(result)).toContain("wrong-kind-word");
+  });
+
+  it("scores a made-up number, in the answer and shown", () => {
+    const result = score(
+      "sub30-asks-target-times",
+      raw(
+        "Aim for a 2.1 s cross and a 9.4 s F2L this month, then retake the cross test to see where you stand.",
+        [{ kind: "test", id: "cross_only" }],
+      ),
+    );
+    expect(failed(result)).toContain("numbers");
+    expect(rules(result)).toContain("ungrounded-number");
+  });
+
+  it("does not fault a right answer, and does not call 2-look knowledge full", () => {
+    const right = score(
+      "sub15-asks-full-oll-or-coll",
+      raw(
+        "You already know full OLL, so the next set is not about learning more algorithms. COLL is optional at your level; fix your pair speed first, then decide.",
+        [{ kind: "pack", id: "f2l-efficiency" }],
+      ),
+    );
+    expect(rules(right)).toEqual([]);
+    expect(failed(right)).toEqual([]);
+    const control = score(
+      "sub45-knows-two-look-asks-full-pll",
+      raw(
+        "Yes, you know 2-look PLL, so the full PLL set is the next step. Start with the pll-algorithms pack and learn a few cases a week.",
+        [{ kind: "pack", id: "pll-algorithms" }],
+      ),
+    );
+    expect(rules(control)).toEqual([]);
+    expect(failed(control)).not.toContain("known-sets");
+  });
+
+  it("scores what the model said, not what the guards left of it", () => {
+    const fixture = byId("sub15-asks-full-oll-or-coll");
+    const turn = fixture.turns[0]!;
+    const said = "You should focus on Full OLL this month, because it is the next set.";
+    const model = parseCoachReply(raw(said), CATALOGUE).reply;
+    const shown = {
+      ...model,
+      answer: "You already know full OLL, so there is nothing new to learn there.",
+    };
+    const result = scoreTurn({
+      fixture,
+      turn,
+      raw: raw(said),
+      reply: shown,
+      modelReply: model,
+      unknownIds: [],
+      catalogue: CATALOGUE,
+    });
+    expect(failed(result)).toContain("known-sets");
+    expect(result.breaks.map((item) => item.rule)).not.toContain("recommends-known-set");
+  });
+});
+
+describe("tagContradictions", () => {
+  const profile = fixtureToProfile(byId("sub15-asks-zbll").profile);
+
+  it("flags a slow part called average, once for each part the verdict covers", () => {
+    expect(
+      tagContradictions(
+        "Your F2L is slow because your pair speed (1.33s) and lookahead (0.94s) are still average.",
+        profile,
+      ),
+    ).toEqual(["pair_speed is slow but the reply says average"]);
+  });
+
+  it("reads 'are all average' as a verdict on every part named", () => {
+    expect(
+      tagContradictions("Your F2L, lookahead and pair speed are all average.", profile),
+    ).toEqual([
+      "pair_speed is slow but the reply says average",
+      "f2l is slow but the reply says average",
+    ]);
+  });
+
+  it("accepts the right verdicts, each with its own part", () => {
+    expect(
+      tagContradictions("Your lookahead is average, but your pair speed is slow.", profile),
+    ).toEqual([]);
+    expect(
+      tagContradictions("Your PLL algorithms are fast and your cross is slow.", profile),
+    ).toEqual([]);
+  });
+
+  it("flags a fast part called slow, and a slow one called good", () => {
+    expect(tagContradictions("Your consistency is slow.", profile)).toEqual([
+      "consistency is fast but the reply says slow",
+    ]);
+    expect(tagContradictions("Your cross is good.", profile)).toEqual([
+      "cross is slow but the reply says fast",
+    ]);
+  });
+
+  it("does not read 'average' the number, or an id, as a verdict", () => {
+    expect(
+      tagContradictions(
+        "Your OLL average is 14 s overall. Start with the cross-for-f2l pack, which is good for pairs.",
+        profile,
+      ),
+    ).toEqual([]);
   });
 });

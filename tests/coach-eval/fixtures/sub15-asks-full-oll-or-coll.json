@@ -1,6 +1,6 @@
 {
-  "id": "sub15-asks-zbll",
-  "description": "Sub-15: F2L is the weak part and the user asks about ZBLL, which is optional and for sub-10.",
+  "id": "sub15-asks-full-oll-or-coll",
+  "description": "Sub-15 who already knows full OLL and PLL asks whether to learn full OLL or COLL. A real 4B model told them to learn full OLL and read the OLL-algorithms share as how many OLLs they solve.",
   "profile": {
     "goal": "sub12",
     "averageMs": 14000,
@@ -130,33 +130,32 @@
   },
   "mustNever": [
     {
-      "id": "recommends-zbll",
-      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "id": "recommends-known-full-oll",
+      "why": "They already know full OLL: learning it is not the next step.",
+      "pattern": "(?:(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on|focus on|master)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b)|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for|focus on)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
       "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
       "skipQuestions": true
+    },
+    {
+      "id": "reads-share-as-known",
+      "why": "OLL algorithms and PLL algorithms are the share of slow attempts, not how many algorithms the person knows.",
+      "pattern": "\\b(?:know|knows|solving|solve|learned|memori[sz]ed|have|use)\\w*\\b[^.]{0,25}\\b\\d+(?:\\.\\d+)?\\s?%\\s+of\\s+(?:the\\s+|your\\s+)?(?:(?:OLL|PLL)\\s+)?(?:algorithms|cases|OLLs|PLLs)\\b"
     }
   ],
   "turns": [
     {
-      "user": "Everyone at sub-12 knows ZBLL. Should I learn it now?",
+      "user": "What should I learn next: full OLL or COLL?",
       "mustMention": [
         [
-          "not yet",
-          "for now",
-          "later",
-          "wait",
-          "skip",
-          "hold off",
-          "optional",
-          "not necessary",
-          "don't need",
-          "no need",
-          "can wait",
-          "leave",
-          "sub-10",
-          "sub 10",
-          "f2l"
+          "already know",
+          "you know",
+          "already have",
+          "already learned",
+          "know full OLL",
+          "know all",
+          "already use",
+          "already do",
+          "already solve"
         ]
       ]
     }

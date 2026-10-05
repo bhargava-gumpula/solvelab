@@ -1,6 +1,6 @@
 {
-  "id": "sub25-pair-speed",
-  "description": "Sub-25: single-pair speed is the weak part.",
+  "id": "sub20-knows-pll-asks-pll-or-oll",
+  "description": "Sub-20 who knows full PLL (and some OLL) asks whether to learn full PLL or full OLL next. The reply must not tell them to learn PLL.",
   "profile": {
     "goal": "sub20",
     "averageMs": 24000,
@@ -127,32 +127,16 @@
   },
   "mustNever": [
     {
-      "id": "recommends-zbll",
-      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
-      "skipQuestions": true
-    },
-    {
-      "id": "recommends-coll-wv",
-      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
-      "skipQuestions": true
-    },
-    {
-      "id": "recommends-xcross",
-      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "id": "recommends-known-full-pll",
+      "why": "They already know full PLL: learning it is not the next step.",
+      "pattern": "(?:(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on|focus on|master)\\w*\\b[^.]{0,40}\\b(?:full PLL|all (?:21|of the) PLLs?|21 PLLs?|all the PLLs?)\\b)|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for|focus on)\\b[^.]{0,30}\\b(?:full PLL|all (?:21|of the) PLLs?|21 PLLs?|all the PLLs?)\\b",
       "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
       "skipQuestions": true
     }
   ],
   "turns": [
     {
-      "user": "Even a single easy pair takes me too long.",
-      "checksWeakest": true,
-      "expectRefs": true
+      "user": "Should I learn full PLL or full OLL next?"
     }
   ]
 }

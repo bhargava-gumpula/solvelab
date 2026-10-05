@@ -1,6 +1,6 @@
 {
-  "id": "sub25-last-pair-to-oll",
-  "description": "Sub-25: the pause between the last pair and OLL is the weak part.",
+  "id": "sub20-asks-how-many-olls-known",
+  "description": "Sub-20 with a high share of slow OLL attempts asks how many OLL algorithms they know. The share is not a count of known algorithms, and a real 4B model read it that way.",
   "profile": {
     "goal": "sub20",
     "averageMs": 23000,
@@ -71,10 +71,9 @@
         "previous": 3380
       },
       "oll_algorithms": {
-        "value": 0.16,
-        "range": [0.04, 0.28],
-        "samples": 10,
-        "previous": 0.18
+        "value": 0.3,
+        "range": [0.2, 0.4],
+        "samples": 10
       },
       "oll_to_pll": {
         "value": 750,
@@ -146,32 +145,15 @@
   },
   "mustNever": [
     {
-      "id": "recommends-zbll",
-      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
-      "skipQuestions": true
-    },
-    {
-      "id": "recommends-coll-wv",
-      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
-      "skipQuestions": true
-    },
-    {
-      "id": "recommends-xcross",
-      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
-      "skipQuestions": true
+      "id": "reads-share-as-known",
+      "why": "OLL algorithms and PLL algorithms are the share of slow attempts, not how many algorithms the person knows.",
+      "pattern": "\\b(?:know|knows|solving|solve|learned|memori[sz]ed|have|use)\\w*\\b[^.]{0,25}\\b\\d+(?:\\.\\d+)?\\s?%\\s+of\\s+(?:the\\s+|your\\s+)?(?:(?:OLL|PLL)\\s+)?(?:algorithms|cases|OLLs|PLLs)\\b"
     }
   ],
   "turns": [
     {
-      "user": "There's a gap between my last pair and OLL that feels wrong.",
-      "checksWeakest": true,
-      "expectRefs": true
+      "user": "How many OLL algorithms do I actually know?",
+      "mustMention": [["slow", "longer", "slower", "much slower", "test"]]
     }
   ]
 }

@@ -1,13 +1,13 @@
 {
-  "id": "sub15-lookahead-last-seconds",
-  "description": "Sub-15: lookahead is the weak part.",
+  "id": "review-zbll-pushback",
+  "description": "Held-out: pushes for ZBLL after being told it can wait. Must not recommend ZBLL; ZBLL is on the leave-alone list.",
   "profile": {
     "goal": "sub12",
-    "averageMs": 14500,
+    "averageMs": 14000,
     "courseId": "sub-12",
     "intro": {
       "average": "12-15",
-      "slowParts": ["pauses"],
+      "slowParts": ["pairs"],
       "pll": "all",
       "oll": "all"
     },
@@ -25,10 +25,10 @@
     ],
     "aspects": {
       "cross": {
-        "value": 1960,
-        "range": [1740, 2180],
+        "value": 1690,
+        "range": [1500, 1880],
         "samples": 10,
-        "previous": 2200
+        "previous": 1890
       },
       "cross_planning": {
         "value": 220,
@@ -37,43 +37,44 @@
         "previous": 250
       },
       "cross_to_f2l": {
-        "value": 570,
-        "range": [420, 720],
-        "samples": 10
+        "value": 540,
+        "range": [390, 690],
+        "samples": 10,
+        "previous": 600
       },
       "f2l": {
-        "value": 6680,
-        "range": [5940, 7420],
+        "value": 9870,
+        "range": [8780, 10960],
         "samples": 10,
-        "previous": 7480
+        "previous": 9820
       },
       "pair_speed": {
-        "value": 1520,
-        "range": [1350, 1690],
-        "samples": 10
+        "value": 1330,
+        "range": [1180, 1480],
+        "samples": 10,
+        "previous": 1490
       },
       "lookahead": {
-        "value": 1840,
-        "range": [1490, 2190],
+        "value": 940,
+        "range": [760, 1120],
         "samples": 10
       },
       "f2l_to_oll": {
-        "value": 430,
-        "range": [280, 580],
+        "value": 390,
+        "range": [240, 540],
         "samples": 10,
-        "previous": 480
+        "previous": 440
       },
       "oll": {
-        "value": 2080,
-        "range": [1850, 2310],
+        "value": 2090,
+        "range": [1860, 2320],
         "samples": 10,
-        "previous": 2330
+        "previous": 2340
       },
       "oll_algorithms": {
-        "value": 0.11,
-        "range": [0.01, 0.21],
-        "samples": 10,
-        "previous": 0.12
+        "value": 0.12,
+        "range": [0.02, 0.22],
+        "samples": 10
       },
       "oll_to_pll": {
         "value": 410,
@@ -81,38 +82,39 @@
         "samples": 10
       },
       "pll": {
-        "value": 2440,
-        "range": [2170, 2710],
+        "value": 2550,
+        "range": [2270, 2830],
         "samples": 10,
-        "previous": 2730
+        "previous": 2860
       },
       "pll_algorithms": {
-        "value": 0.12,
-        "range": [0.02, 0.22],
-        "samples": 10
+        "value": 0.1,
+        "range": [0, 0.2],
+        "samples": 10,
+        "previous": 0.11
       },
       "full_solve": {
-        "value": 14500,
+        "value": 14000,
         "samples": 50
       },
       "consistency": {
-        "value": 0.083,
-        "range": [0.075, 0.091],
+        "value": 0.082,
+        "range": [0.074, 0.09],
         "samples": 50,
-        "previous": 0.093
+        "previous": 0.092
       },
       "turning_speed": {
-        "value": 12.3,
-        "range": [11.600000000000001, 13],
+        "value": 11.5,
+        "range": [10.8, 12.200000000000001],
         "samples": 10,
-        "previous": 11
+        "previous": 10.3
       }
     },
     "picks": [
       {
-        "id": "lookahead",
-        "title": "Lookahead, properly",
-        "reason": "Lookahead is furthest from your goal"
+        "id": "f2l-efficiency",
+        "title": "F2L in fewer moves",
+        "reason": "F2L is furthest from your goal"
       },
       {
         "id": "cross-for-f2l",
@@ -122,9 +124,9 @@
     ]
   },
   "weakest": {
-    "aspect": "lookahead",
-    "refs": ["lookahead", "f2l_only", "last_slot", "first-lookahead", "f2l-from-the-front"],
-    "words": ["lookahead", "look ahead", "next pair", "pause", "pausing"]
+    "aspect": "f2l",
+    "refs": ["f2l-efficiency", "f2l_only", "f2l-efficiency", "advanced-f2l-cases"],
+    "words": ["f2l", "pairs"]
   },
   "mustNever": [
     {
@@ -133,20 +135,11 @@
       "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
       "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
       "skipQuestions": true
-    },
-    {
-      "id": "recommends-new-cube",
-      "why": "Hardware is not the leak at this level.",
-      "pattern": "\\b(?:buy|get|upgrade to|switch to) (?:a |an )?(?:new|better|faster|different)[^.]{0,20}\\b(?:cube|puzzle)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
-      "skipQuestions": true
     }
   ],
   "turns": [
     {
-      "user": "Where do my last two seconds go?",
-      "checksWeakest": true,
-      "expectRefs": true
+      "user": "Everyone fast does ZBLL. Just tell me where to start with it."
     }
   ]
 }

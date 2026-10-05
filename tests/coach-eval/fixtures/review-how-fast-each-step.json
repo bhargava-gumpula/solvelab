@@ -1,9 +1,9 @@
 {
-  "id": "long-conversation-sub45",
-  "description": "Sub-45: fourteen earlier messages about technique, then a question that needs the profile.",
+  "id": "review-how-fast-each-step",
+  "description": "Held-out paraphrase: asks how fast each step should be. Every number in the reply has to come from the data.",
   "profile": {
     "goal": "sub30",
-    "averageMs": 38000,
+    "averageMs": 41000,
     "courseId": "sub-30",
     "intro": {
       "average": "30-45",
@@ -25,50 +25,49 @@
     ],
     "aspects": {
       "cross": {
-        "value": 10260,
-        "range": [9120, 11400],
+        "value": 10460,
+        "range": [9300, 11620],
         "samples": 10,
-        "previous": 10310
+        "previous": 10510
       },
       "cross_planning": {
-        "value": 730,
-        "range": [580, 880],
+        "value": 740,
+        "range": [590, 890],
         "samples": 10
       },
       "cross_to_f2l": {
-        "value": 1530,
-        "range": [1240, 1820],
-        "samples": 10
+        "value": 1510,
+        "range": [1220, 1800],
+        "samples": 10,
+        "previous": 1690
       },
       "f2l": {
-        "value": 19380,
-        "range": [17240, 21520],
-        "samples": 10,
-        "previous": 21710
+        "value": 19410,
+        "range": [17260, 21560],
+        "samples": 10
       },
       "pair_speed": {
-        "value": 3970,
-        "range": [3530, 4410],
+        "value": 4460,
+        "range": [3970, 4950],
         "samples": 10,
-        "previous": 4450
+        "previous": 5000
       },
       "lookahead": {
-        "value": 3180,
-        "range": [2580, 3780],
+        "value": 3370,
+        "range": [2730, 4010],
         "samples": 10,
-        "previous": 3560
+        "previous": 3770
       },
       "f2l_to_oll": {
-        "value": 1040,
-        "range": [840, 1240],
-        "samples": 10,
-        "previous": 1160
+        "value": 1340,
+        "range": [1080, 1600],
+        "samples": 10
       },
       "oll": {
-        "value": 4250,
-        "range": [3780, 4720],
+        "value": 5170,
+        "range": [4600, 5740],
         "samples": 10,
-        "previous": 4760
+        "previous": 5790
       },
       "oll_algorithms": {
         "value": 0.29,
@@ -77,33 +76,35 @@
         "previous": 0.32
       },
       "oll_to_pll": {
-        "value": 1080,
-        "range": [870, 1290],
-        "samples": 10
+        "value": 1330,
+        "range": [1080, 1580],
+        "samples": 10,
+        "previous": 1490
       },
       "pll": {
-        "value": 4860,
-        "range": [4320, 5400],
-        "samples": 10,
-        "previous": 5440
-      },
-      "pll_algorithms": {
-        "value": 0.28,
-        "range": [0.14, 0.42],
+        "value": 5410,
+        "range": [4810, 6010],
         "samples": 10
       },
+      "pll_algorithms": {
+        "value": 0.27,
+        "range": [0.13, 0.41000000000000003],
+        "samples": 10,
+        "previous": 0.3
+      },
       "full_solve": {
-        "value": 38000,
+        "value": 41000,
         "samples": 50
       },
       "consistency": {
-        "value": 0.121,
-        "range": [0.109, 0.133],
-        "samples": 50
+        "value": 0.128,
+        "range": [0.115, 0.14100000000000001],
+        "samples": 50,
+        "previous": 0.14300000000000002
       },
       "turning_speed": {
-        "value": 6.2,
-        "range": [5.800000000000001, 6.6000000000000005],
+        "value": 5.7,
+        "range": [5.4, 6],
         "samples": 10
       }
     },
@@ -122,67 +123,9 @@
   },
   "weakest": {
     "aspect": "cross",
-    "refs": ["cross-efficiency", "cross_only", "inspection", "cross-efficiency"],
+    "refs": ["cross-efficiency", "cross_only", "inspection", "cross-into-f2l"],
     "words": ["cross"]
   },
-  "history": [
-    {
-      "role": "user",
-      "content": "What does the apostrophe mean in R'?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"answer\":\"It means turn that face a quarter turn anticlockwise, as you look at it.\",\"refs\":[],\"followUps\":[]}"
-    },
-    {
-      "role": "user",
-      "content": "How do I stop dropping the cube?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"answer\":\"Hold it lightly and keep your thumbs on the sides. A slightly looser grip usually feels more secure.\",\"refs\":[],\"followUps\":[]}"
-    },
-    {
-      "role": "user",
-      "content": "Do I need a speedcube?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"answer\":\"A modern magnetic cube helps, but any smooth one is fine for now.\",\"refs\":[],\"followUps\":[]}"
-    },
-    {
-      "role": "user",
-      "content": "How many solves should I do a day?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"answer\":\"Ten to twenty good ones. Slow down on the bad ones and work out why they were bad.\",\"refs\":[],\"followUps\":[]}"
-    },
-    {
-      "role": "user",
-      "content": "Should I time every solve?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"answer\":\"Time most of them, but don't chase the number. Look at the average, not single solves.\",\"refs\":[],\"followUps\":[]}"
-    },
-    {
-      "role": "user",
-      "content": "What does 'Ao12' mean?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"answer\":\"An average of 12: drop the best and worst, average the other ten.\",\"refs\":[],\"followUps\":[]}"
-    },
-    {
-      "role": "user",
-      "content": "Do I need to learn to look ahead?"
-    },
-    {
-      "role": "assistant",
-      "content": "{\"answer\":\"Later. Right now smooth, accurate solving matters more than formal lookahead drills.\",\"refs\":[],\"followUps\":[]}"
-    }
-  ],
   "mustNever": [
     {
       "id": "recommends-zbll",
@@ -211,13 +154,18 @@
       "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
       "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
       "skipQuestions": true
+    },
+    {
+      "id": "recommends-multislot-early",
+      "why": "Multislotting is a sub-12 skill.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:multi-?slott?\\w*)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:multi-?slott?\\w*)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
+      "skipQuestions": true
     }
   ],
   "turns": [
     {
-      "user": "Remind me, where am I losing the most time?",
-      "checksWeakest": true,
-      "expectRefs": true
+      "user": "How fast should each step of my solve be, in seconds?"
     }
   ]
 }

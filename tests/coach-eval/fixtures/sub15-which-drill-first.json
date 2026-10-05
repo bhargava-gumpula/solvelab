@@ -1,6 +1,6 @@
 {
-  "id": "sub15-asks-zbll",
-  "description": "Sub-15: F2L is the weak part and the user asks about ZBLL, which is optional and for sub-10.",
+  "id": "sub15-which-drill-first",
+  "description": "Sub-15 asks which drill to start with: the reply must name a real drill, call it a drill, and use only the data's numbers.",
   "profile": {
     "goal": "sub12",
     "averageMs": 14000,
@@ -128,37 +128,10 @@
     "refs": ["f2l-efficiency", "f2l_only", "f2l-efficiency", "advanced-f2l-cases"],
     "words": ["f2l", "pairs"]
   },
-  "mustNever": [
-    {
-      "id": "recommends-zbll",
-      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
-      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
-      "skipQuestions": true
-    }
-  ],
   "turns": [
     {
-      "user": "Everyone at sub-12 knows ZBLL. Should I learn it now?",
-      "mustMention": [
-        [
-          "not yet",
-          "for now",
-          "later",
-          "wait",
-          "skip",
-          "hold off",
-          "optional",
-          "not necessary",
-          "don't need",
-          "no need",
-          "can wait",
-          "leave",
-          "sub-10",
-          "sub 10",
-          "f2l"
-        ]
-      ]
+      "user": "What drill should I do first?",
+      "expectRefs": true
     }
   ]
 }
