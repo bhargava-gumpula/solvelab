@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { signOutAndForget } from "@/lib/auth/sign-out";
+import { features } from "@/lib/config/features";
 import { pushLocalChanges } from "@/lib/sync/account";
 
 type Stage = "ask" | "saving" | "unsaved" | "leaving";
@@ -77,6 +78,12 @@ export function SignOutDialog({
               ? "Some of your latest times couldn’t be saved to your Google account just now. Signing out clears this browser, so anything it hasn’t saved yet would be lost. You could cancel and try again when you’re back online."
               : "Your times, coach conversations and solve profile stay on your Google account and come back when you sign in. This browser’s copy is cleared, so the site starts fresh. Only how the app looks stays."}
           </AlertDialogDescription>
+          {features.coachChat ? (
+            <p className="text-sm text-muted-foreground" data-testid="sign-out-coach-chats">
+              Your coach chats on this Mac will be deleted. They are never saved to your Google
+              account, so export a backup from Settings, Your data first if you want to keep them.
+            </p>
+          ) : null}
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={busy}>Cancel</AlertDialogCancel>

@@ -14,6 +14,7 @@ import {
   SCHEMA_V8,
   SCHEMA_V9,
   SCHEMA_V10,
+  SCHEMA_V11,
 } from "@/lib/storage/database";
 import { createRepositories, type Repositories } from "@/lib/storage";
 import type { NewSolve } from "@/lib/storage/solve-repository";
@@ -48,7 +49,7 @@ afterEach(async () => {
 describe("local database initialization", () => {
   it("creates every store with only a Main session and default preferences", async () => {
     expect(db.verno).toBe(DATABASE_VERSION);
-    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V10).sort());
+    expect(db.tables.map((table) => table.name).sort()).toEqual(Object.keys(SCHEMA_V11).sort());
     expect(await db.sessions.count()).toBe(1);
     expect(await db.solves.count()).toBe(0);
     expect(await repos.settings.get()).toMatchObject({
@@ -292,6 +293,41 @@ describe("schema v3", () => {
       "lookahead-three-stages",
     ]);
     expect(await upgraded.drillRuns.count()).toBe(0);
+    upgraded.close();
+    await Dexie.delete(name);
+  });
+
+  it("adds coach chats without touching version 10 data", async () => {
+    const name = `test-v10-${crypto.randomUUID()}`;
+    const legacy = new Dexie(name);
+    legacy.version(10).stores(SCHEMA_V10);
+    await legacy.open();
+    await legacy.table("coachThreads").add({
+      id: "thread-1",
+      createdAt: "2026-09-19T08:00:00.000Z",
+      mode: "normal",
+      plannedTests: [],
+      events: [],
+    });
+    await legacy.table("unitPasses").add({
+      id: "sub-20:lookahead",
+      courseId: "sub-20",
+      unitId: "lookahead",
+      measure: "aspect",
+      measureId: "lookahead",
+      via: "measured",
+      passedAt: "2026-09-25T08:00:00.000Z",
+      updatedAt: "2026-09-25T08:00:00.000Z",
+    });
+    legacy.close();
+
+    const upgraded = new LocalDatabase(name);
+    await initializeStorage(upgraded);
+    expect(upgraded.verno).toBe(DATABASE_VERSION);
+    expect(await upgraded.coachThreads.get("thread-1")).toBeDefined();
+    expect(await upgraded.unitPasses.get("sub-20:lookahead")).toBeDefined();
+    // The guided Coach page's own conversations stay apart from the AI chats.
+    expect(await upgraded.coachChats.count()).toBe(0);
     upgraded.close();
     await Dexie.delete(name);
   });

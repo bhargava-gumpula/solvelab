@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { CoachChat } from "@/components/coach/coach-chat";
 import { GetMacApp } from "@/components/hub/get-mac-app";
 import { features } from "@/lib/config/features";
 
@@ -7,11 +9,11 @@ export const metadata: Metadata = {
 };
 
 export default function AskPage() {
-  // The desktop build gets the chat here; until it lands it shows a placeholder.
+  // The desktop build has the chat here; the website points people at the app.
   return features.coachChat ? (
-    <p className="text-muted-foreground" data-testid="coach-chat-pending">
-      The coach chat is on its way to this app.
-    </p>
+    <Suspense>
+      <CoachChat />
+    </Suspense>
   ) : (
     <GetMacApp />
   );
