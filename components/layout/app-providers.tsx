@@ -8,6 +8,7 @@ import { SignInReturn } from "@/components/auth/sign-in-return";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AccountSyncProvider } from "./account-sync-provider";
+import { AiKeyWipe } from "./ai-key-wipe";
 import { ServiceWorker } from "./service-worker";
 import { StorageProvider } from "./storage-provider";
 import { TimerDeviceProvider } from "@/components/timer/timer-device-provider";
@@ -30,6 +31,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
             </StorageProvider>
           </AuthProvider>
           <Toaster position="bottom-center" />
+          <AiKeyWipe />
           <ServiceWorker />
         </TooltipProvider>
       </MotionConfig>

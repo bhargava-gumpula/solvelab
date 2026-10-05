@@ -53,6 +53,7 @@ import type { TimeDecimals } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
 import type { CoachEvent, CoachThread, DiagnosticRun, Solve } from "@/types/domain";
 import { PROFILE_HREF } from "@/lib/config/navigation";
+import { isDesktop } from "@/lib/config/mac-app";
 
 /** The coach's name, so the conversation has someone in it. */
 const COACH_NAME = "Cube Coach";
@@ -298,8 +299,8 @@ function Conversation({
 }
 
 /**
- * A chat box that doesn't take messages yet: the coach is guided for now, and
- * typing to it arrives with "Connect your own AI".
+ * A chat box that doesn't take messages yet: the coach is guided here, and
+ * typing to an AI coach is in the Mac app.
  */
 function ChatComposer() {
   return (
@@ -317,10 +318,12 @@ function ChatComposer() {
       </div>
       <p className="px-1 text-xs text-muted-foreground">
         For now the coach asks and you tap.{" "}
-        <Link href="/settings/#coach-ai" className="underline underline-offset-4">
-          Connecting your own AI
+        <Link href="/hub/ask/" className="underline underline-offset-4">
+          {isDesktop() ? "Chat with your AI coach" : "Get the Mac app"}
         </Link>{" "}
-        is planned for a later version.
+        {isDesktop()
+          ? "to ask in your own words."
+          : "for an AI coach you can type to, private on your Mac."}
       </p>
     </div>
   );

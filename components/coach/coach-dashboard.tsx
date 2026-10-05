@@ -19,6 +19,7 @@ import { testActionLabel, testStatus } from "@/lib/coach/test-status";
 import { ASPECT_TIPS } from "@/data/coach/tips";
 import { packForAspect, packHref } from "@/data/training";
 import { PROFILE_HREF } from "@/lib/config/navigation";
+import { isDesktop } from "@/lib/config/mac-app";
 
 /** Guided coach: pick a goal, take the suggested tests, see what to work on. */
 export function CoachDashboard() {
@@ -139,9 +140,11 @@ export function CoachDashboard() {
         <p className="px-1 text-xs text-muted-foreground">
           Want to ask in your own words?{" "}
           <Link href="/hub/ask/" className="underline underline-offset-4">
-            Ask your own AI
+            {isDesktop() ? "Ask your AI coach" : "Get the Mac app"}
           </Link>{" "}
-          — Claude, ChatGPT or Gemini — about this profile.
+          {isDesktop()
+            ? "about this profile."
+            : "for an AI coach that runs on your Mac and reads this profile."}
         </p>
       ) : null}
 

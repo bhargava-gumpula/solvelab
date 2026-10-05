@@ -1,192 +1,91 @@
-import type { Route } from "@playwright/test";
 import { expect, test } from "./fixtures";
 
-/** Cross-origin replies the browser will accept, as OpenRouter's would be. */
-const CORS = {
-  "access-control-allow-origin": "*",
-  "access-control-allow-headers": "authorization, content-type, http-referer, x-title",
-  "access-control-allow-methods": "GET, POST, OPTIONS",
-};
+const WINDOWS =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36";
 
-async function fulfil(route: Route, body: string, contentType = "application/json") {
-  if (route.request().method() === "OPTIONS") {
-    await route.fulfill({ status: 204, headers: CORS });
-    return;
-  }
-  await route.fulfill({ status: 200, headers: { ...CORS, "content-type": contentType }, body });
-}
-
-test.describe("your AI coach", () => {
-  test("hands the question and your profile to Claude, on your own plan", async ({
-    page,
-    context,
-  }) => {
-    await context.route("https://claude.ai/**", (route) =>
-      route.fulfill({ status: 200, contentType: "text/html", body: "<title>Claude</title>" }),
-    );
+test.describe("the AI coach page on the website", () => {
+  test("says the coach lives in the Mac app, and what it needs", async ({ page }) => {
     await page.goto("/hub/ask/");
-    await page.getByTestId("ai-show-prompt").click();
-    await expect(page.getByTestId("ai-prompt")).toContainText("Solve profile");
-    await expect(page.getByTestId("ai-prompt")).toContainText("Training packs in SolveLab");
-
-    await page.getByTestId("ai-question").fill("How do I stop pausing between pairs?");
-    const popup = context.waitForEvent("page");
-    await page.getByTestId("ai-open-claude").click();
-    const claude = await popup;
-    await claude.waitForLoadState();
-    const url = new URL(claude.url());
-    expect(url.origin + url.pathname).toBe("https://claude.ai/new");
-    expect(url.searchParams.get("q")).toContain("How do I stop pausing between pairs?");
-    expect(url.searchParams.get("q")).toContain("Solve profile");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Get the Mac app");
+    const main = page.getByTestId("get-mac-app");
+    await expect(main).toContainText("runs on your Mac");
+    await expect(main).toContainText("Apple silicon");
+    await expect(main).toContainText("macOS 14");
+    await expect(main).toContainText("Ollama");
+    // No download exists yet, so it says so rather than offering a dead button.
+    await expect(page.getByTestId("mac-coming")).toContainText("Coming with 6.0");
+    await expect(page.getByTestId("mac-download")).toHaveCount(0);
+    // The chat, keys and hand-off links are gone from the website.
+    await expect(page.getByTestId("ai-input")).toHaveCount(0);
+    await expect(page.getByTestId("api-key-setup")).toHaveCount(0);
+    await expect(page.getByText(/OpenRouter|API key/)).toHaveCount(0);
+    await expect(page.getByTestId("mac-only-note")).toHaveCount(0);
   });
 
-  test("signs in with OpenRouter, chats, and links the packs it names", async ({ page }) => {
-    await page.route("https://openrouter.ai/auth**", (route) => {
-      const callback = new URL(route.request().url()).searchParams.get("callback_url")!;
-      return route.fulfill({ status: 302, headers: { location: `${callback}?code=test-code` } });
-    });
-    let exchanged: Record<string, string> = {};
-    await page.route("https://openrouter.ai/api/v1/auth/keys", (route) => {
-      if (route.request().method() === "POST") exchanged = route.request().postDataJSON();
-      return fulfil(route, JSON.stringify({ key: "sk-or-test" }));
-    });
-    await page.route("https://openrouter.ai/api/v1/models", (route) =>
-      fulfil(route, JSON.stringify({ data: [{ id: "anthropic/claude-sonnet-5" }] })),
-    );
-    let sent: { model?: string; messages?: { role: string; content: string }[] } = {};
-    await page.route("https://openrouter.ai/api/v1/chat/completions", (route) => {
-      if (route.request().method() === "POST") sent = route.request().postDataJSON();
-      return fulfil(
-        route,
-        [
-          'data: {"choices":[{"delta":{"content":"Start with **Lookahead, properly**"}}]}',
-          'data: {"choices":[{"delta":{"content":" and take the F2L test after."}}]}',
-          'data: {"choices":[{"delta":{"content":" Then the \\"Cross Mastery\\" pack."}}]}',
-          "data: [DONE]",
-          "",
-        ].join("\n"),
-        "text/event-stream",
-      );
-    });
-
+  test("copies a numbers-only summary of your profile", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
     await page.goto("/hub/ask/");
-    await page.getByTestId("ai-provider-openrouter").click();
-    await page.getByTestId("ai-signin-openrouter").click();
-    await expect(page.getByTestId("ai-connected")).toBeVisible();
-    await expect(page).toHaveURL(/\/hub\/ask\/$/);
-    expect(exchanged.code).toBe("test-code");
-    expect(exchanged.code_challenge_method).toBe("S256");
+    await page.getByText("What gets copied").click();
+    const preview = page.getByTestId("summary-preview");
+    await expect(preview).toContainText("Solve profile");
+    await page.getByTestId("copy-summary").click();
+    await expect(page.getByText("Copied. Paste it into any AI you like.")).toBeVisible();
+    const copied = await page.evaluate(() => navigator.clipboard.readText());
+    expect(copied).toBe((await preview.textContent())!);
+    expect(copied).not.toMatch(/@|email|uid|scramble|note/i);
+  });
 
-    await page.getByTestId("ai-input").fill("What should I work on?");
-    await page.getByTestId("ai-send").click();
-    const answer = page.getByTestId("ai-messages");
-    await expect(answer).toContainText(
-      "Start with Lookahead, properly and take the F2L test after.",
-    );
-    await expect(answer.getByRole("link", { name: "Lookahead, properly" })).toHaveAttribute(
-      "href",
-      "/hub/unit/lookahead/",
-    );
-    await expect(answer.getByRole("link", { name: "F2L test" })).toHaveAttribute(
-      "href",
-      "/coach/tests/f2l_only/",
-    );
-    // A pack the AI made up is named as not being in SolveLab.
-    await expect(answer.getByTestId("ai-unknown-references")).toContainText(
-      "SolveLab has nothing called “Cross Mastery”",
-    );
-    // The AI was told the profile, then asked the question.
-    expect(sent.messages?.[0]?.role).toBe("system");
-    expect(sent.messages?.[0]?.content).toContain("Solve profile");
-    expect(sent.messages?.at(-1)?.content).toBe("What should I work on?");
+  test("fits a phone without sideways scrolling", async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 800 });
+    await page.goto("/hub/ask/");
+    await page.getByText("What gets copied").click();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+  });
 
-    // The connection lives on this device only, and goes when you disconnect.
+  test("the other places that mentioned the coach point to the app page", async ({ page }) => {
+    await page.goto("/hub/profile/");
+    const link = page.getByTestId("profile-ask-ai");
+    await expect(link).toContainText("Get the Mac app");
+    await expect(link).toHaveAttribute("href", "/hub/ask/");
+    await page.goto("/settings/");
+    const row = page.locator("#coach-ai").getByRole("link", { name: "Get the Mac app" });
+    await expect(row).toHaveAttribute("href", "/hub/ask/");
+    await expect(page.getByText(/Claude, ChatGPT or Gemini/)).toHaveCount(0);
+  });
+
+  test("removes a key an earlier version saved, and says so once", async ({ page }) => {
+    await page.goto("/timer/");
+    await page.evaluate(() => {
+      localStorage.setItem("solvelab.ai.openrouter", "sk-or-old");
+      localStorage.setItem("solvelab.ai.apiKey", '{"provider":"gemini","key":"AIza-old"}');
+      sessionStorage.setItem("solvelab.ai.openrouterVerifier", "old");
+    });
     await page.reload();
-    await expect(page.getByTestId("ai-connected")).toBeVisible();
-    await page.getByTestId("ai-disconnect").click();
-    await expect(page.getByTestId("ai-signin-openrouter")).toBeVisible();
-  });
+    await expect(page.getByText(/The AI coach moved to the Mac app/)).toBeVisible();
+    expect(
+      await page.evaluate(() => [
+        localStorage.getItem("solvelab.ai.openrouter"),
+        localStorage.getItem("solvelab.ai.apiKey"),
+        sessionStorage.getItem("solvelab.ai.openrouterVerifier"),
+      ]),
+    ).toEqual([null, null, null]);
 
-  test("ignores a sign-in code this tab didn't ask for", async ({ page }) => {
-    let exchanges = 0;
-    await page.route("https://openrouter.ai/api/v1/auth/keys", (route) => {
-      if (route.request().method() === "POST") exchanges++;
-      return fulfil(route, JSON.stringify({ key: "sk-or-someone-else" }));
-    });
-    await page.goto("/hub/ask/?code=planted-code");
-    await page.getByTestId("ai-provider-openrouter").click();
-    await expect(page.getByTestId("ai-signin-openrouter")).toBeVisible();
-    await expect(page).toHaveURL(/\/hub\/ask\/$/);
-    expect(exchanges).toBe(0);
-  });
-
-  test("chats with your own free Gemini key, kept on this device only", async ({ page }) => {
-    const models = {
-      models: [
-        { name: "models/gemini-2.5-flash", supportedGenerationMethods: ["generateContent"] },
-        { name: "models/gemini-2.5-flash-lite", supportedGenerationMethods: ["generateContent"] },
-        { name: "models/text-embedding-004", supportedGenerationMethods: ["embedContent"] },
-      ],
-    };
-    await page.route("https://generativelanguage.googleapis.com/v1beta/models?**", (route) => {
-      const key = route.request().headers()["x-goog-api-key"];
-      return key === "AIza-good"
-        ? fulfil(route, JSON.stringify(models))
-        : route.fulfill({ status: 400, headers: CORS, body: "{}" });
-    });
-    let sent: {
-      systemInstruction?: { parts: { text: string }[] };
-      contents?: { role: string; parts: { text: string }[] }[];
-    } = {};
-    await page.route(
-      "https://generativelanguage.googleapis.com/v1beta/models/*:streamGenerateContent**",
-      (route) => {
-        if (route.request().method() === "POST") sent = route.request().postDataJSON();
-        return fulfil(
-          route,
-          [
-            'data: {"candidates":[{"content":{"parts":[{"text":"Try the "}]}}]}',
-            "",
-            'data: {"candidates":[{"content":{"parts":[{"text":"**Lookahead, properly** pack."}]}}]}',
-            "",
-          ].join("\n"),
-          "text/event-stream",
-        );
-      },
-    );
-
-    await page.goto("/hub/ask/");
-    // A key is the first choice, with the steps for a free Gemini key.
-    await expect(page.getByTestId("gemini-steps")).toContainText("Create API key");
-    await page.getByTestId("api-key-input").fill("wrong-key");
-    await page.getByTestId("api-key-save").click();
-    await expect(page.getByTestId("api-key-error")).toContainText("didn't accept that key");
-
-    await page.getByTestId("api-key-input").fill("AIza-good");
-    await page.getByTestId("api-key-save").click();
-    await expect(page.getByTestId("api-key-connected")).toContainText("Google Gemini");
-    await expect(page.getByTestId("api-key-model")).toHaveValue("gemini-2.5-flash");
-
-    await page.getByTestId("ai-input").fill("How do I stop pausing?");
-    await page.getByTestId("ai-send").click();
-    const answer = page.getByTestId("ai-messages");
-    await expect(answer).toContainText("Try the Lookahead, properly pack.");
-    await expect(answer.getByRole("link", { name: "Lookahead, properly" })).toBeVisible();
-    expect(sent.systemInstruction?.parts[0]?.text).toContain("Solve profile");
-    expect(sent.contents?.at(-1)).toEqual({
-      role: "user",
-      parts: [{ text: "How do I stop pausing?" }],
-    });
-
-    // Still there after a reload, and gone when removed — staying on this tab
-    // even when OpenRouter is connected too.
-    await page.route("https://openrouter.ai/api/v1/models", (route) =>
-      fulfil(route, JSON.stringify({ data: [] })),
-    );
-    await page.evaluate(() => localStorage.setItem("solvelab.ai.openrouter", "sk-or-test"));
+    // Nothing left to remove, so a second visit shows no note.
     await page.reload();
-    await expect(page.getByTestId("api-key-connected")).toBeVisible();
-    await page.getByTestId("api-key-remove").click();
-    await expect(page.getByTestId("api-key-setup")).toBeVisible();
+    await page.waitForTimeout(500);
+    await expect(page.getByText(/The AI coach moved to the Mac app/)).toHaveCount(0);
+  });
+});
+
+test.describe("on a device that isn't a Mac", () => {
+  test.use({ userAgent: WINDOWS });
+
+  test("says the coach is Mac only", async ({ page }) => {
+    await page.goto("/hub/ask/");
+    await expect(page.getByTestId("mac-only-note")).toContainText("Mac only");
+    // The summary still copies, for pasting into an AI on this device.
+    await expect(page.getByTestId("copy-summary")).toBeVisible();
   });
 });

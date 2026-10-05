@@ -17,6 +17,7 @@ import { AccountSection } from "./account-section";
 import { DataSection } from "./data-section";
 import { HardwareTimerControls } from "./hardware-timer-section";
 import { SettingsSection } from "./settings-section";
+import { isDesktop } from "@/lib/config/mac-app";
 
 async function updateSettings(patch: SettingsPatch) {
   try {
@@ -152,16 +153,18 @@ export function SettingsPanel() {
             </div>
             <div className="flex items-start justify-between gap-6">
               <div>
-                <p className="text-sm font-medium">Your own AI</p>
+                <p className="text-sm font-medium">
+                  {isDesktop() ? "Chat with your AI coach" : "AI coach in the Mac app"}
+                </p>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  Ask Claude, ChatGPT or Gemini about your solves on your own subscription, or sign
-                  in with OpenRouter or use a model on your computer to chat inside {brand.name}.
-                  Only numbers from your profile are shared, and you see them first.
+                  {isDesktop()
+                    ? "A coach that runs on your Mac and reads your solve profile. Your questions and numbers never leave this Mac."
+                    : `A private AI coach that runs on your Mac and reads your solve profile. It lives in the ${brand.name} Mac app, not on the website.`}
                 </p>
               </div>
               <div className="pt-0.5">
                 <Button asChild size="sm" variant="outline">
-                  <Link href="/hub/ask/">Open</Link>
+                  <Link href="/hub/ask/">{isDesktop() ? "Open" : "Get the Mac app"}</Link>
                 </Button>
               </div>
             </div>
