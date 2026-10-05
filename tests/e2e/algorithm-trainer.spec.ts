@@ -124,6 +124,8 @@ test.describe("the algorithm trainer", () => {
     const timed = [await solveNext(400), await solveNext(700)];
     await page.getByTestId("trainer-stop").click();
     await page.getByTestId("trainer-slowest-start").click();
+    // A fresh session can deal the case just timed, at an AUF that gives the very same scramble.
+    previous = "";
     for (let round = 0; round < 4; round++) {
       expect(timed).toContain(await solveNext(300));
     }
