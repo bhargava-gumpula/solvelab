@@ -20,8 +20,8 @@ import { drillCases } from "@/lib/hub/recognition";
 import type { RecognitionStats } from "@/lib/hub/recognition-stats";
 import { AVERAGE_CHOICES, SLOW_CHOICES } from "@/lib/hub/intro";
 import { ALL_UNITS, RECOGNITION_LABEL, RETIRED_METHOD_PATHS } from "@/lib/hub/units";
-import type { ProfileSnapshot } from "@/types/domain";
-import { KNOWN_BY_LEVEL, leaveAloneSets, type SetFacts } from "./guards";
+import type { KnownAlgorithms, PaceTag, ProfileSnapshot } from "@/types/domain";
+import { KNOWN_BY_LEVEL, leaveAloneSets, taughtRefs, type SetFacts } from "./guards";
 
 export interface CatalogueEntry {
   id: string;
@@ -69,7 +69,8 @@ export function coachCatalogue(): CatalogueEntry[] {
   return catalogueCache;
 }
 
-const line = (entry: Pick<CatalogueEntry, "id" | "title">) => `- ${entry.id}: ${entry.title}`;
+/** "- id: title [kind]": the kind sits on every line, because a small model loses a list's heading. */
+const line = (entry: CatalogueEntry) => `- ${entry.id}: ${entry.title} [${entry.kind}]`;
 
 /**
  * The prompt's list of what the coach may point to. Packs, tests, units and
@@ -77,27 +78,33 @@ const line = (entry: Pick<CatalogueEntry, "id" | "title">) => `- ${entry.id}: ${
  * of the person's path, to keep the prompt short. (reply.ts accepts any real
  * id, listed or not.)
  */
-function catalogueText(focusPackIds: readonly string[]): string {
-  const all = coachCatalogue();
+function catalogueText(focusPackIds: readonly string[], facts: SetFacts): string {
+  // What teaches a set they know, or one to leave alone, is not on offer.
+  const hidden = taughtRefs(facts);
+  const all = coachCatalogue().filter((entry) => !hidden.has(`${entry.kind}:${entry.id}`));
   const of = (kind: string) => all.filter((entry) => entry.kind === kind);
   const focus = TRAINING_PACKS.filter((pack) => focusPackIds.includes(pack.id));
   const sections = [
-    "Ids you may point to, as id: title. Copy ids exactly.",
-    "Packs (kind pack):",
+    "Ids you may point to, as id: title [kind]. Copy ids exactly, without the [kind].",
+    "Packs:",
     ...of("pack").map(line),
-    "Skill tests (kind test):",
+    "Skill tests:",
     ...of("test").map(line),
-    "Method units (kind unit):",
+    "Method units:",
     ...of("unit").map(line),
-    "Algorithm bank sets (kind set):",
+    "Algorithm bank sets:",
     ...of("set").map(line),
   ];
   if (focus.length) {
     sections.push(
-      "Drills (kind drill) in the packs at the top of their path:",
-      ...focus.flatMap((pack) => pack.drills.map(line)),
-      "Lessons (kind lesson) in those packs:",
-      ...focus.flatMap((pack) => pack.lessons.map(line)),
+      "Drills in the packs at the top of their path:",
+      ...focus.flatMap((pack) =>
+        pack.drills.map((drill) => line({ id: drill.id, title: drill.title, kind: "drill" })),
+      ),
+      "Lessons in those packs:",
+      ...focus.flatMap((pack) =>
+        pack.lessons.map((lesson) => line({ id: lesson.id, title: lesson.title, kind: "lesson" })),
+      ),
     );
   }
   return sections.join("\n");
@@ -121,6 +128,9 @@ export const COACH_INSTRUCTIONS_V2 = [
   "8. Never give medical advice or guess what is wrong with a sore or hurting body, or say what to take. Say you cannot help with that and they should ask a doctor or physiotherapist.",
   "9. You only know the data and lists below. If they ask about a SolveLab feature, setting, device or tool that is not in them, say you don't know of it in SolveLab. Never describe or promise one.",
   "10. If their data is thin or a part is not measured, say so first and name the next test to take.",
+  "11. What is under 'Knows' they already know: never tell them to learn it, only to use it. Suggest what is under 'Not learned yet' only when the course path allows it.",
+  "12. Use only numbers written in their data. Never work out percentages, cut-offs or thresholds yourself. A pace word must be the one on that part's line: slow means clearly behind the goal, average means close to it, fast means at or better than it.",
+  "13. A pack, a lesson, a drill, a test and a set are different things. Every id in the lists ends with its kind in brackets: call it that and nothing else.",
   `Reply with one JSON object and nothing else, answer first: ${REPLY_SHAPE}`,
   "kind is one of pack, test, unit, drill, lesson, set. refs holds 0 to 3 ids, most useful first. followUps holds 0 to 3 questions the person could ask you next (for example: How do I plan the cross faster?), never questions for them to answer.",
 ].join("\n");
@@ -203,6 +213,35 @@ function focusPacks(picks: CoachContextV2Input["picks"]): string[] {
     .filter((id): id is string => Boolean(id));
 }
 
+/** A part's pace tag in words, so the model reads what the tag means and can't swap it. */
+const PACE_WORDS: Record<PaceTag, string> = {
+  slow: "pace SLOW (clearly behind the goal)",
+  average: "pace average (close to the goal)",
+  fast: "pace fast (meets the goal)",
+};
+
+/** "Knows" and "Not learned yet", from what they said about PLL and OLL. */
+function knowsLines(intro: CoachContextV2Input["intro"]): string[] {
+  const knows: string[] = [];
+  const notYet: string[] = [];
+  const known = (name: string, level: KnownAlgorithms | null | undefined) => {
+    if (level === "all") knows.push(`full ${name}`);
+    else if (level === "two-look") {
+      knows.push(`2-look ${name} only`);
+      notYet.push(`full ${name}`);
+    } else if (level === "some") {
+      knows.push(`some of ${name}`);
+      notYet.push(`the rest of ${name}`);
+    } else if (level === "none") notYet.push(`${name} algorithms`);
+  };
+  known("PLL", intro?.pll);
+  known("OLL", intro?.oll);
+  return [
+    ...(knows.length ? [`Knows: ${knows.join(", ")}`] : []),
+    ...(notYet.length ? [`Not learned yet: ${notYet.join(", ")}`] : []),
+  ];
+}
+
 /** The sets the profile marks as known, and the ones the person's level says to leave alone: what reply.ts holds the coach to. */
 export function coachFacts(input: CoachContextV2Input): SetFacts {
   const { profile, averageMs, course, intro } = input;
@@ -240,18 +279,21 @@ export function coachDataV2(input: CoachContextV2Input): string {
       .filter(Boolean);
     lines.push(`What they say feels slow: ${said.join(", ")}`);
   }
-  if (intro?.pll || intro?.oll) {
-    lines.push(`Algorithms known: PLL ${intro.pll ?? "unknown"}, OLL ${intro.oll ?? "unknown"}`);
-  }
+  lines.push(...knowsLines(intro));
   lines.push("");
   lines.push(
-    `Solve profile (${profile.coreDone} of ${profile.coreTotal} core tests taken). Format: value (likely range; attempts), goal, pace, trend:`,
+    `Solve profile (${profile.coreDone} of ${profile.coreTotal} core tests taken). Format: value (likely range; attempts), goal, pace, trend. A slow-case share is the share of attempts that took much longer than usual: a high one often means algorithms not yet known well, but it is not a count of the algorithms they know. Consistency is how much their times vary.`,
   );
   const snapshots = input.snapshots ?? [];
   for (const aspect of profile.aspects) {
     const { definition } = aspect;
+    // "OLL algorithms: 30%" was read as "you know 30% of OLL algorithms"; it is a share of slow attempts.
+    const label =
+      definition.kind === "share"
+        ? `${definition.label.replace(/ algorithms$/, "")} slow-case share`
+        : definition.label;
     if (aspect.value === null) {
-      lines.push(`- ${definition.label}: not measured`);
+      lines.push(`- ${label}: not measured`);
       continue;
     }
     const range = formatAspectRange(definition.kind, aspect.range);
@@ -260,11 +302,11 @@ export function coachDataV2(input: CoachContextV2Input): string {
     const parts = [
       `${formatAspectValue(definition.kind, aspect.value)} (${sure})`,
       aspect.target === null ? null : `goal ${formatAspectGoal(definition.kind, aspect.target)}`,
-      aspect.tag,
+      aspect.tag ? PACE_WORDS[aspect.tag] : null,
       aspect.samples < THIN_ATTEMPTS ? "THIN data" : null,
       trendText(aspect, snapshots),
     ].filter(Boolean);
-    lines.push(`- ${definition.label}: ${parts.join(", ")}`);
+    lines.push(`- ${label}: ${parts.join(", ")}`);
   }
   if (profile.nextTest)
     lines.push(`Next test to take: ${profile.nextTest}: ${testTitle(profile.nextTest)}`);
@@ -280,7 +322,10 @@ export function coachDataV2(input: CoachContextV2Input): string {
     }
   }
   if (level?.notYet.length) {
-    lines.push("", "Leave alone at this level (the course says not yet):");
+    lines.push(
+      "",
+      "Leave alone at this level (the course says not yet). Never recommend these; if they ask, say it can wait:",
+    );
     for (const item of level.notYet) lines.push(`- ${firstSentence(item)}`);
   }
   return lines.join("\n");
@@ -298,14 +343,16 @@ export function estimateTokens(text: string): number {
 export function buildCoachContextV2(input: CoachContextV2Input): {
   system: string;
   catalogue: CatalogueEntry[];
+  facts: SetFacts;
 } {
+  const facts = coachFacts(input);
   const system = [
     COACH_INSTRUCTIONS_V2,
     "",
     "Their data from SolveLab:",
     coachDataV2(input),
     "",
-    catalogueText(focusPacks(input.picks)),
+    catalogueText(focusPacks(input.picks), facts),
   ].join("\n");
-  return { system, catalogue: coachCatalogue() };
+  return { system, catalogue: coachCatalogue(), facts };
 }

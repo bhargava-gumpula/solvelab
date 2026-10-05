@@ -425,8 +425,8 @@ const PART_NAMES: [AspectId, RegExp][] = [
   ["cross_planning", /\binspection(?: planning)?\b|\bcross planning\b/g],
   ["pair_speed", /\bpair (?:speed|execution)\b/g],
   ["lookahead", /\blookahead\b/g],
-  ["oll_algorithms", /\boll algorithms\b/g],
-  ["pll_algorithms", /\bpll algorithms\b/g],
+  ["oll_algorithms", /\boll (?:algorithms|slow[- ]case share)\b/g],
+  ["pll_algorithms", /\bpll (?:algorithms|slow[- ]case share)\b/g],
   ["turning_speed", /\bturning speed\b|\btps\b/g],
   ["full_solve", /\bfull solve\b/g],
   ["consistency", /\bconsisten\w*/g],
@@ -729,7 +729,10 @@ export interface TurnResult extends TurnScore {
   fixtureId: string;
   turn: number;
   user: string;
+  /** What the person would see. */
   answer: string;
+  /** What the model said, when the reply guards changed it. */
+  modelAnswer?: string;
   refs: string[];
   seconds?: number;
 }

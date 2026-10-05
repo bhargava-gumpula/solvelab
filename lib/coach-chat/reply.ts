@@ -1,8 +1,10 @@
 /**
  * Reading the coach's reply: the JSON schema it is asked for, a reader that
  * copes with JSON cut off anywhere, a check of every id it returns against
- * the catalogue, and the algorithm guard (small models invent algorithms).
- * A reply that isn't JSON at all is shown as plain text, still guarded.
+ * the catalogue, and the guards (small models invent algorithms, numbers, and
+ * advice): the algorithm guard on every reply, and, when the caller passes
+ * what the model was told, the number, kind-word and advice guards of
+ * guards.ts. A reply that isn't JSON at all is shown as plain text, still guarded.
  */
 import { FUNDAMENTALS } from "@/data/algorithms/fundamentals";
 import { TRAINING_PACKS } from "@/data/training";
@@ -16,6 +18,7 @@ import {
   type Move,
 } from "@/lib/cube/notation";
 import type { CatalogueEntry } from "./context";
+import { guardText, NOTHING_LEFT, refSlips, type ReplyCheck } from "./guards";
 import type { CoachReply } from "./types";
 
 const KINDS = ["pack", "test", "unit", "drill", "lesson", "set"] as const;
@@ -184,12 +187,25 @@ function readObject(text: string): { [key: string]: Json } | null {
  * The `answer` text so far, for showing while the reply streams, with any
  * invented algorithm already taken out (so it is never on screen, not even
  * for a moment). A reply that isn't JSON is returned as it is, guarded.
+ *
+ * With `guards`, only whole sentences are shown and each goes through the
+ * number, kind-word and advice guards first, so no made-up number is on
+ * screen even for a moment. The sentence still being written appears when the
+ * reply is done and `parseCoachReply` gives the final answer.
  */
-export function partialAnswer(raw: string): string {
+export function partialAnswer(
+  raw: string,
+  guards?: { catalogue: readonly CatalogueEntry[]; check: ReplyCheck },
+): string {
   const text = clean(raw);
   const object = jsonStart(text) === -1 ? null : readObject(text);
   const shown = !object ? text : typeof object.answer === "string" ? object.answer : "";
-  return guardAlgorithms(shown).text;
+  const safe = guardAlgorithms(shown).text;
+  if (!guards) return safe;
+  const end = [...safe.matchAll(/[.!?]+(?=\s)/g)].at(-1);
+  if (!end) return "";
+  const settled = safe.slice(0, end.index! + end[0].length);
+  return guardText(settled, guards.catalogue, guards.check).text.trim();
 }
 
 // --- algorithm guard -------------------------------------------------------
@@ -329,7 +345,9 @@ export function guardAlgorithms(text: string): { text: string; invented: string[
 
 export interface ParsedCoachReply {
   reply: CoachReply;
-  /** Everything removed or flagged: unknown ref ids, invented algorithms, unknown pack/test/drill names. */
+  /** What the model said, with only the algorithm guard applied: what the eval scores the model on. Same as `reply` when no `check` is given. */
+  unguarded: CoachReply;
+  /** Everything removed or flagged: unknown ref ids, invented algorithms, unknown pack/test/drill names, and what the number, kind-word and advice guards changed. */
   dropped: string[];
   /** Ref ids the catalogue doesn't have (dropped from `refs`). */
   unknownIds: string[];
@@ -337,6 +355,12 @@ export interface ParsedCoachReply {
   invented: string[];
   /** Pack, test or drill names in the text that SolveLab doesn't have (flagged, text unchanged). */
   unknownNames: string[];
+  /** Numbers (with a unit, or decimals) taken out because nothing the model was told backs them. */
+  ungrounded: string[];
+  /** Kind words corrected, as "lesson → pack: first-lookahead". */
+  kindFixes: string[];
+  /** Advice to learn a known or leave-alone set replaced, and refs to such sets dropped. */
+  badAdvice: string[];
   /** False when the reply was not JSON and the raw text is shown. */
   structured: boolean;
 }
@@ -357,7 +381,11 @@ function resolveRefs(items: Json, catalogue: readonly CatalogueEntry[]) {
     const id = typeof item === "string" ? item : typeof record?.id === "string" ? record.id : null;
     if (!id?.trim()) continue;
     const kind = typeof record?.kind === "string" ? record.kind : "";
-    const key = id.trim().toLowerCase();
+    // A model sometimes copies the "[pack]" the list puts after a title.
+    const key = id
+      .trim()
+      .toLowerCase()
+      .replace(/\s*\[[a-z]+\]\s*$/, "");
     // A model sometimes copies the whole catalogue line ("- id: title"): then the id is what comes before the colon.
     const found =
       byKey.get(key) ??
@@ -384,10 +412,17 @@ function resolveRefs(items: Json, catalogue: readonly CatalogueEntry[]) {
  * Turns the model's raw reply into a CoachReply. Ids not in the catalogue are
  * dropped, move sequences not in SolveLab's bank are removed, and a reply that
  * isn't usable JSON becomes plain text (no refs), still checked.
+ *
+ * With `check` (what the model was told: `replyCheck(messages, facts)`), the
+ * guards of guards.ts also run: numbers no data backs are removed, kind words
+ * are corrected, advice to learn a known or leave-alone set is replaced and
+ * refs that teach a known set are dropped. A follow-up that fails a guard is
+ * dropped. If nothing of the answer is left, the person gets NOTHING_LEFT.
  */
 export function parseCoachReply(
   raw: string,
   catalogue: readonly CatalogueEntry[],
+  check?: ReplyCheck,
 ): ParsedCoachReply {
   const text = clean(raw);
   const object = readObject(text);
@@ -411,14 +446,52 @@ export function parseCoachReply(
     invented.push(...guarded.invented);
     return guarded.text;
   };
-  const reply: CoachReply = { answer: guard(answer), refs, followUps: followUps.map(guard) };
+  const unguarded: CoachReply = {
+    answer: guard(answer),
+    refs,
+    followUps: followUps.map(guard),
+  };
+  let reply = unguarded;
+  const ungrounded: string[] = [];
+  const kindFixes: string[] = [];
+  const badAdvice: string[] = [];
+  if (check) {
+    const body = guardText(unguarded.answer, catalogue, check);
+    ungrounded.push(...body.ungrounded);
+    kindFixes.push(...body.kindFixes);
+    badAdvice.push(...body.badAdvice);
+    const refCheck = refSlips(unguarded.refs, check, check.said.at(-1));
+    badAdvice.push(...refCheck.removed);
+    const kept: string[] = [];
+    for (const followUp of unguarded.followUps) {
+      const one = guardText(followUp, catalogue, check);
+      kindFixes.push(...one.kindFixes);
+      if (one.ungrounded.length || one.badAdvice.length) {
+        ungrounded.push(...one.ungrounded);
+        badAdvice.push(...one.badAdvice);
+      } else kept.push(one.text);
+    }
+    const answer = body.text.trim() ? body.text : unguarded.answer.trim() ? NOTHING_LEFT : "";
+    reply = { answer, refs: refCheck.kept as CoachReply["refs"], followUps: kept };
+  }
   const unknownNames = unknownReferences([reply.answer, ...reply.followUps].join("\n"));
   return {
     reply,
-    dropped: [...unknownIds, ...invented, ...unknownNames],
+    unguarded,
+    dropped: [
+      ...unknownIds,
+      ...invented,
+      ...unknownNames,
+      ...ungrounded.map((number) => `number ${number}`),
+      ...kindFixes.map((fix) => `kind word ${fix}`),
+      ...badAdvice.map((slip) => `advice ${slip}`),
+    ],
     unknownIds,
     invented,
     unknownNames,
+    ungrounded,
+    kindFixes,
+    badAdvice,
     structured,
   };
 }

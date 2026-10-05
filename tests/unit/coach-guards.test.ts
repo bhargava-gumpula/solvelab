@@ -85,6 +85,25 @@ describe("groundNumbers", () => {
     ).toEqual([]);
   });
 
+  it("does not let the edge of a likely range stand as a cut-off or target", () => {
+    const result = groundNumbers(
+      "Your cross is likely 1.5 s at best. Keep going until your cross drops below 1.5 s. Beat your goal of 1.44 s.",
+      check(),
+    );
+    expect(result.text).toBe("Your cross is likely 1.5 s at best. Beat your goal of 1.44 s.");
+    expect(result.removed).toEqual(["1.5 s"]);
+  });
+
+  it("never backs a slow-case share read as a count of known algorithms", () => {
+    const system = `${SYSTEM}\n- OLL slow-case share: 30% (likely 20–40%; 10 attempts), goal under 15%`;
+    const result = groundNumbers(
+      "You know 30% of your OLL algorithms. You are already solving 30% of OLLs. 30% of your OLL attempts were much slower than usual.",
+      { system, said: [] },
+    );
+    expect(result.text).toBe("30% of your OLL attempts were much slower than usual.");
+    expect(result.removed).toEqual(["30%", "30%"]);
+  });
+
   it("does not let a time stand for a share, or the other way round", () => {
     expect(groundNumbers("Your pair speed is 12 s.", check()).removed).toEqual(["12 s"]);
     expect(groundNumbers("Your turning speed is 11.5%.", check()).removed).toEqual(["11.5%"]);
@@ -118,6 +137,8 @@ describe("fixKindWords", () => {
       "Retake the Cross test.",
       "A lookahead lesson helps.",
       "Do the pack for lookahead.",
+      "Take the last-pair-ls-oll drill.",
+      "Open the cross-for-f2l-extra lesson.",
     ]) {
       expect(fixKindWords(text, CATALOGUE)).toEqual({ text, fixes: [] });
     }

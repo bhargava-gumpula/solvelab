@@ -147,8 +147,7 @@
     {
       "id": "reads-share-as-known",
       "why": "OLL algorithms and PLL algorithms are the share of slow attempts, not how many algorithms the person knows.",
-      "pattern": "\\b(?:know|knows|solving|solve|learned|memori[sz]ed|have|use)\\w*\\b[^.]{0,25}\\b\\d+(?:\\.\\d+)?\\s?%\\s+of\\s+(?:the\\s+|your\\s+)?(?:OLL|PLL|algorithms|cases)",
-      "excuse": "\\b(?:slow|slower|longer|attempts?|not)\\b|n't"
+      "pattern": "\\b(?:know|knows|solving|solve|learned|memori[sz]ed|have|use)\\w*\\b[^.]{0,25}\\b\\d+(?:\\.\\d+)?\\s?%\\s+of\\s+(?:the\\s+|your\\s+)?(?:(?:OLL|PLL)\\s+)?(?:algorithms|cases|OLLs|PLLs)\\b"
     }
   ],
   "turns": [

@@ -35,6 +35,7 @@ import {
   streamOllamaChat,
   type OllamaStats,
 } from "@/lib/coach-chat/ollama";
+import { replyCheck } from "@/lib/coach-chat/guards";
 import { COACH_REPLY_SCHEMA, parseCoachReply } from "@/lib/coach-chat/reply";
 import type { ChatMessage } from "@/lib/coach-chat/types";
 
@@ -52,6 +53,7 @@ interface Options {
   timeoutS: number;
   out: string | null;
   dryRun: boolean;
+  guards: boolean;
 }
 
 const USAGE = `Usage: npm run coach:eval -- [options]
@@ -64,6 +66,7 @@ const USAGE = `Usage: npm run coach:eval -- [options]
   --temperature <x>      sampling temperature (default 0.2)
   --timeout <seconds>    per reply (default 300)
   --out <file>           also write the results as JSON
+  --no-guards            leave the reply guards (numbers, kind words, advice) off, as before they existed
   --dry-run              check the fixtures and prompt sizes without a model`;
 
 class SetupError extends Error {}
@@ -80,6 +83,7 @@ function parseArgs(argv: string[]): Options {
     timeoutS: 300,
     out: null,
     dryRun: false,
+    guards: true,
   };
   const number = (flag: string, value: string | undefined) => {
     const parsed = Number(value);
@@ -130,6 +134,9 @@ function parseArgs(argv: string[]): Options {
         break;
       case "--dry-run":
         options.dryRun = true;
+        break;
+      case "--no-guards":
+        options.guards = false;
         break;
       case "--help":
       case "-h":
@@ -247,7 +254,7 @@ async function ask(
 const FATAL = new Set(["not-running", "model-missing", "old-version", "out-of-memory"]);
 
 async function runFixture(fixture: EvalFixture, options: Options): Promise<TurnResult[]> {
-  const { system, catalogue } = buildCoachContextV2(fixtureToContextInput(fixture));
+  const { system, catalogue, facts } = buildCoachContextV2(fixtureToContextInput(fixture));
   const messages: ChatMessage[] = [{ role: "system", content: system }, ...(fixture.history ?? [])];
   const results: TurnResult[] = [];
   for (const [index, turn] of fixture.turns.entries()) {
@@ -259,16 +266,19 @@ async function runFixture(fixture: EvalFixture, options: Options): Promise<TurnR
       const { raw, stats, timedOut } = await ask(messages, options);
       const seconds = (performance.now() - started) / 1000;
       if (timedOut) throw new Error(`no complete reply within ${options.timeoutS} s`);
-      const parsed = parseCoachReply(raw, catalogue);
-      const told = messages.map((message) => message.content).join("\n");
+      const parsed = parseCoachReply(
+        raw,
+        catalogue,
+        options.guards ? replyCheck(messages, facts) : undefined,
+      );
       const scored = scoreTurn({
         fixture,
         turn,
         raw,
         reply: parsed.reply,
+        modelReply: parsed.unguarded,
         unknownIds: parsed.unknownIds,
         catalogue,
-        told,
       });
       result = {
         ...scored,
@@ -276,6 +286,9 @@ async function runFixture(fixture: EvalFixture, options: Options): Promise<TurnR
         turn: index,
         user: turn.user,
         answer: parsed.reply.answer,
+        ...(parsed.reply.answer !== parsed.unguarded.answer
+          ? { modelAnswer: parsed.unguarded.answer }
+          : {}),
         refs: parsed.reply.refs.map((ref) => ref.id),
         seconds,
       };
@@ -285,6 +298,8 @@ async function runFixture(fixture: EvalFixture, options: Options): Promise<TurnR
       if (used >= options.numCtx * 0.95)
         note += `  [context nearly full: ${used} of ${options.numCtx} tokens, the oldest messages may be cut]`;
       if (stats?.doneReason === "length") note += "  [reply hit the length cap]";
+      const changed = parsed.ungrounded.length + parsed.kindFixes.length + parsed.badAdvice.length;
+      if (changed) note += `  [reply guards changed ${changed} thing${changed === 1 ? "" : "s"}]`;
     } catch (error) {
       if (error instanceof OllamaError && FATAL.has(error.code)) throw error;
       const message = error instanceof Error ? error.message : String(error);

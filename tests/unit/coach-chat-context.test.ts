@@ -9,6 +9,7 @@ import {
   buildCoachContextV2,
   coachCatalogue,
   coachDataV2,
+  coachFacts,
   estimateTokens,
   type CoachContextV2Input,
 } from "@/lib/coach-chat/context";
@@ -101,7 +102,7 @@ describe("what the local coach is told", () => {
   it("says how sure each number is: range, attempts, trend", () => {
     const text = coachDataV2(input());
     expect(text).toContain(
-      "- Lookahead: 1.90 s (likely 1.40–2.40 s; 12 attempts), goal under 1.20 s, slow",
+      "- Lookahead: 1.90 s (likely 1.40–2.40 s; 12 attempts), goal under 1.20 s, pace SLOW (clearly behind the goal)",
     );
     expect(text).toContain("2.40 s → 1.90 s over 3 weeks (improving)");
     expect(text).toContain("- Inspection planning: not measured");
@@ -215,23 +216,109 @@ describe("what the local coach is told", () => {
   });
 });
 
+describe("what the coach is told so it cannot miss it", () => {
+  const withIntro = (pll: "none" | "two-look" | "some" | "all" | null, oll: typeof pll) => {
+    const given = input();
+    return { ...given, intro: { ...given.intro!, pll, oll } };
+  };
+
+  it("states known sets plainly, and what is not learned yet", () => {
+    const all = coachDataV2(withIntro("all", "all"));
+    expect(all).toContain("Knows: full PLL, full OLL");
+    expect(all).not.toContain("Not learned yet");
+    const mixed = coachDataV2(withIntro("all", "two-look"));
+    expect(mixed).toContain("Knows: full PLL, 2-look OLL only");
+    expect(mixed).toContain("Not learned yet: full OLL");
+    expect(coachDataV2(withIntro("some", "none"))).toContain(
+      "Not learned yet: the rest of PLL, OLL algorithms",
+    );
+    expect(coachDataV2(withIntro(null, null))).not.toMatch(/Knows:|Not learned yet/);
+  });
+
+  it("writes each part's tag as a pace in words", () => {
+    const text = coachDataV2(input());
+    expect(text).toContain("pace SLOW (clearly behind the goal)");
+    expect(text).toContain("pace average (close to the goal)");
+    expect(text).not.toMatch(/, (?:slow|average|fast)(?:,|$)/m);
+    const line = (label: string) => text.split("\n").find((l) => l.startsWith(`- ${label}:`))!;
+    expect(line("Lookahead")).toContain("pace SLOW");
+    expect(line("Cross")).toContain("pace average");
+  });
+
+  it("calls the share rows slow-case shares, so 12% is not read as 12% of algorithms known", () => {
+    const text = coachDataV2(input());
+    expect(text).toContain("- OLL slow-case share: not measured");
+    expect(text).not.toMatch(/^- (?:OLL|PLL) algorithms:/m);
+    expect(text).toContain("it is not a count of the algorithms they know");
+  });
+
+  it("tells the leave-alone list not to be recommended", () => {
+    expect(coachDataV2(input())).toMatch(/Leave alone at this level[^\n]*Never recommend these/);
+  });
+
+  it("has rules for what is known, for numbers and pace words, and for kind words", () => {
+    const { system } = buildCoachContextV2(input());
+    expect(system).toMatch(/under 'Knows' they already know: never tell them to learn it/);
+    expect(system).toMatch(/Use only numbers written in their data/);
+    expect(system).toMatch(/A pack, a lesson, a drill, a test and a set are different things/);
+    expect(system).toMatch(/ends with its kind in brackets/);
+  });
+
+  it("hands the guards the sets they hold the reply to", () => {
+    expect(buildCoachContextV2(input()).facts).toEqual({
+      knownSets: ["pll", "two-look-pll"],
+      leaveAloneSets: ["zbll"],
+    });
+    expect(coachFacts(withIntro("all", "all")).knownSets).toEqual([
+      "pll",
+      "two-look-pll",
+      "oll",
+      "two-look-oll",
+    ]);
+    expect(coachFacts(withIntro("two-look", "none")).knownSets).toEqual(["two-look-pll"]);
+    expect(coachFacts({ ...input(), intro: undefined }).knownSets).toEqual([]);
+  });
+});
+
 describe("the catalogue", () => {
-  it("lists every pack, test, method unit and algorithm set as id: title", () => {
+  it("lists every pack, test, method unit and algorithm set as id: title [kind]", () => {
     const { system, catalogue } = buildCoachContextV2(input());
-    for (const pack of TRAINING_PACKS) expect(system).toContain(`- ${pack.id}: ${pack.title}`);
-    expect(system).toContain("- cross_only: Cross test");
+    // What teaches PLL is not on offer to someone who knows it (input() knows full PLL).
+    const taught = ["pll-algorithms", "two-look-pll"];
+    for (const pack of TRAINING_PACKS.filter((one) => !taught.includes(one.id)))
+      expect(system).toContain(`- ${pack.id}: ${pack.title} [pack]`);
+    expect(system).toContain("- cross_only: Cross test [test]");
     expect(system).toContain("- method-cfop: ");
-    expect(system).toContain("- pll: ");
+    expect(system).toContain("- pll: Full PLL [set]");
     expect(catalogue.filter((entry) => entry.kind === "pack")).toHaveLength(TRAINING_PACKS.length);
   });
 
   it("lists drills and lessons for the packs at the top of the path only", () => {
     const { system } = buildCoachContextV2(input());
     const lookahead = TRAINING_PACKS.find((pack) => pack.id === "lookahead")!;
-    expect(system).toContain(`- ${lookahead.drills[0]!.id}: ${lookahead.drills[0]!.title}`);
-    expect(system).toContain(`- ${lookahead.lessons[0]!.id}: `);
+    expect(system).toContain(`- ${lookahead.drills[0]!.id}: ${lookahead.drills[0]!.title} [drill]`);
+    expect(system).toContain(
+      `- ${lookahead.lessons[0]!.id}: ${lookahead.lessons[0]!.title} [lesson]`,
+    );
     const other = TRAINING_PACKS.find((pack) => pack.id === "inspection")!;
     expect(system).not.toContain(`- ${other.drills[0]!.id}: `);
+  });
+
+  it("leaves out what teaches a set they know or should leave alone, but not the ids the reply may still carry", () => {
+    const pack = (id: string) => {
+      const found = TRAINING_PACKS.find((one) => one.id === id)!;
+      return `- ${id}: ${found.title} [pack]`;
+    };
+    const { system, catalogue } = buildCoachContextV2(input());
+    expect(system).not.toContain(pack("pll-algorithms"));
+    expect(system).not.toContain(pack("two-look-pll"));
+    expect(system).toContain("- two-look-pll: 2-look PLL [set]");
+    expect(system).toContain(pack("oll-algorithms"));
+    expect(catalogue.some((entry) => entry.id === "pll-algorithms")).toBe(true);
+    const twoLook = { ...input(), intro: { ...input().intro!, pll: "two-look" as const } };
+    const text = buildCoachContextV2(twoLook).system;
+    expect(text).not.toContain(pack("two-look-pll"));
+    expect(text).toContain(pack("pll-algorithms"));
   });
 
   it("has an entry, with the right kind, for every drill and lesson, so any real id is accepted", () => {

@@ -5,7 +5,8 @@
  *
  * - numbers: every number with a unit or a decimal must be one the data (or
  *   the person) gave, to within rounding, or a gap the coach may work out
- *   (a value against its goal, or against where it was);
+ *   (a value against its goal, or against where it was); a cut-off or target
+ *   ("until it drops below 1.86 s") may not be the edge of a likely range;
  * - kind words: "lesson", "pack", "drill", "test", "set" and "unit" must be
  *   the kind the catalogue gives the thing they sit next to;
  * - advice: never "learn" a set the person already knows, and never a set
@@ -61,7 +62,23 @@ interface Stated {
   start: number;
   end: number;
   text: string;
+  /** Written as a cut-off or target ("until it drops below 1.86 s"): only a goal or a value may be one. */
+  threshold: boolean;
+  /** A share of slow attempts read as a count of what they know ("you know 30% of OLL algorithms"): never backed, whatever the data says. */
+  misread: boolean;
 }
+
+/** "know 30% of OLL algorithms": the data's slow-case share is not how many algorithms they know. */
+const KNOWS = /\b(?:know|knows|solving|solve|learned|memori[sz]ed|have|use)\w*\b[^.]{0,25}$/i;
+const OF_ALGORITHMS =
+  /^\s+of\s+(?:the\s+|your\s+)?(?:(?:OLL|PLL)\s+)?(?:algorithms|cases|OLLs|PLLs)\b/i;
+const misread = (text: string, start: number, end: number) =>
+  KNOWS.test(text.slice(Math.max(0, start - 35), start)) &&
+  OF_ALGORITHMS.test(text.slice(end, end + 40));
+
+/** What comes before a number that is a cut-off or a target. */
+const THRESHOLD =
+  /\b(?:below|under|until|over|above|beat|beats|reach|reaches|reaching|hit|hits|hitting|drops? (?:to|below|under)|gets? (?:to|below|under)|down to|less than|more than|faster than|slower than|at least|at most)\s+(?:[\w']+\s+){0,3}$/i;
 
 const STATED =
   /(?<![\w.])(\d+):(\d{2}(?:\.\d+)?)|(?<![A-Za-z0-9.])(\d+(?:\.\d+)?)(?:\s*(%|percent\b|ms\b|milliseconds?\b|(?:secs?|seconds?|s)(?![A-Za-z0-9])|turns\s*(?:\/|per)\s*(?:s|sec|second)\b|tps\b))?/gi;
@@ -84,6 +101,8 @@ export function statedNumbers(text: string): Stated[] {
         start,
         end,
         text: match[0],
+        threshold: THRESHOLD.test(text.slice(Math.max(0, start - 40), start)),
+        misread: false,
       });
       continue;
     }
@@ -105,6 +124,8 @@ export function statedNumbers(text: string): Stated[] {
       start,
       end,
       text: match[0].trim(),
+      threshold: THRESHOLD.test(text.slice(Math.max(0, start - 40), start)),
+      misread: dim === "%" && misread(text, start, end),
     });
   }
   return out;
@@ -125,6 +146,8 @@ export function numbersIn(text: string): number[] {
 interface Known {
   value: number;
   dim: Dim;
+  /** From a "likely 1.50–1.88 s" range: where a value may sit, not a goal to give. */
+  range?: boolean;
 }
 
 /**
@@ -149,7 +172,15 @@ function gapsIn(system: string): Known[] {
 
 /** Everything a reply may state: the data's numbers, the gaps between them, and the person's own numbers. */
 function knownNumbers(check: Pick<ReplyCheck, "system" | "said">): Known[] {
-  const known: Known[] = statedNumbers(check.system).map(({ value, dim }) => ({ value, dim }));
+  const ranges = [...check.system.matchAll(/\(likely [^)]*\)/g)].map((found) => [
+    found.index!,
+    found.index! + found[0].length,
+  ]);
+  const known: Known[] = statedNumbers(check.system).map(({ value, dim, start }) => ({
+    value,
+    dim,
+    range: ranges.some(([from, to]) => start >= from! && start < to!),
+  }));
   known.push(...gapsIn(check.system));
   for (const said of check.said) {
     for (const value of numbersIn(said)) known.push({ value, dim: "" });
@@ -160,8 +191,10 @@ function knownNumbers(check: Pick<ReplyCheck, "system" | "said">): Known[] {
 function isGrounded(item: Stated, known: readonly Known[]): boolean {
   // "1.3" for 1.33 is rounding; a different number is not.
   const tolerance = Math.max(0.5 * 10 ** -item.decimals, 0.01) + 1e-9;
+  if (item.misread) return false;
   return known.some(
     (other) =>
+      !(item.threshold && other.range) &&
       (other.dim === item.dim || other.dim === "" || item.dim === "") &&
       Math.abs(other.value - item.value) <= tolerance,
   );
@@ -262,9 +295,9 @@ function kindIndex(catalogue: readonly CatalogueEntry[]): KindIndex {
     const words = key.split(" ").map(escapeRegExp).join("[-_\\s]+");
     return {
       key,
-      after: new RegExp(`(${words})(["')]?)(\\s+)(${KIND_WORD})\\b`, "gi"),
+      after: new RegExp(`(?<![\\w-])(${words})(["')]?)(\\s+)(${KIND_WORD})\\b`, "gi"),
       before: new RegExp(
-        `\\b(${KIND_WORD})(\\s+(?:called\\s+|named\\s+)?["'(]?)(${words})\\b`,
+        `\\b(${KIND_WORD})(\\s+(?:called\\s+|named\\s+)?["'(]?)(${words})(?![\\w-])`,
         "gi",
       ),
     };
@@ -474,6 +507,13 @@ export function guardAdvice(text: string, facts: SetFacts): AdviceResult {
     if (!kept.includes(said)) kept.push(said);
   }
   return { text: changed ? kept.join(" ") : text, removed };
+}
+
+/** The refs ("pack:oll-algorithms") that teach a set the person knows or should leave alone: left out of what the coach may point to. */
+export function taughtRefs(facts: SetFacts): Set<string> {
+  return new Set(
+    [...facts.knownSets, ...facts.leaveAloneSets].flatMap((id) => TOPICS[id]?.teaches ?? []),
+  );
 }
 
 /**

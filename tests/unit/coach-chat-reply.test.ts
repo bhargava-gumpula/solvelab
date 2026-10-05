@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ALGORITHM_SETS } from "@/lib/algorithms/catalog";
 import { coachCatalogue } from "@/lib/coach-chat/context";
+import { NOTHING_LEFT, type ReplyCheck } from "@/lib/coach-chat/guards";
 import {
   ALGORITHM_REMOVED,
   COACH_REPLY_SCHEMA,
@@ -24,6 +25,20 @@ const GOOD = JSON.stringify({
 /** A real algorithm from the bank. */
 const bankAlgorithm = ALGORITHM_SETS.find((set) => set.id === "pll")!.cases[0]!.algorithms[0]!
   .moves;
+
+describe("an id copied with its kind", () => {
+  it("resolves 'cross-for-f2l [pack]' to the id", () => {
+    const { reply, unknownIds } = parse(
+      JSON.stringify({
+        answer: "x",
+        refs: [{ kind: "pack", id: "cross-for-f2l [pack]" }],
+        followUps: [],
+      }),
+    );
+    expect(unknownIds).toEqual([]);
+    expect(reply.refs).toEqual([{ kind: "pack", id: "cross-for-f2l" }]);
+  });
+});
 
 describe("a well-formed reply", () => {
   it("comes through as it is", () => {
@@ -319,5 +334,106 @@ describe("the algorithm guard", () => {
     expect(reply.answer).toBe(`Try ${ALGORITHM_REMOVED} now.`);
     expect(reply.followUps).toEqual([`Is ${ALGORITHM_REMOVED} faster?`]);
     expect(dropped).toEqual(invented);
+  });
+});
+
+describe("the number, kind-word and advice guards", () => {
+  const check: ReplyCheck = {
+    system: [
+      "- Pair speed: 1.33 s (likely 1.18–1.48 s; 10 attempts), goal under 1.20 s, pace SLOW (clearly behind the goal)",
+      "- Lookahead: 0.94 s (likely 0.76–1.12 s; 10 attempts), goal under 0.85 s, pace average (close to the goal)",
+    ].join("\n"),
+    said: ["What should I learn next: full OLL or COLL?"],
+    knownSets: ["oll", "two-look-oll", "pll", "two-look-pll"],
+    leaveAloneSets: ["zbll"],
+  };
+  const guarded = (
+    answer: string,
+    refs: { kind: string; id: string }[] = [],
+    followUps: string[] = [],
+  ) => parseCoachReply(JSON.stringify({ answer, refs, followUps }), catalogue, check);
+
+  it("changes nothing without a check, and keeps the unguarded reply as it was", () => {
+    const raw = JSON.stringify({
+      answer: "Aim for 0.6 s. Add the first-lookahead lesson.",
+      refs: [],
+      followUps: [],
+    });
+    const result = parseCoachReply(raw, catalogue);
+    expect(result.reply.answer).toBe("Aim for 0.6 s. Add the first-lookahead lesson.");
+    expect(result.unguarded).toEqual(result.reply);
+    expect(result.ungrounded).toEqual([]);
+  });
+
+  it("removes a number nothing backs up, and reports it", () => {
+    const result = guarded(
+      "Your pair speed is 1.33 s. Aim for 0.6 s by Friday. Do ten pair drills.",
+    );
+    expect(result.reply.answer).toBe("Your pair speed is 1.33 s. Do ten pair drills.");
+    expect(result.unguarded.answer).toContain("0.6 s");
+    expect(result.ungrounded).toEqual(["0.6 s"]);
+    expect(result.dropped).toContain("number 0.6 s");
+  });
+
+  it("drops a follow-up built on a made-up number, and keeps the others", () => {
+    const result = guarded(
+      "Work on pair speed.",
+      [],
+      ["Can I reach 0.4 s lookahead?", "How do I find the next pair?"],
+    );
+    expect(result.reply.followUps).toEqual(["How do I find the next pair?"]);
+  });
+
+  it("corrects a kind word", () => {
+    const result = guarded(
+      "Start with the cross-for-f2l pack, then add the first-lookahead lesson.",
+    );
+    expect(result.reply.answer).toBe(
+      "Start with the cross-for-f2l pack, then add the first-lookahead pack.",
+    );
+    expect(result.kindFixes).toEqual(["lesson → pack: first-lookahead"]);
+    expect(result.dropped).toContain("kind word lesson → pack: first-lookahead");
+  });
+
+  it("replaces advice to learn a set they know, and drops the pack that teaches it", () => {
+    const result = guarded("You should focus on Full OLL because it is next. Use the pair pack.", [
+      { kind: "pack", id: "oll-algorithms" },
+      { kind: "set", id: "coll" },
+    ]);
+    expect(result.reply.answer).toBe(
+      "You already know full OLL, so there is nothing new to learn there. Use the pair pack.",
+    );
+    expect(result.reply.refs).toEqual([{ kind: "set", id: "coll" }]);
+    expect(result.badAdvice).toEqual(["known: oll", "known: oll-algorithms"]);
+  });
+
+  it("drops a leave-alone set from the refs unless they asked about it", () => {
+    const refs = [{ kind: "set", id: "zbll" }];
+    expect(guarded("Skip it for now.", refs).reply.refs).toEqual([]);
+    const asked = parseCoachReply(
+      JSON.stringify({ answer: "Skip it for now.", refs, followUps: [] }),
+      catalogue,
+      { ...check, said: ["Should I learn ZBLL?"] },
+    );
+    expect(asked.reply.refs).toEqual(refs);
+  });
+
+  it("says so when no sentence of the answer survives, and not for an empty answer", () => {
+    expect(guarded("Aim for 0.6 s on pair speed.").reply.answer).toBe(NOTHING_LEFT);
+    expect(guarded("").reply.answer).toBe("");
+  });
+
+  it("still guards algorithms first, and applies to a reply that is not JSON", () => {
+    const result = parseCoachReply("Do F R U2 L D' B2 R in 0.6 s. Then rest.", catalogue, check);
+    expect(result.structured).toBe(false);
+    expect(result.invented).toHaveLength(1);
+    expect(result.reply.answer).toBe("Then rest.");
+  });
+
+  it("streams whole sentences only, each already guarded", () => {
+    const raw = '{"answer": "Your pair speed is 1.33 s. Aim for 0.6 s by Friday. Do ten pair dri';
+    expect(partialAnswer(raw, { catalogue, check })).toBe("Your pair speed is 1.33 s.");
+    expect(partialAnswer('{"answer": "Your pair speed is 1.', { catalogue, check })).toBe("");
+    expect(partialAnswer(raw)).toContain("0.6 s");
   });
 });
