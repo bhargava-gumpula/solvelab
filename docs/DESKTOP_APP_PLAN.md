@@ -374,6 +374,10 @@ Each phase ends with `npm run validate`, `npx playwright test --workers=1`, the 
 
 **Total: about 30–40 agent-days**, plus 3–5 more if D13 picks native Bluetooth, plus Apple's enrollment wait (often a day or two, sometimes longer). Every deep-link test needs a build installed in `/Applications`, which is part of these numbers. In calendar time, with nine review stops and Apple's wait, expect very roughly 2–3 months, assuming an agent-day is about a working day and each review takes a few days.
 
+### Phase 1 outcome (dev log 199, 2026-10-04)
+
+**It runs, and Tauri stays.** The spike `SolveLab.app` (about 18 MB, ad-hoc signed, macOS 14 minimum) opens a real window with the Timer and the 3D cube, reaches a local Ollama from the `tauri://localhost` origin (HTTP 200, no CORS block), has no Bluetooth (D13 is simply true), has WebGL, and routes `/hub/`, `/train/`, `/stats/` resolve. The timer rule held in a test hook: a click did not start it, Space started and stopped it. Not yet checked: the real Space key in the real window, VoiceOver and keyboard-only, `eventTimestamp()` under a busy main thread, and any signed-in page. The Playwright WebKit pass is mostly unresolved because the machine was overloaded (timeouts, 17 of 18 Hub tests passed, 2 timer tests passed); one failure looks real (Hub course chip leaves the URL on the old course). Phase 1+ is sized at about 2-3 agent-days: the Hub URL bug 0.5-1, a cheaper test seed 0.25, a rerun on a quiet machine 0.5-1, the Phase 1 leftovers 1. Electron stays only as a fallback; nothing seen calls for it.
+
 ### Risks
 
 | Risk | How likely | What we do |
