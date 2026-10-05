@@ -1,5 +1,30 @@
 # Validation report
 
+## Mac app, Phases 2-7 integrated (dev log 200-210, branch `desktop-int`, awaiting review)
+
+Run on 2026-10-04 on `desktop-int` at bd533df (all phases and the coach accuracy work merged), then
+0df4b84 for the WebKit fix. Supabase build (`.env.local`) unless noted; Playwright with one worker on
+ports 4441 and 4442; no dev server running.
+
+| Check                | Command                                                                                            | Result                                                                                              |
+| -------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Full validation      | `npm run validate`                                                                                 | Pass: typecheck, lint, Prettier clean; 1,649 unit tests (93 files); build OK                        |
+| End-to-end, Chromium | `npx playwright test --project=chromium --workers=1`                                               | 106/106                                                                                             |
+| End-to-end, WebKit   | `npx playwright test --project=webkit --workers=1`                                                 | 105/106; "creates, switches and isolates sessions" failed (real WebKit focus bug, fixed in 0df4b84) |
+| After the fix        | the two session tests, `--repeat-each=5`; `timer.spec.ts`                                          | WebKit 10/10; `timer.spec.ts` 22/22 on Chromium and on WebKit (full suites not rerun)               |
+| App build            | `npm run build:desktop`, `npx tauri build --bundles app`                                           | Pass; `SolveLab.app` 22.38 MiB, ad-hoc signed, hardened runtime, no smoke code in the binary        |
+| App smoke suite      | smoke build without account settings, `npm run test:app`                                           | 15/15, 0 policy violations (third run; the first two timed out with the window on a hidden Space)   |
+| Coach eval           | `npm run coach:eval -- --model qwen3.5:4b` (56 fixtures)                                           | 447/466 (95.9%, pass mark 95.0%), 0 must-never breaks                                               |
+| Rust                 | `cargo check --locked`, `cargo clippy --locked --all-targets`, `cargo test --locked` (dev log 205) | Clean; 5 tests pass                                                                                 |
+
+Coach eval before the accuracy work: 205/213 (96.2%, 1 break) on the old 39-fixture eval, and
+407/425 (95.8%, 8 breaks) for the old prompt on the new 50-fixture eval with the guards off.
+
+Not checked yet: anything signed in inside the app (needs the owner and the Supabase redirect
+entry), the real Space key and a click in the app window, the menu by eye, VoiceOver and
+keyboard-only, the first-run setup screens (Ollama was already set up), the CI workflows (nothing
+pushed). Screenshots: `~/Projects/solvelab-desktop-shots/integration-2/`.
+
 ## Failing and flaky e2e tests (dev log 197, branch `fix-e2e-tests`, awaiting review)
 
 Run on 2026-10-04 on the Supabase build (`.env.local` as on `main`): static export, headless

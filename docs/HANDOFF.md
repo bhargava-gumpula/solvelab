@@ -2,6 +2,8 @@
 
 > **5.1 (2026-10-04): the account service is Supabase.** Merged into `main` and tagged `v5.1.0`; the Cloudflare Pages deploy (§14 B5) waits for the owner, and until it is out the deployed 5.0 site still talks to the now read-only Firebase (sign-in works, new times don't sync). Project ref `lvmipahpadikgftmsjak`, region us-west-1, free tier (kept awake by `.github/workflows/keep-alive.yml`). `.env.local` now carries the two Supabase lines above the Firebase ones, so `npm run build` makes the Supabase build. Firebase (`solvelab-1bb6e`) is frozen read-only (`firestore.readonly.rules`) for 30 days, then retired (Google provider off, Firestore data deleted; the project can stay). Rollback inside the 30 days: `docs/SUPABASE_MIGRATION.md` §14 C. Mentions of Firestore below describe the Firebase build, which still works when the Supabase lines are removed.
 
+> **6.0 in progress: SolveLab for Mac** (Tauri v2 app with the local AI coach; the website's `/hub/ask/` becomes "Get the Mac app"). Phases 1-6 done and reviewed, Phase 7 prepared, all integrated and checked on the local branch `desktop-int` (dev log 200-210). Nothing pushed, merged or deployed. See §11.
+
 Everything a new agent needs to continue SolveLab without the previous chat. Read this first, then `AGENTS.md`, [OVERVIEW.md](OVERVIEW.md) (product summary and plan) and [NEXT_STEPS.md](NEXT_STEPS.md) (the detailed next phases).
 
 **Live: 5.0 — The Learning Hub** (released 2026-10-01, dev log 190–191): the Learning Hub redesign (dev log 144–149), the course content fixes and measured completion (157–168), Fundamentals, offline reloads, ZBLL and the extra algorithms, your own algorithms and the algorithm trainer (169–189), merged with the v7 "Studio" UI from `~/Projects/solvelab-ui-drafts/v7` (190). The site is two places, Timer and Learning Hub; the Hub has onboarding, eight courses from Learn to solve to Sub-10 whose units pass on a measured result, a card-by-card lesson player with a 3D cube and a question per lesson, recognition and timed drill sessions, the algorithm trainer, and "Your AI coach" (hand-off links, OpenRouter sign-in or an API key).
@@ -38,6 +40,8 @@ The checkout is `~/Projects/solvelab` on the owner's current Mac, outside iCloud
 | `v1-daily-timer` | V1 daily timer; fully merged into `main`                                                    | Yes        |
 
 Work after 5.0 branches from `main`; releases fast-forward `main` after the owner approves. The UI drafts (v1–v7) live outside the repo in `~/Projects/solvelab-ui-drafts`; v7 is the design that shipped, and nothing there is needed any more.
+
+The Mac app work (6.0) is on local branches `desktop-app` and `desktop-int` plus one branch per phase, none pushed yet: see §11.
 
 ## 4. Run, test, validate
 
@@ -168,7 +172,7 @@ Details live in `docs/ARCHITECTURE.md` and `docs/DESIGN.md`. Domain logic stays 
 - **Layout flash on phones:** `useMediaQuery("(min-width: 1024px)", true)` renders the desktop layout first on phones until hydration. A CSS-driven layout would avoid this.
 - **Performance:** glass `backdrop-filter` on many panels may be heavy on low-end devices. Initial JS size hasn't been re-measured since the overhaul (it was ~320 KB gzip for `/timer` at V1).
 - **Offline:** a conservative service worker (`public/sw.js`, production builds only) lets the timer reload without a network; `features.offline` switches it off and removes it. Playwright blocks workers except in `offline.spec.ts`. If e2e results look like an old build, something else is serving port 4173 (Playwright reuses an existing server there): run with another port, e.g. `E2E_PORT=4391 npx playwright test --workers=1`.
-- **Test browsers:** e2e runs Chromium only.
+- **Test browsers:** e2e runs Chromium only on `main`. From `desktop-int` on, Playwright has a `webkit` project (Desktop Safari) too, and `npx playwright test` runs both; pick one with `--project=chromium` or `--project=webkit`.
 
 ## 10. Waiting on the owner (ask; don't assume)
 
@@ -184,3 +188,44 @@ The approved plan (details in dev log entry 103 and [NEXT_STEPS.md](NEXT_STEPS.m
 Firebase for coach training data is live on project SolveLab (`solvelab-1bb6e`): **Anonymous** sign-in enabled and the current `firestore.rules` published on 2026-09-18 (done through Aside with the owner's approval; dev log 109). If `firestore.rules` changes again, it must be republished before the matching app ships. Still owner-only: running each training-data export with their own admin credentials, and a quick legal review of on-by-default collection before launch. Also still open: real Stackmat/GATT bring-up against physical hardware (simulator ships in 2.2).
 
 Reference only: an unfinished idea-scoring council from an earlier chat is in the public GitHub repo `bhargava-gumpula/solvelab-council` (not checked out on this Mac). The owner ended it ("we are done finding improvements"). Don't act on it unless asked.
+
+## 11. The Mac app (6.0, on `desktop-int`)
+
+The conversational coach moves to a Mac-only app (Tauri v2, Apple silicon, macOS 14+) that runs a local model through the person's own Ollama; the website keeps everything else, and its `/hub/ask/` becomes "Get the Mac app". The plan and the owner's final decisions D1-D13 are in [DESKTOP_APP_PLAN.md](DESKTOP_APP_PLAN.md); phase status in its §6; the code layout in [ARCHITECTURE.md](ARCHITECTURE.md) ("Two builds"). The web change and the app ship together as 6.0. Status (dev log 210): Phases 1-6 done and reviewed, Phase 7 prepared without any secrets, everything integrated on `desktop-int` and checked (web validate and e2e, app build and smoke suite). Nothing pushed, merged or deployed.
+
+**Branches** (local only):
+
+| Branch                                                                                                                                                                             | Contents                                                                                                                                                                        |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `desktop-app`                                                                                                                                                                      | The plan, the owner's decisions and the Phase 1 spike (dev log 196-199); the main checkout `~/Projects/solvelab` is on it                                                       |
+| `desktop-int`                                                                                                                                                                      | Every phase below merged, with the merge-audit and integration fixes (dev log 200-210); worktree `~/Projects/solvelab-wt-desktop-int`. **The branch to review, push and merge** |
+| `desktop-p2`, `desktop-p2b`, `desktop-p3`, `desktop-p4`, `desktop-p5a`, `desktop-p5b`, `desktop-p6`, `desktop-release`, `desktop-coach-q`, `desktop-webkit-pass2`, `fix-e2e-tests` | One phase each with its review fixes, all merged into `desktop-int`; most have a `~/Projects/solvelab-wt-<branch>` worktree                                                     |
+
+When the owner approves: the 5.1 Cloudflare deploy (§8) goes first (the app syncs against Supabase), then push `desktop-int` and let `desktop-ci.yml` run on GitHub for the first time, then merge into `desktop-app` and `main` (ask before each).
+
+**Build the app** (needs Rust; the Tauri CLI is a dev dependency):
+
+```sh
+npm run build:desktop                 # the pages for the app, into out/
+npx tauri build --bundles app         # src-tauri/target/release/bundle/macos/SolveLab.app, ad-hoc signed, about 22 MB
+```
+
+- `build:desktop` sets `NEXT_PUBLIC_SOLVELAB_TARGET=desktop` and uses `.env.local`, so the app talks to the real Supabase project and every Hub page needs a sign-in. Sign-in goes through the system browser and the `solvelab://` deep link, which only works for the app installed in `/Applications`, and needs the Supabase redirect allow-list entry (not made yet; Aside, with the owner's approval).
+- Web and app builds share `.next` and `out/`: stop the dev server first, and rebuild with `npm run build` before web e2e. Don't rebuild the pages while `tauri build` reads `out/`. `cargo check`/`cargo test` in `src-tauri` need an `out/` directory (an empty one will do).
+- A worktree needs its own `npm ci`; a `node_modules` symlinked to another checkout may lack the Tauri packages.
+- The `.dmg` and the signed update are made only by the release workflow (`src-tauri/tauri.release.conf.json`); a local build with that overlay fails without the private key, by design.
+- Never change the bundle identifier `com.bhargavagumpula.solvelab`: the app's storage depends on it, and a unit test fails if it changes. Old `SolveLab` processes share it, and screen-control tools may pick their window: quit them first.
+
+**App smoke suite** (`scripts/desktop-smoke.mjs`, with the test-only `smoke` Cargo feature):
+
+```sh
+NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_FIREBASE_API_KEY= npm run build:desktop   # no account settings, so no sign-in wall
+npx tauri build --bundles app --features smoke
+npm run test:app                      # or: npm run test:app path/to/SolveLab.app
+```
+
+It launches the real app and its init script walks the main pages inside WKWebView. It fails on any security-policy violation, a failed IPC check, the 3D cube or cubing.js not working, Ollama or Supabase blocked, a website loading in the app window, or `tabFocusesLinks` off. A stand-in answers on `127.0.0.1:11434` unless Ollama is running there. Keep the app window visible: on a hidden full-screen Space its timers stall and the lesson page times out. A smoke build is for testing only; rebuild without `--features smoke` before using the app. Last run: 15/15 checks, 0 violations (dev log 210). CI (`desktop-ci.yml`) does the same on `macos-14` and `macos-latest` and then builds the app as shipped.
+
+**Releasing** is the owner's job, step by step in [MAC_APP_RELEASE.md](MAC_APP_RELEASE.md); friends get [HOW_TO_OPEN_MAC_APP.md](HOW_TO_OPEN_MAC_APP.md). Once: make the updater key on their own Mac (`npx tauri signer generate`) with two backups outside GitHub; put its public key in `src-tauri/tauri.conf.json` (`plugins.updater.pubkey`, now the placeholder `OWNER_ADDS_PUBLIC_KEY`); make the protected `release` environment (required reviewer, tag rule `app-v*`) with the secrets `TAURI_SIGNING_PRIVATE_KEY` and `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`. Each release: set the version (`tauri.conf.json`, now 0.1.0, and `package.json` for 6.0), tag `app-v<version>` on `main`, approve the job, check the draft, test it on a second Mac, publish, set `MAC_APP.downloadUrl` (`lib/config/mac-app.ts`, now `null`) and deploy the website the same day. Agents never make, read, copy or store the private key or its password.
+
+**Open before 6.0:** listed at the end of dev log 210 and in [DESKTOP_APP_PLAN.md](DESKTOP_APP_PLAN.md) §6.
