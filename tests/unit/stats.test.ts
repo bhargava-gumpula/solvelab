@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { personalBestsFor } from "@/lib/stats/personal-bests";
 import {
   averageOf,
   bestAverage,
@@ -177,5 +178,21 @@ describe("chart series", () => {
         4,
       ),
     ).toEqual([0, 3, 6, 9]);
+  });
+});
+
+describe("personalBestsFor", () => {
+  const result = { rawTimeMs: 11_000, inspectionMs: null, inspectionPenalty: "none" as const };
+
+  it("names no old single to beat when every earlier solve was a DNF", () => {
+    const stats = computeSessionStatistics([{ rawTimeMs: 12_000, penalty: "dnf" }]);
+    const [single] = personalBestsFor(result, stats, 2);
+    expect(single).toEqual({ kind: "single", label: "Single", value: "11.00", delta: 0 });
+  });
+
+  it("gives the gap to the old single as shown", () => {
+    const stats = computeSessionStatistics([{ rawTimeMs: 12_349, penalty: "none" }]);
+    const [single] = personalBestsFor(result, stats, 2);
+    expect(single).toMatchObject({ delta: 1_340, previous: "12.34" });
   });
 });

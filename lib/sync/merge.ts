@@ -101,25 +101,44 @@ export function mergeAccountSnapshots(
 ): AccountSnapshot {
   const tombstones = mergeTombstones(local.tombstones, cloud.tombstones);
   const tombstoneIndex = new Map(tombstones.map((item) => [tombstoneKey(item), item]));
-  const survives = (name: CollectionName, record: AnyRecord) => {
-    const tomb = tombstoneIndex.get(
+  const tombstoneFor = (name: CollectionName, record: AnyRecord) =>
+    tombstoneIndex.get(
       tombstoneKey({ kind: COLLECTIONS[name].tombstoneKind, id: recordKey(name, record) }),
     );
-    return !tomb || recordStamp(record) > tomb.deletedAt;
-  };
 
   const records = emptyRecords();
   for (const name of COLLECTION_NAMES) {
-    const merged =
-      name === "sessions"
-        ? mergeSessions(local.records.sessions, cloud.records.sessions)
-        : mergeByKey(name, recordsOf(local.records, name), recordsOf(cloud.records, name));
+    if (name === "sessions") continue;
     setRecords(
       records,
       name,
-      merged.filter((record) => survives(name, record)),
+      mergeByKey(name, recordsOf(local.records, name), recordsOf(cloud.records, name)).filter(
+        (record) => {
+          const tomb = tombstoneFor(name, record);
+          return !tomb || recordStamp(record) > tomb.deletedAt;
+        },
+      ),
     );
   }
+  // A wiped browser recreates the default Main session with a fresh createdAt,
+  // so a deleted session comes back only for what happened after the delete:
+  // an edit, or a solve timed in it.
+  const lastSolveAt = new Map<string, string>();
+  for (const solve of records.solves) {
+    if (solve.createdAt > (lastSolveAt.get(solve.sessionId) ?? "")) {
+      lastSolveAt.set(solve.sessionId, solve.createdAt);
+    }
+  }
+  records.sessions = mergeSessions(local.records.sessions, cloud.records.sessions).filter(
+    (session) => {
+      const tomb = tombstoneFor("sessions", session);
+      return (
+        !tomb ||
+        (session.updatedAt ?? "") > tomb.deletedAt ||
+        (lastSolveAt.get(session.id) ?? "") > tomb.deletedAt
+      );
+    },
+  );
   // A solve cannot outlive its session.
   const sessionIds = new Set(records.sessions.map((session) => session.id));
   records.solves = records.solves.filter((solve) => sessionIds.has(solve.sessionId));
@@ -137,8 +156,8 @@ export function mergeAccountSnapshots(
     const name = collectionForTombstoneKind(item.kind);
     // Kinds from a newer app version are kept so that version can use them.
     if (!name) return true;
-    const record = findRecord(name, item.id);
-    return !record || recordStamp(record) <= item.deletedAt;
+    // A record that survived its tombstone was changed after the delete.
+    return !findRecord(name, item.id);
   });
 
   const settings = mergeSettings(local.settings, cloud.settings);

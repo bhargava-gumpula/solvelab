@@ -42,28 +42,20 @@ import { useTimerDevice } from "@/components/timer/timer-device-provider";
 import { getExercise } from "@/data/exercises";
 import { celebrate } from "@/lib/appearance/celebrate";
 import type { Command } from "@/lib/commands/registry";
-import {
-  computeSessionStatistics,
-  currentAverage,
-  DNF,
-  getAverage,
-  personalBestProgression,
-  type SessionStatistics,
-} from "@/lib/stats";
+import { computeSessionStatistics, DNF, getAverage, personalBestProgression } from "@/lib/stats";
+import { personalBestsFor, type Achievement } from "@/lib/stats/personal-bests";
 import { has3x3Preview } from "@/lib/cube/events";
 import { latestDelta, milestoneCrossed } from "@/lib/studio/insights";
 import { getRepositories } from "@/lib/storage";
 import { createId } from "@/lib/storage/ids";
 import { withFinalTime } from "@/lib/storage/solve-repository";
-import { computeFinalTimeMs } from "@/lib/solves/penalty";
 import { isTimerFocused, type TimerConfig, type TimerResult } from "@/lib/timer/engine";
 import type { RestingTime } from "@/lib/timer/display";
-import { formatAverage, formatTime, type TimeDecimals } from "@/lib/timer/format";
 import { createTimerStore } from "@/lib/timer/store";
 import { cn } from "@/lib/utils";
 import type { Penalty, Solve } from "@/types/domain";
 import { BentoTile } from "./bento";
-import { type Achievement, CoverLine, FirstFiveTile, SessionFigures } from "./cover-story";
+import { CoverLine, FirstFiveTile, SessionFigures } from "./cover-story";
 import { useScrambledFacelets } from "./cube-preview";
 import { CubeSticker, CubeTile } from "./cube-tile";
 import { CustomScrambleDialog } from "./custom-scramble-dialog";
@@ -642,47 +634,4 @@ function digitsOrigin(): { x: number; y: number } {
     x: (rect.left + rect.width / 2) / window.innerWidth,
     y: (rect.top + rect.height / 2) / window.innerHeight,
   };
-}
-
-/** Which personal bests the just-finished solve sets (computed before saving). */
-function truncatedMs(ms: number, decimals: TimeDecimals): number {
-  const unit = 10 ** (3 - decimals);
-  return Math.floor(ms / unit) * unit;
-}
-
-function personalBestsFor(
-  result: TimerResult,
-  stats: SessionStatistics,
-  decimals: TimeDecimals,
-): Achievement[] {
-  if (stats.count === 0) return [];
-  const value = computeFinalTimeMs(result.rawTimeMs, result.inspectionPenalty) ?? DNF;
-  const achievements: Achievement[] = [];
-  const previousSingle = stats.bestSingle?.value ?? DNF;
-  if (value !== DNF && value < previousSingle) {
-    achievements.push({
-      kind: "single",
-      label: "Single",
-      value: formatTime(value, "truncate", decimals),
-      // The gap between the two times as they are shown (truncated), so the line
-      // under a PB always matches the numbers on screen.
-      delta: truncatedMs(previousSingle, decimals) - truncatedMs(value, decimals),
-      previous: formatTime(previousSingle, "truncate", decimals),
-    });
-  }
-  const values = [...stats.values, value];
-  for (const size of [5, 12, 100]) {
-    const previousBest = getAverage(stats, size)?.best?.value ?? DNF;
-    const average = currentAverage(values, size);
-    if (previousBest !== DNF && average !== null && average !== DNF && average < previousBest) {
-      achievements.push({
-        kind: "average",
-        label: `Ao${size}`,
-        value: formatAverage(average, decimals),
-        delta: previousBest - average,
-        previous: formatAverage(previousBest, decimals),
-      });
-    }
-  }
-  return achievements;
 }

@@ -16,6 +16,7 @@ import { useAppearance } from "@/components/appearance/appearance-provider";
 import { AnimatedTime } from "@/components/ui/animated-time";
 import { Kbd } from "@/components/ui/kbd";
 import { DNF, getAverage, type SessionStatistics } from "@/lib/stats";
+import type { Achievement } from "@/lib/stats/personal-bests";
 import {
   milestoneDistance,
   nextSolveOutlook,
@@ -26,16 +27,6 @@ import { formatTime } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
 import { BentoTile } from "./bento";
 import { formatDelta } from "./insight-tiles";
-
-export interface Achievement {
-  kind: "single" | "average";
-  label: string;
-  value: string;
-  /** How much faster than the previous best, in ms. */
-  delta: number;
-  /** The previous best, formatted as it was shown. */
-  previous?: string;
-}
 
 /* ───────────── Ruled session figures ───────────── */
 
