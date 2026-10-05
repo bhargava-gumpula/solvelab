@@ -47,6 +47,14 @@
       "desktop": {
         "schemes": ["solvelab"]
       }
+    },
+    "updater": {
+      "_comment": "pubkey: OWNER_ADDS_PUBLIC_KEY is a placeholder. The owner replaces it with the one line in their updater .key.pub file (public, safe to commit), made with `npx tauri signer generate` on their own Mac. See docs/MAC_APP_RELEASE.md. Until then every update fails its signature check and the release workflow refuses to build.",
+      "pubkey": "OWNER_ADDS_PUBLIC_KEY",
+      "requireSignedVersion": true,
+      "endpoints": [
+        "https://github.com/bhargava-gumpula/solvelab/releases/latest/download/latest.json"
+      ]
     }
   }
 }

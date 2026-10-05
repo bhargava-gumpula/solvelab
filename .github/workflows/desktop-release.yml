@@ -1,0 +1,146 @@
+# Builds SolveLab for Mac and puts it in a draft GitHub Release (docs/MAC_APP_RELEASE.md).
+#
+# Runs when the owner pushes a tag like app-v6.0.0 (it must match "version" in
+# src-tauri/tauri.conf.json). "Run workflow" by hand builds only the pages, as a check.
+#
+# Two jobs, so the signing key never sits next to npm's install scripts:
+#   pages:   npm ci + the Mac app's pages. No secrets.
+#   release: waits for the owner's approval (the protected "release" environment), then
+#            builds the app, signs it ad-hoc (signingIdentity "-", no Apple account),
+#            signs the update with the updater key and uploads the .dmg, the update and
+#            latest.json to a DRAFT release. Nobody sees it until the owner publishes it.
+#
+# Set up once by the owner (never by an agent):
+#   Environment "release" (Settings → Environments) with the owner as required reviewer,
+#   limited to tags app-v*, holding two environment secrets:
+#     TAURI_SIGNING_PRIVATE_KEY           the updater private key (the .key file's text)
+#     TAURI_SIGNING_PRIVATE_KEY_PASSWORD  its password
+# Repository variables (public values, already set for keep-alive.yml):
+#   SUPABASE_URL, SUPABASE_ANON_KEY
+name: Mac app release
+
+on:
+  push:
+    tags: ["app-v*"]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  pages:
+    name: Build the pages (no secrets)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Build the Mac app's pages
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ] || [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "::error::Set the repository variables SUPABASE_URL and SUPABASE_ANON_KEY; without them the app can't sign in."
+            exit 1
+          fi
+          npm run build:desktop
+      - name: Check the scrambler and the Supabase backend are in the build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+        run: |
+          test -f out/vendor/cubing/scramble.js || { echo "::error::out/vendor/cubing/scramble.js is missing; scrambles would fail."; exit 1; }
+          grep -rqF "${NEXT_PUBLIC_SUPABASE_URL%/}" out/_next/static || { echo "::error::The Supabase URL isn't in the built pages."; exit 1; }
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pages
+          path: out/
+          if-no-files-found: error
+          retention-days: 1
+
+  release:
+    name: Build, sign and draft the release
+    needs: pages
+    # Tag pushes only: a manual run started on a tag must not reach the secrets.
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/app-v')
+    runs-on: macos-15 # Apple silicon
+    timeout-minutes: 45
+    environment: release
+    permissions:
+      contents: write # create the draft release and upload to it
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Check the tag and the updater public key
+        run: |
+          version=$(node -p "require('./src-tauri/tauri.conf.json').version")
+          if [ "$GITHUB_REF_NAME" != "app-v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match version $version in src-tauri/tauri.conf.json (expected app-v$version)."
+            exit 1
+          fi
+          # The .key.pub file decodes to "untrusted comment: minisign public key: ...". Anything
+          # else (the placeholder, a pasted private key, a typo) would ship an app that can't update.
+          if ! node -e 'const k = require("./src-tauri/tauri.conf.json").plugins.updater.pubkey; process.exit(Buffer.from(k, "base64").toString().includes("minisign public key") ? 0 : 1)'; then
+            echo "::error::plugins.updater.pubkey in src-tauri/tauri.conf.json isn't an updater public key (still the placeholder?). Paste the one line from solvelab-updater.key.pub (docs/MAC_APP_RELEASE.md)."
+            exit 1
+          fi
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pages
+          path: out
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
+      # Only the Tauri CLI, without install scripts; the project's packages aren't installed here.
+      - run: npm install --global --ignore-scripts @tauri-apps/cli@2.12.1
+      - id: tauri
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        with:
+          tauriScript: tauri
+          # tauri.release.conf.json adds the .dmg and the signed update (.app.tar.gz + .sig).
+          args: --target aarch64-apple-darwin --config src-tauri/tauri.release.conf.json
+          tagName: ${{ github.ref_name }}
+          releaseName: SolveLab for Mac __VERSION__
+          releaseBody: |
+            SolveLab for Mac: an Apple silicon Mac (M1 or newer) with macOS 14 or newer.
+
+            Download the .dmg below, open it and drag SolveLab into Applications. The app isn't from the App Store, so the first time you open it macOS asks you to confirm in System Settings. Step-by-step guide: [How to open SolveLab on your Mac](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/docs/HOW_TO_OPEN_MAC_APP.md).
+
+            Already have the app? It offers this update itself next time you open it.
+          releaseDraft: true
+          prerelease: false
+          uploadUpdaterJson: true
+      # The app refuses updates whose signature doesn't name the version latest.json announces
+      # (requireSignedVersion), and only trusts plugins.updater.pubkey. Catch both before publishing.
+      - name: Check the update's signature
+        env:
+          ARTIFACTS: ${{ steps.tauri.outputs.artifactPaths }}
+        run: |
+          node -e '
+            const fs = require("fs");
+            const conf = require("./src-tauri/tauri.conf.json");
+            const lines = (b64) => Buffer.from(b64.trim(), "base64").toString().split("\n");
+            const keyId = (b64) => Buffer.from(b64, "base64").subarray(2, 10);
+            const sigPath = JSON.parse(process.env.ARTIFACTS).find((p) => p.endsWith(".app.tar.gz.sig"));
+            if (!sigPath) { console.log("::error::No .app.tar.gz.sig was built."); process.exit(1); }
+            const [, sig, trusted] = lines(fs.readFileSync(sigPath, "utf8"));
+            if (!trusted.endsWith(`\tversion:${conf.version}`)) {
+              console.log(`::error::The update signature does not carry version ${conf.version}; installed apps would reject it. Delete the draft.`);
+              process.exit(1);
+            }
+            if (!keyId(sig).equals(keyId(lines(conf.plugins.updater.pubkey)[1]))) {
+              console.log("::warning::The update was signed with a different key than plugins.updater.pubkey. Unless you are rotating keys (docs/MAC_APP_RELEASE.md), delete the draft: installed apps could never update again.");
+            }
+          '

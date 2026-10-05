@@ -6,6 +6,7 @@ import { brand } from "@/lib/config/brand";
 import { APPEARANCE_BOOT_SCRIPT } from "@/lib/appearance/preferences";
 import { AppProviders } from "@/components/layout/app-providers";
 import { AppShell } from "@/components/layout/app-shell";
+import { UpdatePrompt } from "@/components/desktop/update-prompt";
 
 // Fonts are downloaded at build time and self-hosted; no runtime network needed.
 // Studio type system, two families: an editorial serif for display headlines and
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       >
         <AppProviders>
           <AppShell>{children}</AppShell>
+          <UpdatePrompt />
         </AppProviders>
       </body>
     </html>
