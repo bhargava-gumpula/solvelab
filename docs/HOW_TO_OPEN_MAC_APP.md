@@ -26,7 +26,7 @@ Keep SolveLab in Applications. Updates and Google sign-in only work from there.
 
 1. Open Applications and double-click SolveLab. A message says Apple could not verify that SolveLab is free of malware. Click **Done**, not Move to Trash.
 2. Open Apple menu → **System Settings** → **Privacy & Security**. Scroll down to **Security**. It says SolveLab was blocked. Click **Open Anyway**.
-3. Your Mac asks once more. Click **Open Anyway**, then type your Mac login password or use Touch ID. If it asks for an administrator's name and password, ask whoever set up the Mac (usually a parent) to type theirs.
+3. Your Mac asks once more. Click **Open Anyway** (on some versions the button says **Open**), then type your Mac login password or use Touch ID. If it asks for an administrator's name and password, ask whoever set up the Mac (usually a parent) to type theirs.
 4. SolveLab opens. From now on it opens normally.
 
 The Open Anyway button only shows for about an hour after you tried to open the app. If it's gone, double-click SolveLab again, then go back to System Settings ([Apple, macOS Sequoia guide](https://support.apple.com/guide/mac-help/mh40616/15.0/mac/15.0)). The old shortcut, Control-click → Open, no longer skips this on macOS 15.
@@ -41,7 +41,7 @@ The System Settings way from macOS 15 works on macOS 14 too ([Apple, macOS Sonom
 
 ## Updates
 
-When there's a new version, a small note appears in the corner when you open SolveLab: "Update available. Restart?" Click **Restart**. The app checks that the update really comes from SolveLab before it installs anything. If you click **Later**, it asks again next time. If macOS ever asks you to confirm again after an update, follow the same steps as the first time.
+When there's a new version, a small note appears in the corner when you open SolveLab: "Update available. Restart?" Click **Restart**. The app checks that the update really comes from SolveLab before it installs anything. If you click **Later**, it asks again next time. If you aren't an administrator on the Mac, macOS asks for an administrator's name and password to replace the app; ask whoever set up the Mac. If macOS ever asks you to confirm again after an update, follow the same steps as the first time.
 
 ## If something goes wrong
 

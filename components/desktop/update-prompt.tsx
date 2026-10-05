@@ -30,8 +30,11 @@ export function UpdatePrompt() {
 
   const install = () => {
     setState("installing");
-    // On success the app restarts, so only a failure comes back.
-    updateInstall().catch(() => setState("failed"));
+    // On success the app restarts. It resolves only if the update vanished meanwhile: hide the note.
+    updateInstall().then(
+      () => setVersion(null),
+      () => setState("failed"),
+    );
   };
 
   return (

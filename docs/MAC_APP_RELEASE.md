@@ -8,9 +8,9 @@ How a Mac app release is built and published (plan: `docs/DESKTOP_APP_PLAN.md` 5
 
 - `.github/workflows/desktop-release.yml` runs when a tag like `app-v6.0.0` is pushed.
   - **`pages` job** (Ubuntu, no secrets): `npm ci`, `npm run build:desktop` with the Supabase URL and publishable key from repository variables, then checks that `out/vendor/cubing/scramble.js` and the Supabase backend are in the build.
-  - **`release` job** (macOS, Apple silicon): runs in the protected `release` environment, so it waits for the owner's approval. It checks the tag matches the app version and that the updater public key is set, installs only the Tauri CLI (the project's packages aren't installed next to the secrets), then `tauri-apps/tauri-action` builds the app and `.dmg`, signs the app ad-hoc, signs the update with the updater key and uploads everything to a **draft** release: the `.dmg`, the update (`.app.tar.gz` and its `.sig`) and `latest.json`.
+  - **`release` job** (macOS, Apple silicon): runs in the protected `release` environment, so it waits for the owner's approval. It checks the tag matches the app version and that `plugins.updater.pubkey` really is an updater public key (not the placeholder, and never a pasted private key), installs only the Tauri CLI (the project's packages aren't installed next to the secrets), then `tauri-apps/tauri-action` builds the app and `.dmg`, signs the app ad-hoc, signs the update with the updater key and uploads everything to a **draft** release: the `.dmg`, the update (`.app.tar.gz` and its `.sig`) and `latest.json`. A last step checks the update's signature names this version and was made with the key matching `plugins.updater.pubkey`.
 - `src-tauri/tauri.release.conf.json` adds the `.dmg` and the update files. They're left out of normal builds because the update files can't be made without the private key.
-- The app checks `https://github.com/bhargava-gumpula/solvelab/releases/latest/download/latest.json` when it opens (`plugins.updater` in `src-tauri/tauri.conf.json`). It installs nothing without a click, and refuses any update not signed with the updater key.
+- The app checks `https://github.com/bhargava-gumpula/solvelab/releases/latest/download/latest.json` when it opens (`plugins.updater` in `src-tauri/tauri.conf.json`). It installs nothing without a click, refuses any update not signed with the updater key, and only installs a **higher** version whose signature names that same version (`requireSignedVersion`), so an old signed update can't be passed off as a new one.
 - `releases/latest` means the newest **published, non-pre-release** release. A draft is invisible to the app until it's published. **Don't publish any other GitHub release as "latest"** (for example a website release): the app would look for `latest.json` there and stop seeing updates. Mark such releases as pre-releases, or untick "Set as the latest release".
 
 ## One-time setup (owner)
@@ -64,19 +64,19 @@ Settings → Secrets and variables → Actions → **Variables** should already 
    git push origin app-v6.0.0
    ```
 3. **Approve the build.** Actions → "Mac app release" → the run for your tag. After `pages` finishes, `release` shows "Waiting for review": **Review deployments** → tick `release` → **Approve and deploy**. It takes about 10–20 minutes.
-4. **Check the draft.** Releases → "SolveLab for Mac 6.0.0" (Draft) should have the `.dmg`, the `.app.tar.gz`, its `.sig` and `latest.json`.
+4. **Check the draft.** The run must be green with no warning about the update being "signed with a different key" (that means the `release` secret and `plugins.updater.pubkey` are from different key pairs: delete the draft and fix it, or installed apps could never update again). Releases → "SolveLab for Mac 6.0.0" (Draft) should have the `.dmg`, the `.app.tar.gz`, its `.sig` and `latest.json`.
 5. **Second-Mac check** (plan 5.1). On a second Mac, signed in to GitHub (drafts are only visible to you), download the `.dmg` in a browser and follow `docs/HOW_TO_OPEN_MAC_APP.md` step by step: install, the first-open steps, sign in with Google, time a solve with Space.
 6. **Publish.** Edit the draft → leave **Set as the latest release** ticked → **Publish release**. From then on the download works for everyone and installed apps offer the update the next time they open.
 7. **Website, same day.** Point the "Get the Mac app" download link (`MAC_APP.downloadUrl` in `lib/config/mac-app.ts`) at `https://github.com/bhargava-gumpula/solvelab/releases/latest` and deploy the website as in `docs/HANDOFF.md` §8.
 
-A manual run (Actions → Mac app release → **Run workflow**) only builds the pages, as a check; it never touches the secrets or a release.
+A manual run (Actions → Mac app release → **Run workflow**), even one started on a tag, only builds the pages, as a check; it never touches the secrets or a release.
 
 ## What friends see
 
 - **Download:** the release page, with a short note and a link to the "How to open" guide. They download the `.dmg` and drag SolveLab into Applications.
 - **First open:** macOS stops the app because it isn't registered with Apple. They confirm once in System Settings → Privacy & Security → Open Anyway (macOS 15 and newer, with their Mac password, or a parent's on a Mac a parent set up) or with Control-click → Open (macOS 14). On a school or work Mac it may be blocked completely. Full steps: `docs/HOW_TO_OPEN_MAC_APP.md`, also on the "Get the Mac app" page.
 - **After that:** it opens normally.
-- **Updates:** when they open the app after a release is published, a small note in the corner says "Update available (6.0.1). Restart?". **Restart** downloads it, checks the signature, installs it and reopens the app; **Later** asks again next time. Offline, or with no newer version, they see nothing. If the signature doesn't match, they see "Couldn't update" and keep their version. macOS usually doesn't ask again after an update; if it does, it's the same steps as the first open.
+- **Updates:** when they open the app after a release is published, a small note in the corner says "Update available (6.0.1). Restart?". **Restart** downloads it, checks the signature, installs it and reopens the app; **Later** asks again next time. Offline, or with no newer version, they see nothing. If the signature doesn't match, they see "Couldn't update" and keep their version. On a Mac where they aren't an administrator, macOS asks for an administrator's name and password to replace the app in Applications (a parent's, on a Mac a parent set up). macOS usually doesn't ask again after an update; if it does, it's the same steps as the first open.
 
 ## Rollback
 
@@ -91,5 +91,5 @@ The updater only installs a **higher** version than the one running, so the way 
 
 ## If the updater key is lost or leaked
 
-- **Leaked** (someone else may have the private key or its password): make a new key pair (step 1), ship one more update signed with the **old** key whose `tauri.conf.json` carries the **new** public key, then replace the two `release` secrets with the new key and sign everything after that with it. Someone with the old key still can't put an update in front of users without also being able to publish releases on the repo.
+- **Leaked** (someone else may have the private key or its password): make a new key pair (step 1), ship one more update signed with the **old** key whose `tauri.conf.json` carries the **new** public key, then replace the two `release` secrets with the new key and sign everything after that with it. That one release's run warns that the update was "signed with a different key"; that's expected there. Someone with the old key still can't put an update in front of users without also being able to publish releases on the repo.
 - **Lost** (every copy gone): installed apps can't be updated. Make a new key, release the next version, and ask everyone to download it by hand once.

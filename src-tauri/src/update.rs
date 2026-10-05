@@ -29,3 +29,17 @@ pub async fn update_install(app: AppHandle) -> Result<(), String> {
         .map_err(text)?;
     app.restart()
 }
+
+#[cfg(test)]
+mod tests {
+    /// The plugin reads this at launch; a config it can't parse would stop the app opening.
+    #[test]
+    fn updater_config_parses() {
+        let conf: serde_json::Value =
+            serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
+        let updater: tauri_plugin_updater::Config =
+            serde_json::from_value(conf["plugins"]["updater"].clone()).unwrap();
+        assert!(updater.require_signed_version);
+        assert_eq!(updater.endpoints.len(), 1);
+    }
+}

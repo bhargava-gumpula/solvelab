@@ -47,8 +47,9 @@ export function HowToOpen() {
             to open the app.
           </li>
           <li>
-            Click <strong>Open Anyway</strong> again and type your Mac password. If it asks for an
-            administrator, ask whoever set up the Mac (usually a parent).
+            Click <strong>Open Anyway</strong> (or <strong>Open</strong>) again and type your Mac
+            password. If it asks for an administrator, ask whoever set up the Mac (usually a
+            parent).
           </li>
         </ol>
       </div>
