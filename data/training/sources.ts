@@ -302,10 +302,6 @@ export const SOURCES = {
     label: "SpeedSolving: Cube rotation vs F/B moves during F2L",
     url: "https://www.speedsolving.com/threads/cube-rotation-vs-f-b-moves-during-f2l.46804/",
   },
-  tipTooEarly: {
-    label: "SpeedSolving: A good tip you learned too early",
-    url: "https://www.speedsolving.com/threads/what%E2%80%99s-a-%E2%80%9Cgood-tip%E2%80%9D-you-learned-too-early-that-ended-up-hurting-you.96446/",
-  },
   // Inspection at the fast end
   crossStudy: {
     label: "Lars Vandenbergh: Cross study",
@@ -370,7 +366,7 @@ export const SOURCES = {
     url: "https://reco.nz/solve/6370",
   },
   reconXuanyi305: {
-    label: "reco.nz: Xuanyi Geng 3.05 (world record)",
+    label: "reco.nz: Xuanyi Geng 3.05 (world record, April 2025)",
     url: "https://reco.nz/solve/11719",
   },
   tpsWiki: {

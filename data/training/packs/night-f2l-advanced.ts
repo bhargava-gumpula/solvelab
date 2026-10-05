@@ -23,10 +23,10 @@ export const f2lAtTheFastEnd: LevelPack = {
         "Compare each phase's share of your solve with the shares sub-10 solvers average, and work on F2L only if it's the phase clearly over.",
       minutes: 4,
       body: [
-        "Everything in this pack makes F2L faster, so check first that F2L is what's slow. A single average can't tell you: an 11-second solve could be a slow cross and a quick last layer, or the other way round. What tells you is how the time splits between the phases.",
-        "An analysis of hundreds of solves by sub-10 CFOP solvers, posted on SpeedSolving, gives the average shares: the cross about 12% of the solve, the cross and first pair 24.5%, the cross and all of F2L 62%, OLL 16.5% and PLL 21.5%. OLL and PLL both include recognition and AUF, so the last layer as a whole is 38%. At an 11-second average that's about 1.3 seconds of cross, 2.7 for the cross and first pair, 6.8 for the cross and F2L, and 4.2 for the last layer.",
+        "Everything in this pack makes F2L faster, so check first that F2L is what's slow. A single average can't tell you: an 11-second solve could be a slow cross and a quick last layer, or the other way round. What tells you is how the time splits between the phases. Stuck at 15 found the part furthest behind the goals on your profile; this is a second check, against how sub-10 solvers split their time, and the two yardsticks can disagree.",
+        "An analysis posted on SpeedSolving gives idealised shares, averaged from hundreds of solves by world-class sub-10 CFOP solvers: the cross about 12% of the solve, the cross and first pair 24.5%, the cross and all of F2L 62%, OLL 16.5% and PLL 21.5%. OLL and PLL both include recognition and AUF, so the last layer as a whole is 38%. At an 11-second average that's about 1.3 seconds of cross, 2.7 for the cross and first pair, 6.8 for the cross and F2L, and 4.2 for the last layer.",
         "Read the gaps, not the totals. If the cross and first pair take a much bigger share than 24.5%, the leak is inspection or the start of F2L, and the cross units suit it better than this pack. If the cross and first pair are on share but the cross and F2L are well over 62%, the time is in the later pairs, the pauses between them and what each one leaves the next, which is what this pack is about. If F2L is on share and the last layer is over, advanced F2L is the wrong place to spend the next month.",
-        "The author's rule for when a gap counts: a phase appreciably over its share, around 10% over, is the one to work on, and you stay with it until it's no longer the worst. The shares are averages from a group of fast solvers, not targets to hit exactly; they point at a leak rather than define a good solve. And a test that times one phase on its own doesn't flow into it the way a real solve does, so only a clear gap means much.",
+        "The author's rule for when a gap counts: a phase appreciably over its share, around 10% over as he suggests, is the one to work on, and you stay with it until it's no longer the worst. The shares are averages from a group of fast solvers, not targets to hit exactly; they point at a leak rather than define a good solve. One caveat is SolveLab's own: a test that times one phase on its own doesn't flow into it the way a real solve does, so only a clear gap means much.",
       ],
       checkpoint:
         "You know which phase of your solve is furthest over its share, and whether it's F2L.",
@@ -43,7 +43,7 @@ export const f2lAtTheFastEnd: LevelPack = {
         "So when the slot you're filling holds a bad F2L edge, an F-move insert fixes it for free. Feliks Zemdegs points to exactly this in his commentary on a 5.97 average. After his cross and a first pair in the back-left slot, the front-left pair's edge was bad, and another F2L edge sat bad in the front-left slot. U' R U R' F U F' puts the pair in and lifts that edge out good, so both remaining F2L edges are good, and the last two pairs, as he put it, 'could have been solved using just R and U moves'.",
         "The same idea settles a choice between two inserts of the same length. A pair joined on the right of the top layer, ready for U R U' R', also goes in with the sledgehammer, R' F R F'. Compared with U R U' R', the sledgehammer flips two edges: the one at the front of the top layer and the one sitting in the slot. The last-pair lesson uses that for yellow edges; on an earlier pair, use it for F2L edges. Count the bad F2L edges among those two, and take the sledgehammer when flipping both leaves fewer.",
         "A rotation is the other tool. A y or y' turns every F2L edge in the top layer from good to bad or bad to good, and leaves the F2L edges in the middle layer as they were. A y2 changes no edge at all. So when both remaining F2L edges sit bad in the top layer, one y makes them both good, which is an honest reason to spend a rotation mid-F2L. A y2 never helps orientation.",
-        "Don't force it. One guide puts optimal F2L at about 27 moves normally and about 36 when every edge is oriented during the cross, so orienting everything costs real moves. The free version is the one to use: between two inserts that cost the same, take the one that leaves fewer bad F2L edges.",
+        "Don't force it. One guide estimates, roughly, that orienting every edge during the cross raises the optimal F2L move count from about 27 to about 36, so orienting everything costs real moves. The free version is the one to use: between two inserts that cost the same, take the one that leaves fewer bad F2L edges.",
       ],
       examples: [
         {
@@ -76,9 +76,9 @@ export const f2lAtTheFastEnd: LevelPack = {
       body: [
         "Every pair you insert takes a slot away, so the last pairs of a solve have the least room: no empty slot to keyhole through or to pair with a spare R or L turn, and fewer ways to avoid a rotation. Which slots those last pairs go into therefore matters, and the front ones are cheaper. A front slot is in view and takes R U R' or L' U' L from your normal grip; a back slot means reaching round with R' or L, or rotating.",
         "So when a pair could go in at the front or the back for about the same cost, put it in at the back. Early on, both front slots are still open as workspace, and that's when back pairs are easiest: an empty front-right slot is what lets R U R' L U' L' put in a back-left pair, the trick from Use the slots you have not filled. And once both back slots are full, the last two pairs' pieces can only be in the top layer or the front slots, all where you're already looking.",
-        "Feliks Zemdegs reasons the same way in his reconstructions. In one 5.80 solve he notes that things would be a little easier because the two pairs solved first would end up in the back two slots. In a 10.21 solve he says he should probably have put a pair into the back slot, and rotated to do it with R and U instead. Jayden McNeill lists filling a better slot for lookahead as one of five reasons to prefer one solution over another.",
+        "Feliks Zemdegs reasons the same way in his reconstructions. In one 5.80 solve he notes that things would be a little easier because the two pairs solved first would end up in the back two slots. In a 10.21 solve he says he should probably have put a pair straight into the back slot, but rotated to do it with R and U instead. Jayden McNeill lists filling a better slot for lookahead as one of five reasons to prefer one solution over another.",
         "The rules, in order. Free pairs still come first: a pair the cross left joined, or one that's a single insert away, beats any plan. Otherwise, of two pairs that cost about the same, take the one for a back slot. If they still tie, take the one that leaves the next pair in view.",
-        "Two limits. This only pays once the back-slot inserts from F2L from the front and Advanced F2L cases are automatic; a back-slot case you have to think about costs more than the rotation it saves. And it isn't a ban on rotations. One or two y turns in F2L are fine as long as your lookahead survives, and a y2 is the one to cut. One solver on SpeedSolving learned rotationless algorithms even for stuck pieces, found they hurt his lookahead, and went from the low 30s to the mid 20s once he went back to simpler back-slot solutions.",
+        "Two limits. This only pays once the back-slot inserts from F2L from the front and Advanced F2L cases are automatic; a back-slot case you have to think about costs more than the rotation it saves. And it isn't a ban on rotations. One solver on SpeedSolving puts it this way: one or two y turns in F2L are fine as long as your lookahead survives, but a y2 is out of the question. In the same thread, the solver who asked found a rotationless sequence faster to execute, but said it hurt their lookahead.",
       ],
       checkpoint:
         "With no free pair, you choose the back-slot pair over an equal front one without stopping to think.",
@@ -92,7 +92,7 @@ export const f2lAtTheFastEnd: LevelPack = {
       body: [
         "Most choices in fast F2L are trades: a rotation against an F move, seven moves against eight that flow better, a back-slot algorithm against a y and a front one. Jayden McNeill lists five things a solution using an empty slot can buy: fewer rotations, a better slot for lookahead, fewer moves, a move set your hands prefer, and a continuous flow of turns. None of them always wins, and real solutions score well on some and badly on others.",
         "Opinions about these trades disagree because hands do. On SpeedSolving, experienced solvers mostly prefer a y to F or B moves, because F and B often need a regrip; one gives the exception that when the choice is a rotation, three moves and another rotation, two F moves are better. Both can be right for different hands. What settles it for yours is how long each takes, including the moment you start looking for the next pair, and feel can't measure that.",
-        "McNeill's test is an average of 25 with each solution, starting from the same grip and the same AUF every time, so that only the solution differs. Run the two blocks back to back, then again on another day in the opposite order, so warm-up and tiredness don't favour whichever went second. A solution that wins both days has won; one that wins once is a tie, and a tie goes to the one you already use.",
+        "McNeill's test is an average of 25 with each solution, starting from the same grip and the same AUF every time, so that only the solution differs; he compares the fastest average of 5 inside each. SolveLab compares the whole averages of 25 instead, which one lucky run of five can't swing, and adds a step: run the two blocks back to back, then again on another day in the opposite order, so warm-up and tiredness don't favour whichever went second. A solution that wins both days has won; one that wins once is a tie, and a tie goes to the one you already use.",
         "He also says when not to bother: if one solution clearly wins on four or five of the five points, just use it. Timing earns its keep in the murky middle, where each solution has two or three points in its favour. And test again after a few weeks of using the winner, because a solution you've drilled gets faster and can overtake the one that won before.",
       ],
       checkpoint:
@@ -105,9 +105,9 @@ export const f2lAtTheFastEnd: LevelPack = {
         "With the front-right pair solved, an F turn parks it where R and U can't reach, so the back-right and front-left pairs can both be done with R and U before F' brings it back.",
       minutes: 5,
       body: [
-        "Keyhole and pseudo-slotting both turn the bottom layer on purpose, do some work, and turn it back. SMMS, proposed by Jayden McNeill and George Scholey in late 2019, does the same with the front face. It's for the last two pairs when the front-right and back-left pairs are in: it solves the back-right and front-left pairs together, opening with F, turning only R and U in between, and closing with F'.",
+        "Keyhole and pseudo-slotting both turn the bottom layer on purpose, do some work, and turn it back. SMMS (Scholey–McNeill Multi-Slotting), proposed by Jayden McNeill and George Scholey in late 2019, does the same with the front face. In its most common form it's for the last two pairs when the front-right and back-left pairs are in: it solves the back-right and front-left pairs together, opening with F, turning only R and U in between, and closing with F'.",
         "Here is why it works. With the front-right pair in, an F turn moves that pair and the front cross edge into places on the left and bottom layers that R and U never touch, so they wait there safely, and the front-right slot is left free as workspace. The same F lifts the front-left slot's two places into the top layer: the corner's to the front left, the edge's to the front. Solve the back-right pair with R and U, bring the front-left pair to those two places as a joined pair, and F' drops it in while bringing the front-right pair and the cross edge home.",
-        "Edges decide whether a case works. R and U never flip an edge, so after the F the back-right edge must already be good, and the front-left edge must be bad, because the F' that drops it in flips it. The F itself flips any edge on the front face. So for edges at the right, back or left of the top layer, judge them as they are: the front-left edge bad, the back-right edge good. An edge at the front of the top layer, or stuck in the front-left slot, counts the other way round. The SMMS wiki names an oriented front-left edge as the weak case, which originally needed a y2.",
+        "Edges decide whether a case works. R and U never flip an edge, so after the F the back-right edge must already be good, and the front-left edge must be bad, because the F' that drops it in flips it. The F itself flips any edge on the front face. So for edges at the right, back or left of the top layer, or in the back-right slot, judge them as they are: the front-left edge bad, the back-right edge good. An edge at the front of the top layer, or stuck in the front-left slot, counts the other way round. The SMMS wiki names an oriented front-left edge as the case that originally needed a y2; McNeill later generated algorithms for it. Those go beyond a plain F, R and U, F', so here it's the case to skip.",
         "Treat it as an opportunity, not a system. It needs a particular slot order and the right two edges, and most solves won't offer it. When one does, it can be very short: in the example below, five moves put in two pairs. Learn to check the two edges whenever you're down to the back-right and front-left pairs, and take it when it's there.",
       ],
       examples: [
@@ -130,7 +130,7 @@ export const f2lAtTheFastEnd: LevelPack = {
       rules: [
         "In one session, take an average of 12 in each of these tests: Cross, Cross + first pair, Cross + F2L, OLL + PLL, and Normal solves.",
         "Divide each test's average by your Normal solves average and compare with the sub-10 shares: 12%, 24.5%, 62% and 38%.",
-        "Mark any phase more than about a tenth over its share. The one furthest over is the next block's focus; if it isn't F2L, put this pack down for now.",
+        "Mark any phase more than about a tenth over its share. If the one furthest over is F2L, this pack is your next block; if it isn't, put this pack down and take that phase to its own units.",
       ],
       dose: "One session every two weeks.",
       signal:
@@ -145,11 +145,11 @@ export const f2lAtTheFastEnd: LevelPack = {
       rules: [
         "After the cross, count the bad F2L edges out loud, and count again after each insert.",
         "When two inserts for a pair cost the same, take the one that leaves fewer bad F2L edges: an F-move insert, the sledgehammer, or a y when both remaining edges sit bad in the top layer.",
-        "After each solve, note whether the last two pairs went in with R and U, or L and U, alone.",
+        "After each solve, note whether the last two pairs went in without F, B or a rotation.",
       ],
       dose: "Twelve slow solves, three sessions a week for two weeks.",
       signal:
-        "More of your solves end with the last two pairs done in R and U alone: the tally for the second week beats the first.",
+        "More of your solves end with the last two pairs done without F, B or a rotation: the tally for the second week beats the first.",
       untimed: true,
     },
     {
@@ -158,13 +158,13 @@ export const f2lAtTheFastEnd: LevelPack = {
       purpose:
         "Finds out whether putting the back pairs in first is actually faster for you, rather than assuming it.",
       rules: [
-        "Free pairs still go first. Otherwise the first two pairs that aren't free go into back slots, without a y2.",
+        "Free pairs still go first. Otherwise, whenever a back pair costs about the same as a front one, take the back one, without a y2.",
         "Alternate sessions: twenty-five solves back-first, then twenty-five your normal way. The session summary compares each with the one before.",
         "Keep everything else the same: same cube, and the same time of day if you can.",
       ],
-      dose: "Four sessions, two of each, over a week.",
+      dose: "Six sessions, three of each, over two weeks.",
       signal:
-        "Both back-first sessions beat the normal sessions beside them. If they don't, the back-slot inserts aren't automatic yet: go back to No rotation for the back.",
+        "All three back-first sessions beat the normal sessions beside them. If they don't, the back-slot inserts aren't automatic yet: go back to No rotation for the back.",
       exerciseId: "f2l_only",
     },
     {
@@ -231,7 +231,6 @@ export const f2lAtTheFastEnd: LevelPack = {
     SOURCES.emptySlots,
     SOURCES.rotationsVsLookahead,
     SOURCES.rotationVsFb,
-    SOURCES.tipTooEarly,
     SOURCES.smmsWiki,
   ],
 };
@@ -274,7 +273,7 @@ export const F2L_AT_THE_FAST_END_QUIZZES: Record<string, LessonQuiz[]> = {
         "Front-right, so you can see what you're doing",
         "Back-left, so the last pairs end up at the front",
         "Either: at equal cost the order makes no difference",
-        "Front-right, because R U R' beats any back-slot insert",
+        "Front-right, since R U R' is the fastest insert",
       ],
       answer: 1,
       why: "The last pairs have the least room and the fewest choices, so give them the slots that are cheapest to reach and easiest to see: the front ones. Doing the back pair while the front slots are still open also leaves you workspace for it.",
@@ -305,7 +304,7 @@ export const F2L_AT_THE_FAST_END_QUIZZES: Record<string, LessonQuiz[]> = {
         "SMMS only works when the front-right slot is still empty",
       ],
       answer: 1,
-      why: "An edge at the back of the top layer isn't touched by the F, and R and U never change an edge's orientation. The F' flips the front-left edge as it drops it in, so it has to be bad until then; a good one is the weak case the SMMS wiki names.",
+      why: "An edge at the back of the top layer isn't touched by the F, and R and U never change an edge's orientation. The F' flips the front-left edge as it drops it in, so it has to be bad until then. A good one is the case that originally needed a y2; the algorithms McNeill later generated for it go beyond a plain F, R and U, F'.",
     },
   ],
 };

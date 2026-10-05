@@ -8,8 +8,8 @@ const COURSE_UNITS = [
   { id: "sub-30", title: "Sub-30", units: 7, optional: 0 },
   { id: "sub-20", title: "Sub-20", units: 13, optional: 2 },
   { id: "sub-15", title: "Sub-15", units: 18, optional: 3 },
-  { id: "sub-12", title: "Sub-12", units: 10, optional: 1 },
-  { id: "sub-10", title: "Sub-10", units: 6, optional: 1 },
+  { id: "sub-12", title: "Sub-12", units: 14, optional: 1 },
+  { id: "sub-10", title: "Sub-10", units: 11, optional: 2 },
 ];
 
 const unitSections = (page: Page) =>
