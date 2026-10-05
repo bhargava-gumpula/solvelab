@@ -4,6 +4,7 @@ import { MotionConfig } from "motion/react";
 import { AppearanceProvider } from "@/components/appearance/appearance-provider";
 import { AppearanceSync } from "@/components/appearance/appearance-sync";
 import { AuthProvider } from "@/components/auth/auth-provider";
+import { DesktopSignInLink } from "@/components/auth/desktop-sign-in-link";
 import { SignInReturn } from "@/components/auth/sign-in-return";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -22,6 +23,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <TooltipProvider delayDuration={250}>
           <AuthProvider>
             <SignInReturn />
+            <DesktopSignInLink />
             <StorageProvider>
               <AppearanceSync />
               <TrainingDataSync />
