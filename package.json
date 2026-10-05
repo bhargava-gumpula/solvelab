@@ -19,6 +19,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:app": "node scripts/desktop-smoke.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "validate": "npm run typecheck && npm run lint && npm run format:check && npm test && npm run build",

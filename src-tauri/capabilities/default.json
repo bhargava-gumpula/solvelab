@@ -1,11 +1,12 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Main window: core defaults, sign-in deep link, https links in the system browser",
+  "description": "Main window only: the sign-in deep link (read the launch link, listen for new ones) and https links in the system browser. No file system, shell or window APIs.",
   "windows": ["main"],
   "permissions": [
-    "core:default",
-    "deep-link:default",
+    "core:event:allow-listen",
+    "core:event:allow-unlisten",
+    "deep-link:allow-get-current",
     {
       "identifier": "opener:allow-open-url",
       "allow": [{ "url": "https://*" }]
