@@ -1,0 +1,162 @@
+{
+  "id": "sub45-consistency",
+  "description": "Sub-45: consistency is the weak part (half the solves are fine, half are disasters).",
+  "profile": {
+    "goal": "sub30",
+    "averageMs": 36000,
+    "courseId": "sub-30",
+    "intro": {
+      "average": "30-45",
+      "slowParts": ["consistency"],
+      "pll": "some",
+      "oll": "two-look"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 5200,
+        "range": [4620, 5780],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 710,
+        "range": [560, 860],
+        "samples": 10,
+        "previous": 800
+      },
+      "cross_to_f2l": {
+        "value": 1340,
+        "range": [1090, 1590],
+        "samples": 10,
+        "previous": 1500
+      },
+      "f2l": {
+        "value": 18650,
+        "range": [16590, 20710],
+        "samples": 10,
+        "previous": 20890
+      },
+      "pair_speed": {
+        "value": 3560,
+        "range": [3170, 3950],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 2870,
+        "range": [2330, 3410],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 1000,
+        "range": [810, 1190],
+        "samples": 10
+      },
+      "oll": {
+        "value": 4260,
+        "range": [3790, 4730],
+        "samples": 10,
+        "previous": 4770
+      },
+      "oll_algorithms": {
+        "value": 0.25,
+        "range": [0.11, 0.39],
+        "samples": 10,
+        "previous": 0.28
+      },
+      "oll_to_pll": {
+        "value": 1020,
+        "range": [830, 1210],
+        "samples": 10
+      },
+      "pll": {
+        "value": 4090,
+        "range": [3640, 4540],
+        "samples": 10,
+        "previous": 4580
+      },
+      "pll_algorithms": {
+        "value": 0.27,
+        "range": [0.13, 0.41000000000000003],
+        "samples": 10,
+        "previous": 0.3
+      },
+      "full_solve": {
+        "value": 36000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.218,
+        "range": [0.196, 0.24],
+        "samples": 50,
+        "previous": 0.216
+      },
+      "turning_speed": {
+        "value": 6.300000000000001,
+        "range": [5.9, 6.7],
+        "samples": 10,
+        "previous": 5.6000000000000005
+      }
+    },
+    "picks": [
+      {
+        "id": "consistency",
+        "title": "Fewer disasters",
+        "reason": "Consistency is furthest from your goal"
+      },
+      {
+        "id": "pll-algorithms",
+        "title": "Learning full PLL",
+        "reason": "Written for around 45 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "consistency",
+    "refs": ["consistency", "consistency", "practice-plan"],
+    "words": ["consisten", "bad solves", "variation", "steady", "disaster", "spread"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-full-oll",
+      "why": "Stay on 2-look OLL until the last layer is clearly the biggest leak.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Half my solves are fine and half are disasters.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

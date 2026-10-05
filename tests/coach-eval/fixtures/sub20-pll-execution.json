@@ -1,0 +1,161 @@
+{
+  "id": "sub20-pll-execution",
+  "description": "Sub-20: PLL execution is the weak part, with three slow PLL cases in the recognition drill.",
+  "profile": {
+    "goal": "sub15",
+    "averageMs": 19000,
+    "courseId": "sub-15",
+    "intro": {
+      "average": "15-20",
+      "slowParts": ["pll"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 2240,
+        "range": [1990, 2490],
+        "samples": 10,
+        "previous": 2510
+      },
+      "cross_planning": {
+        "value": 320,
+        "range": [170, 470],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 710,
+        "range": [560, 860],
+        "samples": 10,
+        "previous": 800
+      },
+      "f2l": {
+        "value": 8900,
+        "range": [7920, 9880],
+        "samples": 10,
+        "previous": 9970
+      },
+      "pair_speed": {
+        "value": 2010,
+        "range": [1790, 2230],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 1380,
+        "range": [1120, 1640],
+        "samples": 10,
+        "previous": 1550
+      },
+      "f2l_to_oll": {
+        "value": 570,
+        "range": [420, 720],
+        "samples": 10,
+        "previous": 640
+      },
+      "oll": {
+        "value": 2530,
+        "range": [2250, 2810],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.16,
+        "range": [0.05, 0.27],
+        "samples": 10,
+        "previous": 0.18
+      },
+      "oll_to_pll": {
+        "value": 510,
+        "range": [360, 660],
+        "samples": 10,
+        "previous": 570
+      },
+      "pll": {
+        "value": 4900,
+        "range": [4360, 5440],
+        "samples": 10,
+        "previous": 4890
+      },
+      "pll_algorithms": {
+        "value": 0.16,
+        "range": [0.04, 0.28],
+        "samples": 10,
+        "previous": 0.18
+      },
+      "full_solve": {
+        "value": 19000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.094,
+        "range": [0.085, 0.10300000000000001],
+        "samples": 50,
+        "previous": 0.105
+      },
+      "turning_speed": {
+        "value": 8.4,
+        "range": [7.9, 8.9],
+        "samples": 10,
+        "previous": 7.5
+      }
+    },
+    "weakCases": [
+      {
+        "set": "pll",
+        "known": 17,
+        "total": 21,
+        "medianMs": 1900,
+        "slowest": ["Gb", "Nb", "Ra"]
+      }
+    ],
+    "picks": [
+      {
+        "id": "pll-execution",
+        "title": "Faster PLL",
+        "reason": "PLL is furthest from your goal"
+      },
+      {
+        "id": "stuck-at-fifteen",
+        "title": "Stuck at 15",
+        "reason": "Written for around 20 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "pll",
+    "refs": ["pll-execution", "pll_only", "pll-execution", "pll_only"],
+    "words": ["pll"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Where is my time going?",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "id": "sub15-slow-hands",
+  "description": "Sub-15: turning speed is the weak part.",
+  "profile": {
+    "goal": "sub12",
+    "averageMs": 14000,
+    "courseId": "sub-12",
+    "intro": {
+      "average": "12-15",
+      "slowParts": ["turning"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1740,
+        "range": [1550, 1930],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 190,
+        "range": [40, 340],
+        "samples": 10,
+        "previous": 210
+      },
+      "cross_to_f2l": {
+        "value": 610,
+        "range": [460, 760],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 6280,
+        "range": [5580, 6980],
+        "samples": 10,
+        "previous": 7030
+      },
+      "pair_speed": {
+        "value": 1320,
+        "range": [1170, 1470],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 990,
+        "range": [800, 1180],
+        "samples": 10,
+        "previous": 1110
+      },
+      "f2l_to_oll": {
+        "value": 390,
+        "range": [240, 540],
+        "samples": 10
+      },
+      "oll": {
+        "value": 2090,
+        "range": [1860, 2320],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.12,
+        "range": [0.02, 0.22],
+        "samples": 10,
+        "previous": 0.13
+      },
+      "oll_to_pll": {
+        "value": 420,
+        "range": [270, 570],
+        "samples": 10,
+        "previous": 470
+      },
+      "pll": {
+        "value": 2500,
+        "range": [2220, 2780],
+        "samples": 10,
+        "previous": 2800
+      },
+      "pll_algorithms": {
+        "value": 0.1,
+        "range": [0, 0.2],
+        "samples": 10,
+        "previous": 0.11
+      },
+      "full_solve": {
+        "value": 14000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.084,
+        "range": [0.076, 0.092],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 6.9,
+        "range": [6.5, 7.300000000000001],
+        "samples": 10,
+        "previous": 7
+      }
+    },
+    "picks": [
+      {
+        "id": "turning-technique",
+        "title": "Hands that do not get in the way",
+        "reason": "Turning speed is furthest from your goal"
+      },
+      {
+        "id": "cross-for-f2l",
+        "title": "A cross built for F2L",
+        "reason": "Written for around 15 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "turning_speed",
+    "refs": ["turning-technique", "tps_test", "turning-technique", "speed-you-can-use"],
+    "words": ["turning", "tps", "hands", "speed"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-new-cube",
+      "why": "Hardware is not the leak at this level.",
+      "pattern": "\\b(?:buy|get|upgrade to|switch to) (?:a |an )?(?:new|better|faster|different)[^.]{0,20}\\b(?:cube|puzzle)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "I feel like my hands are just slow.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

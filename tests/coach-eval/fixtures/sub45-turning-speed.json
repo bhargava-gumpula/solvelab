@@ -1,0 +1,165 @@
+{
+  "id": "sub45-turning-speed",
+  "description": "Sub-45: turning speed is the weak part, and the user asks whether to just turn faster.",
+  "profile": {
+    "goal": "sub30",
+    "averageMs": 38000,
+    "courseId": "sub-30",
+    "intro": {
+      "average": "30-45",
+      "slowParts": ["turning"],
+      "pll": "some",
+      "oll": "two-look"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 6220,
+        "range": [5530, 6910],
+        "samples": 10,
+        "previous": 6970
+      },
+      "cross_planning": {
+        "value": 660,
+        "range": [510, 810],
+        "samples": 10,
+        "previous": 740
+      },
+      "cross_to_f2l": {
+        "value": 1560,
+        "range": [1260, 1860],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 17620,
+        "range": [15670, 19570],
+        "samples": 10,
+        "previous": 19730
+      },
+      "pair_speed": {
+        "value": 3760,
+        "range": [3340, 4180],
+        "samples": 10,
+        "previous": 4210
+      },
+      "lookahead": {
+        "value": 3100,
+        "range": [2510, 3690],
+        "samples": 10,
+        "previous": 3470
+      },
+      "f2l_to_oll": {
+        "value": 1030,
+        "range": [830, 1230],
+        "samples": 10,
+        "previous": 1150
+      },
+      "oll": {
+        "value": 4940,
+        "range": [4390, 5490],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.27,
+        "range": [0.13, 0.41000000000000003],
+        "samples": 10,
+        "previous": 0.3
+      },
+      "oll_to_pll": {
+        "value": 1250,
+        "range": [1010, 1490],
+        "samples": 10
+      },
+      "pll": {
+        "value": 4190,
+        "range": [3730, 4650],
+        "samples": 10,
+        "previous": 4690
+      },
+      "pll_algorithms": {
+        "value": 0.28,
+        "range": [0.14, 0.42],
+        "samples": 10,
+        "previous": 0.31
+      },
+      "full_solve": {
+        "value": 38000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.108,
+        "range": [0.097, 0.11900000000000001],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 3.8000000000000003,
+        "range": [3.6, 4],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "turning-technique",
+        "title": "Hands that do not get in the way",
+        "reason": "Turning speed is furthest from your goal"
+      },
+      {
+        "id": "pll-algorithms",
+        "title": "Learning full PLL",
+        "reason": "Written for around 45 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "turning_speed",
+    "refs": ["turning-technique", "tps_test", "turning-technique"],
+    "words": ["turning", "tps", "hands", "speed"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-full-oll",
+      "why": "Stay on 2-look OLL until the last layer is clearly the biggest leak.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Should I just turn faster?",
+      "checksWeakest": true,
+      "expectRefs": true,
+      "mustMention": [
+        ["control", "smooth", "technique", "regrip", "trigger", "fingertrick", "wasted"]
+      ]
+    }
+  ]
+}

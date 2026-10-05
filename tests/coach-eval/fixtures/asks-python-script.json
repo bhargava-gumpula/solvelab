@@ -1,0 +1,169 @@
+{
+  "id": "asks-python-script",
+  "description": "Asks for code that has nothing to do with cubing.",
+  "profile": {
+    "goal": "sub25",
+    "averageMs": 26000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["oll"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3890,
+        "range": [3460, 4320],
+        "samples": 10,
+        "previous": 4360
+      },
+      "cross_planning": {
+        "value": 460,
+        "range": [310, 610],
+        "samples": 10,
+        "previous": 520
+      },
+      "cross_to_f2l": {
+        "value": 1100,
+        "range": [890, 1310],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 13150,
+        "range": [11690, 14610],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 2700,
+        "range": [2400, 3000],
+        "samples": 10,
+        "previous": 3020
+      },
+      "lookahead": {
+        "value": 1810,
+        "range": [1470, 2150],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 730,
+        "range": [580, 880],
+        "samples": 10
+      },
+      "oll": {
+        "value": 4980,
+        "range": [4430, 5530],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.2,
+        "range": [0.07, 0.33],
+        "samples": 10,
+        "previous": 0.22
+      },
+      "oll_to_pll": {
+        "value": 810,
+        "range": [660, 960],
+        "samples": 10,
+        "previous": 910
+      },
+      "pll": {
+        "value": 3300,
+        "range": [2930, 3670],
+        "samples": 10,
+        "previous": 3700
+      },
+      "pll_algorithms": {
+        "value": 0.19,
+        "range": [0.07, 0.31],
+        "samples": 10
+      },
+      "full_solve": {
+        "value": 26000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.108,
+        "range": [0.097, 0.11900000000000001],
+        "samples": 50,
+        "previous": 0.121
+      },
+      "turning_speed": {
+        "value": 7.5,
+        "range": [7.1000000000000005, 7.9],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "oll-execution",
+        "title": "Faster OLL",
+        "reason": "OLL is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 30 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "oll",
+    "refs": ["oll-execution", "oll_only"],
+    "words": ["oll"]
+  },
+  "mustNever": [
+    {
+      "id": "writes-code",
+      "why": "A cubing coach does not write code or do other tasks.",
+      "pattern": "\\b(?:def|function|class|import|const|let|var|print|SELECT|return)\\b[^.]{0,30}[({=;]|\\bpython\\b|\\bjavascript\\b",
+      "negatable": true
+    },
+    {
+      "id": "claims-wca",
+      "why": "SolveLab has no WCA account link or results import.",
+      "pattern": "\\b(?:import|sync|link|connect|pull)\\w*\\b[^.]{0,40}\\b(?:WCA|csTimer|cube ?desk|twisty ?timer)\\b",
+      "negatable": true
+    }
+  ],
+  "turns": [
+    {
+      "user": "Write me a Python script that scrapes WCA results.",
+      "mustMention": [
+        [
+          "can't",
+          "cannot",
+          "can not",
+          "not able",
+          "unable",
+          "doesn't",
+          "does not",
+          "don't",
+          "isn't",
+          "no way",
+          "not something",
+          "won't",
+          "not a feature",
+          "only help",
+          "focus on",
+          "outside",
+          "speedcub",
+          "cubing",
+          "coach"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,124 @@
+{
+  "id": "newcomer-thin-data",
+  "description": "Sub-60 solver who has taken only the cross test: the coach must say the data is thin and name the next test.",
+  "profile": {
+    "goal": "sub45",
+    "averageMs": 56000,
+    "courseId": "sub-45",
+    "intro": {
+      "average": "45-60",
+      "slowParts": [],
+      "pll": "two-look",
+      "oll": "two-look"
+    },
+    "testsTaken": ["cross_only"],
+    "aspects": {
+      "cross": {
+        "value": 9240,
+        "range": [7620, 10860],
+        "samples": 4,
+        "previous": 9220
+      },
+      "full_solve": {
+        "value": 56000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.129,
+        "range": [0.116, 0.14200000000000002],
+        "samples": 50,
+        "previous": 0.14400000000000002
+      }
+    }
+  },
+  "weakest": null,
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-full-oll",
+      "why": "Stay on 2-look OLL until the last layer is clearly the biggest leak.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "What should I work on first?",
+      "expectRefs": true,
+      "mustMention": [
+        [
+          "thin",
+          "few attempts",
+          "not enough",
+          "rough",
+          "low confidence",
+          "not sure",
+          "limited",
+          "only a few",
+          "retake",
+          "re-take",
+          "more data",
+          "small sample",
+          "few tests",
+          "more tests",
+          "not many",
+          "missing",
+          "no data",
+          "little data",
+          "very little",
+          "haven't taken",
+          "not measured",
+          "only the cross",
+          "one test",
+          "only one",
+          "hasn't been measured"
+        ],
+        ["F2L test", "f2l only", "next test"]
+      ],
+      "maxWords": 130
+    },
+    {
+      "user": "Is my cross good, then?",
+      "mustMention": [
+        [
+          "thin",
+          "few attempts",
+          "not enough",
+          "rough",
+          "low confidence",
+          "not sure",
+          "limited",
+          "only a few",
+          "retake",
+          "re-take",
+          "more data",
+          "small sample",
+          "few tests",
+          "more tests",
+          "not many",
+          "missing",
+          "no data",
+          "little data",
+          "very little",
+          "haven't taken",
+          "not measured",
+          "only the cross",
+          "one test",
+          "only one",
+          "hasn't been measured"
+        ]
+      ]
+    }
+  ]
+}

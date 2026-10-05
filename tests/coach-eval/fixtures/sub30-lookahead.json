@@ -1,0 +1,161 @@
+{
+  "id": "sub30-lookahead",
+  "description": "Sub-30: lookahead is the weak part.",
+  "profile": {
+    "goal": "sub25",
+    "averageMs": 29000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["pauses"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 4540,
+        "range": [4040, 5040],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 520,
+        "range": [370, 670],
+        "samples": 10,
+        "previous": 580
+      },
+      "cross_to_f2l": {
+        "value": 1270,
+        "range": [1030, 1510],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 15780,
+        "range": [14030, 17530],
+        "samples": 10,
+        "previous": 17670
+      },
+      "pair_speed": {
+        "value": 2860,
+        "range": [2540, 3180],
+        "samples": 10,
+        "previous": 3200
+      },
+      "lookahead": {
+        "value": 4420,
+        "range": [3580, 5260],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 840,
+        "range": [680, 1000],
+        "samples": 10,
+        "previous": 940
+      },
+      "oll": {
+        "value": 3260,
+        "range": [2900, 3620],
+        "samples": 10,
+        "previous": 3650
+      },
+      "oll_algorithms": {
+        "value": 0.25,
+        "range": [0.11, 0.39],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 860,
+        "range": [700, 1020],
+        "samples": 10,
+        "previous": 960
+      },
+      "pll": {
+        "value": 3810,
+        "range": [3390, 4230],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.22,
+        "range": [0.09, 0.35000000000000003],
+        "samples": 10,
+        "previous": 0.25
+      },
+      "full_solve": {
+        "value": 29000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.117,
+        "range": [0.105, 0.129],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 7.5,
+        "range": [7, 8],
+        "samples": 10,
+        "previous": 6.7
+      }
+    },
+    "picks": [
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Lookahead is furthest from your goal"
+      },
+      {
+        "id": "sub-20-budget",
+        "title": "Where 20 seconds goes",
+        "reason": "Written for around 30 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "lookahead",
+    "refs": ["lookahead", "f2l_only", "last_slot", "first-lookahead"],
+    "words": ["lookahead", "look ahead", "next pair", "pause", "pausing"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "chases-tps",
+      "why": "At this level control matters more than raw turning speed.",
+      "pattern": "\\b(?:turn faster|increase your TPS|raise your TPS|improve your TPS|speed up your turning|chase (?:a )?(?:higher )?TPS)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "I keep pausing in F2L to find the next pair.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

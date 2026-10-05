@@ -1,0 +1,177 @@
+{
+  "id": "sub30-join-after-cross",
+  "description": "Sub-30: the pause between the cross and the first pair is the weak part.",
+  "profile": {
+    "goal": "sub25",
+    "averageMs": 27000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["into-f2l"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3770,
+        "range": [3350, 4190],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 480,
+        "range": [330, 630],
+        "samples": 10,
+        "previous": 540
+      },
+      "cross_to_f2l": {
+        "value": 2480,
+        "range": [2010, 2950],
+        "samples": 10,
+        "previous": 2460
+      },
+      "f2l": {
+        "value": 12740,
+        "range": [11330, 14150],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 3040,
+        "range": [2700, 3380],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 2090,
+        "range": [1690, 2490],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 740,
+        "range": [590, 890],
+        "samples": 10,
+        "previous": 830
+      },
+      "oll": {
+        "value": 3360,
+        "range": [2990, 3730],
+        "samples": 10,
+        "previous": 3760
+      },
+      "oll_algorithms": {
+        "value": 0.24,
+        "range": [0.11, 0.37],
+        "samples": 10,
+        "previous": 0.27
+      },
+      "oll_to_pll": {
+        "value": 770,
+        "range": [620, 920],
+        "samples": 10
+      },
+      "pll": {
+        "value": 3310,
+        "range": [2940, 3680],
+        "samples": 10,
+        "previous": 3710
+      },
+      "pll_algorithms": {
+        "value": 0.23,
+        "range": [0.1, 0.36],
+        "samples": 10,
+        "previous": 0.26
+      },
+      "full_solve": {
+        "value": 27000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.099,
+        "range": [0.089, 0.109],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 7.2,
+        "range": [6.800000000000001, 7.6000000000000005],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "cross-into-f2l",
+        "title": "The join after the cross",
+        "reason": "Cross → F2L is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 30 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "cross_to_f2l",
+    "refs": [
+      "cross-into-f2l",
+      "cross_only",
+      "f2l_only",
+      "cross_f2l",
+      "cross-into-f2l",
+      "cross_f2l"
+    ],
+    "words": [
+      "after the cross",
+      "cross to f2l",
+      "cross → f2l",
+      "into f2l",
+      "first pair",
+      "join",
+      "transition",
+      "start f2l",
+      "starting f2l"
+    ]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "chases-tps",
+      "why": "At this level control matters more than raw turning speed.",
+      "pattern": "\\b(?:turn faster|increase your TPS|raise your TPS|improve your TPS|speed up your turning|chase (?:a )?(?:higher )?TPS)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "I always pause for a second after my cross.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

@@ -1,0 +1,192 @@
+{
+  "id": "live-follow-ups-sub30",
+  "description": "Sub-30, three turns: plan, a worry about inspection, then 'what should I stop doing?'.",
+  "profile": {
+    "goal": "sub25",
+    "averageMs": 29500,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["inspection"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 4760,
+        "range": [4230, 5290],
+        "samples": 10,
+        "previous": 5330
+      },
+      "cross_planning": {
+        "value": 1170,
+        "range": [950, 1390],
+        "samples": 10,
+        "previous": 1160
+      },
+      "cross_to_f2l": {
+        "value": 1150,
+        "range": [930, 1370],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 13540,
+        "range": [12040, 15040],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 3010,
+        "range": [2680, 3340],
+        "samples": 10,
+        "previous": 3370
+      },
+      "lookahead": {
+        "value": 2090,
+        "range": [1690, 2490],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 950,
+        "range": [770, 1130],
+        "samples": 10
+      },
+      "oll": {
+        "value": 3740,
+        "range": [3330, 4150],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.24,
+        "range": [0.11, 0.37],
+        "samples": 10,
+        "previous": 0.27
+      },
+      "oll_to_pll": {
+        "value": 820,
+        "range": [660, 980],
+        "samples": 10,
+        "previous": 920
+      },
+      "pll": {
+        "value": 3610,
+        "range": [3210, 4010],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.25,
+        "range": [0.11, 0.39],
+        "samples": 10,
+        "previous": 0.28
+      },
+      "full_solve": {
+        "value": 29500,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.11900000000000001,
+        "range": [0.107, 0.131],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 7.300000000000001,
+        "range": [6.9, 7.7],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "inspection",
+        "title": "Using all fifteen seconds",
+        "reason": "Inspection planning is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 30 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "cross_planning",
+    "refs": ["inspection", "cross_only", "cross_unlimited", "inspection", "cross_unlimited"],
+    "words": ["inspection", "plan"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "chases-tps",
+      "why": "At this level control matters more than raw turning speed.",
+      "pattern": "\\b(?:turn faster|increase your TPS|raise your TPS|improve your TPS|speed up your turning|chase (?:a )?(?:higher )?TPS)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-full-oll",
+      "why": "Stay on 2-look OLL until the last layer is clearly the biggest leak.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "What's the most useful thing I can do this week?",
+      "checksWeakest": true,
+      "expectRefs": true
+    },
+    {
+      "user": "I only manage about eight seconds of planning before I start. Is that bad?",
+      "mustMention": [["inspection", "fifteen", "15", "plan"]]
+    },
+    {
+      "user": "What should I stop doing at my level?",
+      "mustMention": [
+        [
+          "not yet",
+          "for now",
+          "later",
+          "wait",
+          "skip",
+          "hold off",
+          "optional",
+          "not necessary",
+          "don't need",
+          "no need",
+          "can wait",
+          "leave",
+          "sub-10",
+          "sub 10",
+          "stop",
+          "avoid"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "id": "sub25-inspection",
+  "description": "Sub-25: inspection planning is the weak part; the user asks whether all 15 seconds are needed.",
+  "profile": {
+    "goal": "sub20",
+    "averageMs": 24000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["inspection"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3280,
+        "range": [2920, 3640],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 960,
+        "range": [780, 1140],
+        "samples": 10,
+        "previous": 950
+      },
+      "cross_to_f2l": {
+        "value": 1020,
+        "range": [830, 1210],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 12400,
+        "range": [11030, 13770],
+        "samples": 10,
+        "previous": 13890
+      },
+      "pair_speed": {
+        "value": 2470,
+        "range": [2200, 2740],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 1700,
+        "range": [1380, 2020],
+        "samples": 10,
+        "previous": 1900
+      },
+      "f2l_to_oll": {
+        "value": 670,
+        "range": [520, 820],
+        "samples": 10
+      },
+      "oll": {
+        "value": 3150,
+        "range": [2800, 3500],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.18,
+        "range": [0.06, 0.3],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 670,
+        "range": [520, 820],
+        "samples": 10,
+        "previous": 750
+      },
+      "pll": {
+        "value": 3370,
+        "range": [3000, 3740],
+        "samples": 10,
+        "previous": 3770
+      },
+      "pll_algorithms": {
+        "value": 0.17,
+        "range": [0.05, 0.29],
+        "samples": 10,
+        "previous": 0.19
+      },
+      "full_solve": {
+        "value": 24000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.096,
+        "range": [0.08600000000000001, 0.106],
+        "samples": 50,
+        "previous": 0.108
+      },
+      "turning_speed": {
+        "value": 7.800000000000001,
+        "range": [7.300000000000001, 8.3],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "inspection",
+        "title": "Using all fifteen seconds",
+        "reason": "Inspection planning is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 25 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "cross_planning",
+    "refs": ["inspection", "cross_only", "cross_unlimited", "inspection", "cross_unlimited"],
+    "words": ["inspection", "plan"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Do I really need all fifteen seconds of inspection?",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

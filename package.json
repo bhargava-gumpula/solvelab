@@ -30,7 +30,8 @@
     "migrate:import": "node ml/scripts/run.mjs scripts/migrate/import-supabase.ts",
     "supabase:smoke": "sh -c 'set -a; . ./.env.supabase.local; set +a; exec node ml/scripts/run.mjs scripts/supabase-smoke.ts'",
     "ml:calibrate": "node ml/scripts/run.mjs ml/train/calibrate.ts",
-    "ml:sample": "node ml/scripts/run.mjs ml/train/sample-cuber.ts"
+    "ml:sample": "node ml/scripts/run.mjs ml/train/sample-cuber.ts",
+    "coach:eval": "node ml/scripts/run.mjs scripts/coach-eval.ts"
   },
   "dependencies": {
     "@number-flow/react": "^0.6.2",

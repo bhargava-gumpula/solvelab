@@ -1,0 +1,173 @@
+{
+  "id": "sub20-asks-alg-for-oll",
+  "description": "Sub-20: asks for an OLL algorithm; no moves, point to the algorithm bank.",
+  "profile": {
+    "goal": "sub15",
+    "averageMs": 18800,
+    "courseId": "sub-15",
+    "intro": {
+      "average": "15-20",
+      "slowParts": ["oll"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 2480,
+        "range": [2210, 2750],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 270,
+        "range": [120, 420],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 710,
+        "range": [560, 860],
+        "samples": 10,
+        "previous": 800
+      },
+      "f2l": {
+        "value": 9120,
+        "range": [8110, 10130],
+        "samples": 10,
+        "previous": 10210
+      },
+      "pair_speed": {
+        "value": 1890,
+        "range": [1680, 2100],
+        "samples": 10,
+        "previous": 2120
+      },
+      "lookahead": {
+        "value": 1330,
+        "range": [1080, 1580],
+        "samples": 10,
+        "previous": 1490
+      },
+      "f2l_to_oll": {
+        "value": 590,
+        "range": [440, 740],
+        "samples": 10,
+        "previous": 660
+      },
+      "oll": {
+        "value": 2280,
+        "range": [2030, 2530],
+        "samples": 10,
+        "previous": 2550
+      },
+      "oll_algorithms": {
+        "value": 0.37,
+        "range": [0.22, 0.52],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 570,
+        "range": [420, 720],
+        "samples": 10,
+        "previous": 640
+      },
+      "pll": {
+        "value": 2680,
+        "range": [2380, 2980],
+        "samples": 10,
+        "previous": 3000
+      },
+      "pll_algorithms": {
+        "value": 0.13,
+        "range": [0.02, 0.24],
+        "samples": 10
+      },
+      "full_solve": {
+        "value": 18800,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.099,
+        "range": [0.089, 0.109],
+        "samples": 50,
+        "previous": 0.111
+      },
+      "turning_speed": {
+        "value": 8.6,
+        "range": [8.1, 9.1],
+        "samples": 10
+      }
+    },
+    "weakCases": [
+      {
+        "set": "oll",
+        "known": 38,
+        "total": 57,
+        "medianMs": 2600,
+        "slowest": ["OLL 21", "OLL 33", "OLL 51"],
+        "missed": []
+      }
+    ],
+    "picks": [
+      {
+        "id": "oll-algorithms",
+        "title": "Learning OLL without drowning",
+        "reason": "OLL algorithms is furthest from your goal"
+      },
+      {
+        "id": "stuck-at-fifteen",
+        "title": "Stuck at 15",
+        "reason": "Written for around 20 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "oll_algorithms",
+    "refs": ["oll-algorithms", "oll_only", "oll-algorithms", "oll_only"],
+    "words": ["oll", "algorithm"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Give me the algorithm for OLL 21, the H.",
+      "mustMention": [
+        [
+          "algorithm bank",
+          "algorithms page",
+          "algorithms section",
+          "algorithms tab",
+          "algorithm library",
+          "algorithms area",
+          "algorithms in solvelab",
+          "solvelab's algorithms",
+          "algorithms screen",
+          "algorithms list",
+          "algorithm sets"
+        ]
+      ]
+    }
+  ]
+}

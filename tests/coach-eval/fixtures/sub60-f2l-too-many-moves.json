@@ -1,0 +1,175 @@
+{
+  "id": "sub60-f2l-too-many-moves",
+  "description": "Sub-60: F2L is far behind the goal; the user complains about it.",
+  "profile": {
+    "goal": "sub45",
+    "averageMs": 54000,
+    "courseId": "sub-45",
+    "intro": {
+      "average": "45-60",
+      "slowParts": ["pairs"],
+      "pll": "two-look",
+      "oll": "two-look"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 8450,
+        "range": [7510, 9390],
+        "samples": 10,
+        "previous": 9460
+      },
+      "cross_planning": {
+        "value": 920,
+        "range": [750, 1090],
+        "samples": 10,
+        "previous": 1030
+      },
+      "cross_to_f2l": {
+        "value": 2330,
+        "range": [1890, 2770],
+        "samples": 10,
+        "previous": 2610
+      },
+      "f2l": {
+        "value": 44060,
+        "range": [39180, 48940],
+        "samples": 10,
+        "previous": 44000
+      },
+      "pair_speed": {
+        "value": 6090,
+        "range": [5420, 6760],
+        "samples": 10,
+        "previous": 6820
+      },
+      "lookahead": {
+        "value": 3910,
+        "range": [3170, 4650],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 1600,
+        "range": [1300, 1900],
+        "samples": 10
+      },
+      "oll": {
+        "value": 6990,
+        "range": [6220, 7760],
+        "samples": 10,
+        "previous": 7830
+      },
+      "oll_algorithms": {
+        "value": 0.28,
+        "range": [0.14, 0.42],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 1740,
+        "range": [1410, 2070],
+        "samples": 10,
+        "previous": 1950
+      },
+      "pll": {
+        "value": 5860,
+        "range": [5210, 6510],
+        "samples": 10,
+        "previous": 6560
+      },
+      "pll_algorithms": {
+        "value": 0.32,
+        "range": [0.17, 0.47000000000000003],
+        "samples": 10,
+        "previous": 0.36
+      },
+      "full_solve": {
+        "value": 54000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.137,
+        "range": [0.123, 0.151],
+        "samples": 50,
+        "previous": 0.153
+      },
+      "turning_speed": {
+        "value": 5,
+        "range": [4.7, 5.300000000000001],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "f2l-efficiency",
+        "title": "F2L in fewer moves",
+        "reason": "F2L is furthest from your goal"
+      },
+      {
+        "id": "pair-recognition",
+        "title": "Seeing a pair instantly",
+        "reason": "Written for around a minute"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "f2l",
+    "refs": [
+      "f2l-efficiency",
+      "f2l_only",
+      "choosing-the-next-pair",
+      "stuck-pieces",
+      "pair-recognition"
+    ],
+    "words": ["f2l", "pairs"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-full-oll",
+      "why": "Stay on 2-look OLL until the last layer is clearly the biggest leak.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "chases-tps",
+      "why": "At this level control matters more than raw turning speed.",
+      "pattern": "\\b(?:turn faster|increase your TPS|raise your TPS|improve your TPS|speed up your turning|chase (?:a )?(?:higher )?TPS)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "My F2L takes forever and I do a lot of moves. What do I fix?",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

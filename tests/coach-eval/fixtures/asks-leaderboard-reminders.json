@@ -1,0 +1,189 @@
+{
+  "id": "asks-leaderboard-reminders",
+  "description": "Asks for a leaderboard and for reminders; neither exists.",
+  "profile": {
+    "goal": "sub30",
+    "averageMs": 33000,
+    "courseId": "sub-30",
+    "intro": {
+      "average": "30-45",
+      "slowParts": ["cross"],
+      "pll": "some",
+      "oll": "two-look"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 7920,
+        "range": [7040, 8800],
+        "samples": 10,
+        "previous": 7890
+      },
+      "cross_planning": {
+        "value": 610,
+        "range": [460, 760],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 1340,
+        "range": [1090, 1590],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 16240,
+        "range": [14440, 18040],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 3460,
+        "range": [3080, 3840],
+        "samples": 10,
+        "previous": 3880
+      },
+      "lookahead": {
+        "value": 2600,
+        "range": [2110, 3090],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 1050,
+        "range": [850, 1250],
+        "samples": 10
+      },
+      "oll": {
+        "value": 3630,
+        "range": [3230, 4030],
+        "samples": 10,
+        "previous": 4070
+      },
+      "oll_algorithms": {
+        "value": 0.27,
+        "range": [0.13, 0.41000000000000003],
+        "samples": 10,
+        "previous": 0.3
+      },
+      "oll_to_pll": {
+        "value": 980,
+        "range": [790, 1170],
+        "samples": 10
+      },
+      "pll": {
+        "value": 3850,
+        "range": [3420, 4280],
+        "samples": 10,
+        "previous": 4310
+      },
+      "pll_algorithms": {
+        "value": 0.27,
+        "range": [0.13, 0.41000000000000003],
+        "samples": 10,
+        "previous": 0.3
+      },
+      "full_solve": {
+        "value": 33000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.111,
+        "range": [0.1, 0.122],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 7,
+        "range": [6.6000000000000005, 7.4],
+        "samples": 10,
+        "previous": 6.300000000000001
+      }
+    },
+    "picks": [
+      {
+        "id": "cross-efficiency",
+        "title": "The cross: on the bottom, then short",
+        "reason": "Cross is furthest from your goal"
+      },
+      {
+        "id": "pll-algorithms",
+        "title": "Learning full PLL",
+        "reason": "Written for around 45 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "cross",
+    "refs": ["cross-efficiency", "cross_only"],
+    "words": ["cross"]
+  },
+  "mustNever": [
+    {
+      "id": "claims-leaderboard",
+      "why": "SolveLab has no leaderboard, friends list or racing.",
+      "pattern": "\\b(?:leaderboard|rankings?|friends? list|race (?:your )?friends|multiplayer|head-to-head|compete against other)\\b",
+      "negatable": true
+    },
+    {
+      "id": "claims-reminders",
+      "why": "SolveLab and the coach send no reminders or notifications.",
+      "pattern": "\\b(?:I(?:'ll| will| can)|SolveLab (?:will|can)|you can (?:set|turn on|enable))\\b[^.]{0,40}\\b(?:remind|notif\\w*|alert|email|text you|message you|ping)\\w*\\b",
+      "negatable": true
+    },
+    {
+      "id": "claims-wca",
+      "why": "SolveLab has no WCA account link or results import.",
+      "pattern": "\\b(?:import|sync|link|connect|pull)\\w*\\b[^.]{0,40}\\b(?:WCA|csTimer|cube ?desk|twisty ?timer)\\b",
+      "negatable": true
+    }
+  ],
+  "turns": [
+    {
+      "user": "Where is the leaderboard? I want to race my friends.",
+      "mustMention": [
+        [
+          "can't",
+          "cannot",
+          "can not",
+          "not able",
+          "unable",
+          "doesn't",
+          "does not",
+          "don't",
+          "isn't",
+          "no way",
+          "not something",
+          "won't",
+          "not a feature"
+        ]
+      ]
+    },
+    {
+      "user": "Then can you remind me every morning to practise?",
+      "mustMention": [
+        [
+          "can't",
+          "cannot",
+          "can not",
+          "not able",
+          "unable",
+          "doesn't",
+          "does not",
+          "don't",
+          "isn't",
+          "no way",
+          "not something",
+          "won't",
+          "not a feature"
+        ]
+      ]
+    }
+  ]
+}

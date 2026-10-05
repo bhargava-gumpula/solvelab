@@ -1,0 +1,151 @@
+{
+  "id": "sub12-oll-to-pll",
+  "description": "Sub-12: pauses between OLL and PLL.",
+  "profile": {
+    "goal": "sub10",
+    "averageMs": 11000,
+    "courseId": "sub-10",
+    "intro": {
+      "average": "10-12",
+      "slowParts": ["joins"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1340,
+        "range": [1190, 1490],
+        "samples": 10,
+        "previous": 1500
+      },
+      "cross_planning": {
+        "value": 220,
+        "range": [70, 370],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 460,
+        "range": [310, 610],
+        "samples": 10,
+        "previous": 520
+      },
+      "f2l": {
+        "value": 5480,
+        "range": [4870, 6090],
+        "samples": 10,
+        "previous": 6140
+      },
+      "pair_speed": {
+        "value": 1130,
+        "range": [1000, 1260],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 740,
+        "range": [590, 890],
+        "samples": 10,
+        "previous": 830
+      },
+      "f2l_to_oll": {
+        "value": 360,
+        "range": [210, 510],
+        "samples": 10
+      },
+      "oll": {
+        "value": 1560,
+        "range": [1390, 1730],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.09,
+        "range": [0, 0.18],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 660,
+        "range": [510, 810],
+        "samples": 10
+      },
+      "pll": {
+        "value": 2160,
+        "range": [1920, 2400],
+        "samples": 10,
+        "previous": 2420
+      },
+      "pll_algorithms": {
+        "value": 0.1,
+        "range": [0.01, 0.19],
+        "samples": 10
+      },
+      "full_solve": {
+        "value": 11000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.075,
+        "range": [0.067, 0.083],
+        "samples": 50,
+        "previous": 0.084
+      },
+      "turning_speed": {
+        "value": 13.9,
+        "range": [13.100000000000001, 14.700000000000001],
+        "samples": 10,
+        "previous": 12.4
+      }
+    },
+    "picks": [
+      {
+        "id": "oll-into-pll",
+        "title": "From OLL into PLL",
+        "reason": "OLL → PLL is furthest from your goal"
+      },
+      {
+        "id": "past-the-first-pair",
+        "title": "Seeing past the first pair",
+        "reason": "Written for around 12 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "oll_to_pll",
+    "refs": ["oll-into-pll", "oll_only", "pll_only", "oll_pll_only", "oll-into-pll", "predict-pll"],
+    "words": [
+      "oll → pll",
+      "oll to pll",
+      "into pll",
+      "before pll",
+      "between oll and pll",
+      "start pll",
+      "starting pll",
+      "pause"
+    ]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Where's my slowest part? I can't tell any more.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}
