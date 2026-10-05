@@ -64,6 +64,8 @@ interface Stated {
   text: string;
   /** Written as a cut-off or target ("until it drops below 1.86 s"): only a goal or a value may be one. */
   threshold: boolean;
+  /** Said of the inspection ("15 seconds of inspection"): the rule book's own numbers are allowed there and only there. */
+  inspection: boolean;
   /** A share of slow attempts read as a count of what they know ("you know 30% of OLL algorithms"): never backed, whatever the data says. */
   misread: boolean;
 }
@@ -79,6 +81,8 @@ const misread = (text: string, start: number, end: number) =>
 /** What comes before a number that is a cut-off or a target. */
 const THRESHOLD =
   /\b(?:below|under|until|over|above|beat|beats|reach|reaches|reaching|hit|hits|hitting|drops? (?:to|below|under)|gets? (?:to|below|under)|down to|less than|more than|faster than|slower than|at least|at most)\s+(?:[\w']+\s+){0,3}$/i;
+
+const INSPECTION = /\binspect/i;
 
 const STATED =
   /(?<![\w.])(\d+):(\d{2}(?:\.\d+)?)|(?<![A-Za-z0-9.])(\d+(?:\.\d+)?)(?:\s*(%|percent\b|ms\b|milliseconds?\b|(?:secs?|seconds?|s)(?![A-Za-z0-9])|turns\s*(?:\/|per)\s*(?:s|sec|second)\b|tps\b))?/gi;
@@ -102,6 +106,7 @@ export function statedNumbers(text: string): Stated[] {
         end,
         text: match[0],
         threshold: THRESHOLD.test(text.slice(Math.max(0, start - 40), start)),
+        inspection: INSPECTION.test(text.slice(Math.max(0, start - 50), end + 50)),
         misread: false,
       });
       continue;
@@ -125,6 +130,7 @@ export function statedNumbers(text: string): Stated[] {
       end,
       text: match[0].trim(),
       threshold: THRESHOLD.test(text.slice(Math.max(0, start - 40), start)),
+      inspection: INSPECTION.test(text.slice(Math.max(0, start - 50), end + 50)),
       misread: dim === "%" && misread(text, start, end),
     });
   }
@@ -148,6 +154,8 @@ interface Known {
   dim: Dim;
   /** From a "likely 1.50–1.88 s" range: where a value may sit, not a goal to give. */
   range?: boolean;
+  /** The rule book's inspection numbers: only for a sentence about inspection. */
+  inspection?: boolean;
 }
 
 /**
@@ -183,7 +191,7 @@ function knownNumbers(check: Pick<ReplyCheck, "system" | "said">): Known[] {
   }));
   known.push(...gapsIn(check.system));
   // Inspection is 15 s, with calls at 8 s and 12 s: the sport's own numbers, not the person's data.
-  for (const value of [8, 12, 15]) known.push({ value, dim: "s" });
+  for (const value of [8, 12, 15]) known.push({ value, dim: "s", inspection: true });
   for (const said of check.said) {
     for (const value of numbersIn(said)) known.push({ value, dim: "" });
   }
@@ -197,6 +205,7 @@ function isGrounded(item: Stated, known: readonly Known[]): boolean {
   return known.some(
     (other) =>
       !(item.threshold && other.range) &&
+      !(other.inspection && !item.inspection) &&
       (other.dim === item.dim || other.dim === "" || item.dim === "") &&
       Math.abs(other.value - item.value) <= tolerance,
   );
@@ -568,13 +577,16 @@ export interface GuardedText {
 export const NOTHING_LEFT =
   "I can't answer that reliably from your data. Ask me about one part of your solve, such as F2L or OLL, and I will use your numbers.";
 
-/** Advice first (it adds only plain sentences), then numbers, then kind words. */
+/** The "[pack]" the catalogue puts after each title: a model copies it into its prose ("using pack cross-into-f2l [pack]"). */
+const KIND_TAG = /\s*\[(?:pack|lesson|drill|test|set|unit)\]/gi;
+
+/** Advice first (it adds only plain sentences), then numbers, then kind words; the catalogue's "[kind]" tags are never shown. */
 export function guardText(
   text: string,
   catalogue: readonly CatalogueEntry[],
   check: ReplyCheck,
 ): GuardedText {
-  const advice = guardAdvice(text, check);
+  const advice = guardAdvice(text.replace(KIND_TAG, ""), check);
   const numbers = groundNumbers(advice.text, check);
   const kinds = fixKindWords(numbers.text, catalogue);
   return {

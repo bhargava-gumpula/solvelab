@@ -94,12 +94,13 @@ describe("groundNumbers", () => {
     expect(result.removed).toEqual(["1.5 s"]);
   });
 
-  it("allows the inspection numbers the rule book gives", () => {
+  it("allows the inspection numbers the rule book gives, for inspection only", () => {
     const text = "You have 15 seconds of inspection, with calls at 8 s and 12 seconds.";
     expect(groundNumbers(text, check())).toEqual({ text, removed: [] });
     expect(groundNumbers("You have 13 seconds of inspection.", check()).removed).toEqual([
       "13 seconds",
     ]);
+    expect(groundNumbers("You are stuck at 15 seconds.", check()).removed).toEqual(["15 seconds"]);
   });
 
   it("never backs a slow-case share read as a count of known algorithms", () => {
@@ -268,6 +269,18 @@ describe("guardText", () => {
     expect(result.ungrounded).toEqual(["0.9 s"]);
     expect(result.kindFixes).toEqual(["lesson → pack: first-lookahead"]);
     expect(result.badAdvice).toEqual([]);
+  });
+
+  it("never shows the catalogue's [kind] tag a model copied into its prose", () => {
+    const result = guardText(
+      "Use pack cross-into-f2l [pack] first, then take test f2l_only [test] and drill f2l-case-audit [Drill].",
+      CATALOGUE,
+      check(),
+    );
+    expect(result.text).toBe(
+      "Use pack cross-into-f2l first, then take test f2l_only and drill f2l-case-audit.",
+    );
+    expect(result.kindFixes).toEqual([]);
   });
 
   it("builds the check from a conversation", () => {
