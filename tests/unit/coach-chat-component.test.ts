@@ -281,6 +281,57 @@ describe("a conversation", () => {
     });
   });
 
+  it("keeps a half-typed follow-up when Enter is pressed during a reply", async () => {
+    const model = controlledStream();
+    vi.mocked(streamOllamaChat).mockImplementation(model.stream as never);
+    await show();
+    await until(() => !q("[role=status]")?.textContent?.includes("Checking"), "the check");
+    await ask("What should I work on?");
+    await type("And then what?");
+    await act(async () => {
+      input().dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true }),
+      );
+    });
+    expect(input().value).toBe("And then what?");
+    expect(streamOllamaChat).toHaveBeenCalledTimes(1);
+    await act(async () => model.end());
+  });
+
+  it("treats a reply with nothing to show as an error, not thinking dots for good", async () => {
+    const model = controlledStream();
+    vi.mocked(streamOllamaChat).mockImplementation(model.stream as never);
+    await show();
+    await until(() => !q("[role=status]")?.textContent?.includes("Checking"), "the check");
+    await ask("What should I work on?");
+    await act(async () => model.piece('{"answer":"","refs":[],"followUps":[]}'));
+    await act(async () => model.end());
+    await until(() => !!q("[data-testid=coach-chat-error]"), "the error");
+    expect(text("[data-testid=coach-chat-error]")).toContain("empty reply");
+    expect(q("[data-testid=coach-chat-thinking]")).toBeNull();
+    expect(await repos.coachChats.count()).toBe(0);
+  });
+
+  it("does not bring back a chat deleted while its reply was still coming", async () => {
+    await repos.coachChats.save({
+      id: "one",
+      title: "First chat",
+      model: "m",
+      messages: [{ role: "user", content: "First question" }],
+    });
+    const model = controlledStream();
+    vi.mocked(streamOllamaChat).mockImplementation(model.stream as never);
+    await show();
+    await until(() => !q("[role=status]")?.textContent?.includes("Checking"), "the check");
+    await ask("And a second one?");
+    await act(async () => model.piece('{"answer":"Plan ahead'));
+    await click('button[aria-label="Delete chat: First chat"]');
+    await until(() => !q("[data-testid=coach-chat-stop]"), "the reply to end");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(await repos.coachChats.count()).toBe(0);
+    expect(log().textContent).toBe("");
+  });
+
   it("ends the reply when the person leaves the page", async () => {
     const model = controlledStream();
     vi.mocked(streamOllamaChat).mockImplementation(model.stream as never);

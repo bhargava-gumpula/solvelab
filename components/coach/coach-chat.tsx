@@ -22,6 +22,7 @@ import {
   type ChatError,
 } from "@/lib/coach-chat/chat-state";
 import { ollamaStatus } from "@/lib/coach-chat/ollama";
+import { partialAnswer } from "@/lib/coach-chat/reply";
 import {
   COACH_MODEL,
   MIN_OLLAMA_VERSION,
@@ -102,6 +103,8 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
   const [draft, setDraft] = useState(starter ?? "");
   const [status, setStatus] = useState<Readiness | "checking">("checking");
   const abortRef = useRef<AbortController | null>(null);
+  // Chats the person deleted: a reply still arriving for one must not bring it back.
+  const deletedRef = useRef(new Set<string>());
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -173,8 +176,18 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
         setStatus(result.code);
       return;
     }
+    // A reply with nothing to show would leave the thinking dots up for good.
+    if (!result.stopped && !partialAnswer(result.raw).trim()) {
+      if (current) {
+        dispatch({
+          type: "fail",
+          error: { code: "unknown", message: "The coach sent an empty reply." },
+        });
+      }
+      return;
+    }
     if (current) dispatch({ type: result.stopped ? "stop" : "done" });
-    if (result.raw) {
+    if (result.raw && !deletedRef.current.has(chatId)) {
       const reply: CoachChatMessage = { role: "assistant", content: result.raw };
       await save(chatId, [...messages, result.stopped ? { ...reply, stopped: true } : reply]);
     }
@@ -212,13 +225,17 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
   };
 
   const remove = async (id: string) => {
+    const isCurrent = id === chat.chatId;
+    // Marked first, so a reply that finishes while the delete is under way can't save it again.
+    if (isCurrent) deletedRef.current.add(id);
     try {
       await getRepositories().coachChats.delete(id);
     } catch {
+      if (isCurrent) deletedRef.current.delete(id);
       toast.error("Couldn’t delete that chat.");
       return;
     }
-    if (id === chat.chatId) open(createId());
+    if (isCurrent) open(createId());
   };
 
   const streaming = chat.phase === "streaming";
@@ -227,7 +244,7 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
   const settled = streaming ? chat.messages.slice(0, -2) : chat.messages;
   const pending = streaming ? chat.messages.slice(-2) : [];
   const latestReply = chat.messages.findLastIndex((message) => message.role === "assistant");
-  const canSend = status === "ready" && system !== null && draft.trim() !== "";
+  const canSend = status === "ready" && system !== null && !streaming && draft.trim() !== "";
   const problem = status !== "ready" && status !== "checking" ? PROBLEMS[status] : null;
   const stopped = !streaming && chat.messages.at(-1)?.stopped;
 
@@ -368,7 +385,14 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
             data-testid="coach-chat-input"
             onChange={(event) => setDraft(event.target.value)}
             onKeyDown={(event) => {
-              if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+              // WebKit reports the Enter that confirms an IME choice as keyCode 229 after composition ends.
+              if (
+                event.key !== "Enter" ||
+                event.shiftKey ||
+                event.nativeEvent.isComposing ||
+                event.keyCode === 229
+              )
+                return;
               event.preventDefault();
               event.currentTarget.form?.requestSubmit();
             }}

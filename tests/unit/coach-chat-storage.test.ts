@@ -5,6 +5,7 @@ import { createRepositories, type Repositories } from "@/lib/storage";
 import { MAX_SAVED_CHATS } from "@/lib/storage/coach-chat-repository";
 import { DATABASE_NAME, initializeStorage, LocalDatabase } from "@/lib/storage/database";
 import { resetLocalData } from "@/lib/storage/reset";
+import { COACH_CHAT_MAX_MESSAGES } from "@/lib/storage/schemas";
 import { COLLECTION_NAMES } from "@/lib/sync/collections";
 import type { CoachChatMessage } from "@/types/domain";
 
@@ -67,6 +68,24 @@ describe("coach chat repository", () => {
     expect(await repos.coachChats.count()).toBe(MAX_SAVED_CHATS - 1);
     await repos.coachChats.clear();
     expect(await repos.coachChats.count()).toBe(0);
+  });
+
+  it("keeps the latest messages of a chat longer than the limit instead of failing", async () => {
+    const long: CoachChatMessage[] = Array.from(
+      { length: COACH_CHAT_MAX_MESSAGES + 2 },
+      (_, i) => ({
+        role: i % 2 === 0 ? "user" : "assistant",
+        content: `message ${i}`,
+      }),
+    );
+    const saved = await repos.coachChats.save({
+      id: "long",
+      title: "Long",
+      model: "m",
+      messages: long,
+    });
+    expect(saved.messages).toHaveLength(COACH_CHAT_MAX_MESSAGES);
+    expect(saved.messages.at(-1)?.content).toBe(`message ${COACH_CHAT_MAX_MESSAGES + 1}`);
   });
 
   it("rejects a chat that isn't valid without writing anything", async () => {

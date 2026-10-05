@@ -1,6 +1,6 @@
 import type { CoachChat } from "@/types/domain";
 import type { LocalDatabase } from "./database";
-import { coachChatSchema } from "./schemas";
+import { COACH_CHAT_MAX_MESSAGES, coachChatSchema } from "./schemas";
 
 /** Older chats beyond this many are dropped when a new one is saved. */
 export const MAX_SAVED_CHATS = 50;
@@ -38,6 +38,8 @@ export class CoachChatRepository {
       const existing = await this.db.coachChats.get(chat.id);
       const parsed = coachChatSchema.parse({
         ...chat,
+        // A very long chat keeps its latest messages rather than failing to save.
+        messages: chat.messages.slice(-COACH_CHAT_MAX_MESSAGES),
         createdAt: existing?.createdAt ?? stamp,
         updatedAt: stamp,
       });
