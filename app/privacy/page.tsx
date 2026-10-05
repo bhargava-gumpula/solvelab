@@ -130,6 +130,59 @@ export default function PrivacyPage() {
         ) : null}
       </ul>
 
+      <h2 id="mac-app" className="scroll-mt-24">
+        The Mac app
+      </h2>
+      <p>
+        {brand.name} also comes as a Mac app. It keeps your working copy in its own storage on your
+        Mac, the way the website keeps it in your browser. When you sign in, your times sync to your{" "}
+        {words.storeShort} account exactly as they do on the website. The app checks for updates
+        from time to time. The check sends the app’s version number and the type of Mac, and the
+        server that holds the update file sees your IP address, as with any download.
+      </p>
+
+      <h2 id="coach-mac" className="scroll-mt-24">
+        The coach in the Mac app
+      </h2>
+      <ul>
+        <li>
+          <strong className="text-foreground">It runs on your Mac.</strong> The coach is an AI model
+          that runs on your Mac through Ollama. Your questions, its replies and your numbers summary
+          are not sent to {legal.operator}, {brand.name} or anyone else.
+        </li>
+        <li>
+          <strong className="text-foreground">What it is told.</strong> Numbers and choices only:
+          your goal, average, course, solve profile and Learning Hub path. Never your name, email,
+          notes, scrambles or individual solves.
+        </li>
+        <li>
+          <strong className="text-foreground">Chats stay on your Mac.</strong> They are stored only
+          in the app, are not synced to your account, can be cleared in Settings, and are deleted
+          when you sign out of the app. Your backup from Settings → Your data can include them if
+          you want to keep a copy.
+        </li>
+        <li>
+          <strong className="text-foreground">The model download.</strong> The app downloads the
+          model from Ollama’s servers, which see your IP address like any download. No {brand.name}{" "}
+          data is sent with it.
+        </li>
+        <li>
+          <strong className="text-foreground">Ollama</strong> is a separate program with its own
+          privacy terms.
+        </li>
+      </ul>
+
+      <h2 id="copy-summary" className="scroll-mt-24">
+        Copy my summary
+      </h2>
+      <p>
+        The website’s “Copy my summary” button only puts the same numbers-only summary on your
+        clipboard. {brand.name} sends it nowhere; what you paste into another AI is between you and
+        that service. Earlier versions of the website could connect your own AI with an OpenRouter
+        sign-in or an API key, kept only in your browser. That feature is gone, and any saved key is
+        deleted from your browser the next time you open the site.
+      </p>
+
       <h2>Google Sign-In</h2>
       <p>
         Coach, Stats, Train and Learn need a Google account, because they hold data of yours that

@@ -18,6 +18,7 @@ import { recognitionStats, type RecognitionStats } from "@/lib/hub/recognition-s
 import { Button } from "@/components/ui/button";
 import { RECOGNITION_LABEL, recognitionHref, type RecognitionSet } from "@/lib/hub/units";
 import type { AlgorithmAttempt } from "@/types/domain";
+import { isDesktop } from "@/lib/config/mac-app";
 
 const RECOGNITION_SETS: readonly RecognitionSet[] = [
   "two-look-oll",
@@ -112,9 +113,13 @@ export function HubProfile() {
           <Bot className="size-5" />
         </span>
         <span className="flex-1">
-          <span className="block text-sm font-semibold">Ask your AI coach about this profile</span>
+          <span className="block text-sm font-semibold">
+            {isDesktop() ? "Ask your AI coach about this profile" : "Get the Mac app"}
+          </span>
           <span className="block text-xs text-muted-foreground">
-            With your own Claude, ChatGPT or Gemini, or sign in with OpenRouter to chat here.
+            {isDesktop()
+              ? "Runs on your Mac. Only numbers from your profile are used, and none leave this Mac."
+              : "Its AI coach runs on your Mac and reads this profile, privately."}
           </span>
         </span>
         <ArrowRight className="size-4 text-primary" />

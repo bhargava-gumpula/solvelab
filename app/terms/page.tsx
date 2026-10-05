@@ -15,10 +15,11 @@ export default function TermsPage() {
 
       <h2>What {brand.name} is</h2>
       <p>
-        {brand.name} is a personal speedcubing timer and diagnostic coach. It runs in your browser.
-        The timer and the algorithm pages work without an account; Coach, Stats, Train and Learn
-        need Google Sign-In, because they keep data of yours on the account and sync it between
-        devices. {brand.name} is not affiliated with the World Cube Association.
+        {brand.name} is a personal speedcubing timer and diagnostic coach. It runs in your browser,
+        and as a Mac app (Apple silicon, macOS 14 or newer) that adds an AI coach. The timer and the
+        algorithm pages work without an account; Coach, Stats, Train and Learn need Google Sign-In,
+        because they keep data of yours on the account and sync it between devices. {brand.name} is
+        not affiliated with the World Cube Association.
       </p>
 
       <h2>Your data</h2>
@@ -34,6 +35,26 @@ export default function TermsPage() {
         else. This is on by default and does not include your name, email, notes or scrambles. You
         can turn it off at any time in Settings → Your data, which deletes what you shared. The
         Privacy Policy lists exactly what is shared.
+      </p>
+
+      <h2 id="mac-app" className="scroll-mt-24">
+        The Mac app and its AI coach
+      </h2>
+      <p>
+        The Mac app is free and provided as-is. It is not signed with an Apple Developer ID and
+        Apple has not notarized it, so macOS warns you the first time you open it, and you approve
+        it in System Settings → Privacy &amp; Security with an administrator’s password. Download it
+        only from the link on this site. A Mac managed by a school or employer may not allow it.
+      </p>
+      <p>
+        The coach in the app runs on your Mac and no data leaves your Mac for it; the Privacy Policy
+        explains. Its advice is written by an AI model and can be wrong, including about cube moves.
+        Check every algorithm in the algorithm bank before you learn it, and use your own judgement.
+      </p>
+      <p>
+        The app uses Ollama (MIT licence) and Qwen models (Apache-2.0 licence), which are
+        third-party software under their own licences. {brand.name} ships their notices and is not
+        affiliated with either.
       </p>
 
       <h2>Acceptable use</h2>
