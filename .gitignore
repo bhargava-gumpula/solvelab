@@ -83,3 +83,7 @@ Thumbs.db
 
 # The template of the env file is tracked; real values stay in .env.local.
 !.env.example
+
+# Tauri (Mac app)
+/src-tauri/target/
+/src-tauri/gen/
