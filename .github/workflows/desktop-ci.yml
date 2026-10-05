@@ -1,0 +1,44 @@
+# Builds the Mac app on the oldest macOS runner GitHub offers (14, the app's
+# minimum) and the newest, and runs the app smoke suite in the real app window
+# (docs/DESKTOP_APP_PLAN.md section 6). Builds are ad-hoc signed, so no secrets.
+name: Mac app
+
+on:
+  push:
+    branches: [main, "desktop-*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    env:
+      NEXT_PUBLIC_SOLVELAB_TARGET: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - run: npm ci
+      # No account settings in CI, so the walk reaches the Hub, Stats and Train pages themselves.
+      - name: Build the pages
+        run: npm run build
+      - name: Build the app with the test-only smoke hooks
+        run: npx tauri build --bundles app --features smoke --ci
+      - name: App smoke suite
+        run: npm run test:app
+      - name: Build the app as shipped (no smoke hooks)
+        run: npx tauri build --bundles app --ci
