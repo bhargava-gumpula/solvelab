@@ -1,5 +1,24 @@
 # Validation report
 
+## Failing and flaky e2e tests (dev log 197, branch `fix-e2e-tests`, awaiting review)
+
+Run on 2026-10-04 on the Supabase build (`.env.local` as on `main`): static export, headless
+Chromium, Playwright on port 4395, account services blocked at the network, no dev server running.
+Other runs shared the machine (load average about 10–40).
+
+| Check                     | Command                                         | Result                                       |
+| ------------------------- | ----------------------------------------------- | -------------------------------------------- |
+| Full validation           | `npm run validate`                              | Pass (1,043 unit tests, 80 files, 417 pages) |
+| End-to-end                | `E2E_PORT=4395 npx playwright test --workers=1` | 104 passed                                   |
+| PLL scramble type, before | the one test                                    | Failed (no visible "Scramble preview")       |
+| Flaky three, before       | `--repeat-each=5` (2 workers)                   | Sessions 5/5, trainer 5/5, offline 4/5       |
+| Four targets, after       | `--repeat-each=5` (2 workers)                   | PLL, sessions, trainer, offline: 5/5 each    |
+| Account switch, after     | `--repeat-each=10` (2 workers)                  | 10/10                                        |
+
+The first full run after the fixes had 1 failure, "a second account signing in gets none of the
+first one's data" (its IndexedDB probe blocked the app's upgrade); fixed, then the full run passed
+104/104. Causes and fixes are in dev log 197.
+
 ## Release 5.1, Supabase cutover (dev log 195, merged into `main`)
 
 Run on 2026-10-04 with `.env.local` holding the Supabase lines (the Supabase build): static export,

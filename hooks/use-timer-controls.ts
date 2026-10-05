@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type RefObject } from "react";
+import { useEffect, useLayoutEffect, type RefObject } from "react";
 import type { TimerStore } from "@/lib/timer/store";
 import { eventTimestamp, isSpaceKey, shouldTimerHandleKey } from "@/lib/timer/input";
 import type { TimerDeviceSession } from "@/lib/timer/devices";
@@ -49,7 +49,10 @@ export function useTimerControls(
     });
   }, [store, enabled, deviceControls, deviceSession]);
 
-  useEffect(() => {
+  // A layout effect, so the listeners are live in the same commit that shows
+  // the timer ready (the scramble painted). A passive effect runs a task or
+  // more after the paint, and a Space pressed in between was lost.
+  useLayoutEffect(() => {
     if (!enabled) return;
 
     const onKeyDown = (event: KeyboardEvent) => {

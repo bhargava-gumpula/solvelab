@@ -107,25 +107,26 @@ test.describe("the algorithm trainer", () => {
   test("can go back over just your slowest cases", async ({ page }) => {
     await page.goto("/algorithms/pll/train/");
     await page.getByTestId("trainer-start").click({ timeout: 20_000 });
-    const scramble = page.getByTestId("scramble");
-    let previous = "";
-    /** Waits for the next case's own scramble, then times a solve of it. */
+    let solved = 0;
+    /**
+     * Times a solve of the case dealt, then waits for it to be saved. The next
+     * deal comes with the save, and a scramble only ever shows for its own deal
+     * (two deals of one case can share a scramble, so the text can't tell them apart).
+     */
     const solveNext = async (ms: number) => {
-      await expect(scramble).toBeVisible({ timeout: 30_000 });
-      await expect(scramble).not.toHaveText(previous, { timeout: 30_000 });
-      previous = (await scramble.innerText()).trim();
+      await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 30_000 });
       const name = (await page.getByTestId("trainer-case").innerText()).trim();
-      // The timer's key listeners attach just after the scramble paints; a
-      // person is never this quick, a busy test runner can be.
-      await page.waitForTimeout(150);
       await keyboardSolve(page, ms);
+      solved += 1;
+      await expect(page.getByTestId("trainer-stats")).toContainText(
+        `This session: ${solved} solved`,
+      );
       return name;
     };
     const timed = [await solveNext(400), await solveNext(700)];
     await page.getByTestId("trainer-stop").click();
     await page.getByTestId("trainer-slowest-start").click();
-    // A fresh session can deal the case just timed, at an AUF that gives the very same scramble.
-    previous = "";
+    solved = 0;
     for (let round = 0; round < 4; round++) {
       expect(timed).toContain(await solveNext(300));
     }
