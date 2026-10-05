@@ -60,6 +60,7 @@ import { computeFinalTimeMs } from "@/lib/solves/penalty";
 import { isTimerFocused, type TimerConfig, type TimerResult } from "@/lib/timer/engine";
 import type { RestingTime } from "@/lib/timer/display";
 import { formatAverage, formatTime, type TimeDecimals } from "@/lib/timer/format";
+import { resolveInputSource } from "@/lib/timer/input";
 import { createTimerStore } from "@/lib/timer/store";
 import { cn } from "@/lib/utils";
 import type { Penalty, Solve } from "@/types/domain";
@@ -110,8 +111,7 @@ export function TimerWorkspace() {
   const practiceDates = useSolveDatesSince(heatSince);
   const [ghost, setGhost] = useDraftPref("ghost", "off", ["on", "off"] as const);
 
-  const inputSource =
-    features.bluetoothTimer && settings?.timerInput === "bluetooth" ? "bluetooth" : "keyboard";
+  const inputSource = resolveInputSource(settings?.timerInput, features.bluetoothTimer);
   const config = useMemo<TimerConfig>(
     () => ({
       inspectionMs: (settings?.inspectionSeconds ?? 0) * 1000,

@@ -1,6 +1,9 @@
 import { isDesktop } from "@/lib/config/platform";
 
-/** Product surface flags for this release. Disabled surfaces stay visible but inert. */
+/**
+ * Product surface flags for this release. Disabled surfaces stay visible but inert, except the
+ * platform flags below (`coachChat`, `bluetoothTimer`), which hide what a build cannot run.
+ */
 export const features = {
   /** Training packs: lessons, drills and retests for each part of the solve. */
   train: true,
