@@ -366,6 +366,29 @@ export interface CoachThread {
   updatedAt?: string;
 }
 
+/** One message in a saved coach chat. Replies are kept as the raw JSON the model sent. */
+export interface CoachChatMessage {
+  role: "user" | "assistant";
+  content: string;
+  /** The person stopped this reply before it finished. */
+  stopped?: boolean;
+}
+
+/**
+ * A conversation with the Mac app's local AI coach. Kept only in this app's
+ * database: never synced to the account, and emptied when the person signs out.
+ */
+export interface CoachChat {
+  id: string;
+  /** The first question, shortened. */
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  /** The Ollama model that answered. */
+  model: string;
+  messages: CoachChatMessage[];
+}
+
 /** A quick daily check: two attempts of each core test. */
 export interface DailyCheck {
   id: string;

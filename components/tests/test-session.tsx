@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLiveQuery } from "dexie-react-hooks";
-import { ArrowLeft, ArrowRight, Check, RotateCcw, Trophy } from "lucide-react";
+import { ArrowLeft, ArrowRight, Bot, Check, RotateCcw, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useStorageStatus } from "@/components/layout/storage-provider";
@@ -31,6 +31,8 @@ import { unitHref } from "@/lib/hub/units";
 import { getRepositories } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import type { DiagnosticRun, ExerciseDefinition, UserSettings } from "@/types/domain";
+import { starterHref } from "@/lib/coach-chat/starters";
+import { features } from "@/lib/config/features";
 import { PROFILE_HREF } from "@/lib/config/navigation";
 
 /** A test page: instructions, the timer, attempts, and results at the end. */
@@ -416,6 +418,13 @@ function TestResults({
         {profile?.complete ? (
           <Button asChild size="lg" variant="outline">
             <Link href={DAILY_HREF}>Daily check</Link>
+          </Button>
+        ) : null}
+        {features.coachChat ? (
+          <Button asChild size="lg" variant="outline">
+            <Link href={starterHref({ key: "test", testId: test.id })} data-testid="test-ask-coach">
+              <Bot /> Ask your AI coach about this result
+            </Link>
           </Button>
         ) : null}
         <Button size="lg" variant="ghost" onClick={onRetake}>

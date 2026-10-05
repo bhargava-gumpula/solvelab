@@ -3,13 +3,14 @@
  * every session, solve, setting (including appearance), coach record, lesson
  * and algorithm choice, and can be restored in another browser or origin.
  *
- * Version 2 (3.1) adds the coach, profile, lesson and algorithm tables. Version 1
+ * Version 2 (3.1) adds the coach, profile, lesson and algorithm tables (and, in the Mac app, its AI coach chats). Version 1
  * files (sessions, solves, settings) still import.
  */
 import { z } from "zod";
 import type {
   AlgorithmAttempt,
   AlgorithmProgress,
+  CoachChat,
   CoachThread,
   DailyCheck,
   DiagnosticRun,
@@ -30,6 +31,7 @@ import { DATABASE_VERSION } from "@/lib/storage/database";
 import {
   algorithmAttemptSchema,
   algorithmProgressSchema,
+  coachChatSchema,
   coachThreadSchema,
   dailyCheckSchema,
   diagnosticRunSchema,
@@ -64,6 +66,7 @@ const EXTRA_TABLES = {
   profileSnapshots: "id",
   dailyChecks: "id",
   coachThreads: "id",
+  coachChats: "id",
   trainingProgress: "packId",
   drillRuns: "id",
   unitPasses: "id",
@@ -90,6 +93,7 @@ export interface BackupData {
   profileSnapshots: ProfileSnapshot[];
   dailyChecks: DailyCheck[];
   coachThreads: CoachThread[];
+  coachChats: CoachChat[];
   trainingProgress: TrainingProgress[];
   drillRuns: DrillRun[];
   unitPasses: UnitPass[];
@@ -126,6 +130,7 @@ const backupSchema = z
       profileSnapshots: extraArray(profileSnapshotSchema),
       dailyChecks: extraArray(dailyCheckSchema),
       coachThreads: extraArray(coachThreadSchema),
+      coachChats: extraArray(coachChatSchema),
       trainingProgress: extraArray(trainingProgressSchema),
       drillRuns: extraArray(drillRunSchema),
       unitPasses: extraArray(unitPassSchema),
@@ -185,6 +190,7 @@ export async function createBackup(db: LocalDatabase, now = new Date()): Promise
       profileSnapshots: await db.profileSnapshots.orderBy("createdAt").toArray(),
       dailyChecks: await db.dailyChecks.orderBy("createdAt").toArray(),
       coachThreads: await db.coachThreads.orderBy("createdAt").toArray(),
+      coachChats: await db.coachChats.orderBy("updatedAt").toArray(),
       trainingProgress: await db.trainingProgress.toArray(),
       drillRuns: await db.drillRuns.orderBy("createdAt").toArray(),
       unitPasses: await db.unitPasses.orderBy("passedAt").toArray(),

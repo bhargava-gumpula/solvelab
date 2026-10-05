@@ -18,6 +18,7 @@ import { recognitionStats, type RecognitionStats } from "@/lib/hub/recognition-s
 import { Button } from "@/components/ui/button";
 import { RECOGNITION_LABEL, recognitionHref, type RecognitionSet } from "@/lib/hub/units";
 import type { AlgorithmAttempt } from "@/types/domain";
+import { ASK_HREF, starterHref } from "@/lib/coach-chat/starters";
 import { features } from "@/lib/config/features";
 
 const RECOGNITION_SETS: readonly RecognitionSet[] = [
@@ -105,7 +106,7 @@ export function HubProfile() {
       <SlowestCases attempts={hub.attempts} />
       <SlowestOnTheCube />
       <Link
-        href="/hub/ask/"
+        href={features.coachChat ? starterHref({ key: "profile" }) : ASK_HREF}
         className="group tile flex items-center gap-3 p-4 transition-transform hover:-translate-y-0.5"
         data-testid="profile-ask-ai"
       >

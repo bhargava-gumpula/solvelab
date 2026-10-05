@@ -3,6 +3,7 @@ import { sanitizeAppearance } from "@/lib/appearance/preferences";
 import { cubeEventSchema } from "@/lib/cube/events";
 import type {
   CoachEvent,
+  CoachChat,
   CoachThread,
   AlgorithmAttempt,
   AlgorithmProgress,
@@ -249,6 +250,25 @@ export const coachThreadSchema: z.ZodType<CoachThread> = z.object({
   events: z.array(coachEventSchema).max(200),
   completedAt: optionalIso,
   updatedAt: optionalIso,
+});
+
+export const COACH_CHAT_MAX_MESSAGES = 200;
+
+export const coachChatSchema: z.ZodType<CoachChat> = z.object({
+  id: z.string().min(1),
+  title: z.string().max(200),
+  createdAt: z.string().min(1),
+  updatedAt: z.string().min(1),
+  model: z.string().min(1).max(200),
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(["user", "assistant"]),
+        content: z.string().max(40_000),
+        stopped: z.boolean().optional(),
+      }),
+    )
+    .max(COACH_CHAT_MAX_MESSAGES),
 });
 
 export const dailyCheckSchema: z.ZodType<DailyCheck> = z.object({

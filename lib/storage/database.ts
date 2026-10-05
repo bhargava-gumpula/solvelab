@@ -2,6 +2,7 @@ import Dexie, { type Table, type Transaction } from "dexie";
 import type {
   AlgorithmAttempt,
   AlgorithmProgress,
+  CoachChat,
   CoachThread,
   DailyCheck,
   DiagnosticRun,
@@ -91,7 +92,17 @@ export const SCHEMA_V10 = {
   unitPasses: "id, courseId, unitId, passedAt, updatedAt",
 } as const;
 
-export const DATABASE_VERSION = 10;
+/**
+ * V11 (Mac app coach): chats with the local AI coach. Deliberately absent from
+ * the sync registry, so they stay on this Mac; signing out empties them like
+ * every other table.
+ */
+export const SCHEMA_V11 = {
+  ...SCHEMA_V10,
+  coachChats: "id, updatedAt",
+} as const;
+
+export const DATABASE_VERSION = 11;
 
 /**
  * A local-only note. This table is deliberately absent from the sync registry:
@@ -135,6 +146,7 @@ export class LocalDatabase extends Dexie {
   profileSnapshots!: Table<ProfileSnapshot, string>;
   dailyChecks!: Table<DailyCheck, string>;
   coachThreads!: Table<CoachThread, string>;
+  coachChats!: Table<CoachChat, string>;
   trainingProgress!: Table<TrainingProgress, string>;
   drillRuns!: Table<DrillRun, string>;
   unitPasses!: Table<UnitPass, string>;
@@ -152,6 +164,7 @@ export class LocalDatabase extends Dexie {
     this.version(8).stores(SCHEMA_V8);
     this.version(9).stores(SCHEMA_V9);
     this.version(10).stores(SCHEMA_V10);
+    this.version(11).stores(SCHEMA_V11);
   }
 }
 

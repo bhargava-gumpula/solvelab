@@ -33,7 +33,9 @@ import { DATABASE_VERSION } from "@/lib/storage/database";
 import { useAuth } from "@/components/auth/auth-provider";
 import { useSettings } from "@/hooks/use-local-data";
 import { isAuthConfigured } from "@/lib/auth/config";
+import { features } from "@/lib/config/features";
 import { setTrainingDataSharing, sharingChangeMessage } from "@/lib/training-data/controls";
+import { CoachChatsControl } from "./coach-chats-control";
 import { SettingsSection } from "./settings-section";
 
 export function DataSection() {
@@ -147,9 +149,12 @@ export function DataSection() {
         />
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
-        Backups are JSON files with every session, solve and timer setting. Use them to move to
-        another browser or device.
+        Backups are JSON files with every session, solve and timer setting
+        {features.coachChat ? " and every coach chat" : ""}. Use them to move to another browser or
+        device.
       </p>
+
+      {features.coachChat ? <CoachChatsControl /> : null}
 
       {isAuthConfigured() ? <CoachTrainingToggle /> : null}
 
