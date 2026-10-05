@@ -1,4 +1,4 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * The static export is served on this port. Set E2E_PORT when something else
@@ -18,6 +18,10 @@ export default defineConfig({
     // Blocked so request routing stays exact; offline.spec.ts allows it.
     serviceWorkers: "block",
   },
+  projects: [
+    { name: "chromium", use: { browserName: "chromium" } },
+    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+  ],
   webServer: {
     command: "node scripts/serve-static.mjs",
     env: { PORT: port },
