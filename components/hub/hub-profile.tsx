@@ -18,7 +18,7 @@ import { recognitionStats, type RecognitionStats } from "@/lib/hub/recognition-s
 import { Button } from "@/components/ui/button";
 import { RECOGNITION_LABEL, recognitionHref, type RecognitionSet } from "@/lib/hub/units";
 import type { AlgorithmAttempt } from "@/types/domain";
-import { isDesktop } from "@/lib/config/mac-app";
+import { features } from "@/lib/config/features";
 
 const RECOGNITION_SETS: readonly RecognitionSet[] = [
   "two-look-oll",
@@ -114,10 +114,10 @@ export function HubProfile() {
         </span>
         <span className="flex-1">
           <span className="block text-sm font-semibold">
-            {isDesktop() ? "Ask your AI coach about this profile" : "Get the Mac app"}
+            {features.coachChat ? "Ask your AI coach about this profile" : "Get the Mac app"}
           </span>
           <span className="block text-xs text-muted-foreground">
-            {isDesktop()
+            {features.coachChat
               ? "Runs on your Mac. Only numbers from your profile are used, and none leave this Mac."
               : "Its AI coach runs on your Mac and reads this profile, privately."}
           </span>

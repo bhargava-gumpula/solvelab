@@ -53,7 +53,7 @@ import type { TimeDecimals } from "@/lib/timer/format";
 import { cn } from "@/lib/utils";
 import type { CoachEvent, CoachThread, DiagnosticRun, Solve } from "@/types/domain";
 import { PROFILE_HREF } from "@/lib/config/navigation";
-import { isDesktop } from "@/lib/config/mac-app";
+import { features } from "@/lib/config/features";
 
 /** The coach's name, so the conversation has someone in it. */
 const COACH_NAME = "Cube Coach";
@@ -319,9 +319,9 @@ function ChatComposer() {
       <p className="px-1 text-xs text-muted-foreground">
         For now the coach asks and you tap.{" "}
         <Link href="/hub/ask/" className="underline underline-offset-4">
-          {isDesktop() ? "Chat with your AI coach" : "Get the Mac app"}
+          {features.coachChat ? "Chat with your AI coach" : "Get the Mac app"}
         </Link>{" "}
-        {isDesktop()
+        {features.coachChat
           ? "to ask in your own words."
           : "for an AI coach you can type to, private on your Mac."}
       </p>

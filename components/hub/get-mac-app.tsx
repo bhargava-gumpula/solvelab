@@ -3,15 +3,22 @@
 import { useMemo, useSyncExternalStore } from "react";
 import { Bot, Copy, Download, Laptop, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/components/auth/auth-provider";
+import { GoogleIcon } from "@/components/auth/google-icon";
 import { Button } from "@/components/ui/button";
 import { useHub } from "@/hooks/use-hub";
 import type { CoachContextInput } from "@/lib/ai/context";
 import { profileSummary } from "@/lib/ai/summary";
+import { googleSignInErrorMessage, signInWithGoogle } from "@/lib/auth/actions";
+import { accessState } from "@/lib/auth/access";
 import { MAC_APP, visitorDevice } from "@/lib/config/mac-app";
 
 const subscribeNothing = () => () => undefined;
 
-/** What the AI coach is, why it needs the app, and a way to take your numbers elsewhere. */
+/**
+ * What the AI coach is, why it needs the app, and a way to take your numbers elsewhere. The page
+ * is public; only "Copy my summary" needs the account its numbers come from.
+ */
 export function GetMacApp() {
   // The server can't know the device, so it assumes a Mac and the note appears once loaded.
   const visitor = useSyncExternalStore(
@@ -19,6 +26,7 @@ export function GetMacApp() {
     () => visitorDevice(navigator.userAgent, navigator.maxTouchPoints),
     () => "mac" as const,
   );
+  const access = accessState(useAuth().status);
   const hub = useHub();
   const { profile, average, placement, current, intro } = hub;
   const summary = useMemo(() => {
@@ -148,23 +156,48 @@ export function GetMacApp() {
             is between you and that service.
           </p>
         </div>
-        <Button
-          className="w-fit"
-          onClick={() => void copy()}
-          disabled={!summary}
-          data-testid="copy-summary"
-        >
-          <Copy /> Copy my summary
-        </Button>
-        <details className="text-xs text-muted-foreground">
-          <summary className="w-fit cursor-pointer hover:text-foreground">What gets copied</summary>
-          <pre
-            className="mt-2 max-h-72 overflow-auto rounded-xl bg-background/60 p-3 whitespace-pre-wrap"
-            data-testid="summary-preview"
-          >
-            {summary ?? "Loading your profile…"}
-          </pre>
-        </details>
+        {access === "locked" ? (
+          <div className="grid gap-2" data-testid="copy-sign-in">
+            <p className="text-sm text-muted-foreground">
+              Sign in to copy your summary. It&apos;s built from the solve profile kept on your
+              account.
+            </p>
+            <Button
+              className="w-fit"
+              variant="outline"
+              onClick={() => {
+                void signInWithGoogle().catch((error: unknown) =>
+                  toast.error(googleSignInErrorMessage(error)),
+                );
+              }}
+            >
+              <GoogleIcon className="size-4" />
+              Sign in with Google
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Button
+              className="w-fit"
+              onClick={() => void copy()}
+              disabled={!summary || access !== "open"}
+              data-testid="copy-summary"
+            >
+              <Copy /> Copy my summary
+            </Button>
+            <details className="text-xs text-muted-foreground">
+              <summary className="w-fit cursor-pointer hover:text-foreground">
+                What gets copied
+              </summary>
+              <pre
+                className="mt-2 max-h-72 overflow-auto rounded-xl bg-background/60 p-3 whitespace-pre-wrap"
+                data-testid="summary-preview"
+              >
+                {summary ?? "Loading your profile…"}
+              </pre>
+            </details>
+          </>
+        )}
       </section>
     </div>
   );

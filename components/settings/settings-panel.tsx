@@ -17,7 +17,7 @@ import { AccountSection } from "./account-section";
 import { DataSection } from "./data-section";
 import { HardwareTimerControls } from "./hardware-timer-section";
 import { SettingsSection } from "./settings-section";
-import { isDesktop } from "@/lib/config/mac-app";
+import { features } from "@/lib/config/features";
 
 async function updateSettings(patch: SettingsPatch) {
   try {
@@ -154,17 +154,17 @@ export function SettingsPanel() {
             <div className="flex items-start justify-between gap-6">
               <div>
                 <p className="text-sm font-medium">
-                  {isDesktop() ? "Chat with your AI coach" : "AI coach in the Mac app"}
+                  {features.coachChat ? "Chat with your AI coach" : "AI coach in the Mac app"}
                 </p>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  {isDesktop()
+                  {features.coachChat
                     ? "A coach that runs on your Mac and reads your solve profile. Your questions and numbers never leave this Mac."
                     : `A private AI coach that runs on your Mac and reads your solve profile. It lives in the ${brand.name} Mac app, not on the website.`}
                 </p>
               </div>
               <div className="pt-0.5">
                 <Button asChild size="sm" variant="outline">
-                  <Link href="/hub/ask/">{isDesktop() ? "Open" : "Get the Mac app"}</Link>
+                  <Link href="/hub/ask/">{features.coachChat ? "Open" : "Get the Mac app"}</Link>
                 </Button>
               </div>
             </div>

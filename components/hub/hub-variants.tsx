@@ -24,7 +24,7 @@ import { lessonHref, unitHref } from "@/lib/hub/units";
 import { cn } from "@/lib/utils";
 import { NEW_LAYOUTS, placedByText } from "./hub-layouts-new";
 import { StageBudget, useStageBudget } from "./stage-budget";
-import { isDesktop } from "@/lib/config/mac-app";
+import { features } from "@/lib/config/features";
 
 export type HubLayout = "trail" | "plan" | "chapter" | "focus" | "roadmap" | "board";
 const LAYOUTS: { id: HubLayout; label: string; group: "new" | "earlier" }[] = [
@@ -263,8 +263,8 @@ function MoreToDo() {
     {
       href: "/hub/ask/",
       icon: Bot,
-      title: isDesktop() ? "Ask the coach" : "Get the Mac app",
-      body: isDesktop()
+      title: features.coachChat ? "Ask the coach" : "Get the Mac app",
+      body: features.coachChat
         ? "Ask an AI coach why you are stuck; it sees your solve profile."
         : "Its AI coach runs on your Mac and sees your solve profile.",
     },

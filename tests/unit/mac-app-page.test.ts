@@ -1,15 +1,14 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { getCourse } from "@/data/hub/courses";
 import { AI_KEYS_REMOVED_NOTE, wipeSavedAiKeys } from "@/lib/ai/legacy-keys";
 import { profileSummary } from "@/lib/ai/summary";
-import { isDesktop, visitorDevice } from "@/lib/config/mac-app";
+import { hubPageNeedsAccount, visitorDevice } from "@/lib/config/mac-app";
 import { buildSolveProfile } from "@/lib/coach/profile";
 
 afterEach(() => {
   localStorage.clear();
   sessionStorage.clear();
-  vi.unstubAllEnvs();
 });
 
 describe("wiping saved AI keys", () => {
@@ -78,13 +77,16 @@ describe("Copy my summary", () => {
 });
 
 describe("where the coach lives", () => {
-  it("is only on in the desktop build", () => {
-    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "");
-    expect(isDesktop()).toBe(false);
-    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "web");
-    expect(isDesktop()).toBe(false);
-    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "desktop");
-    expect(isDesktop()).toBe(true);
+  it("is a public page on the website, and the account-only chat in the desktop build", () => {
+    expect(hubPageNeedsAccount("/hub/ask/", false)).toBe(false);
+    expect(hubPageNeedsAccount("/hub/ask", false)).toBe(false);
+    expect(hubPageNeedsAccount("/hub/ask/", true)).toBe(true);
+  });
+
+  it("keeps every other Hub page behind the account", () => {
+    for (const path of ["/hub/", "/hub", "/hub/profile/", "/hub/asked/", "/hub/ask/more/"]) {
+      expect(hubPageNeedsAccount(path, false)).toBe(true);
+    }
   });
 
   it("tells a Mac from a phone, a Windows PC and an iPad in desktop mode", () => {

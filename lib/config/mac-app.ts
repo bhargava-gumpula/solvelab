@@ -1,14 +1,8 @@
 /**
  * The Mac app and where the AI coach lives. The coach chat only exists in the
- * desktop build; the website points people at the app instead.
- *
- * ponytail: isDesktop() stands in for lib/config/platform.ts and
- * features.coachChat (desktop-p2). When that merges, delete this function and
- * import the real ones.
+ * desktop build (`features.coachChat`); the website points people at the app
+ * instead.
  */
-export function isDesktop(): boolean {
-  return process.env.NEXT_PUBLIC_SOLVELAB_TARGET === "desktop";
-}
 
 /** Facts the "Get the Mac app" page shows. */
 export const MAC_APP = {
@@ -29,4 +23,16 @@ export type Visitor = "mac" | "other";
 /** An iPad in desktop mode says "Macintosh" but has a touch screen; a Mac doesn't. */
 export function visitorDevice(userAgent: string, maxTouchPoints: number): Visitor {
   return /Macintosh/.test(userAgent) && maxTouchPoints < 2 ? "mac" : "other";
+}
+
+const trimSlash = (path: string) => path.replace(/\/+$/, "");
+
+/**
+ * Every Hub page keeps a person's data behind a Google account, except the
+ * website's "Get the Mac app" page: it is public so a visitor can read what
+ * the app is before signing up. In the desktop build the same path is the
+ * coach chat, which needs the account.
+ */
+export function hubPageNeedsAccount(pathname: string, coachChat: boolean): boolean {
+  return coachChat || trimSlash(pathname) !== trimSlash(MAC_APP.path);
 }
