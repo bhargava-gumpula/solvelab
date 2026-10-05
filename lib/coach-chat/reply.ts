@@ -124,7 +124,13 @@ function parsePartial(src: string): { [key: string]: Json } {
         Array.isArray(item.v) ||
         (key.v === "answer" && typeof item.v === "string")
       ) {
-        out[key.v] = item.v;
+        // An own property for every key, "__proto__" included, as JSON.parse makes it.
+        Object.defineProperty(out, key.v, {
+          value: item.v,
+          enumerable: true,
+          writable: true,
+          configurable: true,
+        });
       }
       if (!item.done) return { v: out, done: false };
     }
@@ -175,27 +181,41 @@ function readObject(text: string): { [key: string]: Json } | null {
 }
 
 /**
- * The `answer` text so far, for showing while the reply streams. A reply
- * that isn't JSON is returned as it is.
+ * The `answer` text so far, for showing while the reply streams, with any
+ * invented algorithm already taken out (so it is never on screen, not even
+ * for a moment). A reply that isn't JSON is returned as it is, guarded.
  */
 export function partialAnswer(raw: string): string {
   const text = clean(raw);
-  if (jsonStart(text) === -1) return text;
-  const object = readObject(text);
-  if (!object) return text;
-  return typeof object.answer === "string" ? object.answer : "";
+  const object = jsonStart(text) === -1 ? null : readObject(text);
+  const shown = !object ? text : typeof object.answer === "string" ? object.answer : "";
+  return guardAlgorithms(shown).text;
 }
 
 // --- algorithm guard -------------------------------------------------------
 
 type Run = { start: number; end: number; moves: Move[] };
 
-/** One move, or six or more written together with no spaces ("RUR'U'R'FRF'"). */
+/** Joins one move to the next: "R-U-R'-U'", "R→U→R'→U'", "R->U". */
+const JOINER = /->|[-–—→]/;
+/** A joiner standing alone between spaced moves: "R → U → R'". */
+const JOINER_WORD = /^(?:->|[-–—→]+)$/;
+
+/**
+ * One move, or several: six or more written together with no spaces
+ * ("RUR'U'R'FRF'"), or any number joined by hyphens or arrows. Empty when the
+ * word is not made only of moves.
+ */
 function wordMoves(word: string): Move[] {
   const single = parseMove(word);
   if (single) return [single];
-  if (!/^(?:[URFDLB]w?['’2]?){6,}$/.test(word)) return [];
-  const parts = word.match(/[URFDLB]w?['’2]?/g) ?? [];
+  const joined = word.split(JOINER);
+  if (joined.length > 1) {
+    const moves = joined.map(wordMoves);
+    return moves.every((part) => part.length > 0) ? moves.flat() : [];
+  }
+  if (!/^(?:[URFDLB]w?2?['’′]?){6,}$/.test(word)) return [];
+  const parts = word.match(/[URFDLB]w?2?['’′]?/g) ?? [];
   return parts.flatMap((part) => parseMove(part) ?? []);
 }
 
@@ -213,6 +233,7 @@ function findRuns(text: string): Run[] {
     const trail = /[)\]}`*_",.;:!?]*$/.exec(word)![0];
     const end = word.length - trail.length;
     const core = word.slice(lead, end);
+    if (run && JOINER_WORD.test(core)) continue;
     const moves = end > lead ? wordMoves(core) : [];
     if (moves.length === 0) {
       flush();
@@ -336,7 +357,16 @@ function resolveRefs(items: Json, catalogue: readonly CatalogueEntry[]) {
     const id = typeof item === "string" ? item : typeof record?.id === "string" ? record.id : null;
     if (!id?.trim()) continue;
     const kind = typeof record?.kind === "string" ? record.kind : "";
-    const found = byKey.get(id.trim().toLowerCase());
+    const key = id.trim().toLowerCase();
+    // A model sometimes copies the whole catalogue line ("- id: title"): then the id is what comes before the colon.
+    const found =
+      byKey.get(key) ??
+      byKey.get(
+        key
+          .replace(/^[-*]\s*/, "")
+          .split(":")[0]!
+          .trim(),
+      );
     // A right id under the wrong kind is the model's slip; the catalogue's kind wins.
     const entry = found?.find((candidate) => candidate.kind === kind) ?? found?.[0];
     if (!entry) {

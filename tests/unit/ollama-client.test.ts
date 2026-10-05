@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { OllamaError, ollamaStatus, streamOllamaChat } from "@/lib/coach-chat/ollama";
+import {
+  OllamaError,
+  isLoopbackUrl,
+  ollamaStatus,
+  streamOllamaChat,
+} from "@/lib/coach-chat/ollama";
 import type { OllamaStats } from "@/lib/coach-chat/ollama";
 
 const enc = new TextEncoder();
@@ -87,6 +92,38 @@ describe("streamOllamaChat request", () => {
     const fetchMock = stubFetch(() => ndjson([line("", true)]));
     await collect(streamOllamaChat(MESSAGES, { ...OPTS, format: "json" }));
     expect(JSON.parse(fetchMock.mock.calls[0][1].body as string).format).toBe("json");
+  });
+});
+
+describe("only Ollama on this Mac", () => {
+  it("knows an address on this Mac from any other", () => {
+    for (const url of [
+      "http://127.0.0.1:11434",
+      "http://localhost:9999",
+      "http://[::1]:11434",
+      "http://ollama.localhost:11434",
+      "https://127.0.0.2",
+    ])
+      expect(isLoopbackUrl(url), url).toBe(true);
+    for (const url of [
+      "http://192.168.1.20:11434",
+      "http://example.com:11434",
+      "http://127.0.0.1.example.com:11434",
+      "http://localhost.example.com",
+      "ftp://127.0.0.1",
+      "not a url",
+      "",
+    ])
+      expect(isLoopbackUrl(url), url).toBe(false);
+  });
+
+  it("never sends the prompt to another address", async () => {
+    const fetchMock = stubFetch(() => ndjson([line("x", true)]));
+    await expect(
+      collect(streamOllamaChat(MESSAGES, { ...OPTS, baseUrl: "http://192.168.1.20:11434" })),
+    ).rejects.toThrow(/on this Mac/);
+    expect(await ollamaStatus("http://example.com:11434")).toEqual({ running: false, models: [] });
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
 

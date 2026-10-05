@@ -288,13 +288,22 @@ function factHit(alt: FactAlt, answerText: string, answerNumbers: number[]): boo
 const MOVE_TOKEN = /^(?:[URFDLB]w?|[urfdlb]|[MESxyz])(?:2'?|'|2)?$/;
 const STRONG_MOVE = /^(?:[URFDLB]w?(?:2'?|'|2)?|[urfdlbMESxyz](?:2'?|'|2))$/;
 
+/** Three or more moves with commas between: "U, D, L, R" (a list of faces) or "R, U, R', U'". */
+const COMMA_LIST =
+  /(?<![A-Za-z0-9'])(?:(?:[URFDLB]w?|[urfdlbMESxyz])(?:2'?|'|2)?\s*,\s*){2,}(?:[URFDLB]w?|[urfdlbMESxyz])(?:2'?|'|2)?(?![A-Za-z0-9'])/g;
+
 /**
  * Runs of four or more cube moves ("R U R' U'", "(R U R' U')", "RUR'U'R'FRF'"):
  * the model must not write algorithms, because small models invent them.
+ * A comma list of plain faces, with no prime or double, is talk about faces.
  */
 export function findMoveSequences(text: string): string[] {
   const found: string[] = [];
-  const spaced = text.replace(/[‘’`]/g, "'").replace(/[()[\]{},;:/]/g, " ");
+  const spaced = text
+    .replace(/[‘’′`]/g, "'")
+    .replace(/->|[→–—-]/g, " ")
+    .replace(COMMA_LIST, (list) => (/['2w]/.test(list) ? list : " | "))
+    .replace(/[()[\]{},;:/]/g, " ");
   let run: string[] = [];
   const flush = () => {
     if (run.length >= 4 && run.filter((token) => STRONG_MOVE.test(token)).length >= 3) {
@@ -307,7 +316,7 @@ export function findMoveSequences(text: string): string[] {
     else flush();
   }
   flush();
-  for (const match of spaced.matchAll(/(?<![A-Za-z])(?:[URFDLB]w?[2']?){6,}(?![A-Za-z])/g)) {
+  for (const match of spaced.matchAll(/(?<![A-Za-z])(?:[URFDLB]w?2?'?){6,}(?![A-Za-z])/g)) {
     found.push(match[0]);
   }
   return found;

@@ -5,6 +5,25 @@ export const OLLAMA_BASE_URL = "http://127.0.0.1:11434";
 export const DEFAULT_NUM_CTX = 8192;
 const STATUS_TIMEOUT_MS = 3000;
 
+/**
+ * Is this address on this Mac? The coach sends the person's numbers summary and
+ * questions only to a local Ollama, so every call checks `baseUrl` first.
+ */
+export function isLoopbackUrl(url: string): boolean {
+  try {
+    const { protocol, hostname } = new URL(url);
+    return (
+      /^https?:$/.test(protocol) &&
+      (hostname === "localhost" ||
+        hostname.endsWith(".localhost") ||
+        hostname === "[::1]" ||
+        /^127(?:\.\d{1,3}){3}$/.test(hostname))
+    );
+  } catch {
+    return false;
+  }
+}
+
 export type OllamaErrorCode =
   | "not-running" // nothing answered, or the connection dropped mid-reply
   | "model-missing" // the model is not downloaded (or was deleted outside the app)
@@ -68,6 +87,8 @@ export async function* streamOllamaChat(
   messages: ChatMessage[],
   opts: OllamaChatOptions,
 ): AsyncGenerator<string, OllamaStats | undefined> {
+  if (!isLoopbackUrl(opts.baseUrl ?? OLLAMA_BASE_URL))
+    throw new RangeError("The coach only talks to Ollama on this Mac (127.0.0.1 or localhost)");
   let res: Response;
   try {
     res = await fetch(`${opts.baseUrl ?? OLLAMA_BASE_URL}/api/chat`, {
@@ -164,10 +185,11 @@ export async function* streamOllamaChat(
   }
 }
 
-/** Is Ollama answering, which version, and which models are downloaded. Never throws. */
+/** Is Ollama answering, which version, and which models are downloaded. Never throws; an address off this Mac is "not running". */
 export async function ollamaStatus(
   baseUrl: string = OLLAMA_BASE_URL,
 ): Promise<{ running: boolean; version?: string; models: string[] }> {
+  if (!isLoopbackUrl(baseUrl)) return { running: false, models: [] };
   try {
     const versionRes = await fetch(`${baseUrl}/api/version`, {
       signal: AbortSignal.timeout(STATUS_TIMEOUT_MS),

@@ -106,6 +106,25 @@ describe("checking ids against the catalogue", () => {
     expect(unknownIds).toEqual(["Finger Gym"]);
   });
 
+  it("reads an id the model copied together with its title, but only a real one", () => {
+    const { reply, unknownIds } = parse(
+      JSON.stringify({
+        answer: "x",
+        refs: [
+          { kind: "pack", id: "lookahead: Lookahead, properly" },
+          { kind: "test", id: "- cross_only: Cross test" },
+          { kind: "pack", id: "finger-gym: Fast fingers" },
+        ],
+        followUps: [],
+      }),
+    );
+    expect(reply.refs).toEqual([
+      { kind: "pack", id: "lookahead" },
+      { kind: "test", id: "cross_only" },
+    ]);
+    expect(unknownIds).toEqual(["finger-gym: Fast fingers"]);
+  });
+
   it("keeps each ref once and at most three", () => {
     const ids = ["lookahead", "lookahead", "inspection", "consistency", "practice-plan"];
     const { reply } = parse(
@@ -156,6 +175,13 @@ describe("a reply cut off or malformed", () => {
     expect(result.invented).toHaveLength(1);
   });
 
+  it("keeps a __proto__ key from reaching the reply", () => {
+    const result = parse('{"__proto__": {"answer": "from the prototype"}, "refs": []}');
+    expect(result.structured).toBe(false);
+    expect(result.reply.answer).not.toBe("from the prototype");
+    expect(({} as { answer?: string }).answer).toBeUndefined();
+  });
+
   it("falls back to the raw text for broken JSON or JSON without an answer", () => {
     expect(parse('{"answer": nope}').reply.answer).toBe('{"answer": nope}');
     expect(parse('{"text": "hi"}').structured).toBe(false);
@@ -181,6 +207,19 @@ describe("streaming: the answer so far", () => {
 
   it("passes text that isn't JSON straight through", () => {
     expect(partialAnswer("Work on lookahead.")).toBe("Work on lookahead.");
+  });
+
+  it("never shows an invented algorithm, even on the way to the final answer", () => {
+    const raw = JSON.stringify({
+      answer: "Try F R U2 L D' B2 R now, then rest.",
+      refs: [],
+      followUps: [],
+    });
+    for (let end = 0; end <= raw.length; end++) {
+      expect(partialAnswer(raw.slice(0, end))).not.toMatch(/F R U2 L/);
+    }
+    expect(partialAnswer(raw)).toBe(`Try ${ALGORITHM_REMOVED} now, then rest.`);
+    expect(partialAnswer("Do F R U2 L D' B2 R now")).toBe(`Do ${ALGORITHM_REMOVED} now`);
   });
 });
 
@@ -231,6 +270,25 @@ describe("the algorithm guard", () => {
     expect(result.invented).toEqual(["FRU2L'D'B2RUL'D"]);
     expect(result.text).toBe(`It is ${ALGORITHM_REMOVED} every time.`);
     expect(guard(`Use ${bankAlgorithm.replace(/ /g, "")} here`).invented).toEqual([]);
+  });
+
+  it("reads moves joined by hyphens or arrows, and primes written as U+2032", () => {
+    const invented = ["R-U2-R'-D-R-U'-R'-D'-R-U-R", "R→U2→R'→D→R→U'→R'→D'→R→U→R"];
+    for (const moves of invented) {
+      expect(guard(`Do ${moves} now`)).toEqual({
+        text: `Do ${ALGORITHM_REMOVED} now`,
+        invented: [moves],
+      });
+    }
+    const spelled = "R U2 R' D R U' R' D' R U R";
+    expect(guard(`Do ${spelled.replace(/ /g, " → ")} now`).invented).toHaveLength(1);
+    expect(guard(`Do ${spelled.replace(/ /g, " - ")} now`).invented).toHaveLength(1);
+    expect(guard("Do FRU2L′D′B2RUL′D now").invented).toEqual(["FRU2L′D′B2RUL′D"]);
+    expect(guard("Do R2'U2'F2'D2'B2'L2' now").invented).toEqual(["R2'U2'F2'D2'B2'L2'"]);
+    // A bank algorithm written that way still passes, and ordinary hyphenated words are not moves.
+    expect(guard(`Use ${bankAlgorithm.replace(/ /g, "-")} here`).invented).toEqual([]);
+    const words = "The U-perm, F2L-style, x-axis, R-U and plan-B work is a D-day thing.";
+    expect(guard(words)).toEqual({ text: words, invented: [] });
   });
 
   it("removes two separate inventions", () => {

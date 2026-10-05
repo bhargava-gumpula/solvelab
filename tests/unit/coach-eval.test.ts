@@ -507,6 +507,24 @@ describe("helpers", () => {
     expect(findMoveSequences("R U R'")).toEqual([]);
   });
 
+  it("reads primes written as U+2032, and moves joined by hyphens or arrows", () => {
+    expect(findMoveSequences("Use R′ U′ F2 D2 for that")).toHaveLength(1);
+    expect(findMoveSequences("It is RUR′U′R′FRF′ every time")).toHaveLength(1);
+    expect(findMoveSequences("It is R2'U2'F2'D2'B2'L2' every time")).toHaveLength(1);
+    expect(findMoveSequences("Do R-U-R'-U' now")).toHaveLength(1);
+    expect(findMoveSequences("Do R → U → R' → U' now")).toHaveLength(1);
+    expect(findMoveSequences("Do R->U->R'->U' now")).toHaveLength(1);
+    expect(findMoveSequences("Learn the U-perm and the F2L-style approach.")).toEqual([]);
+  });
+
+  it("counts a comma list of moves, but not a list of faces", () => {
+    expect(findMoveSequences("Do R, U, R', U' now")).toHaveLength(1);
+    expect(findMoveSequences("Do R,U,R',U',F now")).toHaveLength(1);
+    expect(findMoveSequences("Do R2, U, F2, D2 now")).toHaveLength(1);
+    expect(findMoveSequences("The faces are U, D, L, R, F and B.")).toEqual([]);
+    expect(findMoveSequences("Turn the U, D, F, B layers.")).toEqual([]);
+  });
+
   it("reads numbers and m:ss times", () => {
     expect(numbersIn("1:05.30 and 3.2 s")).toEqual([65.3, 3.2]);
   });

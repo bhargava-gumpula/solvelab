@@ -30,6 +30,7 @@ import {
   DEFAULT_NUM_CTX,
   OLLAMA_BASE_URL,
   OllamaError,
+  isLoopbackUrl,
   ollamaStatus,
   streamOllamaChat,
   type OllamaStats,
@@ -55,7 +56,7 @@ interface Options {
 
 const USAGE = `Usage: npm run coach:eval -- [options]
   --model <tag>          Ollama model to test (default ${DEFAULT_MODEL})
-  --base-url <url>       Ollama address (default ${OLLAMA_BASE_URL})
+  --base-url <url>       Ollama address on this Mac (default ${OLLAMA_BASE_URL})
   --fixture <text>       only fixtures whose id contains this (repeat for several)
   --limit <n>            only the first n fixtures
   --num-ctx <n>          context size (default ${DEFAULT_NUM_CTX}, what the app sets)
@@ -99,6 +100,10 @@ function parseArgs(argv: string[]): Options {
         break;
       case "--base-url":
         options.baseUrl = value().replace(/\/+$/, "");
+        if (!isLoopbackUrl(options.baseUrl))
+          throw new SetupError(
+            "--base-url must be an address on this Mac (127.0.0.1 or localhost)",
+          );
         break;
       case "--fixture":
         options.only.push(value());
