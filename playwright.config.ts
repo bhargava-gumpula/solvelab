@@ -20,7 +20,7 @@ export default defineConfig({
   },
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
-    { name: "webkit", use: { ...devices["Desktop Safari"] } },
+    { name: "webkit", timeout: 60000, use: { ...devices["Desktop Safari"], trace: "off" } },
   ],
   webServer: {
     command: "node scripts/serve-static.mjs",

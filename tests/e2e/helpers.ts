@@ -156,18 +156,29 @@ export async function seedStoredAccount(page: Page, uid = "e2e-account"): Promis
       .getEntriesByType("resource")
       .map((entry) => entry.name)
       .filter((name) => name.includes("/_next/static/chunks/"));
-    let apiKey: string | null = null;
-    let supabaseRef: string | null = null;
-    for (const url of urls) {
-      const source = await (await fetch(url)).text();
-      const supabase = /https:\/\/([a-z0-9-]+)\.supabase\.(?:co|in|red)/.exec(source);
-      if (supabase) {
-        supabaseRef = supabase[1]!;
-        break;
+    // Fetched in parallel; the first Supabase URL wins, else the Firebase key.
+    const { apiKey, supabaseRef } = await new Promise<{
+      apiKey: string | null;
+      supabaseRef: string | null;
+    }>((resolve) => {
+      let apiKey: string | null = null;
+      let pending = urls.length;
+      if (!pending) resolve({ apiKey, supabaseRef: null });
+      for (const url of urls) {
+        fetch(url)
+          .then((response) => response.text())
+          .then((source) => {
+            const supabase = /https:\/\/([a-z0-9-]+)\.supabase\.(?:co|in|red)/.exec(source);
+            if (supabase) resolve({ apiKey, supabaseRef: supabase[1]! });
+            const firebase = /AIzaSy[A-Za-z0-9_-]{20,}/.exec(source);
+            if (firebase) apiKey = firebase[0];
+          })
+          .catch(() => {})
+          .finally(() => {
+            if (--pending === 0) resolve({ apiKey, supabaseRef: null });
+          });
       }
-      const firebase = /AIzaSy[A-Za-z0-9_-]{20,}/.exec(source);
-      if (firebase) apiKey = firebase[0];
-    }
+    });
     const now = Date.now();
     if (supabaseRef) {
       // supabase-js keeps the session under sb-<ref>-auth-token. The token is

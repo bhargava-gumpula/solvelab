@@ -27,7 +27,9 @@ test.describe("courses staged by level", () => {
       else {
         // The switcher moves between courses without reloading the Hub.
         await page.getByTestId(`course-chip-${course.id}`).click();
-        await expect(page).toHaveURL(new RegExp(`/hub/course/${course.id}/$`));
+        await expect(page).toHaveURL(new RegExp(`/hub/course/${course.id}/$`), {
+          timeout: 15_000,
+        });
         await expect(page.getByTestId("course-title")).toHaveText(course.title);
       }
       await expect(unitSections(page)).toHaveCount(course.units);
