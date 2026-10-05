@@ -1,0 +1,154 @@
+{
+  "id": "sub10-lookahead-slow-asks-if-fine",
+  "description": "Sub-10 whose lookahead is clearly behind its goal asks whether it is fine. A model that calls a slow part \"average\" or \"fine\" is wrong.",
+  "profile": {
+    "goal": "sub10",
+    "averageMs": 9700,
+    "courseId": "sub-10",
+    "intro": {
+      "average": "sub-10",
+      "slowParts": ["pauses"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 980,
+        "range": [870, 1090],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 190,
+        "range": [40, 340],
+        "samples": 10,
+        "previous": 210
+      },
+      "cross_to_f2l": {
+        "value": 400,
+        "range": [250, 550],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 4320,
+        "range": [3840, 4800],
+        "samples": 10,
+        "previous": 4840
+      },
+      "pair_speed": {
+        "value": 1000,
+        "range": [890, 1110],
+        "samples": 10,
+        "previous": 1120
+      },
+      "lookahead": {
+        "value": 1290,
+        "range": [1080, 1500],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 270,
+        "range": [120, 420],
+        "samples": 10,
+        "previous": 300
+      },
+      "oll": {
+        "value": 1400,
+        "range": [1250, 1550],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.08,
+        "range": [0, 0.16],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 260,
+        "range": [110, 410],
+        "samples": 10,
+        "previous": 290
+      },
+      "pll": {
+        "value": 1800,
+        "range": [1600, 2000],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.08,
+        "range": [0, 0.17],
+        "samples": 10,
+        "previous": 0.09
+      },
+      "full_solve": {
+        "value": 9700,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.073,
+        "range": [0.066, 0.08],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 14.700000000000001,
+        "range": [13.8, 15.600000000000001],
+        "samples": 10,
+        "previous": 13.100000000000001
+      }
+    },
+    "picks": [
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Lookahead is furthest from your goal"
+      },
+      {
+        "id": "practising-near-ten",
+        "title": "Practising near ten",
+        "reason": "Written for sub 10"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "lookahead",
+    "refs": ["lookahead", "f2l_only", "last_slot", "practising-near-ten", "past-the-first-pair"],
+    "words": ["lookahead", "look ahead", "next pair", "pause", "pausing"]
+  },
+  "mustNever": [
+    {
+      "id": "calls-slow-lookahead-fine",
+      "why": "The data says lookahead is slow, not average, fine or good.",
+      "pattern": "\\blookahead\\b.{0,70}?\\b(?:is|are)\\s+(?:(?:still|only|just|pretty|fairly)\\s+)*(?:average|fine|decent|okay|fast|good|quick|strong)\\b"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Is my lookahead okay for sub-10?",
+      "checksWeakest": true,
+      "mustMention": [
+        [
+          "slow",
+          "behind",
+          "lagging",
+          "not yet",
+          "furthest",
+          "bottleneck",
+          "above your goal",
+          "over your goal",
+          "needs work",
+          "room"
+        ]
+      ]
+    }
+  ]
+}

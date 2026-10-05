@@ -19,8 +19,19 @@ import { drillCases } from "@/lib/hub/recognition";
 import type { RecognitionStats } from "@/lib/hub/recognition-stats";
 import type { RecognitionSet } from "@/lib/hub/units";
 import type { HubIntro, KnownAlgorithms, PaceTag } from "@/types/domain";
-import type { CoachContextV2Input } from "./context";
+import { buildCoachContextV2, coachFacts, type CoachContextV2Input } from "./context";
+import {
+  fixKindWords,
+  guardAdvice,
+  numbersIn,
+  refSlips,
+  replyCheck,
+  ungroundedStated,
+  type ReplyCheck,
+} from "./guards";
 import type { ChatMessage, CoachReply } from "./types";
+
+export { numbersIn };
 
 /** At least this share of checks must pass, with no must-never break. */
 export const PASS_MARK = 0.95;
@@ -267,18 +278,6 @@ export function wordCount(text: string): number {
   return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
-/** Numbers in a text: plain ones, and "m:ss.xx" times as seconds. */
-export function numbersIn(text: string): number[] {
-  const out: number[] = [];
-  for (const match of text.matchAll(/(\d+):(\d{2}(?:\.\d+)?)/g)) {
-    out.push(Number(match[1]) * 60 + Number(match[2]));
-  }
-  for (const match of text.replace(/\d+:\d{2}(?:\.\d+)?/g, " ").matchAll(/\d+(?:\.\d+)?/g)) {
-    out.push(Number(match[0]));
-  }
-  return out;
-}
-
 function factHit(alt: FactAlt, answerText: string, answerNumbers: number[]): boolean {
   if (typeof alt === "string") return answerText.includes(normaliseText(alt));
   const tol = alt.tol ?? 0.06;
@@ -322,49 +321,14 @@ export function findMoveSequences(text: string): string[] {
   return found;
 }
 
-/** Seconds a reply states with a unit: "3.2 s", "3.2 seconds", "1:05.3". */
-export function secondsStated(text: string): number[] {
-  const out: number[] = [];
-  for (const match of text.matchAll(/(\d+(?:\.\d+)?)\s*(?:s|secs?|seconds?)\b/gi)) {
-    out.push(Number(match[1]));
-  }
-  for (const match of text.matchAll(/\b(\d+):(\d{2}(?:\.\d+)?)\b/g)) {
-    out.push(Number(match[1]) * 60 + Number(match[2]));
-  }
-  return out;
-}
-
 /**
- * The differences a coach may work out for itself from one line of the data:
- * a number against its goal, and against where it was.
- */
-function gapsIn(told: string): number[] {
-  const gaps: number[] = [];
-  for (const line of told.split("\n")) {
-    const value = /^- [^:]+: (\d+(?:\.\d+)?) s/.exec(line)?.[1];
-    if (value === undefined) continue;
-    const goal = /goal (?:under|over) (\d+(?:\.\d+)?) s/.exec(line)?.[1];
-    const before = /(\d+(?:\.\d+)?) s → \d+(?:\.\d+)? s/.exec(line)?.[1];
-    for (const other of [goal, before]) {
-      if (other !== undefined) gaps.push(Math.abs(Number(value) - Number(other)));
-    }
-  }
-  return gaps;
-}
-
-/**
- * Decimal seconds in a reply that appear nowhere in what the model was told,
- * nor as a number's gap to its goal or to where it was. Whole numbers are
- * advice ("ten minutes", "15 seconds"), not data, and are never flagged.
+ * The numbers in a reply that nothing the model was told backs up: decimals
+ * and numbers with a unit (seconds, a percent, turns per second) that are not
+ * in the data, nor a gap between two of its numbers, nor the person's own.
+ * Whole numbers with no unit ("ten drills") are advice, not data.
  */
 export function ungroundedNumbers(reply: string, told: string): number[] {
-  const known = numbersIn(told);
-  const gaps = gapsIn(told);
-  const near = (value: number, pool: readonly number[]) =>
-    pool.some((item) => Math.abs(item - value) <= 0.051);
-  return secondsStated(reply).filter(
-    (value) => !Number.isInteger(value) && !near(value, known) && !near(value, gaps),
-  );
+  return ungroundedStated(reply, { system: told, said: [] }).map((item) => item.value);
 }
 
 /** The reply as the model wrote it: a JSON object with an `answer`, not the raw-text fallback. */
@@ -450,6 +414,132 @@ export function ruleBreak(rule: NeverRule, text: string): string | null {
 }
 
 // ---------------------------------------------------------------------------
+// What the model got wrong (plan 3.3, after reading real answers)
+// ---------------------------------------------------------------------------
+
+/** How a part of the solve is named in a reply, longest names first (a name already matched is not read again). */
+const PART_NAMES: [AspectId, RegExp][] = [
+  ["cross_to_f2l", /\bcross\s*(?:\u2192|->|to|into)\s*f2l\b|\bjoin after the cross\b/g],
+  ["f2l_to_oll", /\bf2l\s*(?:\u2192|->|to|into)\s*oll\b/g],
+  ["oll_to_pll", /\boll\s*(?:\u2192|->|to|into)\s*pll\b/g],
+  ["cross_planning", /\binspection(?: planning)?\b|\bcross planning\b/g],
+  ["pair_speed", /\bpair (?:speed|execution)\b/g],
+  ["lookahead", /\blookahead\b/g],
+  ["oll_algorithms", /\boll algorithms\b/g],
+  ["pll_algorithms", /\bpll algorithms\b/g],
+  ["turning_speed", /\bturning speed\b|\btps\b/g],
+  ["full_solve", /\bfull solve\b/g],
+  ["consistency", /\bconsisten\w*/g],
+  ["f2l", /\bf2l\b/g],
+  ["oll", /\boll\b/g],
+  ["pll", /\bpll\b/g],
+  ["cross", /\bcross\b/g],
+];
+
+const LINK =
+  "(?:is|are|was|were|be|being|been|remains?|stays?|looks?|seems?|rated|tagged|marked|considered|sits?|sitting|at|'s|'re)";
+const ADVERB =
+  "(?:still|only|just|pretty|fairly|quite|rather|merely|slightly|somewhat|also|currently|both|really|relatively|about)";
+const claim = (words: string) => new RegExp(`\\b${LINK}\\s+(?:${ADVERB}\\s+)*(?:${words})\\b`, "g");
+/** "is average", "are still average": a verdict on a part, not "your average" the number. */
+const PACE_CLAIMS: [PaceTag, RegExp][] = [
+  ["average", claim("average|okay|ok|decent|fine|middling|so-so")],
+  ["fast", claim("fast|quick|strong|good|great|solid|excellent|ahead|on target|on track")],
+  ["slow", claim("slow|slowest|weak|weakest|lagging|a bottleneck|the bottleneck")],
+];
+
+/**
+ * Parts the reply gives a pace verdict that its tag in the data contradicts:
+ * calling a slow part "average" or "fast", or a fast one "slow". A verdict
+ * covers the parts named since the last one, so "pair speed and lookahead are
+ * still average" holds both to it.
+ */
+export function tagContradictions(answer: string, profile: SolveProfile): string[] {
+  const tags = new Map(profile.aspects.map((aspect) => [aspect.id, aspect.tag] as const));
+  const out: string[] = [];
+  const text = answer
+    .toLowerCase()
+    .replace(/[\u2018\u2019]/g, "'")
+    // Pack, lesson and drill ids ("cross-for-f2l") name a thing, not a part of the solve.
+    .replace(/\b[a-z0-9]+(?:-[a-z0-9]+)+\b/g, " ");
+  for (const clause of text.split(
+    /[;:]|,?\s+(?:but|while|whereas|although|though|because|since|which|so|yet|however)\s+/,
+  )) {
+    let rest = clause;
+    const parts: { id: AspectId; at: number }[] = [];
+    for (const [id, pattern] of PART_NAMES) {
+      for (const found of rest.matchAll(pattern)) parts.push({ id, at: found.index! });
+      rest = rest.replace(pattern, (m) => " ".repeat(m.length));
+    }
+    const verdicts = PACE_CLAIMS.flatMap(([tag, pattern]) =>
+      [...clause.matchAll(pattern)].map((found) => ({ tag, at: found.index! })),
+    ).sort((a, b) => a.at - b.at);
+    let from = -1;
+    for (const verdict of verdicts) {
+      for (const part of parts.filter((one) => one.at > from && one.at < verdict.at)) {
+        const actual = tags.get(part.id);
+        const wrong =
+          (actual === "slow" && verdict.tag !== "slow") ||
+          (actual === "average" && verdict.tag === "fast") ||
+          (actual === "fast" && verdict.tag === "slow");
+        if (wrong) out.push(`${part.id} is ${actual} but the reply says ${verdict.tag}`);
+      }
+      from = verdict.at;
+    }
+  }
+  return [...new Set(out)];
+}
+
+export interface Slips {
+  /** Numbers with a unit or decimal that the data does not back. */
+  numbers: string[];
+  /** Kind words that don't fit the thing they sit next to. */
+  kindWords: string[];
+  /** Advice to learn a set they know or should leave alone, and refs to them. */
+  advice: string[];
+  /** Pace verdicts the data's tags contradict. */
+  tags: string[];
+}
+
+/** The check a fixture's turn is held to: the prompt the app would build, and what the person has said by then. */
+export function fixtureCheck(fixture: EvalFixture, turn: EvalTurn): ReplyCheck {
+  const input = fixtureToContextInput(fixture);
+  const { system } = buildCoachContextV2(input);
+  const upTo = fixture.turns.indexOf(turn) + 1;
+  return replyCheck(
+    [
+      { role: "system", content: system },
+      ...(fixture.history ?? []),
+      ...fixture.turns.slice(0, upTo).map((one) => ({ role: "user", content: one.user })),
+    ],
+    coachFacts(input),
+  );
+}
+
+/** What is wrong in a reply, by the four guards' own measure. */
+export function replySlips(
+  reply: CoachReply,
+  context: {
+    fixture: EvalFixture;
+    turn: EvalTurn;
+    catalogue: readonly { id: string; title: string; kind: string }[];
+    check: ReplyCheck;
+  },
+): Slips {
+  const { fixture, turn, catalogue, check } = context;
+  const texts = [reply.answer, ...reply.followUps];
+  return {
+    numbers: texts.flatMap((text) => ungroundedStated(text, check).map((item) => item.text)),
+    kindWords: texts.flatMap((text) => fixKindWords(text, catalogue).fixes),
+    advice: [
+      ...texts.flatMap((text) => guardAdvice(text, check).removed),
+      ...refSlips(reply.refs, check, turn.user).removed,
+    ],
+    tags: tagContradictions(reply.answer, fixtureToProfile(fixture.profile)),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Scoring one reply
 // ---------------------------------------------------------------------------
 
@@ -477,13 +567,15 @@ export interface ScoreInput {
   turn: EvalTurn;
   /** What the model wrote, before parsing. */
   raw: string;
-  /** From `parseCoachReply` (algorithms already taken out of the text). */
+  /** From `parseCoachReply` (algorithms already taken out of the text, and the reply guards applied when the app's check is on): what the person would see. */
   reply: CoachReply;
+  /** What the model said before the reply guards (`parseCoachReply`'s `unguarded`); the checks score this. Defaults to `reply`. */
+  modelReply?: CoachReply;
   /** `unknownIds` from `parseCoachReply`: ids the model returned that the catalogue does not have. */
   unknownIds: readonly string[];
   catalogue: readonly { id: string; title: string; kind: string }[];
-  /** Everything the model was told (system prompt and the conversation), for number checks. */
-  told: string;
+  /** Everything the model was told (system prompt and the conversation). Kept for callers; the checks rebuild what they need from the fixture. */
+  told?: string;
 }
 
 const clip = (text: string, max = 120) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
@@ -491,7 +583,7 @@ const clip = (text: string, max = 120) => (text.length > max ? `${text.slice(0, 
 /** How many checks a turn has, so a turn that produced no reply can count as all failed. */
 export function checkCount(fixture: EvalFixture, turn: EvalTurn): number {
   return (
-    3 + // json, length, numbers
+    6 + // json, length, numbers, kind words, known sets, tags
     (turn.mustMention?.length ?? 0) +
     (turn.checksWeakest && fixture.weakest ? 1 : 0) +
     (turn.expectRefs ? 1 : 0)
@@ -499,7 +591,11 @@ export function checkCount(fixture: EvalFixture, turn: EvalTurn): number {
 }
 
 export function scoreTurn(input: ScoreInput): TurnScore {
-  const { fixture, turn, raw, reply, unknownIds, catalogue, told } = input;
+  const { fixture, turn, raw, reply, unknownIds, catalogue } = input;
+  const model = input.modelReply ?? reply;
+  const check = fixtureCheck(fixture, turn);
+  const modelSlips = replySlips(model, { fixture, turn, catalogue, check });
+  const shownSlips = replySlips(reply, { fixture, turn, catalogue, check });
   const checks: Check[] = [];
   const breaks: Break[] = [];
   const everything = [reply.answer, ...reply.followUps].join("\n");
@@ -519,11 +615,25 @@ export function scoreTurn(input: ScoreInput): TurnScore {
     ok: words >= MIN_WORDS && words <= maxWords,
     detail: `${words} words (allowed ${MIN_WORDS}-${maxWords})`,
   });
-  const invented = ungroundedNumbers(reply.answer, told);
   checks.push({
     id: "numbers",
-    ok: invented.length === 0,
-    detail: `seconds not in the data: ${invented.join(", ")}`,
+    ok: modelSlips.numbers.length === 0,
+    detail: `numbers not in the data: ${modelSlips.numbers.join(", ")}`,
+  });
+  checks.push({
+    id: "kind-words",
+    ok: modelSlips.kindWords.length === 0,
+    detail: `wrong kind word: ${modelSlips.kindWords.join("; ")}`,
+  });
+  checks.push({
+    id: "known-sets",
+    ok: modelSlips.advice.length === 0,
+    detail: `advises or points to a set it should not: ${modelSlips.advice.join("; ")}`,
+  });
+  checks.push({
+    id: "tags",
+    ok: modelSlips.tags.length === 0,
+    detail: modelSlips.tags.join("; "),
   });
   (turn.mustMention ?? []).forEach((fact, index) => {
     const alts = Array.isArray(fact) ? fact : [fact];
@@ -557,6 +667,19 @@ export function scoreTurn(input: ScoreInput): TurnScore {
   }
 
   // --- must-never breaks
+  // What the person sees must be clean, whatever the model said: a slip here got past the reply guards.
+  for (const number of shownSlips.numbers) {
+    breaks.push({
+      rule: "ungrounded-number",
+      detail: `shows ${number}, which the data does not have`,
+    });
+  }
+  for (const fix of shownSlips.kindWords) {
+    breaks.push({ rule: "wrong-kind-word", detail: clip(fix) });
+  }
+  for (const slip of shownSlips.advice) {
+    breaks.push({ rule: "recommends-known-set", detail: clip(slip) });
+  }
   for (const id of unknownIds) {
     breaks.push({ rule: "id-outside-catalogue", detail: `the model returned ${clip(id, 60)}` });
   }
@@ -686,6 +809,18 @@ export function renderReport(results: readonly TurnResult[]): string {
   if (problems.length) out.push("", ...problems);
 
   const all = summarise(results);
+  const missed = new Map<string, number>();
+  for (const result of results) {
+    for (const check of result.checks) {
+      if (!check.ok) {
+        const id = check.id.replace(/:\d+$/, "");
+        missed.set(id, (missed.get(id) ?? 0) + 1);
+      }
+    }
+  }
+  if (missed.size) {
+    out.push("", `Misses by check: ${[...missed].map(([id, n]) => `${id} ${n}`).join(", ")}`);
+  }
   out.push(
     "",
     `Checks passed: ${all.passed}/${all.total} (${pct(all.rate)}, pass mark ${pct(PASS_MARK)})`,

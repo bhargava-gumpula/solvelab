@@ -21,6 +21,7 @@ import type { RecognitionStats } from "@/lib/hub/recognition-stats";
 import { AVERAGE_CHOICES, SLOW_CHOICES } from "@/lib/hub/intro";
 import { ALL_UNITS, RECOGNITION_LABEL, RETIRED_METHOD_PATHS } from "@/lib/hub/units";
 import type { ProfileSnapshot } from "@/types/domain";
+import { KNOWN_BY_LEVEL, leaveAloneSets, type SetFacts } from "./guards";
 
 export interface CatalogueEntry {
   id: string;
@@ -200,6 +201,20 @@ function focusPacks(picks: CoachContextV2Input["picks"]): string[] {
     .slice(0, 5)
     .map(pickId)
     .filter((id): id is string => Boolean(id));
+}
+
+/** The sets the profile marks as known, and the ones the person's level says to leave alone: what reply.ts holds the coach to. */
+export function coachFacts(input: CoachContextV2Input): SetFacts {
+  const { profile, averageMs, course, intro } = input;
+  const level =
+    currentLevel(averageMs, profile.goalMilestoneId)?.level ?? levelFor(course?.rungs[0]) ?? null;
+  return {
+    knownSets: [
+      ...(KNOWN_BY_LEVEL.pll[intro?.pll ?? ""] ?? []),
+      ...(KNOWN_BY_LEVEL.oll[intro?.oll ?? ""] ?? []),
+    ],
+    leaveAloneSets: leaveAloneSets(level?.notYet.map((item) => firstSentence(item)) ?? []),
+  };
 }
 
 /** The person's data, as lines of plain text: numbers and choices only. */

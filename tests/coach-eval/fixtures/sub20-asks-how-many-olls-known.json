@@ -1,0 +1,160 @@
+{
+  "id": "sub20-asks-how-many-olls-known",
+  "description": "Sub-20 with a high share of slow OLL attempts asks how many OLL algorithms they know. The share is not a count of known algorithms, and a real 4B model read it that way.",
+  "profile": {
+    "goal": "sub20",
+    "averageMs": 23000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["joins"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3090,
+        "range": [2750, 3430],
+        "samples": 10,
+        "previous": 3460
+      },
+      "cross_planning": {
+        "value": 410,
+        "range": [260, 560],
+        "samples": 10,
+        "previous": 460
+      },
+      "cross_to_f2l": {
+        "value": 950,
+        "range": [770, 1130],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 11150,
+        "range": [9920, 12380],
+        "samples": 10,
+        "previous": 12490
+      },
+      "pair_speed": {
+        "value": 2570,
+        "range": [2290, 2850],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 1660,
+        "range": [1350, 1970],
+        "samples": 10,
+        "previous": 1860
+      },
+      "f2l_to_oll": {
+        "value": 1590,
+        "range": [1290, 1890],
+        "samples": 10,
+        "previous": 1600
+      },
+      "oll": {
+        "value": 3020,
+        "range": [2690, 3350],
+        "samples": 10,
+        "previous": 3380
+      },
+      "oll_algorithms": {
+        "value": 0.3,
+        "range": [0.2, 0.4],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 750,
+        "range": [600, 900],
+        "samples": 10,
+        "previous": 840
+      },
+      "pll": {
+        "value": 3090,
+        "range": [2750, 3430],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.19,
+        "range": [0.07, 0.31],
+        "samples": 10,
+        "previous": 0.21
+      },
+      "full_solve": {
+        "value": 23000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.108,
+        "range": [0.097, 0.11900000000000001],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 7.800000000000001,
+        "range": [7.300000000000001, 8.3],
+        "samples": 10,
+        "previous": 7
+      }
+    },
+    "picks": [
+      {
+        "id": "last-pair-into-oll",
+        "title": "The last pair into OLL",
+        "reason": "F2L → OLL is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 25 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "f2l_to_oll",
+    "refs": [
+      "last-pair-into-oll",
+      "last_slot",
+      "oll_only",
+      "ls_oll",
+      "last-pair-into-oll",
+      "ls_oll"
+    ],
+    "words": [
+      "last pair",
+      "into oll",
+      "before oll",
+      "f2l → oll",
+      "f2l to oll",
+      "start oll",
+      "starting oll",
+      "between f2l and oll",
+      "pause"
+    ]
+  },
+  "mustNever": [
+    {
+      "id": "reads-share-as-known",
+      "why": "OLL algorithms and PLL algorithms are the share of slow attempts, not how many algorithms the person knows.",
+      "pattern": "\\b(?:know|knows|solving|solve|learned|memori[sz]ed|have|use)\\w*\\b[^.]{0,25}\\b\\d+(?:\\.\\d+)?\\s?%\\s+of\\s+(?:the\\s+|your\\s+)?(?:OLL|PLL|algorithms|cases)",
+      "excuse": "\\b(?:slow|slower|longer|attempts?|not)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "How many OLL algorithms do I actually know?",
+      "mustMention": [["slow", "longer", "slower", "much slower", "test"]]
+    }
+  ]
+}

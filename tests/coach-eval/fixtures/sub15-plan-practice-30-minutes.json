@@ -1,0 +1,137 @@
+{
+  "id": "sub15-plan-practice-30-minutes",
+  "description": "Sub-15 asks for a weekly practice plan. A real 4B model called a pack a \"lesson\".",
+  "profile": {
+    "goal": "sub12",
+    "averageMs": 14000,
+    "courseId": "sub-12",
+    "intro": {
+      "average": "12-15",
+      "slowParts": ["pairs"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1690,
+        "range": [1500, 1880],
+        "samples": 10,
+        "previous": 1890
+      },
+      "cross_planning": {
+        "value": 220,
+        "range": [70, 370],
+        "samples": 10,
+        "previous": 250
+      },
+      "cross_to_f2l": {
+        "value": 540,
+        "range": [390, 690],
+        "samples": 10,
+        "previous": 600
+      },
+      "f2l": {
+        "value": 9870,
+        "range": [8780, 10960],
+        "samples": 10,
+        "previous": 9820
+      },
+      "pair_speed": {
+        "value": 1330,
+        "range": [1180, 1480],
+        "samples": 10,
+        "previous": 1490
+      },
+      "lookahead": {
+        "value": 940,
+        "range": [760, 1120],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 390,
+        "range": [240, 540],
+        "samples": 10,
+        "previous": 440
+      },
+      "oll": {
+        "value": 2090,
+        "range": [1860, 2320],
+        "samples": 10,
+        "previous": 2340
+      },
+      "oll_algorithms": {
+        "value": 0.12,
+        "range": [0.02, 0.22],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 410,
+        "range": [260, 560],
+        "samples": 10
+      },
+      "pll": {
+        "value": 2550,
+        "range": [2270, 2830],
+        "samples": 10,
+        "previous": 2860
+      },
+      "pll_algorithms": {
+        "value": 0.1,
+        "range": [0, 0.2],
+        "samples": 10,
+        "previous": 0.11
+      },
+      "full_solve": {
+        "value": 14000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.082,
+        "range": [0.074, 0.09],
+        "samples": 50,
+        "previous": 0.092
+      },
+      "turning_speed": {
+        "value": 11.5,
+        "range": [10.8, 12.200000000000001],
+        "samples": 10,
+        "previous": 10.3
+      }
+    },
+    "picks": [
+      {
+        "id": "f2l-efficiency",
+        "title": "F2L in fewer moves",
+        "reason": "F2L is furthest from your goal"
+      },
+      {
+        "id": "cross-for-f2l",
+        "title": "A cross built for F2L",
+        "reason": "Written for around 15 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "f2l",
+    "refs": ["f2l-efficiency", "f2l_only", "f2l-efficiency", "advanced-f2l-cases"],
+    "words": ["f2l", "pairs"]
+  },
+  "turns": [
+    {
+      "user": "Plan my practice for this week, I have 30 minutes a day",
+      "expectRefs": true
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "id": "sub20-knows-pll-asks-pll-or-oll",
+  "description": "Sub-20 who knows full PLL (and some OLL) asks whether to learn full PLL or full OLL next. The reply must not tell them to learn PLL.",
+  "profile": {
+    "goal": "sub20",
+    "averageMs": 24000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["pairs"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3510,
+        "range": [3120, 3900],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 390,
+        "range": [240, 540],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 1000,
+        "range": [810, 1190],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 11440,
+        "range": [10170, 12710],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 4060,
+        "range": [3610, 4510],
+        "samples": 10,
+        "previous": 4040
+      },
+      "lookahead": {
+        "value": 1660,
+        "range": [1340, 1980],
+        "samples": 10,
+        "previous": 1860
+      },
+      "f2l_to_oll": {
+        "value": 670,
+        "range": [520, 820],
+        "samples": 10
+      },
+      "oll": {
+        "value": 3260,
+        "range": [2900, 3620],
+        "samples": 10,
+        "previous": 3650
+      },
+      "oll_algorithms": {
+        "value": 0.2,
+        "range": [0.07, 0.33],
+        "samples": 10,
+        "previous": 0.22
+      },
+      "oll_to_pll": {
+        "value": 650,
+        "range": [500, 800],
+        "samples": 10,
+        "previous": 730
+      },
+      "pll": {
+        "value": 3480,
+        "range": [3090, 3870],
+        "samples": 10,
+        "previous": 3900
+      },
+      "pll_algorithms": {
+        "value": 0.19,
+        "range": [0.07, 0.31],
+        "samples": 10,
+        "previous": 0.21
+      },
+      "full_solve": {
+        "value": 24000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.1,
+        "range": [0.09, 0.11],
+        "samples": 50,
+        "previous": 0.112
+      },
+      "turning_speed": {
+        "value": 8.6,
+        "range": [8.1, 9.1],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "pair-recognition",
+        "title": "Seeing a pair instantly",
+        "reason": "Pair speed is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 25 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "pair_speed",
+    "refs": ["pair-recognition", "last_slot", "pair-recognition", "last_slot"],
+    "words": ["pair"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-known-full-pll",
+      "why": "They already know full PLL: learning it is not the next step.",
+      "pattern": "(?:(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on|focus on|master)\\w*\\b[^.]{0,40}\\b(?:full PLL|all (?:21|of the) PLLs?|21 PLLs?|all the PLLs?)\\b)|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for|focus on)\\b[^.]{0,30}\\b(?:full PLL|all (?:21|of the) PLLs?|21 PLLs?|all the PLLs?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Should I learn full PLL or full OLL next?"
+    }
+  ]
+}
