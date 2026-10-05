@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { OLLAMA_BASE_URL } from "@/lib/config/coach-model";
 
 const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
 const config = JSON.parse(read("src-tauri/tauri.conf.json"));
@@ -24,11 +25,14 @@ describe("the Mac app shell", () => {
       "'self'",
       "ipc:",
       "http://ipc.localhost",
-      "http://127.0.0.1:11434",
+      OLLAMA_BASE_URL,
       [],
     ]);
     expect(supabase).toMatch(/^https:\/\/[a-z0-9]+\.supabase\.co$/);
     expect(realtime).toBe(supabase.replace("https:", "wss:"));
+    // The release workflow checks the built Supabase URL against this too.
+    const built = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (built) expect(supabase).toBe(new URL(built).origin);
   });
 
   it("grants the page only the sign-in deep link and https links", () => {

@@ -5,6 +5,7 @@ import { Bot, Copy, Download, Laptop, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/auth-provider";
 import { GoogleIcon } from "@/components/auth/google-icon";
+import { HowToOpen } from "@/components/hub/how-to-open";
 import { Button } from "@/components/ui/button";
 import { useHub } from "@/hooks/use-hub";
 import type { CoachContextInput } from "@/lib/ai/context";
@@ -93,10 +94,15 @@ export function GetMacApp() {
         )}
         <p className="text-sm text-muted-foreground">
           The app is free. It isn&apos;t signed with an Apple Developer ID, so macOS warns you the
-          first time you open it; a short guide comes with the download. On a school or
-          parent-managed Mac, ask whoever manages it.
+          first time you open it; follow{" "}
+          <a href="#how-to-open" className="underline underline-offset-2">
+            a short guide
+          </a>{" "}
+          below. On a school or parent-managed Mac, ask whoever manages it.
         </p>
       </section>
+
+      <HowToOpen />
 
       <div className="grid gap-6 md:grid-cols-2">
         <section className="tile grid content-start gap-2 p-5 md:p-6" aria-labelledby="mac-does">

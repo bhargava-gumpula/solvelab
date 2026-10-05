@@ -9,7 +9,7 @@
  * Build the pages without account settings (CI has none; locally, blank them so
  * .env.local doesn't apply), so the Hub, Stats and Train aren't behind the sign-in wall:
  *
- *   NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_FIREBASE_API_KEY= NEXT_PUBLIC_SOLVELAB_TARGET=desktop npm run build
+ *   NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_FIREBASE_API_KEY= npm run build:desktop
  *   npx tauri build --bundles app --features smoke
  *   npm run test:app [path/to/SolveLab.app]
  *

@@ -6,6 +6,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { Bot, History, MessageSquarePlus, Send, Square, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { CoachReplyView } from "@/components/coach/coach-reply";
+import { OllamaSetup } from "@/components/coach/ollama-setup";
 import { useStorageStatus } from "@/components/layout/storage-provider";
 import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
@@ -23,19 +24,20 @@ import {
 } from "@/lib/coach-chat/chat-state";
 import { ollamaStatus } from "@/lib/coach-chat/ollama";
 import { partialAnswer } from "@/lib/coach-chat/reply";
-import {
-  COACH_MODEL,
-  MIN_OLLAMA_VERSION,
-  readiness,
-  type Readiness,
-} from "@/lib/coach-chat/readiness";
+import { readiness, type Readiness } from "@/lib/coach-chat/readiness";
+import { COACH_MODELS, MIN_OLLAMA_VERSION } from "@/lib/config/coach-model";
 import { starterQuestion, SUGGESTED_QUESTIONS } from "@/lib/coach-chat/starters";
 import { getRepositories } from "@/lib/storage";
 import { createId } from "@/lib/storage/ids";
 import type { CoachChat, CoachChatMessage } from "@/types/domain";
 
+/** The Mac app's /hub/ask/: the guided Ollama setup, then the chat with the model it set up. */
+export function CoachWithSetup() {
+  return <OllamaSetup>{(model) => <CoachChat model={model.tag} />}</OllamaSetup>;
+}
+
 /** The AI coach on the Mac app: a chat with a model running on this Mac. */
-export function CoachChat() {
+export function CoachChat({ model = COACH_MODELS.standard.tag }: { model?: string }) {
   const params = useSearchParams();
   const starter = starterQuestion(params.get("starter"), params.get("test"));
   const storage = useStorageStatus().status;
@@ -46,10 +48,12 @@ export function CoachChat() {
   const chats = storage === "error" ? [] : saved;
   if (!chats)
     return <Skeleton className="h-[32rem] rounded-3xl" data-testid="coach-chat-loading" />;
-  return <ChatBody saved={chats} starter={starter} />;
+  return <ChatBody saved={chats} starter={starter} model={model} />;
 }
 
-const PROBLEMS: Record<Exclude<Readiness, "ready">, { title: string; body: React.ReactNode }> = {
+const problems = (
+  model: string,
+): Record<Exclude<Readiness, "ready">, { title: string; body: React.ReactNode }> => ({
   "not-running": {
     title: "Ollama isn’t running",
     body: (
@@ -69,12 +73,12 @@ const PROBLEMS: Record<Exclude<Readiness, "ready">, { title: string; body: React
     title: "The coach’s model isn’t downloaded",
     body: (
       <>
-        Download it by running <code className="font-mono">ollama pull {COACH_MODEL}</code> in
-        Terminal, then check again.
+        Download it by running <code className="font-mono">ollama pull {model}</code> in Terminal,
+        then check again.
       </>
     ),
   },
-};
+});
 
 function errorText(error: ChatError): string {
   switch (error.code) {
@@ -93,7 +97,15 @@ function errorText(error: ChatError): string {
   }
 }
 
-function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | null }) {
+function ChatBody({
+  saved,
+  starter,
+  model,
+}: {
+  saved: CoachChat[];
+  starter: string | null;
+  model: string;
+}) {
   const system = useCoachSystem();
   // A starter question opens a fresh chat; otherwise the latest saved chat carries on.
   const [chat, dispatch] = useReducer(chatReducer, undefined, () => {
@@ -110,11 +122,11 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
 
   useEffect(() => {
     let live = true;
-    void ollamaStatus().then((found) => live && setStatus(readiness(found)));
+    void ollamaStatus().then((found) => live && setStatus(readiness(found, model)));
     return () => {
       live = false;
     };
-  }, []);
+  }, [model]);
 
   // Leaving the page (to the Timer, say) ends the reply: nothing keeps generating behind it.
   useEffect(
@@ -131,7 +143,7 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
 
   const check = () => {
     setStatus("checking");
-    void ollamaStatus().then((found) => setStatus(readiness(found)));
+    void ollamaStatus().then((found) => setStatus(readiness(found, model)));
   };
 
   const save = async (chatId: string, messages: CoachChatMessage[]) => {
@@ -139,7 +151,7 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
       await getRepositories().coachChats.save({
         id: chatId,
         title: chatTitle(messages),
-        model: COACH_MODEL,
+        model,
         messages,
       });
     } catch {
@@ -155,7 +167,7 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
     const result = await askCoach({
       system,
       messages,
-      model: COACH_MODEL,
+      model,
       signal: controller.signal,
       // Text from a chat the person has already left is dropped.
       onText: (text) => {
@@ -245,7 +257,7 @@ function ChatBody({ saved, starter }: { saved: CoachChat[]; starter: string | nu
   const pending = streaming ? chat.messages.slice(-2) : [];
   const latestReply = chat.messages.findLastIndex((message) => message.role === "assistant");
   const canSend = status === "ready" && system !== null && !streaming && draft.trim() !== "";
-  const problem = status !== "ready" && status !== "checking" ? PROBLEMS[status] : null;
+  const problem = status !== "ready" && status !== "checking" ? problems(model)[status] : null;
   const stopped = !streaming && chat.messages.at(-1)?.stopped;
 
   const row = (message: CoachChatMessage, index: number, offset: number) => (

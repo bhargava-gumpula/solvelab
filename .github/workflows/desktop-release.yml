@@ -58,6 +58,7 @@ jobs:
         run: |
           test -f out/vendor/cubing/scramble.js || { echo "::error::out/vendor/cubing/scramble.js is missing; scrambles would fail."; exit 1; }
           grep -rqF "${NEXT_PUBLIC_SUPABASE_URL%/}" out/_next/static || { echo "::error::The Supabase URL isn't in the built pages."; exit 1; }
+          node -e 'const c = require("./src-tauri/tauri.conf.json").app.security.csp["connect-src"].split(" "); const o = new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin; if (!c.includes(o) || !c.includes(o.replace("https:", "wss:"))) process.exit(1)' || { echo "::error::The app's security policy (connect-src in src-tauri/tauri.conf.json) doesn't allow this Supabase URL; sign-in and sync would be blocked."; exit 1; }
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: pages

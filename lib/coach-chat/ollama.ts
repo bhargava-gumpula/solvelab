@@ -1,7 +1,7 @@
+import { OLLAMA_BASE_URL } from "@/lib/config/coach-model";
 import type { ChatMessage, OllamaChatOptions } from "./types";
 
-/** The one address the app uses for Ollama (the security policy matches it literally). */
-export const OLLAMA_BASE_URL = "http://127.0.0.1:11434";
+export { OLLAMA_BASE_URL };
 export const DEFAULT_NUM_CTX = 8192;
 const STATUS_TIMEOUT_MS = 3000;
 

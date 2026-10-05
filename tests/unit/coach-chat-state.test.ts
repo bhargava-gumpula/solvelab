@@ -177,6 +177,7 @@ describe("can the chat run", () => {
     expect(versionAtLeast("0.40.0-rc2")).toBe(true);
     expect(versionAtLeast(undefined)).toBe(true);
     expect(versionAtLeast("weird")).toBe(true);
+    expect(versionAtLeast("0.0.0")).toBe(true); // a source build, as in the setup screen
   });
 });
 
