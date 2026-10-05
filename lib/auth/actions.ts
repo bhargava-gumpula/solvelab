@@ -252,13 +252,13 @@ export type SupabaseUrlReturn =
 export async function completeSupabaseReturnFromUrl(link: string): Promise<SupabaseUrlReturn> {
   const url = parseDesktopCallback(link);
   if (!url || !takeDesktopFlow(url.searchParams.get("flow"))) return { status: "ignored" };
-  const failure = parseSupabaseReturnError(url.search, url.hash);
-  if (failure) {
-    const retrying = await handleSupabaseReturnFailure(failure, desktopReturnErrorMessage);
-    return { status: retrying ? "retrying" : "failed" };
-  }
-  const code = url.searchParams.get("code");
   try {
+    const failure = parseSupabaseReturnError(url.search, url.hash);
+    if (failure) {
+      const retrying = await handleSupabaseReturnFailure(failure, desktopReturnErrorMessage);
+      return { status: retrying ? "retrying" : "failed" };
+    }
+    const code = url.searchParams.get("code");
     const { getSupabaseClient } = await import("@/lib/supabase/client");
     const client = getSupabaseClient();
     if (client && code) {
@@ -269,8 +269,10 @@ export async function completeSupabaseReturnFromUrl(link: string): Promise<Supab
       }
     }
   } catch (error) {
+    // Also a retry that couldn't open the browser: the person gets a message, not silence.
     console.error(error);
   }
+  sessionStorage.removeItem(LINK_FALLBACK_KEY);
   toast.error(desktopReturnErrorMessage({ code: "" }));
   return { status: "failed" };
 }

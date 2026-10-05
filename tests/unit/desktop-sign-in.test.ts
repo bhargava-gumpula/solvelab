@@ -78,6 +78,9 @@ describe("the sign-in return link", () => {
       "solvelab://auth/callback/",
       "solvelab://evil/callback",
       "solvelab://auth@evil/callback",
+      "solvelab://user:pw@auth/callback",
+      "solvelab://auth:80/callback",
+      "solvelab://AUTH/callback",
       "solvelab://auth/other",
       "solvelab:auth/callback",
       "https://auth/callback",
@@ -247,6 +250,26 @@ describe("finishing a sign-in from the link", () => {
     );
     expect(withdraw).toHaveBeenCalledOnce();
   });
+
+  it("says so, and doesn't throw, when the retry can't open the browser", async () => {
+    const auth = client();
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    openUrl.mockRejectedValueOnce("not allowed");
+    const link = `solvelab://auth/callback?flow=${started()}&error_code=identity_already_exists`;
+    expect(await completeSupabaseReturnFromUrl(link)).toEqual({ status: "failed" });
+    expect(auth.signOut).toHaveBeenCalledOnce();
+    expect(toast.error).toHaveBeenCalledWith("Google sign-in didn’t finish.");
+    expect(sessionStorage.getItem("solvelab.auth.linkFallback")).toBeNull();
+  });
+
+  it("forgets the retry guard when the code can't be exchanged", async () => {
+    const auth = client();
+    auth.exchangeCodeForSession.mockResolvedValueOnce({ data: {}, error: { message: "x" } });
+    sessionStorage.setItem("solvelab.auth.linkFallback", "1");
+    const link = `solvelab://auth/callback?flow=${started()}&code=c`;
+    expect(await completeSupabaseReturnFromUrl(link)).toEqual({ status: "failed" });
+    expect(sessionStorage.getItem("solvelab.auth.linkFallback")).toBeNull();
+  });
 });
 
 describe("watching for the link", () => {
@@ -260,6 +283,16 @@ describe("watching for the link", () => {
     const seen: string[] = [];
     const stop = await watchSignInLinks((link) => seen.push(link));
     expect(seen).toEqual(["solvelab://auth/callback?a=1", "solvelab://auth/callback?b=2"]);
+    stop();
+    expect(unlisten).toHaveBeenCalledOnce();
+  });
+
+  it("keeps listening when the launch link can't be read", async () => {
+    const unlisten = vi.fn();
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+    deepLink.onOpenUrl.mockResolvedValue(unlisten);
+    deepLink.getCurrent.mockRejectedValue(new Error("not allowed"));
+    const stop = await watchSignInLinks(() => undefined);
     stop();
     expect(unlisten).toHaveBeenCalledOnce();
   });
