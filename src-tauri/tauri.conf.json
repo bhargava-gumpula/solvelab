@@ -35,5 +35,12 @@
       "minimumSystemVersion": "14.0",
       "signingIdentity": "-"
     }
+  },
+  "plugins": {
+    "deep-link": {
+      "desktop": {
+        "schemes": ["solvelab"]
+      }
+    }
   }
 }
