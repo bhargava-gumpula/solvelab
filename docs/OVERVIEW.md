@@ -70,12 +70,14 @@ Next.js 16 static export (webpack), React 19, TypeScript (strict), Tailwind 4, s
 | 4.1     | Training packs, the road from two minutes to sub-10, Train and Learn on (phase 5)             | Live     |
 | 5.0     | The Learning Hub, measured completion, the algorithm trainer, ZBLL, your own AI, the new look | Live     |
 | 5.1     | Accounts, sync and training data on Supabase (Firebase read-only for 30 days, then retired)   | Released |
-| 5.2     | More content, deeper at the fast end; several Hub layouts compared                            | Planned  |
+| 5.2     | Deeper at the fast end: five packs for 15 → 10 s in the Sub-12 and Sub-10 courses             | Ready    |
+| 6.0     | The Mac app: SolveLab for Mac with the AI coach on the Mac through Ollama                     | Planned  |
 
 The conversational coach built in phase 3 is parked: the owner preferred the guided page, and the conversation returns when there is a real AI behind it in 4.2. Everything is broken down in [NEXT_STEPS.md](NEXT_STEPS.md).
 
 ## Release history
 
+- **5.2 — Deeper at the fast end.** Five packs for the 15 to 10 second range (Inspection at the fast end, F2L at the fast end, Where the pauses are, The last layer without gaps, Beyond the plateau): 23 lessons and 22 drills in the Sub-12 and Sub-10 courses, every move sequence checked on SolveLab's cube and every claim sourced.
 - **5.1 — Accounts on Supabase.** Accounts, synced times and coach training data moved from Firebase to Supabase (Postgres with row-level security); every saved solve came across and Google sign-in works as before.
 - **5.0 — The Learning Hub.** Courses from Learn to solve to Sub-10 with measured completion, the algorithm trainer, ZBLL and the extra algorithms, your own AI, and the Studio look with five themes.
 - **4.1 — Training packs.** Fifteen teaching packs, the two-minutes-to-sub-10 road, Train and Learn on.

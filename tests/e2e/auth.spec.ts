@@ -199,7 +199,8 @@ test("privacy, terms and overview are public", async ({ page }) => {
   await expect(page).toHaveURL(/\/terms\/?$/);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Terms of Use");
   await page.goto("/overview/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("SolveLab 5.1");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("SolveLab 5.2");
+  await expect(page.getByRole("heading", { name: "5.2 — Deeper at the fast end" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "5.1 — Accounts on Supabase" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "5.0 — The Learning Hub" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "4.1 — Training packs" })).toBeVisible();
@@ -212,7 +213,5 @@ test("privacy, terms and overview are public", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "2.1 — Interface" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "2.0 — Accounts and cloud times" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Planned" })).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "5.1 — More content, deeper at the fast end" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "6.0 — The Mac app" })).toBeVisible();
 });

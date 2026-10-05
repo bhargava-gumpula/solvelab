@@ -273,4 +273,141 @@ export const SOURCES = {
     label: "CubeSkills: 5.80 reconstructions and commentary",
     url: "https://www.cubeskills.com/blog/580-reconstructions-commentary",
   },
+  // F2L at the fast end
+  feliks597: {
+    label: "CubeSkills: 5.97 reconstructions and commentary",
+    url: "https://www.cubeskills.com/blog/597-reconstructions-commentary",
+  },
+  feliks1021: {
+    label: "CubeSkills: 10.21 reconstructions and commentary",
+    url: "https://www.cubeskills.com/blog/1021-reconstructions-commentary",
+  },
+  smmsWiki: {
+    label: "SpeedSolving wiki: SMMS",
+    url: "https://www.speedsolving.com/wiki/index.php/SMMS",
+  },
+  phaseShares: {
+    label: "SpeedSolving: A method of CFOP training that yields systematic progress",
+    url: "https://www.speedsolving.com/threads/a-method-of-cfop-speedcubing-training-that-yields-systematic-progress.39406/",
+  },
+  f2lEoGuide: {
+    label: "SpeedSolving: F2L edge orientation guide",
+    url: "https://www.speedsolving.com/threads/f2l-edge-orientation-guide.25525/",
+  },
+  rotationsVsLookahead: {
+    label: "SpeedSolving: F2L without cube rotations vs lookahead",
+    url: "https://www.speedsolving.com/threads/f2l-without-cuberotations-vs-lookahead.22586/",
+  },
+  rotationVsFb: {
+    label: "SpeedSolving: Cube rotation vs F/B moves during F2L",
+    url: "https://www.speedsolving.com/threads/cube-rotation-vs-f-b-moves-during-f2l.46804/",
+  },
+  tipTooEarly: {
+    label: "SpeedSolving: A good tip you learned too early",
+    url: "https://www.speedsolving.com/threads/what%E2%80%99s-a-%E2%80%9Cgood-tip%E2%80%9D-you-learned-too-early-that-ended-up-hurting-you.96446/",
+  },
+  // Inspection at the fast end
+  crossStudy: {
+    label: "Lars Vandenbergh: Cross study",
+    url: "http://www.cubezone.be/crossstudy.html",
+  },
+  xcrossCounts: {
+    label: "SpeedSolving: 2x2x2, x-cross and 3x2x2 move counts",
+    url: "https://www.speedsolving.com/threads/2x2x2-x-cross-and-3x2x2-move-count.12403/",
+  },
+  neutralityExperiment: {
+    label: "CubeSkills: Colour neutrality part 2, the experiment",
+    url: "https://www.cubeskills.com/blog/colour-neutrality-part-2-experiment-qa",
+  },
+  inspectionUse: {
+    label: "SpeedSolving: How to use your inspection time",
+    url: "https://www.speedsolving.com/threads/how-to-use-your-inspection-time.70672/",
+  },
+  recordHistory: {
+    label: "SpeedSolving wiki: History of 3x3x3 world records",
+    url: "https://www.speedsolving.com/wiki/index.php?title=History_of_World_Records%2F3x3x3",
+  },
+  pseudoXcrossTrainer: {
+    label: "Solved: Pseudo x-cross inspection trainer",
+    url: "https://solved.no/trainers/3x3/inspection/pseudo_xcross",
+  },
+  csTimer: {
+    label: "csTimer: timer with a cross solver in its tools",
+    url: "https://cstimer.net/",
+  },
+  // The last layer without gaps
+  roll: {
+    label: "Jayden McNeill: ROLL, predicting PLL from the corners",
+    url: "https://www.jaydenmcneillcubing.com/blog/blog-post-nine-9w8xs",
+  },
+  ocllPermutations: {
+    label: "SpeedSolving: Predicting PLL before or while solving OLL",
+    url: "https://speedsolving.com/forum/threads/predicting-pll-before-while-solving-oll.53104",
+  },
+  twoSidedGuide: {
+    label: "SpeedSolving: Two-sided PLL recognition guide (mark49152)",
+    url: "https://www.speedsolving.com/threads/two-sided-pll-recognition-guide.41108/",
+  },
+  yihengRecon: {
+    label: "reco.nz: Yiheng Wang's 4.49, reconstructed",
+    url: "https://reco.nz/solve/9720",
+  },
+  ollPllPause: {
+    label: "SpeedSolving: OLL execution and PLL recognition at the same time",
+    url: "https://www.speedsolving.com/threads/oll-execution-and-pll-recognition-at-the-same.89966/",
+  },
+  pllTimeAttack: {
+    label: "SpeedSolving: Yiheng Wang's PLL time attack sequence",
+    url: "https://www.speedsolving.com/threads/yiheng-wangs-pll-time-attack-sequence.96294/",
+  },
+  // Where the pauses are
+  pauseStudy: {
+    label: "Boyce & Storm: What separates the fastest solvers from the rest? (JEI, 2022)",
+    url: "https://emerginginvestigators.org/articles/21-189",
+  },
+  reconTymon454: {
+    label: "reco.nz: Tymon Kolasiński 4.54",
+    url: "https://reco.nz/solve/6370",
+  },
+  reconXuanyi305: {
+    label: "reco.nz: Xuanyi Geng 3.05 (world record)",
+    url: "https://reco.nz/solve/11719",
+  },
+  tpsWiki: {
+    label: "SpeedSolving wiki: Turns per second",
+    url: "https://www.speedsolving.com/wiki/index.php/Turns_per_second",
+  },
+  tpsMattersThread: {
+    label: "SpeedSolving: At what point does TPS matter?",
+    url: "https://www.speedsolving.com/threads/at-what-point-does-tps-matter.50544/",
+  },
+  // Beyond the plateau
+  compPerformance: {
+    label: "CubeSkills: Thoughts on competition performance",
+    url: "https://www.cubeskills.com/blog/thoughts-on-competition-performance",
+  },
+  averageWiki: {
+    label: "SpeedSolving wiki: Average",
+    url: "https://www.speedsolving.com/wiki/index.php/Average",
+  },
+  okPlateau: {
+    label: "The Marginalian: Joshua Foer on the OK plateau",
+    url: "https://www.themarginalian.org/2013/10/17/ok-plateau/",
+  },
+  contextualInterference: {
+    label: "Shea & Morgan (1979): Contextual interference and motor skill (ERIC)",
+    url: "https://eric.ed.gov/?id=EJ215260",
+  },
+  sleepMotorSkill: {
+    label: "Walker et al. (2002): Practice with sleep makes perfect (PubMed)",
+    url: "https://pubmed.ncbi.nlm.nih.gov/12123620/",
+  },
+  skillFocusedAttention: {
+    label: "Beilock et al. (2002): When paying attention becomes counterproductive (PubMed)",
+    url: "https://pubmed.ncbi.nlm.nih.gov/12009178/",
+  },
+  routinesMeta: {
+    label: "Rupprecht, Tran & Gröpel (2021): Pre-performance routines, a meta-analysis",
+    url: "https://doi.org/10.1080/1750984X.2021.1944271",
+  },
 } as const satisfies Record<string, TrainingSource>;

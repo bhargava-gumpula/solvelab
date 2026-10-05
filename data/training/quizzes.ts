@@ -1,3 +1,8 @@
+import { F2L_AT_THE_FAST_END_QUIZZES } from "./packs/night-f2l-advanced";
+import { inspectionBudgetQuizzes } from "./packs/night-inspection-xcross";
+import { lastLayerWithoutGapsQuizzes } from "./packs/night-last-layer-fast";
+import { WHERE_THE_PAUSES_ARE_QUIZZES } from "./packs/night-lookahead-sub12";
+import { beyondThePlateauQuizzes } from "./packs/night-practice-structure";
 import type { LessonQuiz } from "./types";
 
 /**
@@ -2082,4 +2087,10 @@ export const LESSON_QUIZZES: Record<string, LessonQuiz[]> = {
       why: "Learning all 84 angles is a poor trade. The ones worth it are the angles where your usual algorithm needs a U2 first or an avoidable last turn, such as a U perm with the solved bar in front.",
     },
   ],
+  // The fast-end packs keep their questions beside their lessons.
+  ...inspectionBudgetQuizzes,
+  ...F2L_AT_THE_FAST_END_QUIZZES,
+  ...WHERE_THE_PAUSES_ARE_QUIZZES,
+  ...lastLayerWithoutGapsQuizzes,
+  ...beyondThePlateauQuizzes,
 };

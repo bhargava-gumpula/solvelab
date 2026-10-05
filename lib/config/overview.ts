@@ -1,6 +1,15 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "5.2",
+    title: "Deeper at the fast end",
+    items: [
+      "Five new packs for the 15 to 10 second range: Inspection at the fast end, F2L at the fast end, Where the pauses are, The last layer without gaps and Beyond the plateau, with 23 lessons and 22 drills between them",
+      "They sit in the Sub-12 and Sub-10 courses, with a question for every lesson and a measured result for every unit",
+      "Every move sequence, case reading, cross and x-cross count and quoted reconstruction checked on SolveLab's own cube, and every claim linked to its source",
+    ],
+  },
+  {
     version: "5.1",
     title: "Accounts on Supabase",
     items: [
@@ -95,11 +104,11 @@ export const shipped = [
 
 export const planned = [
   {
-    version: "5.1",
-    title: "More content, deeper at the fast end",
+    version: "6.0",
+    title: "The Mac app",
     items: [
-      "More packs and drills for sub-15 and sub-10 solvers, and cases for other methods",
-      "Several Hub layouts tried against each other, and whichever wins kept",
+      "SolveLab for Mac: the same timer and Learning Hub in a Mac app, with the AI coach running on your own Mac through Ollama, so nothing about you leaves it for the coach",
+      "The website keeps everything else; its AI coach page points to the Mac app and lets you copy your summary instead",
     ],
   },
 ] as const;

@@ -301,7 +301,7 @@ test.describe("skill tests and the solve profile", () => {
     await expect(page.getByTestId("set-zbll")).toContainText("493 cases");
 
     await page.goto("/settings/");
-    await expect(page.getByRole("heading", { name: "SolveLab 5.1" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "SolveLab 5.2" })).toBeVisible();
     await expect(page.getByText("The Learning Hub", { exact: true })).toBeVisible();
   });
 });

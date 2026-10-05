@@ -297,11 +297,42 @@ export const COURSES: readonly CourseDefinition[] = [
       },
       { id: "oll-into-pll", lessons: ["pll-during-oll"], drills: ["pll-oll-pll-joined"] },
       { id: "predict-pll" },
+      {
+        id: "last-layer-without-gaps",
+        lessons: ["gaps-confusable-plls", "gaps-one-motion", "gaps-corners-before-oll"],
+        drills: ["gaps-freeze-and-name", "gaps-cancel-pairs", "gaps-call-corners"],
+      },
       { id: "xcross-properly" },
+      {
+        id: "inspection-budget",
+        lessons: [
+          "insp-commit-points",
+          "insp-stop-searching",
+          "insp-colour-tail",
+          "insp-xcross-supply",
+        ],
+        drills: ["insp-commit-drill", "insp-move-audit", "insp-colour-test", "insp-plan-depth"],
+      },
       {
         id: "reconstruct-your-solves",
         lessons: ["recon-two-numbers", "recon-how"],
         drills: ["recon-five"],
+      },
+      {
+        id: "f2l-at-the-fast-end",
+        lessons: [
+          "fastf2l-is-it-f2l",
+          "fastf2l-orient-the-rest",
+          "fastf2l-back-slots-first",
+          "fastf2l-stopwatch",
+        ],
+        drills: [
+          "fastf2l-phase-check",
+          "fastf2l-edge-census",
+          "fastf2l-back-first",
+          "fastf2l-ab-duel",
+          "fastf2l-rotation-budget",
+        ],
       },
       { id: "speed-you-can-use" },
       {
@@ -313,6 +344,11 @@ export const COURSES: readonly CourseDefinition[] = [
         id: "consistency",
         lessons: ["consistency-pressure"],
         drills: ["consistency-finish-calmly"],
+      },
+      {
+        id: "beyond-the-plateau",
+        lessons: ["beyond-ao5", "beyond-pb", "beyond-attention"],
+        drills: ["beyond-middle-three", "beyond-routine"],
       },
       { id: "last-layer-at-the-top", optional: true },
     ],
@@ -326,14 +362,32 @@ export const COURSES: readonly CourseDefinition[] = [
     tagline: "The details that separate the fastest solvers.",
     units: [
       { id: "past-the-first-pair" },
+      { id: "inspection-budget", lessons: ["insp-pseudo-xcross"], drills: ["insp-pseudo-trainer"] },
       {
         id: "reconstruct-your-solves",
         lessons: ["recon-what-to-look-for", "recon-fast-solvers"],
         drills: ["recon-same-scramble"],
       },
+      { id: "where-the-pauses-are" },
       { id: "practising-near-ten" },
+      {
+        id: "beyond-the-plateau",
+        lessons: ["beyond-autopilot", "beyond-mixed-order"],
+        drills: ["beyond-overspeed", "beyond-random-order"],
+      },
       { id: "multislotting" },
+      {
+        id: "f2l-at-the-fast-end",
+        lessons: ["fastf2l-front-as-storage"],
+        drills: ["fastf2l-front-storage-reps"],
+        optional: true,
+      },
       { id: "pll-execution", lessons: ["pll-target"], drills: ["pll-worst-three"] },
+      {
+        id: "last-layer-without-gaps",
+        lessons: ["gaps-ll-budget"],
+        drills: ["gaps-weekly-join"],
+      },
       {
         id: "alg-sets-worth-it",
         lessons: ["sets-large"],
