@@ -94,6 +94,14 @@ describe("groundNumbers", () => {
     expect(result.removed).toEqual(["1.5 s"]);
   });
 
+  it("allows the inspection numbers the rule book gives", () => {
+    const text = "You have 15 seconds of inspection, with calls at 8 s and 12 seconds.";
+    expect(groundNumbers(text, check())).toEqual({ text, removed: [] });
+    expect(groundNumbers("You have 13 seconds of inspection.", check()).removed).toEqual([
+      "13 seconds",
+    ]);
+  });
+
   it("never backs a slow-case share read as a count of known algorithms", () => {
     const system = `${SYSTEM}\n- OLL slow-case share: 30% (likely 20–40%; 10 attempts), goal under 15%`;
     const result = groundNumbers(
@@ -105,7 +113,7 @@ describe("groundNumbers", () => {
   });
 
   it("does not let a time stand for a share, or the other way round", () => {
-    expect(groundNumbers("Your pair speed is 12 s.", check()).removed).toEqual(["12 s"]);
+    expect(groundNumbers("Your pair speed is 12.5 s.", check()).removed).toEqual(["12.5 s"]);
     expect(groundNumbers("Your turning speed is 11.5%.", check()).removed).toEqual(["11.5%"]);
   });
 
@@ -207,6 +215,7 @@ describe("guardAdvice", () => {
       "Learning ZBLL adds complexity when you need speed.",
       "Your OLL algorithms are fast, so keep using full OLL as it is.",
       "Open the Gb perm in the PLL set.",
+      "When should I learn full OLL?",
     ]) {
       expect(guardAdvice(text, known)).toEqual({ text, removed: [] });
     }

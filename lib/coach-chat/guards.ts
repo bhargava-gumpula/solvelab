@@ -182,6 +182,8 @@ function knownNumbers(check: Pick<ReplyCheck, "system" | "said">): Known[] {
     range: ranges.some(([from, to]) => start >= from! && start < to!),
   }));
   known.push(...gapsIn(check.system));
+  // Inspection is 15 s, with calls at 8 s and 12 s: the sport's own numbers, not the person's data.
+  for (const value of [8, 12, 15]) known.push({ value, dim: "s" });
   for (const said of check.said) {
     for (const value of numbersIn(said)) known.push({ value, dim: "" });
   }
@@ -492,6 +494,11 @@ export function guardAdvice(text: string, facts: SetFacts): AdviceResult {
   const kept: string[] = [];
   let changed = false;
   for (const sentence of sentencesOf(text)) {
+    // A question ("When should I learn full OLL?") is one they may ask, not advice.
+    if (/\?\s*$/.test(sentence)) {
+      kept.push(sentence);
+      continue;
+    }
     const known = recommended(sentence, facts.knownSets);
     const alone = known ? null : recommended(sentence, facts.leaveAloneSets);
     const slip = known ?? alone;
