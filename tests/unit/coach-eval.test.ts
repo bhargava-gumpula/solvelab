@@ -750,6 +750,15 @@ describe("tagContradictions", () => {
     ).toEqual(["pair_speed is slow but the reply says average"]);
   });
 
+  it("reads 'are all average' as a verdict on every part named", () => {
+    expect(
+      tagContradictions("Your F2L, lookahead and pair speed are all average.", profile),
+    ).toEqual([
+      "pair_speed is slow but the reply says average",
+      "f2l is slow but the reply says average",
+    ]);
+  });
+
   it("accepts the right verdicts, each with its own part", () => {
     expect(
       tagContradictions("Your lookahead is average, but your pair speed is slow.", profile),

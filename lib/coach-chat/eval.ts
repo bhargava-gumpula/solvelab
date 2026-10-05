@@ -442,7 +442,7 @@ const PART_NAMES: [AspectId, RegExp][] = [
 const LINK =
   "(?:is|are|was|were|be|being|been|remains?|stays?|looks?|seems?|rated|tagged|marked|considered|sits?|sitting|at|'s|'re)";
 const ADVERB =
-  "(?:still|only|just|pretty|fairly|quite|rather|merely|slightly|somewhat|also|currently|both|really|relatively|about)";
+  "(?:still|only|just|pretty|fairly|quite|rather|merely|slightly|somewhat|also|currently|both|all|really|relatively|about)";
 const claim = (words: string) => new RegExp(`\\b${LINK}\\s+(?:${ADVERB}\\s+)*(?:${words})\\b`, "g");
 /** "is average", "are still average": a verdict on a part, not "your average" the number. */
 const PACE_CLAIMS: [PaceTag, RegExp][] = [
@@ -736,6 +736,8 @@ export interface TurnResult extends TurnScore {
   answer: string;
   /** What the model said, when the reply guards changed it. */
   modelAnswer?: string;
+  /** The follow-ups as the model wrote them (the checks cover them too, so a miss can be traced). */
+  followUps?: string[];
   refs: string[];
   seconds?: number;
 }

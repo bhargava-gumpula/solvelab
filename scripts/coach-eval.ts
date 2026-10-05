@@ -289,6 +289,7 @@ async function runFixture(fixture: EvalFixture, options: Options): Promise<TurnR
         ...(parsed.reply.answer !== parsed.unguarded.answer
           ? { modelAnswer: parsed.unguarded.answer }
           : {}),
+        followUps: parsed.unguarded.followUps,
         refs: parsed.reply.refs.map((ref) => ref.id),
         seconds,
       };

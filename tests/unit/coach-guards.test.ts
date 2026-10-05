@@ -70,6 +70,12 @@ describe("groundNumbers", () => {
     expect(result.removed).toEqual(["0.9 s"]);
   });
 
+  it("takes a list item's number with it", () => {
+    expect(groundNumbers("1. Plan the cross.\n2. Hold it to 0.9 s.\n3. Rest.", check()).text).toBe(
+      "1. Plan the cross. 3. Rest.",
+    );
+  });
+
   it("drops a bracketed figure and keeps the sentence", () => {
     const result = groundNumbers("Your pair speed (2.4 s) is the slowest part of F2L.", check());
     expect(result.text).toBe("Your pair speed is the slowest part of F2L.");
@@ -113,6 +119,32 @@ describe("groundNumbers", () => {
     expect(result.removed).toEqual(["30%", "30%"]);
   });
 
+  it("does not take a know-verb earlier in the sentence for the share's verb", () => {
+    for (const text of [
+      "You know full OLL, but 12% of OLL cases are slow.",
+      "You use full PLL, and about 12% of OLL cases are slow.",
+    ]) {
+      expect(groundNumbers(text, check())).toEqual({ text, removed: [] });
+    }
+    expect(groundNumbers("Only 12% of your OLL algorithms are known.", check()).removed).toEqual([
+      "12%",
+    ]);
+    expect(groundNumbers("You have learned about 12% of OLL.", check()).removed).toEqual(["12%"]);
+  });
+
+  it("holds a target to the data however it is worded, but not a plain value", () => {
+    for (const text of [
+      "Aim for 1.50 s on your cross.",
+      "Your target is 1.50 s.",
+      "Shave it down to 1.50 seconds.",
+      "Get your cross to 1.50 s.",
+    ]) {
+      expect(groundNumbers(text, check()).removed).toHaveLength(1);
+    }
+    const text = "Your cross could be as quick as 1.50 s, or 1.69 s on average.";
+    expect(groundNumbers(text, check())).toEqual({ text, removed: [] });
+  });
+
   it("does not let a time stand for a share, or the other way round", () => {
     expect(groundNumbers("Your pair speed is 12.5 s.", check()).removed).toEqual(["12.5 s"]);
     expect(groundNumbers("Your turning speed is 11.5%.", check()).removed).toEqual(["11.5%"]);
@@ -151,6 +183,19 @@ describe("fixKindWords", () => {
     ]) {
       expect(fixKindWords(text, CATALOGUE)).toEqual({ text, fixes: [] });
     }
+  });
+
+  it("leaves a verb alone: drilling or testing a topic is not naming a drill or a test", () => {
+    for (const text of [
+      "Drill pair recognition for ten minutes a day.",
+      "Then test cross efficiency by timing five solves.",
+      "Set practice plan reminders weekly.",
+    ]) {
+      expect(fixKindWords(text, CATALOGUE)).toEqual({ text, fixes: [] });
+    }
+    expect(fixKindWords("Try the drill pair recognition.", CATALOGUE).text).toBe(
+      "Try the pack pair recognition.",
+    );
   });
 
   it("keeps a capital letter", () => {
@@ -219,6 +264,43 @@ describe("guardAdvice", () => {
       "When should I learn full OLL?",
     ]) {
       expect(guardAdvice(text, known)).toEqual({ text, removed: [] });
+    }
+  });
+
+  it("leaves advice that only says what they know, whichever way round it is worded", () => {
+    for (const text of [
+      "Focus on lookahead, since you already know full OLL.",
+      "Work on pair recognition now that you know full PLL.",
+      "Start with pair recognition, you know all 57 OLLs.",
+      "Try the lookahead pack, as you have full OLL already.",
+    ]) {
+      expect(guardAdvice(text, known)).toEqual({ text, removed: [] });
+    }
+  });
+
+  it("leaves advice to use what they know, with the set named before or after the verb", () => {
+    for (const text of [
+      "Focus on using the two-look OLL and PLL sets you already know well.",
+      "Work on using full PLL more smoothly.",
+      "Focus on the full OLL algorithms you have already learned.",
+      "Work on full OLL execution speed.",
+    ]) {
+      expect(guardAdvice(text, known)).toEqual({ text, removed: [] });
+    }
+    // For a set to leave alone, using it is the advice to refuse.
+    expect(guardAdvice("Start using ZBLL.", known).removed).toEqual(["leave alone: zbll"]);
+  });
+
+  it("catches advice worded without a learn verb", () => {
+    for (const text of [
+      "I recommend full OLL.",
+      "Your next step is full PLL.",
+      "Full OLL is the next thing for you.",
+      "Learn the full set of OLL algorithms.",
+      "Learn every OLL case.",
+      "No problem, learn full OLL next.",
+    ]) {
+      expect(guardAdvice(text, known).removed).toHaveLength(1);
     }
   });
 

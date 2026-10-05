@@ -70,17 +70,22 @@ interface Stated {
   misread: boolean;
 }
 
-/** "know 30% of OLL algorithms": the data's slow-case share is not how many algorithms they know. */
-const KNOWS = /\b(?:know|knows|solving|solve|learned|memori[sz]ed|have|use)\w*\b[^.]{0,25}$/i;
+/** "know 30% of OLL algorithms": the verb sits right before the share ("you know about 30%"), not earlier in the sentence ("you know full OLL, but 12% of cases are slow"). */
+const KNOWS =
+  /\b(?:know|knows|knew|knowing|solve|solves|solving|learn|learned|learnt|learning|memori[sz]e|memori[sz]ed|have|has|use|uses|using)\s+(?:(?:about|around|roughly|only|just|nearly|almost|approximately|over|under|maybe|perhaps|probably|already|really|well|at most|at least)\s+)*$/i;
 const OF_ALGORITHMS =
-  /^\s+of\s+(?:the\s+|your\s+)?(?:(?:OLL|PLL)\s+)?(?:algorithms|cases|OLLs|PLLs)\b/i;
+  /^\s+of\s+(?:the\s+|your\s+|all\s+)?(?:(?:(?:OLL|PLL)\s+)?(?:algorithms|algs|cases|OLLs|PLLs)\b|(?:OLL|PLL)\b(?!\s+(?:attempts|solves|times|slow|share)))/i;
+/** "Only 12% of your OLL algorithms are known": the same misreading, said the other way round. */
+const KNOWN_AFTER =
+  /^\s+of\s+(?:the\s+|your\s+)?(?:(?:OLL|PLL)\s+)?(?:algorithms|algs|cases|OLLs|PLLs)\s+(?:are|is|have been|you (?:know|have))\s+(?:\w+\s+)?(?:known|learned|learnt|memori[sz]ed|covered|solid|down)\b/i;
 const misread = (text: string, start: number, end: number) =>
-  KNOWS.test(text.slice(Math.max(0, start - 35), start)) &&
-  OF_ALGORITHMS.test(text.slice(end, end + 40));
+  (KNOWS.test(text.slice(Math.max(0, start - 45), start)) &&
+    OF_ALGORITHMS.test(text.slice(end, end + 40))) ||
+  KNOWN_AFTER.test(text.slice(end, end + 70));
 
 /** What comes before a number that is a cut-off or a target. */
 const THRESHOLD =
-  /\b(?:below|under|until|over|above|beat|beats|reach|reaches|reaching|hit|hits|hitting|drops? (?:to|below|under)|gets? (?:to|below|under)|down to|less than|more than|faster than|slower than|at least|at most)\s+(?:[\w']+\s+){0,3}$/i;
+  /\b(?:below|under|until|over|above|beat|beats|reach|reaches|reaching|hit|hits|hitting|drops? (?:to|below|under)|gets? (?:to|below|under)|down to|less than|more than|faster than|slower than|at least|at most|aim(?:s|ing)? (?:for|at)|targets?|targeting|(?:cut|shave|bring|take|drop|get|push|pull|lower|trim|reduce)\b[^.,;]{0,25}?\bto)\s+(?:[\w']+\s+){0,3}$/i;
 
 const INSPECTION = /\binspect/i;
 
@@ -222,7 +227,13 @@ export function ungroundedStated(
 
 /** Sentences, keeping what each one ends with. */
 function sentencesOf(text: string): string[] {
-  return text.split(/(?<=[.!?])\s+|\n+/).filter((part) => part.trim());
+  const out: string[] = [];
+  for (const part of text.split(/(?<=[.!?])\s+|\n+/).filter((one) => one.trim())) {
+    // A list's "2." belongs to its item: it goes with the item or not at all.
+    if (/^\s*\d{1,2}[.)]$/.test(out.at(-1) ?? "")) out[out.length - 1] += ` ${part}`;
+    else out.push(part);
+  }
+  return out;
 }
 
 /**
@@ -318,6 +329,11 @@ function kindIndex(catalogue: readonly CatalogueEntry[]): KindIndex {
   return built;
 }
 
+/** Kind words that are also verbs: only a noun after "the", "this", "of"... is read as naming a thing. */
+const VERBISH = new Set(["drill", "test", "set", "pack"]);
+const NOUN_LEAD =
+  /\b(?:the|this|that|your|a|an|its|our|each|another|next|these|those|of|in|from|with|using|via|into|called|named)\s+$/i;
+
 const matchCase = (word: string, like: string) =>
   like[0] === like[0]!.toUpperCase() && like[0] !== like[0]!.toLowerCase()
     ? word[0]!.toUpperCase() + word.slice(1)
@@ -350,7 +366,14 @@ export function fixKindWords(
       fixes.push(`${word.toLowerCase()} → ${right}: ${name}`);
       return `${name}${close}${gap}${matchCase(right, word)}`;
     });
-    out = out.replace(before, (whole, word: string, gap: string, name: string) => {
+    out = out.replace(before, (whole, word: string, gap: string, name: string, at: number) => {
+      // "Drill pair recognition for ten minutes" is a verb and a topic, not a mislabelled thing.
+      if (
+        VERBISH.has(word.toLowerCase()) &&
+        !/[-_]/.test(name) &&
+        !NOUN_LEAD.test(out.slice(Math.max(0, at - 12), at))
+      )
+        return whole;
       const right = fit(key, word);
       if (!right) return whole;
       fixes.push(`${word.toLowerCase()} → ${right}: ${name}`);
@@ -384,13 +407,13 @@ const topic = (pattern: string, name: string, teaches: string[], page: string[])
 
 const TOPICS: Record<string, Topic> = {
   oll: topic(
-    "\\b(?:(?:full|all|complete|entire)\\s+(?:the\\s+)?(?:57\\s+)?OLLs?|57\\s+OLLs?|all\\s+57)\\b",
+    "\\b(?:(?:full|all|complete|entire)\\s+(?:the\\s+)?(?:57\\s+)?OLLs?|57\\s+OLLs?|all\\s+57|(?:the\\s+)?(?:full|complete|entire)\\s+set\\s+of\\s+(?:the\\s+)?(?:57\\s+)?OLLs?|every\\s+(?:single\\s+)?OLL)\\b",
     "full OLL",
     ["pack:oll-algorithms"],
     ["set:oll"],
   ),
   pll: topic(
-    "\\b(?:(?:full|all|complete|entire)\\s+(?:the\\s+)?(?:21\\s+)?PLLs?|21\\s+PLLs?|all\\s+21)\\b",
+    "\\b(?:(?:full|all|complete|entire)\\s+(?:the\\s+)?(?:21\\s+)?PLLs?|21\\s+PLLs?|all\\s+21|(?:the\\s+)?(?:full|complete|entire)\\s+set\\s+of\\s+(?:the\\s+)?(?:21\\s+)?PLLs?|every\\s+(?:single\\s+)?PLL)\\b",
     "full PLL",
     ["pack:pll-algorithms"],
     ["set:pll"],
@@ -454,26 +477,55 @@ const GERUND = /\b(?:learn|study|master|memori[sz])ing\b[^.]{0,40}$/i;
 const BENEFIT =
   /^[^.]{0,40}\b(?:will|would|can|could|should)\s+(?:help|give|improve|boost|make|speed|unlock|get you)|^[^.]{0,20}\bis\s+(?:next|the next|the best|your best|worth|key|a good|a great)/i;
 const EXCUSE =
-  /\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|instead|rather than|before)\b|n't/i;
+  /\b(?:not|no (?:need|point|reason|rush|hurry)|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|instead|rather than|before)\b|n't/i;
 /** After the set is named: "learn COLL once your F2L is fixed" puts it off. */
 const PUT_OFF = /\b(?:later|yet|until|once|after|for now|can wait|eventually)\b/i;
 
+/** "Focus on lookahead, since you already know full OLL": the set is named as something they have, not told to them. */
+const KNOWLEDGE_CLAUSE =
+  /\b(?:since|because|given|now that|already|know|knows|knew|have|has|having|though|although|while|when|if|as you|as they)\b/i;
+/** "Focus on using full OLL": for a set they know, using it is the advice, not learning it. */
+const USING = /\b(?:use|uses|using|apply|applying)\b/i;
+/** "Focus on the 2-look sets you already know well", "work on full OLL execution": said of the set after it is named. */
+const KNOWN_AFTER_SET =
+  /^[^.]{0,40}\b(?:you|they)\s+(?:already\s+)?(?:know|have|use)\b|^[^.]{0,20}\balready\b|^\s+(?:execution|recognition|speed|fluency|timing|times?)\b/i;
+/** "I recommend full OLL", "Your next step is full PLL": the set follows with nothing in between. */
+const DIRECT =
+  /\b(?:recommend|suggest|advise|(?:next|first) step is|time for|ready for|move (?:on )?to|switch to|jump (?:in)?to)\s+(?:the\s+)?$/i;
+/** "Full OLL is the next thing for you": the set first, then why it is next. */
+const NEXT_IS =
+  /^\s+(?:is|would be|will be)\s+(?:the\s+|your\s+)?(?:next|best|right|a good|a great|worth|where to start)\b/i;
+
 /** The set this sentence tells the person to learn, among `ids`; null when it only mentions it, or puts it off. */
-function recommended(sentence: string, ids: readonly string[]): string | null {
+function recommended(sentence: string, ids: readonly string[], known = false): string | null {
   for (const id of ids) {
     const named = TOPICS[id];
     if (!named) continue;
     for (const found of sentence.matchAll(new RegExp(named.pattern.source, "gi"))) {
       const before = sentence.slice(Math.max(0, found.index - 60), found.index);
+      const after = sentence.slice(found.index + found[0].length);
       const verb = [...before.matchAll(LEARN_BASE), ...before.matchAll(LEARN_ING)]
         .sort((a, b) => a.index! - b.index!)
         .at(-1);
-      const after = sentence.slice(found.index + found[0].length);
-      if (!verb) {
-        if (GERUND.test(before) && BENEFIT.test(after) && !PUT_OFF.test(after)) return id;
+      const direct = DIRECT.exec(before);
+      if (!verb && !direct) {
+        if (
+          ((GERUND.test(before) && BENEFIT.test(after)) ||
+            (!before.trim() && NEXT_IS.test(after))) &&
+          !PUT_OFF.test(after)
+        )
+          return id;
         continue;
       }
-      const from = Math.max(0, found.index - 60 + verb.index! - 30);
+      const at = (verb ?? direct)!.index!;
+      // What sits between the verb and the set: a clause about what they know is not advice to learn it.
+      const between = before.slice(at + (verb ?? direct)![0].length);
+      if (
+        KNOWLEDGE_CLAUSE.test(between) ||
+        (known && (USING.test(between) || KNOWN_AFTER_SET.test(after)))
+      )
+        continue;
+      const from = Math.max(0, found.index - 60 + at - 30);
       const window = sentence.slice(from, found.index);
       if (!EXCUSE.test(window) && !PUT_OFF.test(after)) return id;
     }
@@ -508,7 +560,7 @@ export function guardAdvice(text: string, facts: SetFacts): AdviceResult {
       kept.push(sentence);
       continue;
     }
-    const known = recommended(sentence, facts.knownSets);
+    const known = recommended(sentence, facts.knownSets, true);
     const alone = known ? null : recommended(sentence, facts.leaveAloneSets);
     const slip = known ?? alone;
     if (!slip) {

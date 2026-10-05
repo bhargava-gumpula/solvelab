@@ -121,6 +121,19 @@ describe("checking ids against the catalogue", () => {
     expect(unknownIds).toEqual(["Finger Gym"]);
   });
 
+  it("reads a title written like an id, when only one thing has that title", () => {
+    const { reply, unknownIds } = parse(
+      JSON.stringify({
+        answer: "x",
+        refs: ["blind-pair", { kind: "drill", id: "call-the-last-turn" }, "Finger-Gym"],
+        followUps: [],
+      }),
+    );
+    expect(reply.refs).toEqual([{ kind: "drill", id: "lookahead-blind-pair" }]);
+    // Two drills share the title "Call the last turn", so which one is meant is not known.
+    expect(unknownIds).toEqual(["call-the-last-turn", "Finger-Gym"]);
+  });
+
   it("reads an id the model copied together with its title, but only a real one", () => {
     const { reply, unknownIds } = parse(
       JSON.stringify({

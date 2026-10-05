@@ -374,6 +374,17 @@ function resolveRefs(items: Json, catalogue: readonly CatalogueEntry[]) {
       byKey.set(key.trim().toLowerCase(), list);
     }
   }
+  // "blind-pair" for the drill titled "Blind pair": a title written like an id, when only one entry has it.
+  const loose = new Map<string, CatalogueEntry[]>();
+  for (const entry of catalogue) {
+    const key = entry.title
+      .trim()
+      .toLowerCase()
+      .replace(/[-_\s]+/g, " ");
+    const list = loose.get(key) ?? [];
+    if (!list.includes(entry)) list.push(entry);
+    loose.set(key, list);
+  }
   const refs: CoachReply["refs"] = [];
   const unknownIds: string[] = [];
   for (const item of Array.isArray(items) ? items : []) {
@@ -387,6 +398,7 @@ function resolveRefs(items: Json, catalogue: readonly CatalogueEntry[]) {
       .toLowerCase()
       .replace(/\s*\[[a-z]+\]\s*$/, "");
     // A model sometimes copies the whole catalogue line ("- id: title"): then the id is what comes before the colon.
+    const only = loose.get(key.replace(/[-_\s]+/g, " "));
     const found =
       byKey.get(key) ??
       byKey.get(
@@ -394,7 +406,8 @@ function resolveRefs(items: Json, catalogue: readonly CatalogueEntry[]) {
           .replace(/^[-*]\s*/, "")
           .split(":")[0]!
           .trim(),
-      );
+      ) ??
+      (only?.length === 1 ? only : undefined);
     // A right id under the wrong kind is the model's slip; the catalogue's kind wins.
     const entry = found?.find((candidate) => candidate.kind === kind) ?? found?.[0];
     if (!entry) {
