@@ -22,12 +22,16 @@ async function openCourse(page: Page, courseId: string, title: string) {
 
 test.describe("courses staged by level", () => {
   test("every course page lists its units, and the optional ones say so", async ({ page }) => {
+    // Eight course pages in one test: long on a busy machine in any engine.
+    test.slow();
     for (const [index, course] of COURSE_UNITS.entries()) {
       if (index === 0) await openCourse(page, course.id, course.title);
       else {
         // The switcher moves between courses without reloading the Hub.
         await page.getByTestId(`course-chip-${course.id}`).click();
-        await expect(page).toHaveURL(new RegExp(`/hub/course/${course.id}/$`));
+        await expect(page).toHaveURL(new RegExp(`/hub/course/${course.id}/$`), {
+          timeout: 15_000,
+        });
         await expect(page.getByTestId("course-title")).toHaveText(course.title);
       }
       await expect(unitSections(page)).toHaveCount(course.units);
@@ -128,6 +132,8 @@ test("the F2L set names its sources and how to use it at the front-left", async 
 });
 
 test("the 2-look OLL lesson plays the Antisune on the cube", async ({ page }) => {
+  // Walks about a dozen animated cards: 23-30 s in either engine, right at the 30 s default.
+  test.slow();
   await page.goto("/hub/lesson/method-cfop/cfop-2look-oll/");
   await expect(page.getByTestId("lesson-step-intro")).toBeVisible({ timeout: 20_000 });
   const card = page.locator("section[data-testid^='lesson-step-']");
@@ -142,7 +148,9 @@ test("the 2-look OLL lesson plays the Antisune on the cube", async ({ page }) =>
     // Cards slide out before the next slides in; wait for this one to go.
     const leaving = await card.elementHandle();
     await next.click();
-    await expect.poll(() => leaving!.evaluate((element) => element.isConnected)).toBe(false);
+    await expect
+      .poll(() => leaving!.evaluate((element) => element.isConnected), { timeout: 15_000 })
+      .toBe(false);
     await expect(card).toBeVisible();
   }
   await expect(antisune).toBeVisible();
