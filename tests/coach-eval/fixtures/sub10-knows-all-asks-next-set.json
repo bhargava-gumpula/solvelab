@@ -136,19 +136,22 @@
       "id": "recommends-known-full-oll",
       "why": "They already know full OLL.",
       "pattern": "(?:(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on|focus on|master)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b)|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for|focus on)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
+      "skipQuestions": true
     },
     {
       "id": "recommends-known-full-pll",
       "why": "They already know full PLL.",
       "pattern": "(?:(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on|focus on|master)\\w*\\b[^.]{0,40}\\b(?:full PLL|all (?:21|of the) PLLs?|21 PLLs?|all the PLLs?)\\b)|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for|focus on)\\b[^.]{0,30}\\b(?:full PLL|all (?:21|of the) PLLs?|21 PLLs?|all the PLLs?)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
+      "skipQuestions": true
     },
     {
       "id": "recommends-zbll",
       "why": "ZBLL is optional and on the leave-alone list.",
       "pattern": "(?:(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on|focus on|master)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b)|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for|focus on)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
-      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't",
+      "skipQuestions": true
     }
   ],
   "turns": [

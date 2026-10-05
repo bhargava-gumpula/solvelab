@@ -530,6 +530,20 @@ describe("helpers", () => {
     expect(numbersIn("1:05.30 and 3.2 s")).toEqual([65.3, 3.2]);
   });
 
+  it("lets a rule skip questions, so a follow-up about a set is not advice", () => {
+    const rule = {
+      id: "recommends-full-oll",
+      why: "x",
+      pattern: "\\bI need to learn full OLL\\b",
+      skipQuestions: true,
+    };
+    expect(ruleBreak(rule, "Do I need to learn full OLL before improving?")).toBeNull();
+    expect(ruleBreak(rule, "I need to learn full OLL.")).not.toBeNull();
+    expect(
+      ruleBreak({ ...rule, skipQuestions: false }, "Do I need to learn full OLL?"),
+    ).not.toBeNull();
+  });
+
   it("applies a rule per sentence with its excuse", () => {
     const rule = { id: "x", why: "", pattern: "learn ZBLL", excuse: "\\bnot\\b" };
     expect(ruleBreak(rule, "Fine. Learn ZBLL now.")).toBe("Learn ZBLL now.");

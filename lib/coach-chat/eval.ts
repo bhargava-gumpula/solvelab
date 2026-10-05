@@ -58,6 +58,8 @@ export interface NeverRule {
   excuse?: string;
   /** Shorthand for excusing negations: "doesn't", "can't", "not", … */
   negatable?: boolean;
+  /** Only statements count: a question ("Do I need to learn full OLL?") is not advice, and follow-ups are questions. */
+  skipQuestions?: boolean;
 }
 
 export interface FixtureAspect {
@@ -408,6 +410,7 @@ export function ruleBreak(rule: NeverRule, text: string): string | null {
       ? new RegExp(NEGATION, "i")
       : null;
   for (const sentence of splitSentences(text)) {
+    if (rule.skipQuestions && sentence.endsWith("?")) continue;
     if (pattern.test(sentence) && !(excuse && excuse.test(sentence))) return sentence;
   }
   return null;
