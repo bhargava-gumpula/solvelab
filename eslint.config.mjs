@@ -21,6 +21,8 @@ const eslintConfig = defineConfig([
     "playwright-report/**",
     "test-results/**",
     "drafts/**",
+    // Rust build output from the Mac app.
+    "src-tauri/target/**",
   ]),
   {
     files: ["components/timer/timer-device-provider.tsx"],
