@@ -357,15 +357,29 @@ export function fixKindWords(
     if (own.has(word.toLowerCase()) || kinds.has(`${key} ${word.toLowerCase()}`)) return null;
     return right;
   };
+  /** "the Learning full PLL pack": "full PLL" (a set) ends a pack's own title there, so its kind word is the pack's. */
+  const inLonger = (key: string, near: string, side: "end" | "start") =>
+    [...kinds.keys()].some((other) => {
+      if (other === key || !other.includes(key)) return false;
+      const name = escapeRegExp(other);
+      return new RegExp(side === "end" ? `(?:^|\\W)${name}$` : `^${name}(?!\\w)`).test(keyOf(near));
+    });
   for (const { key, after, before } of patterns) {
     if (!out.toLowerCase().includes(key.split(" ")[0]!)) continue;
-    out = out.replace(after, (whole, name: string, close: string, gap: string, word: string) => {
-      const right = fit(key, word);
-      if (!right || !KIND_WORDS.includes(word.toLowerCase() as (typeof KIND_WORDS)[number]))
-        return whole;
-      fixes.push(`${word.toLowerCase()} → ${right}: ${name}`);
-      return `${name}${close}${gap}${matchCase(right, word)}`;
-    });
+    out = out.replace(
+      after,
+      (whole, name: string, close: string, gap: string, word: string, at: number) => {
+        const right = fit(key, word);
+        if (
+          !right ||
+          !KIND_WORDS.includes(word.toLowerCase() as (typeof KIND_WORDS)[number]) ||
+          inLonger(key, out.slice(Math.max(0, at - 60), at + name.length), "end")
+        )
+          return whole;
+        fixes.push(`${word.toLowerCase()} → ${right}: ${name}`);
+        return `${name}${close}${gap}${matchCase(right, word)}`;
+      },
+    );
     out = out.replace(before, (whole, word: string, gap: string, name: string, at: number) => {
       // "Drill pair recognition for ten minutes" is a verb and a topic, not a mislabelled thing.
       if (
@@ -375,7 +389,8 @@ export function fixKindWords(
       )
         return whole;
       const right = fit(key, word);
-      if (!right) return whole;
+      const from = at + word.length + gap.length;
+      if (!right || inLonger(key, out.slice(from, from + 80), "start")) return whole;
       fixes.push(`${word.toLowerCase()} → ${right}: ${name}`);
       return `${matchCase(right, word)}${gap}${name}`;
     });
@@ -631,6 +646,100 @@ export const NOTHING_LEFT =
 
 /** The "[pack]" the catalogue puts after each title: a model copies it into its prose ("using pack cross-into-f2l [pack]"). */
 const KIND_TAG = /\s*\[(?:pack|lesson|drill|test|set|unit)\]/gi;
+
+interface IdIndex {
+  /** Lower-case id, or its words ("pair recognition"), to its entries (a pack and a set can share one). */
+  byId: Map<string, CatalogueEntry[]>;
+  /** An optional determiner, then an id, or its words in title case before a kind word ("Pair Recognition pack"). */
+  pattern: RegExp;
+}
+
+const idIndexes = new WeakMap<readonly CatalogueEntry[], IdIndex>();
+
+function idIndex(catalogue: readonly CatalogueEntry[]): IdIndex {
+  const cached = idIndexes.get(catalogue);
+  if (cached) return cached;
+  const byId = new Map<string, CatalogueEntry[]>();
+  const add = (key: string, entry: CatalogueEntry) =>
+    byId.set(key, [...(byId.get(key) ?? []), entry]);
+  for (const entry of catalogue) {
+    // Only ids written like ids ("f2l-efficiency", "cross_only"): a plain word ("lookahead") is as often the topic.
+    if (!/[-_]/.test(entry.id)) continue;
+    add(entry.id.toLowerCase(), entry);
+    add(entry.id.toLowerCase().replace(/[-_]+/g, " "), entry);
+  }
+  const longest = (keys: string[]) =>
+    keys.sort((a, b) => b.length - a.length).map((key) => escapeRegExp(key).replace(/ /g, "\\s+"));
+  const ids = longest([...byId.keys()].filter((key) => !key.includes(" ")));
+  const words = longest([...byId.keys()].filter((key) => key.includes(" ")));
+  const pattern = new RegExp(
+    `(\\b(?:the|a|an|your|this)\\s+)?(?<![\\w-])(?:(${ids.join("|")})|(${words.join("|")})(?=['"’”)]?\\s+(?:${KIND_WORD})\\b))(?![\\w-])`,
+    "gi",
+  );
+  const built = { byId, pattern };
+  idIndexes.set(catalogue, built);
+  return built;
+}
+
+/** "Pair Recognition", "Last Pair into OLL": an id's words capitalised as a name, not "pair recognition" in a sentence. */
+const titleCased = (words: string) => !/^[a-z]|\s[a-z]\S*$/.test(words);
+
+/**
+ * The catalogue's ids written in prose ("take the cross_only test") become
+ * their titles ("take the Cross test"), and its "[kind]" tags go: ids belong
+ * in refs, never in what the person reads. The word after an id picks between
+ * entries that share it; a title that ends in that word ("Cross test"), starts
+ * with its own determiner ("Your first lookahead") or was copied after the id
+ * ("turning-calm: Calm is faster than hard") isn't doubled. An id's words
+ * capitalised as a name before a kind word ("the Pair Recognition pack") are
+ * read as the id too.
+ */
+export function idsToTitles(text: string, catalogue: readonly CatalogueEntry[]): string {
+  const { byId, pattern } = idIndex(catalogue);
+  const source = text.replace(KIND_TAG, "");
+  let out = "";
+  let from = 0;
+  pattern.lastIndex = 0;
+  for (let found = pattern.exec(source); found; found = pattern.exec(source)) {
+    const [whole, lead = "", id, spaced] = found;
+    if (spaced && !titleCased(spaced)) continue;
+    const entries = byId.get((id ?? spaced!).toLowerCase().replace(/\s+/g, " "))!;
+    let end = found.index + whole.length;
+    let entry = entries.find((one) =>
+      new RegExp(`^:\\s*${escapeRegExp(one.title)}(?![\\w-])`, "i").test(source.slice(end)),
+    );
+    if (entry) end += /^:\s*/.exec(source.slice(end))![0].length + entry.title.length;
+    // The word after it, maybe past a closing quote: "the 'cross_only' test".
+    const next = /^(['"’”)]?)\s+([a-z]+)\b/i.exec(source.slice(end));
+    const word = next?.[2]!.toLowerCase();
+    entry ??=
+      entries.find((one) => one.kind === word) ??
+      entries.reduce((short, one) => (one.title.length < short.title.length ? one : short));
+    let title = entry.title;
+    if (next && title.toLowerCase().endsWith(` ${word}`)) {
+      title += next[1];
+      end += next[0].length;
+    }
+    out += source.slice(from, found.index);
+    out += (/^(?:the|a|an|your)\s/i.test(title) ? "" : lead) + title;
+    from = end;
+    pattern.lastIndex = end;
+  }
+  return out + source.slice(from);
+}
+
+/**
+ * While a reply streams, a word at the very end may be the start of an id
+ * ("the f2l-eff"): it waits for the rest, so a half id never shows.
+ */
+export function holdPartialId(text: string, catalogue: readonly CatalogueEntry[]): string {
+  const tail = /[\w-]+$/.exec(text)?.[0];
+  if (!tail) return text;
+  const key = tail.toLowerCase();
+  const { byId } = idIndex(catalogue);
+  if (byId.has(key) || ![...byId.keys()].some((id) => id.startsWith(key))) return text;
+  return text.slice(0, -tail.length);
+}
 
 /** Advice first (it adds only plain sentences), then numbers, then kind words; the catalogue's "[kind]" tags are never shown. */
 export function guardText(

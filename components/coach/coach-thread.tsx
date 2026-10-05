@@ -54,6 +54,7 @@ import { cn } from "@/lib/utils";
 import type { CoachEvent, CoachThread, DiagnosticRun, Solve } from "@/types/domain";
 import { PROFILE_HREF } from "@/lib/config/navigation";
 import { features } from "@/lib/config/features";
+import { isDesktop } from "@/lib/config/platform";
 
 /** The coach's name, so the conversation has someone in it. */
 const COACH_NAME = "Cube Coach";
@@ -256,7 +257,11 @@ function Conversation({
         <div className="min-w-0 flex-1">
           <p className="leading-tight font-semibold">{COACH_NAME}</p>
           <p className="text-xs text-muted-foreground" data-testid="coach-status">
-            {typing ? "Typing…" : model ? "AI coach · runs in your browser" : "Standard test order"}
+            {typing
+              ? "Typing…"
+              : model
+                ? `AI coach · runs ${isDesktop() ? "on this Mac" : "in your browser"}`
+                : "Standard test order"}
             {averageText ? ` · your average ${averageText}` : ""}
           </p>
         </div>

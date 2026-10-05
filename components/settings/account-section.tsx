@@ -8,6 +8,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { GoogleIcon } from "@/components/auth/google-icon";
 import { useSignOutDialog } from "@/components/auth/sign-out-dialog";
 import { SettingsSection } from "./settings-section";
+import { isDesktop, localPlace } from "@/lib/config/platform";
 
 export function AccountSection() {
   const { status, user } = useAuth();
@@ -25,7 +26,7 @@ export function AccountSection() {
     <SettingsSection
       id="account"
       title="Account"
-      description="The Coach, your stats, training and lessons need a Google account: they hold your own data, and it lives on the account (not on the operator’s laptop) so another device can pick it up. A working copy stays in this browser so the timer stays fast."
+      description={`The Coach, your stats, training and lessons need a Google account: they hold your own data, and it lives on the account (not on the operator’s laptop) so another device can pick it up. A working copy stays ${isDesktop() ? "on this Mac" : "in this browser"} so the timer stays fast.`}
     >
       {status === "signedIn" && user ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -35,9 +36,10 @@ export function AccountSection() {
               <p className="truncate text-sm text-muted-foreground">{user.email}</p>
             ) : null}
             <p className="mt-1 text-sm text-muted-foreground">
-              Times on this account live in Google Cloud. Clearing this browser does not delete
-              them; sign in on another device to restore them. Signing out clears this browser’s
-              copy, so nothing of yours is left behind.
+              Times on this account live in Google Cloud. Clearing{" "}
+              {isDesktop() ? "the app’s data" : "this browser"} does not delete them; sign in on
+              another device to restore them. Signing out clears this {localPlace()}’s copy, so
+              nothing of yours is left behind.
             </p>
           </div>
           <Button type="button" variant="outline" size="sm" onClick={() => signOut.setOpen(true)}>

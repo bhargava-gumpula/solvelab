@@ -17,3 +17,8 @@ export function target(): SolveLabTarget {
 export function isDesktop(): boolean {
   return target() === "desktop";
 }
+
+/** Where this build keeps its working copy, for UI text: "this browser" on the website, "this Mac" in the app. */
+export function localPlace(): "browser" | "Mac" {
+  return isDesktop() ? "Mac" : "browser";
+}

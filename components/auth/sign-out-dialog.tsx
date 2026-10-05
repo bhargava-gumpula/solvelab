@@ -15,6 +15,7 @@ import {
 import { signOutAndForget } from "@/lib/auth/sign-out";
 import { features } from "@/lib/config/features";
 import { pushLocalChanges } from "@/lib/sync/account";
+import { isDesktop, localPlace } from "@/lib/config/platform";
 
 type Stage = "ask" | "saving" | "unsaved" | "leaving";
 
@@ -71,12 +72,16 @@ export function SignOutDialog({
       <AlertDialogContent data-testid="sign-out-dialog">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {stage === "unsaved" ? "Your account is out of reach" : "Sign out of this browser?"}
+            {stage === "unsaved"
+              ? "Your account is out of reach"
+              : isDesktop()
+                ? "Sign out on this Mac?"
+                : "Sign out of this browser?"}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {stage === "unsaved"
-              ? "Some of your latest times couldn’t be saved to your Google account just now. Signing out clears this browser, so anything it hasn’t saved yet would be lost. You could cancel and try again when you’re back online."
-              : "Your times, coach conversations and solve profile stay on your Google account and come back when you sign in. This browser’s copy is cleared, so the site starts fresh. Only how the app looks stays."}
+              ? `Some of your latest times couldn’t be saved to your Google account just now. Signing out clears ${isDesktop() ? "this Mac’s copy" : "this browser"}, so anything it hasn’t saved yet would be lost. You could cancel and try again when you’re back online.`
+              : `Your times, coach conversations and solve profile stay on your Google account and come back when you sign in. This ${localPlace()}’s copy is cleared, so the ${isDesktop() ? "app" : "site"} starts fresh. Only how the app looks stays.`}
           </AlertDialogDescription>
           {features.coachChat ? (
             <p className="text-sm text-muted-foreground" data-testid="sign-out-coach-chats">

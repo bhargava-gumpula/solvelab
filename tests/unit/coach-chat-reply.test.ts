@@ -366,14 +366,14 @@ describe("the number, kind-word and advice guards", () => {
     followUps: string[] = [],
   ) => parseCoachReply(JSON.stringify({ answer, refs, followUps }), catalogue, check);
 
-  it("changes nothing without a check, and keeps the unguarded reply as it was", () => {
+  it("changes nothing but ids without a check, and keeps the unguarded reply as it was", () => {
     const raw = JSON.stringify({
       answer: "Aim for 0.6 s. Add the first-lookahead lesson.",
       refs: [],
       followUps: [],
     });
     const result = parseCoachReply(raw, catalogue);
-    expect(result.reply.answer).toBe("Aim for 0.6 s. Add the first-lookahead lesson.");
+    expect(result.reply.answer).toBe("Aim for 0.6 s. Add Your first lookahead lesson.");
     expect(result.unguarded).toEqual(result.reply);
     expect(result.ungrounded).toEqual([]);
   });
@@ -402,10 +402,10 @@ describe("the number, kind-word and advice guards", () => {
       "Start with the cross-for-f2l pack, then add the first-lookahead lesson.",
     );
     expect(result.reply.answer).toBe(
-      "Start with the cross-for-f2l pack, then add the first-lookahead pack.",
+      "Start with A cross built for F2L pack, then add Your first lookahead pack.",
     );
-    expect(result.kindFixes).toEqual(["lesson → pack: first-lookahead"]);
-    expect(result.dropped).toContain("kind word lesson → pack: first-lookahead");
+    expect(result.kindFixes).toEqual(["lesson → pack: Your first lookahead"]);
+    expect(result.dropped).toContain("kind word lesson → pack: Your first lookahead");
   });
 
   it("replaces advice to learn a set they know, and drops the pack that teaches it", () => {
@@ -448,5 +448,89 @@ describe("the number, kind-word and advice guards", () => {
     expect(partialAnswer(raw, { catalogue, check })).toBe("Your pair speed is 1.33 s.");
     expect(partialAnswer('{"answer": "Your pair speed is 1.', { catalogue, check })).toBe("");
     expect(partialAnswer(raw)).toContain("0.6 s");
+  });
+});
+
+describe("ids in the text", () => {
+  const answer = (text: string, followUps: string[] = []) =>
+    parse(JSON.stringify({ answer: text, refs: [], followUps })).reply;
+
+  it("writes a catalogue id as its title, in the answer and the follow-ups", () => {
+    const reply = answer(
+      "Take the cross_only test, then the f2l-efficiency pack or the advanced-f2l-cases pack.",
+      ["Should I do the lookahead-blind-pair drill?"],
+    );
+    expect(reply.answer).toBe(
+      "Take the Cross test, then the F2L in fewer moves pack or the Advanced F2L cases pack.",
+    );
+    expect(reply.followUps).toEqual(["Should I do the Blind pair drill?"]);
+  });
+
+  it("doesn't double a title's own kind word or determiner", () => {
+    expect(answer("Retake the tps_test test.").answer).toBe("Retake the Turning speed test.");
+    expect(answer("The cross-into-f2l pack helps.").answer).toBe(
+      "The join after the cross pack helps.",
+    );
+    expect(answer("Try your first-lookahead pack.").answer).toBe("Try Your first lookahead pack.");
+  });
+
+  it("picks the entry the next word names when a pack and a set share an id", () => {
+    expect(answer("Open the two-look-oll set.").answer).toBe("Open the 2-look OLL set.");
+    expect(answer("Open the two-look-oll pack.").answer).toBe(
+      "Open the 2-look OLL: ten algorithms pack.",
+    );
+  });
+
+  it("leaves plain words, look-alikes and ids inside other words alone", () => {
+    for (const text of [
+      "Work on lookahead and inspection.",
+      "A cross-only drill helps.",
+      "Your x-cross-into-f2l-ish plan.",
+      "Use two-look OLL.",
+    ]) {
+      expect(answer(text).answer).toBe(text);
+    }
+  });
+
+  it("doesn't repeat a title the model copied after the id, or one in quotes", () => {
+    expect(answer("Try the lesson turning-calm: Calm is faster than hard instead.").answer).toBe(
+      "Try the lesson Calm is faster than hard instead.",
+    );
+    expect(answer("Use the 'cross_only' test, then the pack 'oll-into-pll'.").answer).toBe(
+      "Use the 'Cross test', then the pack 'From OLL into PLL'.",
+    );
+  });
+
+  it("reads an id's words capitalised as a name before a kind word as the id", () => {
+    expect(answer("Try the Pair Recognition pack, then the Last Pair Into OLL pack.").answer).toBe(
+      "Try the Seeing a pair instantly pack, then The last pair into OLL pack.",
+    );
+    for (const text of [
+      "You are slow at pair recognition.",
+      "Pair recognition pack first.",
+      "Pair Recognition matters most.",
+    ]) {
+      expect(answer(text).answer).toBe(text);
+    }
+  });
+
+  it("takes out the [kind] tag a model copies from the list", () => {
+    expect(answer("Use cross-into-f2l [pack] first.").answer).toBe(
+      "Use The join after the cross first.",
+    );
+  });
+
+  it("never shows an id while streaming, not even half of one", () => {
+    const raw = JSON.stringify({
+      answer: "Take the cross_only test, then the f2l-efficiency pack.",
+      refs: [],
+      followUps: [],
+    });
+    for (let end = 0; end <= raw.length; end++) {
+      const shown = partialAnswer(raw.slice(0, end));
+      expect(shown).not.toMatch(/cross_|f2l-/i);
+    }
+    expect(partialAnswer(raw)).toBe("Take the Cross test, then the F2L in fewer moves pack.");
+    expect(partialAnswer('{"answer": "Take the f2l-eff')).toBe("Take the ");
   });
 });

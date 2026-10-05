@@ -18,6 +18,7 @@ import { DataSection } from "./data-section";
 import { HardwareTimerControls } from "./hardware-timer-section";
 import { SettingsSection } from "./settings-section";
 import { features } from "@/lib/config/features";
+import { isDesktop } from "@/lib/config/platform";
 
 async function updateSettings(patch: SettingsPatch) {
   try {
@@ -146,8 +147,9 @@ export function SettingsPanel() {
               <div className="text-sm">
                 <p className="font-medium">Built-in coach · on this device</p>
                 <p className="mt-0.5 text-muted-foreground">
-                  It was trained on simulated solvers and runs in your browser. Your times are never
-                  sent anywhere to produce its advice.
+                  It was trained on simulated solvers and runs{" "}
+                  {isDesktop() ? "on this Mac" : "in your browser"}. Your times are never sent
+                  anywhere to produce its advice.
                 </p>
               </div>
             </div>

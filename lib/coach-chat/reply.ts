@@ -17,8 +17,15 @@ import {
   parseMove,
   type Move,
 } from "@/lib/cube/notation";
-import type { CatalogueEntry } from "./context";
-import { guardText, NOTHING_LEFT, refSlips, type ReplyCheck } from "./guards";
+import { coachCatalogue, type CatalogueEntry } from "./context";
+import {
+  guardText,
+  holdPartialId,
+  idsToTitles,
+  NOTHING_LEFT,
+  refSlips,
+  type ReplyCheck,
+} from "./guards";
 import type { CoachReply } from "./types";
 
 const KINDS = ["pack", "test", "unit", "drill", "lesson", "set"] as const;
@@ -186,7 +193,9 @@ function readObject(text: string): { [key: string]: Json } | null {
 /**
  * The `answer` text so far, for showing while the reply streams, with any
  * invented algorithm already taken out (so it is never on screen, not even
- * for a moment). A reply that isn't JSON is returned as it is, guarded.
+ * for a moment) and catalogue ids written as their titles (a word that may be
+ * the start of an id waits for the rest). A reply that isn't JSON is returned
+ * as it is, guarded.
  *
  * With `guards`, only whole sentences are shown and each goes through the
  * number, kind-word and advice guards first, so no made-up number is on
@@ -200,7 +209,8 @@ export function partialAnswer(
   const text = clean(raw);
   const object = jsonStart(text) === -1 ? null : readObject(text);
   const shown = !object ? text : typeof object.answer === "string" ? object.answer : "";
-  const safe = guardAlgorithms(shown).text;
+  const catalogue = guards?.catalogue ?? coachCatalogue();
+  const safe = idsToTitles(holdPartialId(guardAlgorithms(shown).text, catalogue), catalogue);
   if (!guards) return safe;
   const end = [...safe.matchAll(/[.!?]+(?=\s)/g)].at(-1);
   if (!end) return "";
@@ -423,8 +433,9 @@ function resolveRefs(items: Json, catalogue: readonly CatalogueEntry[]) {
 
 /**
  * Turns the model's raw reply into a CoachReply. Ids not in the catalogue are
- * dropped, move sequences not in SolveLab's bank are removed, and a reply that
- * isn't usable JSON becomes plain text (no refs), still checked.
+ * dropped, move sequences not in SolveLab's bank are removed, ids written in
+ * the text become their titles, and a reply that isn't usable JSON becomes
+ * plain text (no refs), still checked.
  *
  * With `check` (what the model was told: `replyCheck(messages, facts)`), the
  * guards of guards.ts also run: numbers no data backs are removed, kind words
@@ -457,7 +468,7 @@ export function parseCoachReply(
   const guard = (value: string) => {
     const guarded = guardAlgorithms(value);
     invented.push(...guarded.invented);
-    return guarded.text;
+    return idsToTitles(guarded.text, catalogue);
   };
   const unguarded: CoachReply = {
     answer: guard(answer),

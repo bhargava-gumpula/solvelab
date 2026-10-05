@@ -1,7 +1,7 @@
-import { createElement } from "react";
+import { createElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { isDesktop, resolveTarget, target } from "@/lib/config/platform";
+import { isDesktop, localPlace, resolveTarget, target } from "@/lib/config/platform";
 import { resolveInputSource } from "@/lib/timer/input";
 
 vi.mock("@/components/timer/timer-device-provider", () => ({
@@ -16,6 +16,7 @@ vi.mock("@/components/timer/timer-device-provider", () => ({
 afterEach(() => {
   vi.unstubAllEnvs();
   vi.resetModules();
+  vi.doUnmock("@/components/auth/auth-provider");
 });
 
 async function featuresFor(value: string | undefined) {
@@ -99,5 +100,31 @@ describe("Bluetooth timers in the Mac app", () => {
     expect(html).toContain("Keyboard (Space). Bluetooth timers: use the website in Chrome.");
     expect(html).not.toContain("Timer brand");
     expect(html).not.toContain("<button");
+  });
+});
+
+describe("where the working copy lives, in words", () => {
+  it("is this browser on the website and this Mac in the app", () => {
+    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "web");
+    expect(localPlace()).toBe("browser");
+    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "desktop");
+    expect(localPlace()).toBe("Mac");
+  });
+
+  async function wallMarkup(value: string) {
+    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", value);
+    vi.resetModules();
+    vi.doMock("@/components/auth/auth-provider", () => ({
+      useAuth: () => ({ status: "signedOut", user: null }),
+    }));
+    const { RequireAccount } = await import("@/components/auth/require-account");
+    return renderToStaticMarkup(RequireAccount({ area: "hub", children: null }) as ReactElement);
+  }
+
+  it("the sign-in wall says this Mac in the app, never this browser", async () => {
+    const app = await wallMarkup("desktop");
+    expect(app).toContain("Signing out clears this Mac&#x27;s copy");
+    expect(app).not.toMatch(/browser/i);
+    expect(await wallMarkup("web")).toContain("Signing out clears this browser&#x27;s copy");
   });
 });

@@ -37,6 +37,7 @@ import { features } from "@/lib/config/features";
 import { setTrainingDataSharing, sharingChangeMessage } from "@/lib/training-data/controls";
 import { CoachChatsControl } from "./coach-chats-control";
 import { SettingsSection } from "./settings-section";
+import { isDesktop, localPlace } from "@/lib/config/platform";
 
 export function DataSection() {
   const { status, retry } = useStorageStatus();
@@ -99,8 +100,8 @@ export function DataSection() {
       title="Your data"
       description={
         signedIn
-          ? "This browser keeps a working copy so the timer stays fast. Signed-in times also live on the Google account in Google Cloud — not on the operator’s laptop."
-          : "Signed out, the timer still works and its times stay in this browser. Coach, Stats, Train and Learn need an account, and signing out clears this browser’s copy."
+          ? `This ${localPlace()} keeps a working copy so the timer stays fast. Signed-in times also live on the Google account in Google Cloud — not on the operator’s laptop.`
+          : `Signed out, the timer still works and its times stay ${isDesktop() ? "on this Mac" : "in this browser"}. Coach, Stats, Train and Learn need an account, and signing out clears this ${localPlace()}’s copy.`
       }
     >
       <div className="bg-surface-sunken flex items-start gap-3 rounded-lg p-4" role="status">
@@ -115,8 +116,10 @@ export function DataSection() {
           </p>
           <p className="mt-0.5 text-muted-foreground">
             {status === "error"
-              ? "Your browser may be blocking site storage. Existing data has not been reset."
-              : `Schema version ${DATABASE_VERSION}. Clearing this site’s data removes the local copy${signedIn ? "; sign in again to restore from the Google account" : ""}.`}
+              ? isDesktop()
+                ? "The app couldn’t open its storage on this Mac. Existing data has not been reset."
+                : "Your browser may be blocking site storage. Existing data has not been reset."
+              : `Schema version ${DATABASE_VERSION}. Clearing ${isDesktop() ? "the app’s" : "this site’s"} data removes the local copy${signedIn ? "; sign in again to restore from the Google account" : ""}.`}
           </p>
         </div>
         {status === "error" && (
@@ -150,8 +153,8 @@ export function DataSection() {
       </div>
       <p className="mt-3 text-xs text-muted-foreground">
         Backups are JSON files with every session, solve and timer setting
-        {features.coachChat ? " and every coach chat" : ""}. Use them to move to another browser or
-        device.
+        {features.coachChat ? " and every coach chat" : ""}. Use them to move to another{" "}
+        {localPlace()} or device.
       </p>
 
       {features.coachChat ? <CoachChatsControl /> : null}

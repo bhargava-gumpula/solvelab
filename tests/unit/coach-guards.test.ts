@@ -170,6 +170,13 @@ describe("fixKindWords", () => {
     );
   });
 
+  it("reads a name inside a longer title as that title", () => {
+    // "Full PLL" is a set, but here it ends the pack "Learning full PLL".
+    expect(fixKindWords("Start with the Learning full PLL pack.", CATALOGUE).fixes).toEqual([]);
+    expect(fixKindWords("Open the pack 2-look OLL: ten algorithms.", CATALOGUE).fixes).toEqual([]);
+    expect(fixKindWords("Open the full PLL pack.", CATALOGUE).text).toBe("Open the full PLL set.");
+  });
+
   it("leaves a right kind word, a name with a kind in it, and a lone word alone", () => {
     for (const text of [
       "Start with the cross-for-f2l pack.",

@@ -5,6 +5,7 @@ import { CaseBrowser } from "@/components/algorithms/case-browser";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AlgorithmSetData } from "@/data/algorithms/types";
 import { loadZbll, ZBLL_SHOWN } from "@/lib/algorithms/zbll";
+import { isDesktop } from "@/lib/config/platform";
 
 /** The ZBLL cases, loaded when the page opens rather than with the rest of the bank. */
 export function ZbllBrowser() {
@@ -22,7 +23,8 @@ export function ZbllBrowser() {
   if (failed) {
     return (
       <p className="tile px-5 py-8 text-center text-sm text-muted-foreground">
-        Couldn&apos;t load the ZBLL cases. Check your connection and reload the page.
+        Couldn&apos;t load the ZBLL cases.{" "}
+        {isDesktop() ? "Open the page again." : "Check your connection and reload the page."}
       </p>
     );
   }

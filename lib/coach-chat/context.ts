@@ -131,6 +131,7 @@ export const COACH_INSTRUCTIONS_V2 = [
   "11. What is under 'Knows' they already know: never tell them to learn it, only to use it. Suggest what is under 'Not learned yet' only when the course path allows it.",
   "12. Use only numbers written in their data. Never work out percentages, cut-offs or thresholds yourself. A pace word must be the one on that part's line: slow means clearly behind the goal, average means close to it, fast means at or better than it.",
   "13. A pack, a lesson, a drill, a test and a set are different things. Every id in the lists ends with its kind in brackets: call it that and nothing else.",
+  "14. Ids go only in refs. In answer and followUps, call a thing by its title copied exactly from the list (the words after the colon), never by its id or a name made from it: the Cross test, not cross_only or Cross Only.",
   `Reply with one JSON object and nothing else, answer first: ${REPLY_SHAPE}`,
   "kind is one of pack, test, unit, drill, lesson, set. refs holds 0 to 3 ids, most useful first. followUps holds 0 to 3 questions the person could ask you next (for example: How do I plan the cross faster?), never questions for them to answer.",
 ].join("\n");

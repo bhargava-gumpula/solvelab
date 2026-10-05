@@ -8,6 +8,7 @@ import { googleSignInErrorMessage, signInWithGoogle } from "@/lib/auth/actions";
 import { accessState, AREA_LABELS, AREA_REASONS, type AccountArea } from "@/lib/auth/access";
 import { useAuth } from "./auth-provider";
 import { GoogleIcon } from "./google-icon";
+import { localPlace } from "@/lib/config/platform";
 
 /**
  * Keeps an area that holds your own data behind a Google account. While the
@@ -81,8 +82,8 @@ function SignInWall({ area }: { area: AccountArea }) {
         </Button>
       </div>
       <p className="text-xs text-muted-foreground">
-        The timer works without an account. Signing out clears this browser&apos;s copy of your
-        data; your account keeps its own.
+        The timer works without an account. Signing out clears this {localPlace()}&apos;s copy of
+        your data; your account keeps its own.
       </p>
     </section>
   );
