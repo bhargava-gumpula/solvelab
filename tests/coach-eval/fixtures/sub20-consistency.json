@@ -1,0 +1,149 @@
+{
+  "id": "sub20-consistency",
+  "description": "Sub-20: consistency is the weak part.",
+  "profile": {
+    "goal": "sub15",
+    "averageMs": 19200,
+    "courseId": "sub-15",
+    "intro": {
+      "average": "15-20",
+      "slowParts": ["consistency"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 2270,
+        "range": [2020, 2520],
+        "samples": 10,
+        "previous": 2540
+      },
+      "cross_planning": {
+        "value": 280,
+        "range": [130, 430],
+        "samples": 10,
+        "previous": 310
+      },
+      "cross_to_f2l": {
+        "value": 840,
+        "range": [680, 1000],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 9580,
+        "range": [8520, 10640],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 2170,
+        "range": [1930, 2410],
+        "samples": 10,
+        "previous": 2430
+      },
+      "lookahead": {
+        "value": 1520,
+        "range": [1230, 1810],
+        "samples": 10,
+        "previous": 1700
+      },
+      "f2l_to_oll": {
+        "value": 570,
+        "range": [420, 720],
+        "samples": 10,
+        "previous": 640
+      },
+      "oll": {
+        "value": 2530,
+        "range": [2250, 2810],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.15,
+        "range": [0.04, 0.26],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 530,
+        "range": [380, 680],
+        "samples": 10,
+        "previous": 590
+      },
+      "pll": {
+        "value": 3070,
+        "range": [2730, 3410],
+        "samples": 10,
+        "previous": 3440
+      },
+      "pll_algorithms": {
+        "value": 0.14,
+        "range": [0.03, 0.25],
+        "samples": 10,
+        "previous": 0.16
+      },
+      "full_solve": {
+        "value": 19200,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.177,
+        "range": [0.159, 0.195],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 10.100000000000001,
+        "range": [9.5, 10.700000000000001],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "consistency",
+        "title": "Fewer disasters",
+        "reason": "Consistency is furthest from your goal"
+      },
+      {
+        "id": "stuck-at-fifteen",
+        "title": "Stuck at 15",
+        "reason": "Written for around 20 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "consistency",
+    "refs": ["consistency", "consistency", "practice-plan"],
+    "words": ["consisten", "bad solves", "variation", "steady", "disaster", "spread"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "My averages swing a lot from day to day.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+{
+  "id": "sub25-asks-coll-after-plan",
+  "description": "Sub-25, three turns: weakest part first, then how long to practise, then COLL (which should wait).",
+  "profile": {
+    "goal": "sub20",
+    "averageMs": 23500,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["joins"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3180,
+        "range": [2830, 3530],
+        "samples": 10,
+        "previous": 3560
+      },
+      "cross_planning": {
+        "value": 410,
+        "range": [260, 560],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 920,
+        "range": [740, 1100],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 11400,
+        "range": [10140, 12660],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 2370,
+        "range": [2110, 2630],
+        "samples": 10,
+        "previous": 2650
+      },
+      "lookahead": {
+        "value": 1720,
+        "range": [1390, 2050],
+        "samples": 10,
+        "previous": 1930
+      },
+      "f2l_to_oll": {
+        "value": 1420,
+        "range": [1150, 1690],
+        "samples": 10,
+        "previous": 1430
+      },
+      "oll": {
+        "value": 3310,
+        "range": [2940, 3680],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.2,
+        "range": [0.07, 0.33],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 680,
+        "range": [530, 830],
+        "samples": 10,
+        "previous": 760
+      },
+      "pll": {
+        "value": 3350,
+        "range": [2980, 3720],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.19,
+        "range": [0.07, 0.31],
+        "samples": 10,
+        "previous": 0.21
+      },
+      "full_solve": {
+        "value": 23500,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.10300000000000001,
+        "range": [0.093, 0.113],
+        "samples": 50,
+        "previous": 0.115
+      },
+      "turning_speed": {
+        "value": 8.4,
+        "range": [7.9, 8.9],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "last-pair-into-oll",
+        "title": "The last pair into OLL",
+        "reason": "F2L → OLL is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 25 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "f2l_to_oll",
+    "refs": [
+      "last-pair-into-oll",
+      "last_slot",
+      "oll_only",
+      "ls_oll",
+      "last-pair-into-oll",
+      "ls_oll"
+    ],
+    "words": [
+      "last pair",
+      "into oll",
+      "before oll",
+      "f2l → oll",
+      "f2l to oll",
+      "start oll",
+      "starting oll",
+      "between f2l and oll",
+      "pause"
+    ]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "What should I work on?",
+      "checksWeakest": true,
+      "expectRefs": true
+    },
+    {
+      "user": "How long should I spend on that each day?",
+      "mustMention": [["minute", "min ", "mins", "session", "day", "week"]]
+    },
+    {
+      "user": "And should I start COLL as well?",
+      "mustMention": [
+        [
+          "not yet",
+          "for now",
+          "later",
+          "wait",
+          "skip",
+          "hold off",
+          "optional",
+          "not necessary",
+          "don't need",
+          "no need",
+          "can wait",
+          "leave",
+          "sub-10",
+          "sub 10"
+        ]
+      ]
+    }
+  ]
+}

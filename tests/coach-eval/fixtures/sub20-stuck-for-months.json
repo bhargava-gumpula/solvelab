@@ -1,0 +1,172 @@
+{
+  "id": "sub20-stuck-for-months",
+  "description": "Sub-20: lookahead has not moved since the last test; the coach should say so.",
+  "profile": {
+    "goal": "sub15",
+    "averageMs": 17400,
+    "courseId": "sub-15",
+    "intro": {
+      "average": "15-20",
+      "slowParts": ["pauses"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 2310,
+        "range": [2050, 2570],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 240,
+        "range": [90, 390],
+        "samples": 10,
+        "previous": 270
+      },
+      "cross_to_f2l": {
+        "value": 700,
+        "range": [550, 850],
+        "samples": 10,
+        "previous": 780
+      },
+      "f2l": {
+        "value": 7950,
+        "range": [7070, 8830],
+        "samples": 10,
+        "previous": 8900
+      },
+      "pair_speed": {
+        "value": 1690,
+        "range": [1500, 1880],
+        "samples": 10,
+        "previous": 1890
+      },
+      "lookahead": {
+        "value": 2380,
+        "range": [1930, 2830],
+        "samples": 10,
+        "previous": 2360
+      },
+      "f2l_to_oll": {
+        "value": 570,
+        "range": [420, 720],
+        "samples": 10,
+        "previous": 640
+      },
+      "oll": {
+        "value": 2410,
+        "range": [2140, 2680],
+        "samples": 10,
+        "previous": 2700
+      },
+      "oll_algorithms": {
+        "value": 0.14,
+        "range": [0.03, 0.25],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 550,
+        "range": [400, 700],
+        "samples": 10,
+        "previous": 620
+      },
+      "pll": {
+        "value": 2540,
+        "range": [2260, 2820],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.13,
+        "range": [0.02, 0.24],
+        "samples": 10
+      },
+      "full_solve": {
+        "value": 17400,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.098,
+        "range": [0.088, 0.108],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 9.600000000000001,
+        "range": [9, 10.200000000000001],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Lookahead is furthest from your goal"
+      },
+      {
+        "id": "stuck-at-fifteen",
+        "title": "Stuck at 15",
+        "reason": "Written for around 20 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "lookahead",
+    "refs": ["lookahead", "f2l_only", "last_slot", "stuck-at-fifteen", "first-lookahead"],
+    "words": ["lookahead", "look ahead", "next pair", "pause", "pausing"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-new-cube",
+      "why": "Hardware is not the leak at this level.",
+      "pattern": "\\b(?:buy|get|upgrade to|switch to) (?:a |an )?(?:new|better|faster|different)[^.]{0,20}\\b(?:cube|puzzle)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "I've been stuck at 17 for months.",
+      "checksWeakest": true,
+      "expectRefs": true,
+      "mustMention": [
+        [
+          "same",
+          "stuck",
+          "flat",
+          "plateau",
+          "no change",
+          "not improved",
+          "hasn't moved",
+          "haven't moved",
+          "not moved",
+          "unchanged",
+          "stalled",
+          "hasn't improved",
+          "not improving"
+        ]
+      ]
+    }
+  ]
+}

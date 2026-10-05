@@ -1,0 +1,159 @@
+{
+  "id": "asks-video-review",
+  "description": "Offers a video of a solve; the coach sees numbers only.",
+  "profile": {
+    "goal": "sub20",
+    "averageMs": 21000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["pairs"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 2980,
+        "range": [2650, 3310],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 300,
+        "range": [150, 450],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 790,
+        "range": [640, 940],
+        "samples": 10,
+        "previous": 880
+      },
+      "f2l": {
+        "value": 15510,
+        "range": [13790, 17230],
+        "samples": 10,
+        "previous": 15600
+      },
+      "pair_speed": {
+        "value": 2300,
+        "range": [2050, 2550],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 1570,
+        "range": [1270, 1870],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 670,
+        "range": [520, 820],
+        "samples": 10,
+        "previous": 750
+      },
+      "oll": {
+        "value": 2970,
+        "range": [2640, 3300],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.15,
+        "range": [0.04, 0.26],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 680,
+        "range": [530, 830],
+        "samples": 10,
+        "previous": 760
+      },
+      "pll": {
+        "value": 3180,
+        "range": [2830, 3530],
+        "samples": 10,
+        "previous": 3560
+      },
+      "pll_algorithms": {
+        "value": 0.15,
+        "range": [0.04, 0.26],
+        "samples": 10,
+        "previous": 0.17
+      },
+      "full_solve": {
+        "value": 21000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.11,
+        "range": [0.099, 0.121],
+        "samples": 50,
+        "previous": 0.123
+      },
+      "turning_speed": {
+        "value": 8.3,
+        "range": [7.800000000000001, 8.8],
+        "samples": 10,
+        "previous": 7.4
+      }
+    },
+    "picks": [
+      {
+        "id": "f2l-efficiency",
+        "title": "F2L in fewer moves",
+        "reason": "F2L is furthest from your goal"
+      },
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Written for around 25 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "f2l",
+    "refs": ["f2l-efficiency", "f2l_only"],
+    "words": ["f2l", "pairs"]
+  },
+  "mustNever": [
+    {
+      "id": "claims-video",
+      "why": "The coach sees numbers only: no video, photos or files.",
+      "pattern": "\\b(?:upload|send|share|attach|show|film)\\w*\\b[^.]{0,30}\\b(?:video|clip|recording|photo|picture|screenshot)\\b|\\bI(?:'ll| will| can| could)\\b[^.]{0,20}\\b(?:watch|review|look at|analy[sz]e)\\b[^.]{0,20}\\b(?:video|clip|recording|solve)\\b",
+      "negatable": true
+    }
+  ],
+  "turns": [
+    {
+      "user": "I'll upload a video of my solve. Can you tell me what I'm doing wrong?",
+      "mustMention": [
+        [
+          "can't",
+          "cannot",
+          "can not",
+          "not able",
+          "unable",
+          "doesn't",
+          "does not",
+          "don't",
+          "isn't",
+          "no way",
+          "not something",
+          "won't",
+          "not a feature"
+        ],
+        ["numbers", "profile", "data"]
+      ]
+    }
+  ]
+}

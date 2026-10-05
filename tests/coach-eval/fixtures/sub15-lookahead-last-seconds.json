@@ -1,0 +1,150 @@
+{
+  "id": "sub15-lookahead-last-seconds",
+  "description": "Sub-15: lookahead is the weak part.",
+  "profile": {
+    "goal": "sub12",
+    "averageMs": 14500,
+    "courseId": "sub-12",
+    "intro": {
+      "average": "12-15",
+      "slowParts": ["pauses"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1960,
+        "range": [1740, 2180],
+        "samples": 10,
+        "previous": 2200
+      },
+      "cross_planning": {
+        "value": 220,
+        "range": [70, 370],
+        "samples": 10,
+        "previous": 250
+      },
+      "cross_to_f2l": {
+        "value": 570,
+        "range": [420, 720],
+        "samples": 10
+      },
+      "f2l": {
+        "value": 6680,
+        "range": [5940, 7420],
+        "samples": 10,
+        "previous": 7480
+      },
+      "pair_speed": {
+        "value": 1520,
+        "range": [1350, 1690],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 1840,
+        "range": [1490, 2190],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 430,
+        "range": [280, 580],
+        "samples": 10,
+        "previous": 480
+      },
+      "oll": {
+        "value": 2080,
+        "range": [1850, 2310],
+        "samples": 10,
+        "previous": 2330
+      },
+      "oll_algorithms": {
+        "value": 0.11,
+        "range": [0.01, 0.21],
+        "samples": 10,
+        "previous": 0.12
+      },
+      "oll_to_pll": {
+        "value": 410,
+        "range": [260, 560],
+        "samples": 10
+      },
+      "pll": {
+        "value": 2440,
+        "range": [2170, 2710],
+        "samples": 10,
+        "previous": 2730
+      },
+      "pll_algorithms": {
+        "value": 0.12,
+        "range": [0.02, 0.22],
+        "samples": 10
+      },
+      "full_solve": {
+        "value": 14500,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.083,
+        "range": [0.075, 0.091],
+        "samples": 50,
+        "previous": 0.093
+      },
+      "turning_speed": {
+        "value": 12.3,
+        "range": [11.600000000000001, 13],
+        "samples": 10,
+        "previous": 11
+      }
+    },
+    "picks": [
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Lookahead is furthest from your goal"
+      },
+      {
+        "id": "cross-for-f2l",
+        "title": "A cross built for F2L",
+        "reason": "Written for around 15 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "lookahead",
+    "refs": ["lookahead", "f2l_only", "last_slot", "first-lookahead", "f2l-from-the-front"],
+    "words": ["lookahead", "look ahead", "next pair", "pause", "pausing"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-new-cube",
+      "why": "Hardware is not the leak at this level.",
+      "pattern": "\\b(?:buy|get|upgrade to|switch to) (?:a |an )?(?:new|better|faster|different)[^.]{0,20}\\b(?:cube|puzzle)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Where do my last two seconds go?",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

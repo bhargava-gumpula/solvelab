@@ -1,0 +1,169 @@
+{
+  "id": "sub25-few-attempts",
+  "description": "Sub-25: every number rests on three or four attempts with wide ranges; the coach must not overclaim.",
+  "profile": {
+    "goal": "sub20",
+    "averageMs": 24000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": [],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3290,
+        "range": [2620, 3960],
+        "samples": 3
+      },
+      "cross_planning": {
+        "value": 440,
+        "range": [290, 590],
+        "samples": 3,
+        "previous": 490
+      },
+      "cross_to_f2l": {
+        "value": 940,
+        "range": [610, 1270],
+        "samples": 3,
+        "previous": 1050
+      },
+      "f2l": {
+        "value": 13130,
+        "range": [10480, 15780],
+        "samples": 3,
+        "previous": 14710
+      },
+      "pair_speed": {
+        "value": 2350,
+        "range": [1870, 2830],
+        "samples": 3,
+        "previous": 2630
+      },
+      "lookahead": {
+        "value": 1950,
+        "range": [1280, 2620],
+        "samples": 3
+      },
+      "f2l_to_oll": {
+        "value": 750,
+        "range": [490, 1010],
+        "samples": 3,
+        "previous": 840
+      },
+      "oll": {
+        "value": 5300,
+        "range": [4230, 6370],
+        "samples": 3,
+        "previous": 5330
+      },
+      "oll_algorithms": {
+        "value": 0.18,
+        "range": [0, 0.4],
+        "samples": 3
+      },
+      "oll_to_pll": {
+        "value": 740,
+        "range": [480, 1000],
+        "samples": 3
+      },
+      "pll": {
+        "value": 3230,
+        "range": [2580, 3880],
+        "samples": 3
+      },
+      "pll_algorithms": {
+        "value": 0.18,
+        "range": [0, 0.4],
+        "samples": 3
+      },
+      "full_solve": {
+        "value": 24000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.10200000000000001,
+        "range": [0.092, 0.112],
+        "samples": 50,
+        "previous": 0.114
+      },
+      "turning_speed": {
+        "value": 7.5,
+        "range": [7.1000000000000005, 7.9],
+        "samples": 3,
+        "previous": 6.7
+      }
+    }
+  },
+  "weakest": null,
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "What is my weakest part?",
+      "checksWeakest": false,
+      "expectRefs": true,
+      "mustMention": [
+        [
+          "thin",
+          "few attempts",
+          "not enough",
+          "rough",
+          "low confidence",
+          "not sure",
+          "limited",
+          "only a few",
+          "retake",
+          "re-take",
+          "more data",
+          "small sample",
+          "few tests",
+          "more tests",
+          "not many",
+          "missing",
+          "no data",
+          "little data",
+          "very little",
+          "haven't taken",
+          "not measured",
+          "only the cross",
+          "one test",
+          "only one",
+          "hasn't been measured"
+        ],
+        ["retake", "re-take", "take the", "again", "more attempts"]
+      ]
+    }
+  ]
+}

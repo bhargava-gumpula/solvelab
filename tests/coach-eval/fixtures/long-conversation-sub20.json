@@ -1,0 +1,208 @@
+{
+  "id": "long-conversation-sub20",
+  "description": "Sub-20: twelve earlier messages about other things, then a question that needs the profile.",
+  "profile": {
+    "goal": "sub15",
+    "averageMs": 18200,
+    "courseId": "sub-15",
+    "intro": {
+      "average": "15-20",
+      "slowParts": ["pauses"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 2200,
+        "range": [1960, 2440],
+        "samples": 10,
+        "previous": 2460
+      },
+      "cross_planning": {
+        "value": 270,
+        "range": [120, 420],
+        "samples": 10,
+        "previous": 300
+      },
+      "cross_to_f2l": {
+        "value": 670,
+        "range": [520, 820],
+        "samples": 10,
+        "previous": 750
+      },
+      "f2l": {
+        "value": 9210,
+        "range": [8190, 10230],
+        "samples": 10,
+        "previous": 10320
+      },
+      "pair_speed": {
+        "value": 1710,
+        "range": [1520, 1900],
+        "samples": 10,
+        "previous": 1920
+      },
+      "lookahead": {
+        "value": 2510,
+        "range": [2030, 2990],
+        "samples": 10,
+        "previous": 2500
+      },
+      "f2l_to_oll": {
+        "value": 540,
+        "range": [390, 690],
+        "samples": 10,
+        "previous": 600
+      },
+      "oll": {
+        "value": 2200,
+        "range": [1960, 2440],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.15,
+        "range": [0.04, 0.26],
+        "samples": 10,
+        "previous": 0.17
+      },
+      "oll_to_pll": {
+        "value": 550,
+        "range": [400, 700],
+        "samples": 10,
+        "previous": 620
+      },
+      "pll": {
+        "value": 2750,
+        "range": [2450, 3050],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.14,
+        "range": [0.03, 0.25],
+        "samples": 10,
+        "previous": 0.16
+      },
+      "full_solve": {
+        "value": 18200,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.09,
+        "range": [0.081, 0.099],
+        "samples": 50,
+        "previous": 0.101
+      },
+      "turning_speed": {
+        "value": 9.1,
+        "range": [8.6, 9.600000000000001],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Lookahead is furthest from your goal"
+      },
+      {
+        "id": "stuck-at-fifteen",
+        "title": "Stuck at 15",
+        "reason": "Written for around 20 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "lookahead",
+    "refs": ["lookahead", "f2l_only", "last_slot", "first-lookahead", "stuck-at-fifteen"],
+    "words": ["lookahead", "look ahead", "next pair", "pause", "pausing"]
+  },
+  "history": [
+    {
+      "role": "user",
+      "content": "Quick question: how many moves should my cross be?"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"answer\":\"Aim for eight moves or fewer, planned in inspection before you touch the cube.\",\"refs\":[{\"kind\":\"pack\",\"id\":\"cross-efficiency\"}],\"followUps\":[]}"
+    },
+    {
+      "role": "user",
+      "content": "And what turning speed is normal for me?"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"answer\":\"At your level smooth beats fast. Turn at a pace where you never have to correct a slip.\",\"refs\":[],\"followUps\":[]}"
+    },
+    {
+      "role": "user",
+      "content": "Should I drill OLL or PLL more?"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"answer\":\"Keep your normal practice on both and don't add new algorithm sets yet.\",\"refs\":[],\"followUps\":[]}"
+    },
+    {
+      "role": "user",
+      "content": "How long should a practice session be?"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"answer\":\"Twenty to thirty focused minutes beats two hours of random solving.\",\"refs\":[],\"followUps\":[]}"
+    },
+    {
+      "role": "user",
+      "content": "Is it okay to use my pinky for U moves?"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"answer\":\"Yes, if it lets you turn smoothly without regripping. Film yourself and look for wasted regrips.\",\"refs\":[{\"kind\":\"pack\",\"id\":\"turning-technique\"}],\"followUps\":[]}"
+    },
+    {
+      "role": "user",
+      "content": "Does cube lube matter?"
+    },
+    {
+      "role": "assistant",
+      "content": "{\"answer\":\"A little. Pick something you like once and stop changing it; it isn't what is holding you back.\",\"refs\":[],\"followUps\":[]}"
+    }
+  ],
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-coll-wv",
+      "why": "COLL and Winter Variation are optional extras from about sub-15, not before.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:COLL|winter variation|WV)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:COLL|winter variation|WV)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-new-cube",
+      "why": "Hardware is not the leak at this level.",
+      "pattern": "\\b(?:buy|get|upgrade to|switch to) (?:a |an )?(?:new|better|faster|different)[^.]{0,20}\\b(?:cube|puzzle)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "OK. Thinking about all my numbers, what is the one thing I should work on this week?",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

@@ -1,0 +1,142 @@
+{
+  "id": "sub12-consistency",
+  "description": "Sub-12: consistency is the weak part.",
+  "profile": {
+    "goal": "sub10",
+    "averageMs": 11800,
+    "courseId": "sub-10",
+    "intro": {
+      "average": "10-12",
+      "slowParts": ["consistency"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1290,
+        "range": [1150, 1430],
+        "samples": 10,
+        "previous": 1440
+      },
+      "cross_planning": {
+        "value": 190,
+        "range": [40, 340],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 500,
+        "range": [350, 650],
+        "samples": 10,
+        "previous": 560
+      },
+      "f2l": {
+        "value": 5810,
+        "range": [5170, 6450],
+        "samples": 10,
+        "previous": 6510
+      },
+      "pair_speed": {
+        "value": 1280,
+        "range": [1140, 1420],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 810,
+        "range": [660, 960],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 340,
+        "range": [190, 490],
+        "samples": 10
+      },
+      "oll": {
+        "value": 1500,
+        "range": [1330, 1670],
+        "samples": 10,
+        "previous": 1680
+      },
+      "oll_algorithms": {
+        "value": 0.09,
+        "range": [0, 0.18],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 370,
+        "range": [220, 520],
+        "samples": 10
+      },
+      "pll": {
+        "value": 2290,
+        "range": [2040, 2540],
+        "samples": 10,
+        "previous": 2560
+      },
+      "pll_algorithms": {
+        "value": 0.1,
+        "range": [0.01, 0.19],
+        "samples": 10,
+        "previous": 0.11
+      },
+      "full_solve": {
+        "value": 11800,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.135,
+        "range": [0.121, 0.149],
+        "samples": 50,
+        "previous": 0.136
+      },
+      "turning_speed": {
+        "value": 11.8,
+        "range": [11.100000000000001, 12.5],
+        "samples": 10
+      }
+    },
+    "picks": [
+      {
+        "id": "consistency",
+        "title": "Fewer disasters",
+        "reason": "Consistency is furthest from your goal"
+      },
+      {
+        "id": "past-the-first-pair",
+        "title": "Seeing past the first pair",
+        "reason": "Written for around 12 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "consistency",
+    "refs": ["consistency", "consistency", "practising-near-ten"],
+    "words": ["consisten", "bad solves", "variation", "steady", "disaster", "spread"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "My Ao12 is great and my Ao100 is not.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

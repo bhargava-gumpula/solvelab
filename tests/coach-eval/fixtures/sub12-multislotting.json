@@ -1,0 +1,149 @@
+{
+  "id": "sub12-multislotting",
+  "description": "Sub-12: pair speed and the user asks about solving two pairs at once.",
+  "profile": {
+    "goal": "sub10",
+    "averageMs": 11400,
+    "courseId": "sub-10",
+    "intro": {
+      "average": "10-12",
+      "slowParts": ["pairs"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1210,
+        "range": [1080, 1340],
+        "samples": 10,
+        "previous": 1360
+      },
+      "cross_planning": {
+        "value": 190,
+        "range": [40, 340],
+        "samples": 10,
+        "previous": 210
+      },
+      "cross_to_f2l": {
+        "value": 460,
+        "range": [310, 610],
+        "samples": 10,
+        "previous": 520
+      },
+      "f2l": {
+        "value": 5370,
+        "range": [4780, 5960],
+        "samples": 10
+      },
+      "pair_speed": {
+        "value": 1650,
+        "range": [1470, 1830],
+        "samples": 10,
+        "previous": 1640
+      },
+      "lookahead": {
+        "value": 770,
+        "range": [620, 920],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 340,
+        "range": [190, 490],
+        "samples": 10
+      },
+      "oll": {
+        "value": 1470,
+        "range": [1310, 1630],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.09,
+        "range": [0, 0.18],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 360,
+        "range": [210, 510],
+        "samples": 10,
+        "previous": 400
+      },
+      "pll": {
+        "value": 2110,
+        "range": [1880, 2340],
+        "samples": 10
+      },
+      "pll_algorithms": {
+        "value": 0.09,
+        "range": [0, 0.18],
+        "samples": 10,
+        "previous": 0.1
+      },
+      "full_solve": {
+        "value": 11400,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.078,
+        "range": [0.07, 0.08600000000000001],
+        "samples": 50,
+        "previous": 0.08700000000000001
+      },
+      "turning_speed": {
+        "value": 12.3,
+        "range": [11.600000000000001, 13],
+        "samples": 10,
+        "previous": 11
+      }
+    },
+    "picks": [
+      {
+        "id": "pair-recognition",
+        "title": "Seeing a pair instantly",
+        "reason": "Pair speed is furthest from your goal"
+      },
+      {
+        "id": "past-the-first-pair",
+        "title": "Seeing past the first pair",
+        "reason": "Written for around 12 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "pair_speed",
+    "refs": [
+      "pair-recognition",
+      "last_slot",
+      "multislotting",
+      "past-the-first-pair",
+      "pair-recognition"
+    ],
+    "words": ["pair"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Teach me multislotting.",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

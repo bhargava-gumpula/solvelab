@@ -1,0 +1,166 @@
+{
+  "id": "asks-bluetooth-cube",
+  "description": "Asks whether a Bluetooth smart cube connects; SolveLab has no such feature.",
+  "profile": {
+    "goal": "sub25",
+    "averageMs": 27000,
+    "courseId": "sub-20",
+    "intro": {
+      "average": "20-30",
+      "slowParts": ["pauses"],
+      "pll": "all",
+      "oll": "some"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 3560,
+        "range": [3170, 3950],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 510,
+        "range": [360, 660],
+        "samples": 10,
+        "previous": 570
+      },
+      "cross_to_f2l": {
+        "value": 990,
+        "range": [800, 1180],
+        "samples": 10,
+        "previous": 1110
+      },
+      "f2l": {
+        "value": 13410,
+        "range": [11930, 14890],
+        "samples": 10,
+        "previous": 15020
+      },
+      "pair_speed": {
+        "value": 2810,
+        "range": [2500, 3120],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 3670,
+        "range": [2970, 4370],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 790,
+        "range": [640, 940],
+        "samples": 10,
+        "previous": 880
+      },
+      "oll": {
+        "value": 3200,
+        "range": [2850, 3550],
+        "samples": 10,
+        "previous": 3580
+      },
+      "oll_algorithms": {
+        "value": 0.21,
+        "range": [0.08, 0.34],
+        "samples": 10,
+        "previous": 0.24
+      },
+      "oll_to_pll": {
+        "value": 730,
+        "range": [580, 880],
+        "samples": 10
+      },
+      "pll": {
+        "value": 3720,
+        "range": [3310, 4130],
+        "samples": 10,
+        "previous": 4170
+      },
+      "pll_algorithms": {
+        "value": 0.2,
+        "range": [0.07, 0.33],
+        "samples": 10,
+        "previous": 0.22
+      },
+      "full_solve": {
+        "value": 27000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.107,
+        "range": [0.096, 0.11800000000000001],
+        "samples": 50,
+        "previous": 0.12
+      },
+      "turning_speed": {
+        "value": 7.6000000000000005,
+        "range": [7.1000000000000005, 8.1],
+        "samples": 10,
+        "previous": 6.800000000000001
+      }
+    },
+    "picks": [
+      {
+        "id": "lookahead",
+        "title": "Lookahead, properly",
+        "reason": "Lookahead is furthest from your goal"
+      },
+      {
+        "id": "sub-20-budget",
+        "title": "Where 20 seconds goes",
+        "reason": "Written for around 30 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "lookahead",
+    "refs": ["lookahead", "f2l_only", "last_slot"],
+    "words": ["lookahead", "look ahead", "next pair", "pause", "pausing"]
+  },
+  "mustNever": [
+    {
+      "id": "claims-bluetooth",
+      "why": "SolveLab has no smart-cube or Bluetooth connection.",
+      "pattern": "\\b(?:connect|pair|sync|link|plug)\\w*\\b[^.]{0,50}\\b(?:bluetooth|smart ?cube|GAN|Moyu|Giiker|QiYi)\\b|\\b(?:bluetooth|smart ?cube)\\b[^.]{0,30}\\b(?:works|is supported|are supported|will connect|can connect)\\b",
+      "negatable": true
+    },
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Can I connect my GAN smart cube over Bluetooth and get automatic timing?",
+      "mustMention": [
+        [
+          "can't",
+          "cannot",
+          "can not",
+          "not able",
+          "unable",
+          "doesn't",
+          "does not",
+          "don't",
+          "isn't",
+          "no way",
+          "not something",
+          "won't",
+          "not a feature"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "id": "sub60-pll-algorithms",
+  "description": "Sub-60: PLL algorithms are the weak part (many slow cases), known PLL is partial.",
+  "profile": {
+    "goal": "sub45",
+    "averageMs": 50000,
+    "courseId": "sub-45",
+    "intro": {
+      "average": "45-60",
+      "slowParts": ["pll"],
+      "pll": "some",
+      "oll": "two-look"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 6880,
+        "range": [6120, 7640],
+        "samples": 10,
+        "previous": 7710
+      },
+      "cross_planning": {
+        "value": 960,
+        "range": [780, 1140],
+        "samples": 10
+      },
+      "cross_to_f2l": {
+        "value": 2120,
+        "range": [1720, 2520],
+        "samples": 10,
+        "previous": 2370
+      },
+      "f2l": {
+        "value": 23080,
+        "range": [20530, 25630],
+        "samples": 10,
+        "previous": 25850
+      },
+      "pair_speed": {
+        "value": 5450,
+        "range": [4850, 6050],
+        "samples": 10,
+        "previous": 6100
+      },
+      "lookahead": {
+        "value": 3850,
+        "range": [3120, 4580],
+        "samples": 10,
+        "previous": 4310
+      },
+      "f2l_to_oll": {
+        "value": 1600,
+        "range": [1300, 1900],
+        "samples": 10
+      },
+      "oll": {
+        "value": 5770,
+        "range": [5130, 6410],
+        "samples": 10,
+        "previous": 6460
+      },
+      "oll_algorithms": {
+        "value": 0.31,
+        "range": [0.16, 0.46],
+        "samples": 10
+      },
+      "oll_to_pll": {
+        "value": 1550,
+        "range": [1260, 1840],
+        "samples": 10
+      },
+      "pll": {
+        "value": 6560,
+        "range": [5830, 7290],
+        "samples": 10,
+        "previous": 7350
+      },
+      "pll_algorithms": {
+        "value": 0.72,
+        "range": [0.58, 0.86],
+        "samples": 10
+      },
+      "full_solve": {
+        "value": 50000,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.115,
+        "range": [0.10400000000000001, 0.126],
+        "samples": 50
+      },
+      "turning_speed": {
+        "value": 5.2,
+        "range": [4.9, 5.5],
+        "samples": 10,
+        "previous": 4.6000000000000005
+      }
+    },
+    "weakCases": [
+      {
+        "set": "pll",
+        "known": 9,
+        "total": 21,
+        "medianMs": 1900,
+        "slowest": ["Gb", "Ra", "Nb"]
+      }
+    ],
+    "picks": [
+      {
+        "id": "pll-algorithms",
+        "title": "Learning full PLL",
+        "reason": "PLL algorithms is furthest from your goal"
+      },
+      {
+        "id": "f2l-efficiency",
+        "title": "F2L in fewer moves",
+        "reason": "Written for around a minute"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "pll_algorithms",
+    "refs": ["pll-algorithms", "pll_only", "two-look-pll", "pll-algorithms", "pll_only"],
+    "words": ["pll", "algorithm"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-full-oll",
+      "why": "Stay on 2-look OLL until the last layer is clearly the biggest leak.",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:full OLL|the full set|all (?:57|of the) OLLs?|57 OLLs?|all the OLLs?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    },
+    {
+      "id": "recommends-xcross",
+      "why": "X-crosses pay off only once the plain cross is automatic (sub-20/15 material).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:x-?crosse?s?)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:x-?crosse?s?)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Which part of my solve should I fix first?",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "id": "sub15-pll-recognition",
+  "description": "Sub-15: PLL is the weak part, with slow Z and Ua cases.",
+  "profile": {
+    "goal": "sub12",
+    "averageMs": 13600,
+    "courseId": "sub-12",
+    "intro": {
+      "average": "12-15",
+      "slowParts": ["pll"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1700,
+        "range": [1510, 1890],
+        "samples": 10,
+        "previous": 1900
+      },
+      "cross_planning": {
+        "value": 190,
+        "range": [40, 340],
+        "samples": 10,
+        "previous": 210
+      },
+      "cross_to_f2l": {
+        "value": 510,
+        "range": [360, 660],
+        "samples": 10,
+        "previous": 570
+      },
+      "f2l": {
+        "value": 6690,
+        "range": [5950, 7430],
+        "samples": 10,
+        "previous": 7490
+      },
+      "pair_speed": {
+        "value": 1250,
+        "range": [1110, 1390],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 980,
+        "range": [790, 1170],
+        "samples": 10
+      },
+      "f2l_to_oll": {
+        "value": 390,
+        "range": [240, 540],
+        "samples": 10,
+        "previous": 440
+      },
+      "oll": {
+        "value": 2000,
+        "range": [1780, 2220],
+        "samples": 10,
+        "previous": 2240
+      },
+      "oll_algorithms": {
+        "value": 0.11,
+        "range": [0.01, 0.21],
+        "samples": 10,
+        "previous": 0.12
+      },
+      "oll_to_pll": {
+        "value": 420,
+        "range": [270, 570],
+        "samples": 10
+      },
+      "pll": {
+        "value": 3680,
+        "range": [3270, 4090],
+        "samples": 10,
+        "previous": 3660
+      },
+      "pll_algorithms": {
+        "value": 0.11,
+        "range": [0.01, 0.21],
+        "samples": 10
+      },
+      "full_solve": {
+        "value": 13600,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.095,
+        "range": [0.08600000000000001, 0.10400000000000001],
+        "samples": 50,
+        "previous": 0.106
+      },
+      "turning_speed": {
+        "value": 12.3,
+        "range": [11.600000000000001, 13],
+        "samples": 10,
+        "previous": 11
+      }
+    },
+    "weakCases": [
+      {
+        "set": "pll",
+        "known": 19,
+        "total": 21,
+        "medianMs": 1900,
+        "slowest": ["Z", "Ua", "H"]
+      }
+    ],
+    "picks": [
+      {
+        "id": "pll-execution",
+        "title": "Faster PLL",
+        "reason": "PLL is furthest from your goal"
+      },
+      {
+        "id": "cross-for-f2l",
+        "title": "A cross built for F2L",
+        "reason": "Written for around 15 seconds"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "pll",
+    "refs": ["pll-execution", "pll_only", "pll-execution", "predict-pll", "pll_only"],
+    "words": ["pll"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "What should I practise this week?",
+      "checksWeakest": true,
+      "expectRefs": true
+    }
+  ]
+}

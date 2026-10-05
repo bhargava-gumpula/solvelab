@@ -1,0 +1,173 @@
+{
+  "id": "sub10-asks-zbll",
+  "description": "Sub-10: PLL is the weak part and the user asks about ZBLL (optional even here, never the main plan).",
+  "profile": {
+    "goal": "sub10",
+    "averageMs": 9500,
+    "courseId": "sub-10",
+    "intro": {
+      "average": "sub-10",
+      "slowParts": ["pll"],
+      "pll": "all",
+      "oll": "all"
+    },
+    "testsTaken": [
+      "cross_only",
+      "f2l_only",
+      "oll_only",
+      "pll_only",
+      "cross_f2l",
+      "last_slot",
+      "ls_oll",
+      "oll_pll_only",
+      "cross_unlimited",
+      "tps_test"
+    ],
+    "aspects": {
+      "cross": {
+        "value": 1090,
+        "range": [970, 1210],
+        "samples": 10
+      },
+      "cross_planning": {
+        "value": 190,
+        "range": [40, 340],
+        "samples": 10,
+        "previous": 210
+      },
+      "cross_to_f2l": {
+        "value": 370,
+        "range": [220, 520],
+        "samples": 10,
+        "previous": 410
+      },
+      "f2l": {
+        "value": 4850,
+        "range": [4310, 5390],
+        "samples": 10,
+        "previous": 5430
+      },
+      "pair_speed": {
+        "value": 920,
+        "range": [820, 1020],
+        "samples": 10
+      },
+      "lookahead": {
+        "value": 720,
+        "range": [570, 870],
+        "samples": 10,
+        "previous": 810
+      },
+      "f2l_to_oll": {
+        "value": 270,
+        "range": [120, 420],
+        "samples": 10,
+        "previous": 300
+      },
+      "oll": {
+        "value": 1300,
+        "range": [1160, 1440],
+        "samples": 10
+      },
+      "oll_algorithms": {
+        "value": 0.09,
+        "range": [0, 0.18],
+        "samples": 10,
+        "previous": 0.1
+      },
+      "oll_to_pll": {
+        "value": 300,
+        "range": [150, 450],
+        "samples": 10,
+        "previous": 340
+      },
+      "pll": {
+        "value": 2740,
+        "range": [2440, 3040],
+        "samples": 10,
+        "previous": 2760
+      },
+      "pll_algorithms": {
+        "value": 0.08,
+        "range": [0, 0.17],
+        "samples": 10,
+        "previous": 0.09
+      },
+      "full_solve": {
+        "value": 9500,
+        "samples": 50
+      },
+      "consistency": {
+        "value": 0.08600000000000001,
+        "range": [0.077, 0.095],
+        "samples": 50,
+        "previous": 0.096
+      },
+      "turning_speed": {
+        "value": 13.5,
+        "range": [12.700000000000001, 14.3],
+        "samples": 10
+      }
+    },
+    "weakCases": [
+      {
+        "set": "pll",
+        "known": 21,
+        "total": 21,
+        "medianMs": 1900,
+        "slowest": ["Gb", "Ra"]
+      }
+    ],
+    "picks": [
+      {
+        "id": "pll-execution",
+        "title": "Faster PLL",
+        "reason": "PLL is furthest from your goal"
+      },
+      {
+        "id": "practising-near-ten",
+        "title": "Practising near ten",
+        "reason": "Written for sub 10"
+      }
+    ]
+  },
+  "weakest": {
+    "aspect": "pll",
+    "refs": ["pll-execution", "pll_only", "pll-execution", "practising-near-ten"],
+    "words": ["pll"]
+  },
+  "mustNever": [
+    {
+      "id": "recommends-zbll",
+      "why": "ZBLL is optional and belongs to the sub-10 range (the course's not-yet list).",
+      "pattern": "(?:\\b(?:you|we|I)\\b[^.]{0,12}\\b(?:should|could|can|might|ought to|need to|must|have to|want to|suggest|recommend|advise)\\b|\\b(?:go ahead and|let's|time to|ready to|worth|yes)\\b)[^.]{0,30}?\\b(?:learn|start|begin|study|take up|pick up|add|try|go for|dive into|work on)\\w*\\b[^.]{0,40}\\b(?:ZBLL)\\b|(?:^|[:;,]\\s*)(?:learn|start|begin|study|try|pick up|add|go for)\\b[^.]{0,30}\\b(?:ZBLL)\\b",
+      "excuse": "\\b(?:not|no|never|skip|avoid|leave|ignore|wait|later|yet|until|once|optional|can wait|hold off|hold back|before you)\\b|n't"
+    }
+  ],
+  "turns": [
+    {
+      "user": "Should I learn ZBLL?",
+      "mustMention": [
+        [
+          "not yet",
+          "for now",
+          "later",
+          "wait",
+          "skip",
+          "hold off",
+          "optional",
+          "not necessary",
+          "don't need",
+          "no need",
+          "can wait",
+          "leave",
+          "sub-10",
+          "sub 10",
+          "not required",
+          "only if",
+          "doesn't have to"
+        ]
+      ]
+    }
+  ]
+}
