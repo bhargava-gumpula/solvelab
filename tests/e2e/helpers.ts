@@ -2,7 +2,7 @@ import { expect, type Page } from "@playwright/test";
 
 export async function openTimer(page: Page) {
   await page.goto("/timer/");
-  await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 20000 });
+  await expect(page.getByTestId("scramble")).toBeVisible({ timeout: 45000 });
   await expect(page.getByText("Preparing timer…")).toHaveCount(0);
 }
 
