@@ -2,8 +2,13 @@ import { expect, test } from "./fixtures";
 
 const WINDOWS =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130.0 Safari/537.36";
+// Chromium's default user agent follows the machine running the tests; the page branches on it.
+const MAC =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/130.0 Safari/537.36";
 
 test.describe("the AI coach page on the website", () => {
+  test.use({ userAgent: MAC });
+
   test("says the coach lives in the Mac app, and what it needs", async ({ page }) => {
     await page.goto("/hub/ask/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Get the Mac app");

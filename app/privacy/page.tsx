@@ -137,7 +137,8 @@ export default function PrivacyPage() {
         {brand.name} also comes as a Mac app. It keeps your working copy in its own storage on your
         Mac, the way the website keeps it in your browser. When you sign in, your times sync to your{" "}
         {words.storeShort} account exactly as they do on the website. The app checks for updates
-        from time to time and sends only its version number when it does.
+        from time to time. The check sends the app’s version number and the type of Mac, and the
+        server that holds the update file sees your IP address, as with any download.
       </p>
 
       <h2 id="coach-mac" className="scroll-mt-24">
@@ -157,8 +158,8 @@ export default function PrivacyPage() {
         <li>
           <strong className="text-foreground">Chats stay on your Mac.</strong> They are stored only
           in the app, are not synced to your account, can be cleared in Settings, and are deleted
-          when you sign out of the app. Your backup from Settings → Data can include them if you
-          want to keep a copy.
+          when you sign out of the app. Your backup from Settings → Your data can include them if
+          you want to keep a copy.
         </li>
         <li>
           <strong className="text-foreground">The model download.</strong> The app downloads the

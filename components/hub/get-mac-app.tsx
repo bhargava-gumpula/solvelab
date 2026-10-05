@@ -36,11 +36,15 @@ export function GetMacApp() {
     return profileSummary(input);
   }, [profile, average, placement, current, intro]);
 
-  const copy = () =>
-    void navigator.clipboard
-      .writeText(summary ?? "")
-      .then(() => toast.success("Copied. Paste it into any AI you like."))
-      .catch(() => toast.error("Couldn’t copy. Open “What gets copied” and copy it from there."));
+  const copy = async () => {
+    try {
+      // navigator.clipboard is missing outside a secure page, so this can throw at once.
+      await navigator.clipboard.writeText(summary ?? "");
+      toast.success("Copied. Paste it into any AI you like.");
+    } catch {
+      toast.error("Couldn’t copy. Open “What gets copied” and copy it from there.");
+    }
+  };
 
   return (
     <div className="grid grid-cols-1 gap-6" data-testid="get-mac-app">
@@ -111,7 +115,7 @@ export function GetMacApp() {
             <li>Your questions, the replies and your numbers go only to the model on your Mac.</li>
             <li>Chats are kept on your Mac and are deleted when you sign out of the app.</li>
             <li>
-              The one download is the model itself, from Ollama&apos;s servers. It sends no SolveLab
+              The model is downloaded from Ollama&apos;s servers. That download sends no SolveLab
               data.
             </li>
           </ul>
@@ -144,7 +148,12 @@ export function GetMacApp() {
             is between you and that service.
           </p>
         </div>
-        <Button className="w-fit" onClick={copy} disabled={!summary} data-testid="copy-summary">
+        <Button
+          className="w-fit"
+          onClick={() => void copy()}
+          disabled={!summary}
+          data-testid="copy-summary"
+        >
           <Copy /> Copy my summary
         </Button>
         <details className="text-xs text-muted-foreground">

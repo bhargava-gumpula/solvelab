@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { getCourse } from "@/data/hub/courses";
 import { AI_KEYS_REMOVED_NOTE, wipeSavedAiKeys } from "@/lib/ai/legacy-keys";
 import { profileSummary } from "@/lib/ai/summary";
@@ -9,6 +9,7 @@ import { buildSolveProfile } from "@/lib/coach/profile";
 afterEach(() => {
   localStorage.clear();
   sessionStorage.clear();
+  vi.unstubAllEnvs();
 });
 
 describe("wiping saved AI keys", () => {
@@ -78,10 +79,12 @@ describe("Copy my summary", () => {
 
 describe("where the coach lives", () => {
   it("is only on in the desktop build", () => {
+    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "");
     expect(isDesktop()).toBe(false);
-    process.env.NEXT_PUBLIC_SOLVELAB_TARGET = "desktop";
+    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "web");
+    expect(isDesktop()).toBe(false);
+    vi.stubEnv("NEXT_PUBLIC_SOLVELAB_TARGET", "desktop");
     expect(isDesktop()).toBe(true);
-    delete process.env.NEXT_PUBLIC_SOLVELAB_TARGET;
   });
 
   it("tells a Mac from a phone, a Windows PC and an iPad in desktop mode", () => {
