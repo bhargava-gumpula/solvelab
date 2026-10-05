@@ -47,7 +47,9 @@ export async function fetchStatus(fetchFn: typeof fetch = fetch): Promise<Ollama
   try {
     const res = await get("/api/version");
     if (!res.ok) return NOT_RUNNING;
-    const version = String(((await res.json()) as { version?: unknown }).version ?? "");
+    const body = (await res.json()) as { version?: unknown };
+    if (typeof body.version !== "string") return NOT_RUNNING; // not Ollama
+    const version = body.version;
     const tags = await get("/api/tags")
       .then((r) => (r.ok ? (r.json() as Promise<{ models?: { name?: string }[] }>) : null))
       .catch(() => null);
@@ -69,6 +71,25 @@ export function modelPlan(ramBytes: number | null): {
     return { default: COACH_MODELS.standard, better: COACH_MODELS.better };
   }
   return { default: COACH_MODELS.standard, better: null };
+}
+
+/** The coach model with this tag, if it is one the app can pick. */
+export const modelForTag = (tag: string): CoachModel | undefined =>
+  Object.values<CoachModel>(COACH_MODELS).find((m) => m.tag === tag);
+
+/**
+ * The model to set up: the person's pick, else the tier default. If only the optional better model
+ * is downloaded (they picked it earlier), use it instead of asking for the default as well.
+ */
+export function pickModel(
+  plan: ReturnType<typeof modelPlan>,
+  downloaded: string[],
+  wantBetter: boolean,
+): CoachModel {
+  if (!plan.better) return plan.default;
+  if (wantBetter) return plan.better;
+  const onlyBetter = !downloaded.includes(plan.default.tag) && downloaded.includes(plan.better.tag);
+  return onlyBetter ? plan.better : plan.default;
 }
 
 export type SetupStep = "install" | "open" | "start-cli" | "update" | "download" | "ready";

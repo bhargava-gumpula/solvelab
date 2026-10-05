@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from "react";
 import { Check, Circle, Download, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -16,9 +23,10 @@ import {
 import {
   diskTooSmall,
   fetchStatus,
+  modelForTag,
   modelPlan,
   nextStep,
-  NOT_RUNNING,
+  pickModel,
   type OllamaStatus,
   type SetupStep,
 } from "@/lib/desktop/ollama-setup";
@@ -61,11 +69,28 @@ function Setup({ children }: { children?: (model: CoachModel) => ReactNode }) {
   const [wantBetter, setWantBetter] = useState(false);
   const [openError, setOpenError] = useState<string | null>(null);
   const pull = useSyncExternalStore(subscribePull, getPullState, getPullState);
+  const inflight = useRef<Promise<void> | null>(null);
+  const last = useRef<OllamaStatus | null>(null);
+  const misses = useRef(0);
 
-  const refresh = useCallback(async () => {
-    const s = await fetchStatus();
-    setStatus(s);
-    if (!s.running) setInstall(await ollamaInstall().catch(() => null));
+  // One check at a time (a slow Spotlight search must not pile up), and status and install info
+  // are set together so the screen never flashes the wrong step.
+  const refresh = useCallback(() => {
+    inflight.current ??= (async () => {
+      try {
+        const s = await fetchStatus();
+        const i = s.running ? null : await ollamaInstall().catch(() => null);
+        misses.current = s.running ? 0 : misses.current + 1;
+        // A busy Mac can miss one answer; don't tear down a chat that is mid-reply for it.
+        if (!s.running && last.current?.running && misses.current < 2) return;
+        last.current = s;
+        setStatus(s);
+        if (!s.running) setInstall(i);
+      } finally {
+        inflight.current = null;
+      }
+    })();
+    return inflight.current;
   }, []);
 
   useEffect(() => {
@@ -83,16 +108,34 @@ function Setup({ children }: { children?: (model: CoachModel) => ReactNode }) {
     };
   }, [refresh]);
 
+  // The download outlives this screen, so coming back mid-download shows that model's progress.
+  const inFlight = pull.phase === "pulling" ? modelForTag(pull.tag) : undefined;
   const plan = modelPlan(mac?.ramBytes ?? null);
-  const model = wantBetter && plan.better ? plan.better : plan.default;
-  const current = status ?? NOT_RUNNING;
-  const step = nextStep(current, install, model);
+  const model = inFlight ?? pickModel(plan, status?.models ?? [], wantBetter);
+  const step = status ? nextStep(status, install, model) : null;
+  const noRoom = diskTooSmall(mac?.diskFreeBytes ?? null, model.sizeBytes);
 
-  if (status && step === "ready") return <>{children?.(model)}</>;
+  // Once a download ends, look again right away instead of waiting for the next poll.
+  useEffect(() => {
+    if (pull.phase === "done") void refresh().then(() => resetPull());
+  }, [pull.phase, refresh]);
 
+  // Freeing space should unblock the button without leaving the page.
+  useEffect(() => {
+    if (!noRoom) return;
+    const id = setInterval(() => {
+      if (!document.hidden) void macInfo().then(setMac, () => undefined);
+    }, POLL_MS);
+    return () => clearInterval(id);
+  }, [noRoom]);
+
+  if (!status || !step) return <Waiting>Checking Ollama…</Waiting>;
+  if (step === "ready") return <>{children?.(model)}</>;
+
+  const current = status;
   const [r1, r2, r3] = rowStates(step);
   const pulling = pull.phase === "pulling" && pull.tag === model.tag;
-  const noRoom = diskTooSmall(mac?.diskFreeBytes ?? null, model.sizeBytes);
+  const finishing = pull.phase === "done" && pull.tag === model.tag;
 
   const open = async () => {
     setOpenError(null);
@@ -146,7 +189,11 @@ function Setup({ children }: { children?: (model: CoachModel) => ReactNode }) {
               <Button size="sm" className="w-fit" onClick={open} data-testid="ollama-open">
                 Open Ollama
               </Button>
-              {openError && <p className="text-destructive">{openError}</p>}
+              {openError && (
+                <p className="text-destructive" role="alert">
+                  {openError}
+                </p>
+              )}
             </>
           )}
           {step === "start-cli" && (
@@ -196,7 +243,9 @@ function Setup({ children }: { children?: (model: CoachModel) => ReactNode }) {
                   {gb(COACH_MODELS.better.sizeBytes)})
                 </label>
               )}
-              {pulling ? (
+              {finishing ? (
+                <Waiting>Finishing up…</Waiting>
+              ) : pulling ? (
                 <>
                   <Progress value={Math.round(pull.fraction * 100)} aria-label="Model download" />
                   <p data-testid="ollama-progress">
@@ -219,7 +268,7 @@ function Setup({ children }: { children?: (model: CoachModel) => ReactNode }) {
                     SolveLab is sent.
                   </p>
                   {noRoom && (
-                    <p className="text-destructive" data-testid="ollama-disk-warning">
+                    <p className="text-destructive" role="alert" data-testid="ollama-disk-warning">
                       Not enough free space: this needs about {gb(model.sizeBytes)} and leaves 2 GB
                       free, and your Mac has {gb(mac?.diskFreeBytes ?? 0)}.
                     </p>
@@ -227,7 +276,11 @@ function Setup({ children }: { children?: (model: CoachModel) => ReactNode }) {
                   {pull.phase === "cancelled" && (
                     <p>Download cancelled. Press Download to continue where it left off.</p>
                   )}
-                  {pull.phase === "error" && <p className="text-destructive">{pull.message}</p>}
+                  {pull.phase === "error" && (
+                    <p className="text-destructive" role="alert">
+                      {pull.message}
+                    </p>
+                  )}
                   <Button
                     size="sm"
                     className="w-fit"
@@ -277,6 +330,7 @@ function StepRow({
   return (
     <li className="grid grid-cols-[1.5rem_1fr] gap-x-3" data-state={state}>
       <span
+        role="img"
         className={state === "done" ? "text-primary" : "text-muted-foreground"}
         aria-label={
           state === "done" ? "Done" : state === "current" ? "Current step" : "Not started"

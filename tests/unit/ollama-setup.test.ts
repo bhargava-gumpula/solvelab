@@ -3,9 +3,11 @@ import { COACH_MODELS, GiB } from "@/lib/config/coach-model";
 import {
   diskTooSmall,
   fetchStatus,
+  modelForTag,
   modelPlan,
   nextStep,
   NOT_RUNNING,
+  pickModel,
   shouldUnloadForTimer,
   unloadCoachModels,
   versionOk,
@@ -76,6 +78,24 @@ describe("modelPlan", () => {
   });
 });
 
+describe("pickModel", () => {
+  const big = modelPlan(24 * GiB);
+  it("uses the tier default, or the better model when asked for", () => {
+    expect(pickModel(big, [], false)).toBe(COACH_MODELS.standard);
+    expect(pickModel(big, [], true)).toBe(COACH_MODELS.better);
+    expect(pickModel(modelPlan(16 * GiB), [], true)).toBe(COACH_MODELS.standard);
+  });
+  it("keeps the better model when only it is downloaded (the choice is lost on a reload)", () => {
+    expect(pickModel(big, ["qwen3.5:9b"], false)).toBe(COACH_MODELS.better);
+    expect(pickModel(big, ["qwen3.5:9b", "qwen3.5:4b"], false)).toBe(COACH_MODELS.standard);
+    expect(pickModel(modelPlan(16 * GiB), ["qwen3.5:9b"], false)).toBe(COACH_MODELS.standard);
+  });
+  it("finds a model by tag", () => {
+    expect(modelForTag("qwen3.5:9b")).toBe(COACH_MODELS.better);
+    expect(modelForTag("llama3:8b")).toBeUndefined();
+  });
+});
+
 describe("nextStep", () => {
   it("walks Ollama, then the model", () => {
     expect(nextStep(NOT_RUNNING, null, model)).toBe("install");
@@ -133,6 +153,15 @@ describe("fetchStatus", () => {
     ).toEqual(NOT_RUNNING);
     expect(
       await fetchStatus((() => Promise.resolve(json({}, 500))) as unknown as typeof fetch),
+    ).toEqual(NOT_RUNNING);
+  });
+  it("does not count a server that answers without a version as Ollama", async () => {
+    expect(
+      await fetchStatus((() => Promise.resolve(json({ ok: true }))) as unknown as typeof fetch),
+    ).toEqual(NOT_RUNNING);
+    expect(
+      await fetchStatus((() =>
+        Promise.resolve(new Response("<html></html>"))) as unknown as typeof fetch),
     ).toEqual(NOT_RUNNING);
   });
 });
@@ -218,6 +247,35 @@ describe("pullModel", () => {
       pullModel(model, () => {}, undefined, streaming(['{"status":"pulling manifest"}\n'])),
     ).rejects.toThrow("stopped");
   });
+  it("never reports a non-number progress", async () => {
+    const seen: number[] = [];
+    await pullModel(
+      model,
+      (p) => seen.push(p.fraction),
+      undefined,
+      streaming([
+        '{"status":"pulling a","digest":"a","total":100,"completed":"x"}\n{"status":"success"}\n',
+      ]),
+    );
+    expect(seen.every(Number.isFinite)).toBe(true);
+  });
+  it("closes the connection when it stops reading early", async () => {
+    let cancelled = false;
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(new TextEncoder().encode('{"error":"boom"}\n'));
+      },
+      cancel() {
+        cancelled = true;
+      },
+    });
+    await expect(
+      pullModel(model, () => {}, undefined, (() =>
+        Promise.resolve(new Response(body))) as unknown as typeof fetch),
+    ).rejects.toThrow("boom");
+    await new Promise((r) => setTimeout(r, 0));
+    expect(cancelled).toBe(true);
+  });
 });
 
 describe("startPull / cancelPull", () => {
@@ -254,6 +312,13 @@ describe("startPull / cancelPull", () => {
     expect(getPullState()).toEqual({ phase: "done", tag: model.tag });
     await startPull(model, streaming(['{"error":"no space left"}\n']));
     expect(getPullState()).toEqual({ phase: "error", tag: model.tag, message: "no space left" });
+    resetPull();
+  });
+  it("turns a lost connection into a plain message", async () => {
+    await startPull(model, (() =>
+      Promise.reject(new TypeError("Load failed"))) as unknown as typeof fetch);
+    const s = getPullState();
+    expect(s.phase === "error" && s.message).toMatch(/Lost contact with Ollama/);
     resetPull();
   });
 });

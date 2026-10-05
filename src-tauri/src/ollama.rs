@@ -28,6 +28,12 @@ pub struct MacInfo {
     pub arch: &'static str,
 }
 
+// Full paths, not names: a GUI app has a short PATH, and nothing on it should stand in for these.
+const MDFIND: &str = "/usr/bin/mdfind";
+const SYSCTL: &str = "/usr/sbin/sysctl";
+const DF: &str = "/bin/df";
+const OPEN: &str = "/usr/bin/open";
+
 fn run(program: &str, args: &[&str]) -> Option<String> {
     let out = Command::new(program).args(args).output().ok()?;
     out.status
@@ -39,12 +45,17 @@ fn home() -> Option<String> {
     std::env::var("HOME").ok().filter(|h| !h.is_empty())
 }
 
+/// Spotlight also lists copies that aren't installed: one on a mounted disk image, one in the Trash.
+fn is_installed_path(path: &str) -> bool {
+    !path.trim().is_empty() && !path.starts_with("/Volumes/") && !path.contains("/.Trash/")
+}
+
 fn find_app() -> bool {
     // ponytail: Spotlight (`mdfind`) stands in for a direct Launch Services lookup; it covers any
-    // folder but is blind when indexing is off, so the usual folders are checked too. Swap in
-    // NSWorkspace if testers report a missed install.
+    // folder on the startup disk but is blind when indexing is off, so the usual folders are checked
+    // too. Installs on an external drive are missed. Swap in NSWorkspace if testers report one.
     let query = format!("kMDItemCFBundleIdentifier == '{BUNDLE_ID}'");
-    if run("mdfind", &[&query]).is_some_and(|s| !s.trim().is_empty()) {
+    if run(MDFIND, &[&query]).is_some_and(|s| s.lines().any(is_installed_path)) {
         return true;
     }
     let home_app = home().map(|h| format!("{h}/Applications/Ollama.app"));
@@ -74,16 +85,16 @@ pub fn install_info() -> InstallInfo {
 
 pub fn mac_info() -> MacInfo {
     MacInfo {
-        ram_bytes: run("sysctl", &["-n", "hw.memsize"]).and_then(|s| parse_ram(&s)),
+        ram_bytes: run(SYSCTL, &["-n", "hw.memsize"]).and_then(|s| parse_ram(&s)),
         disk_free_bytes: home()
-            .and_then(|h| run("df", &["-kP", &h]))
+            .and_then(|h| run(DF, &["-kP", &h]))
             .and_then(|s| parse_df_free(&s)),
         arch: std::env::consts::ARCH,
     }
 }
 
 pub fn open_ollama() -> Result<(), String> {
-    let out = Command::new("open")
+    let out = Command::new(OPEN)
         .args(["-b", BUNDLE_ID])
         .output()
         .map_err(|e| e.to_string())?;
@@ -128,7 +139,17 @@ mod tests {
         assert_eq!(parse_df_free(""), None);
     }
 
+    #[test]
+    fn ignores_spotlight_hits_that_are_not_installs() {
+        assert!(is_installed_path("/Applications/Ollama.app"));
+        assert!(is_installed_path("/Users/me/Applications/Ollama.app"));
+        assert!(!is_installed_path("/Volumes/Ollama/Ollama.app"));
+        assert!(!is_installed_path("/Users/me/.Trash/Ollama.app"));
+        assert!(!is_installed_path(""));
+    }
+
     /// Real calls on the Mac running the tests; `cargo test -- --nocapture` prints them.
+    #[cfg(target_os = "macos")]
     #[test]
     fn reads_this_mac() {
         let info = mac_info();

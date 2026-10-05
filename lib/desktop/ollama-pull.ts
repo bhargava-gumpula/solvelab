@@ -20,19 +20,24 @@ async function* ndjson(body: ReadableStream<Uint8Array>): AsyncGenerator<Record<
   let buffer = "";
   const parse = (line: string) =>
     line.trim() ? (JSON.parse(line) as Record<string, unknown>) : null;
-  for (;;) {
-    const { done, value } = await reader.read();
-    buffer += decoder.decode(value, { stream: !done });
-    const lines = buffer.split("\n");
-    buffer = lines.pop() ?? "";
-    for (const line of lines) {
-      const obj = parse(line);
-      if (obj) yield obj;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      buffer += decoder.decode(value, { stream: !done });
+      const lines = buffer.split("\n");
+      buffer = lines.pop() ?? "";
+      for (const line of lines) {
+        const obj = parse(line);
+        if (obj) yield obj;
+      }
+      if (done) break;
     }
-    if (done) break;
+    const last = parse(buffer);
+    if (last) yield last;
+  } finally {
+    // Stopping early (an error line, success, an abort) must not leave the connection open.
+    void reader.cancel().catch(() => undefined);
   }
-  const last = parse(buffer);
-  if (last) yield last;
 }
 
 /**
@@ -68,7 +73,8 @@ export async function pullModel(
     if (typeof line.error === "string") throw new Error(line.error);
     const status = String(line.status ?? "");
     if (typeof line.digest === "string" && typeof line.total === "number") {
-      layers.set(line.digest, { completed: Number(line.completed ?? 0), total: line.total });
+      const completed = typeof line.completed === "number" ? line.completed : 0;
+      layers.set(line.digest, { completed, total: line.total });
     }
     let completed = 0;
     let total = 0;
@@ -124,7 +130,12 @@ export function startPull(model: CoachModel, fetchFn: typeof fetch = fetch): Pro
       set({
         phase: "error",
         tag: model.tag,
-        message: e instanceof Error ? e.message : "The download failed.",
+        message:
+          e instanceof TypeError
+            ? "Lost contact with Ollama. Make sure it is running, then try again."
+            : e instanceof Error
+              ? e.message
+              : "The download failed.",
       });
     })
     .finally(() => {
