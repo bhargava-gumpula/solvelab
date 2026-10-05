@@ -30,3 +30,7 @@ function invoke<T>(cmd: string): Promise<T> {
 export const ollamaInstall = () => invoke<InstallInfo>("ollama_install");
 export const ollamaOpen = () => invoke<void>("ollama_open");
 export const macInfo = () => invoke<MacInfo>("mac_info_cmd");
+/** The newer app version on GitHub Releases, or null. Rejects when offline or nothing is published. */
+export const updateCheck = () => invoke<string | null>("update_check");
+/** Downloads the update, checks its signature, installs it and restarts the app. */
+export const updateInstall = () => invoke<void>("update_install");

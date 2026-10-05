@@ -22,18 +22,20 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "app"
-    ],
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns"
-    ],
+    "targets": ["app"],
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns"],
     "macOS": {
       "minimumSystemVersion": "14.0",
       "signingIdentity": "-"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "_comment": "pubkey: OWNER_ADDS_PUBLIC_KEY is a placeholder. The owner replaces it with the one line in their updater .key.pub file (public, safe to commit), made with `npx tauri signer generate` on their own Mac. See docs/MAC_APP_RELEASE.md. Until then every update fails its signature check and the release workflow refuses to build.",
+      "pubkey": "OWNER_ADDS_PUBLIC_KEY",
+      "endpoints": [
+        "https://github.com/bhargava-gumpula/solvelab/releases/latest/download/latest.json"
+      ]
     }
   }
 }
