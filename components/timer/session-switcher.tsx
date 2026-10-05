@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, ChevronsUpDown, FolderCog, Plus } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -58,7 +58,12 @@ export function SessionSwitcher({
     }
   };
 
+  // The menu hands focus to the Sessions dialog, so it must not take it back:
+  // its close can land after the dialog has closed, and a focused trigger
+  // (focus-visible in Safari) would take the Space meant for the timer.
+  const handedOff = useRef(false);
   const openManager = (create: boolean) => {
+    handedOff.current = true;
     setCreateOnOpen(create);
     setManagerOpen(true);
   };
@@ -76,7 +81,15 @@ export function SessionSwitcher({
             <ChevronsUpDown className="text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-64">
+        <DropdownMenuContent
+          align="start"
+          className="w-64"
+          onCloseAutoFocus={(event) => {
+            if (!handedOff.current) return;
+            handedOff.current = false;
+            event.preventDefault();
+          }}
+        >
           <DropdownMenuLabel className="text-xs font-normal text-muted-foreground">
             Sessions
           </DropdownMenuLabel>
