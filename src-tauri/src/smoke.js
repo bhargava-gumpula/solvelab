@@ -121,6 +121,11 @@
     result.blocked = await status("https://example.com/");
     await sleep(500);
     expectViolation = false;
+    // The navigation guard: no website may load in the app window (http isn't handed to the browser
+    // either, so this opens nothing). If it loaded, this page would be gone and the walk would never finish.
+    location.assign("http://127.0.0.1:11434/navigation-guard");
+    await sleep(2000);
+    result.navigation = location.protocol;
     return result;
   }
 
@@ -135,7 +140,8 @@
     const step = Number(stored);
     await sleep(SETTLE_MS);
     const route = ROUTES[step];
-    report("page", {
+    // Awaited, so leaving the page can't drop it.
+    await report("page", {
       route,
       path: location.pathname,
       title: document.title,
@@ -145,7 +151,7 @@
       sessionStorage.setItem("smoke-step", String(step + 1));
       open(ROUTES[step + 1]);
     } else {
-      report("network", await networkChecks());
+      await report("network", await networkChecks());
       await report("done", { pages: ROUTES.length });
     }
   });

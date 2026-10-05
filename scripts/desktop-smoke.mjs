@@ -3,7 +3,8 @@
  * app, built with the test-only `smoke` feature, and lets its init script
  * (src-tauri/src/smoke.js) walk the main pages inside WKWebView. Fails on any
  * Content-Security-Policy violation, a failed IPC health check, the 3D cube or
- * cubing.js not working, Ollama or Supabase being blocked, or tabFocusesLinks off.
+ * cubing.js not working, Ollama or Supabase being blocked, a website loading in the
+ * app window, or tabFocusesLinks off.
  *
  * Build the pages without account settings (CI has none; locally, blank them so
  * .env.local doesn't apply), so the Hub, Stats and Train aren't behind the sign-in wall:
@@ -83,6 +84,7 @@ const checks = {
   "Ollama (127.0.0.1:11434) is reachable": network.ollama?.ok === true,
   "Supabase (https) is reachable": network.supabase?.ok === true,
   "Supabase realtime (wss) is not blocked": network.realtime?.ok === true,
+  "a website can't load in the app window": network.navigation === "tauri:",
   "Timer: 3D cube canvas": page("/timer/").canvas > 0 && page("/timer/").webgl === true,
   "Timer: 3x3 scramble (cubing.js worker)": page("/timer/").scramble333?.ok === true,
   "Timer: 2x2 scramble (cubing.js WebAssembly)": page("/timer/").scramble222?.ok === true,

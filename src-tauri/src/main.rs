@@ -15,6 +15,7 @@ fn main() {
         .plugin(tauri_plugin_deep_link::init())
         // Opens the Supabase/Google sign-in page in the person's own browser.
         .plugin(tauri_plugin_opener::init())
+        .plugin(navigation_guard())
         .manage(menu::Zoom(Mutex::new(1.0)))
         .menu(menu::build)
         .on_menu_event(menu::on_event)
@@ -36,6 +37,25 @@ fn main() {
     builder
         .run(tauri::generate_context!())
         .expect("error while running SolveLab");
+}
+
+/// Keeps the window on the app's own pages (plan 1.6). A same-tab link or redirect
+/// to a website (the Privacy page's Google link, OpenRouter sign-in, mailto:) would
+/// otherwise load it in the app window with no address bar and no way back; https
+/// and mailto go to the system browser or mail app instead, anything else is dropped.
+fn navigation_guard<R: tauri::Runtime>() -> tauri::plugin::TauriPlugin<R> {
+    use tauri_plugin_opener::OpenerExt;
+    tauri::plugin::Builder::new("navigation-guard")
+        .on_navigation(|webview, url| {
+            if matches!(url.scheme(), "tauri" | "about" | "blob") {
+                return true;
+            }
+            if matches!(url.scheme(), "https" | "mailto") {
+                let _ = webview.opener().open_url(url.as_str(), None::<&str>);
+            }
+            false
+        })
+        .build()
 }
 
 /// macOS adds "Emoji & Symbols" (Control-Command-Space) to any menu titled Edit;
