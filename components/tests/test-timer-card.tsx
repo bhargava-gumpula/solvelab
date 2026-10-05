@@ -11,8 +11,10 @@ import { useInspectionCues } from "@/hooks/use-inspection-cues";
 import { useScramble } from "@/hooks/use-scramble";
 import { useTimerControls } from "@/hooks/use-timer-controls";
 import { attemptFrom } from "@/lib/coach/test-attempt";
+import { features } from "@/lib/config/features";
 import type { GeneratedScramble } from "@/lib/scramble";
 import { isTimerFocused, type TimerConfig, type TimerResult } from "@/lib/timer/engine";
+import { resolveInputSource } from "@/lib/timer/input";
 import { createTimerStore } from "@/lib/timer/store";
 import type { ExerciseDefinition, UserSettings } from "@/types/domain";
 
@@ -42,7 +44,8 @@ export function TestTimerCard({
   scramble: given,
 }: TestTimerCardProps) {
   const { session: deviceSession } = useTimerDevice();
-  const bluetooth = settings.timerInput === "bluetooth";
+  const bluetooth =
+    resolveInputSource(settings.timerInput, features.bluetoothTimer) === "bluetooth";
   const inspectionOn = test.inspection === "wca";
   const config = useMemo<TimerConfig>(
     () => ({

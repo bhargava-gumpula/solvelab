@@ -3,6 +3,7 @@
  * steal input from text fields, dialogs, menus or keyboard users operating a
  * focused control.
  */
+import type { TimerInput } from "@/types/domain";
 import type { TimerPhase } from "./engine";
 
 const EDITABLE_SELECTOR = "input, textarea, select, [contenteditable=''], [contenteditable='true']";
@@ -14,6 +15,17 @@ const OPEN_MODAL_SELECTOR =
 // and a link left focused by navigation must not swallow the timer's Space.
 const CONTROL_SELECTOR =
   "button, summary, [role='button'], [role='tab'], [role='switch'], [role='checkbox'], [role='radio'], [role='menuitem'], [role='option']";
+
+/**
+ * Where start and stop come from. A synced "bluetooth" setting means the keyboard in a build
+ * without Web Bluetooth (the Mac app), so the hold delay never drops to zero there.
+ */
+export function resolveInputSource(
+  timerInput: TimerInput | undefined,
+  bluetoothAvailable: boolean,
+): "keyboard" | "bluetooth" {
+  return bluetoothAvailable && timerInput === "bluetooth" ? "bluetooth" : "keyboard";
+}
 
 export function isSpaceKey(event: Pick<KeyboardEvent, "code" | "key">): boolean {
   return event.code === "Space" || event.key === " ";
