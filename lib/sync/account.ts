@@ -28,8 +28,13 @@ let applyingRemote = false;
 let pushTimer: number | undefined;
 let hooksAttached = false;
 let syncInFlight: Promise<void> | null = null;
-let rerunPush = false;
+/** The push that runs once the in-flight one ends, for changes made while it ran. */
+let queuedPush: Promise<void> | null = null;
 let lastPushed: AccountSnapshot | null = null;
+/** The account startAccountSession cleared this browser's copy to sync with. */
+let syncUid: string | null = null;
+/** Settles once the current sign-in has decided what this browser's copy is. */
+let deciding: Promise<unknown> = Promise.resolve();
 
 function cloneSnapshot(snapshot: AccountSnapshot): AccountSnapshot {
   return structuredClone(snapshot);
@@ -87,62 +92,74 @@ async function localSnapshot(db: LocalDatabase): Promise<AccountSnapshot> {
   return { records, settings: settings ?? null, tombstones: readLocalTombstones() };
 }
 
-async function applySnapshot(db: LocalDatabase, snapshot: AccountSnapshot): Promise<void> {
+/**
+ * Merges the account into this browser's copy and returns the result. The copy
+ * is read inside the same write transaction, so a solve saved while the account
+ * was being fetched is merged in rather than deleted.
+ */
+async function mergeIntoLocal(db: LocalDatabase, cloud: AccountSnapshot): Promise<AccountSnapshot> {
   applyingRemote = true;
   try {
     const tables = [...COLLECTION_NAMES.map((name) => db.table(name)), db.settings];
-    await db.transaction("rw", tables, async () => {
+    let changed = false;
+    const merged = await db.transaction("rw", tables, async () => {
+      const local = await localSnapshot(db);
+      const merged = mergeAccountSnapshots(local, cloud);
+      if (snapshotsEqual(local, merged)) return merged;
+      changed = true;
       for (const name of COLLECTION_NAMES) {
         const table = db.table<AnyRecord, string>(name);
-        const incoming = recordsOf(snapshot.records, name);
+        const incoming = recordsOf(merged.records, name);
         const keep = new Set(incoming.map((record) => recordKey(name, record)));
         const existing = (await table.toCollection().primaryKeys()) as string[];
         await table.bulkDelete(existing.filter((key) => !keep.has(key)));
         if (incoming.length > 0) await table.bulkPut(incoming);
       }
-      if (snapshot.settings) await db.settings.put(snapshot.settings);
+      if (merged.settings) await db.settings.put(merged.settings);
+      return merged;
     });
-    writeLocalTombstones(snapshot.tombstones);
+    if (changed) writeLocalTombstones(merged.tombstones);
+    return merged;
   } finally {
     applyingRemote = false;
   }
 }
 
 function canSync(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    !applyingRemote &&
-    isAuthConfigured() &&
-    getAuthSnapshot().status === "signedIn"
-  );
+  if (typeof window === "undefined" || applyingRemote || !isAuthConfigured()) return false;
+  const { status, user } = getAuthSnapshot();
+  return status === "signedIn" && !!user && user.uid === syncUid;
 }
 
 function trackInFlight(work: Promise<void>): Promise<void> {
   syncInFlight = work.finally(() => {
     syncInFlight = null;
-    if (rerunPush) {
-      rerunPush = false;
-      void pushLocalChanges().catch((error: unknown) => {
-        console.error("Couldn’t sync times to the Google account.", error);
-      });
-    }
   });
   return syncInFlight;
 }
 
+/**
+ * While a sync runs, a change made now goes up in the push after it, and the
+ * caller waits for that push, so "saved" means this change reached the account.
+ */
+function afterInFlight(inFlight: Promise<void>): Promise<void> {
+  queuedPush ??= inFlight
+    .catch(() => undefined)
+    .then(() => {
+      queuedPush = null;
+      return pushLocalChanges();
+    });
+  return queuedPush;
+}
+
 export async function syncAccountNow(): Promise<void> {
   if (!canSync()) return;
-  if (syncInFlight) {
-    rerunPush = true;
-    return syncInFlight;
-  }
+  if (syncInFlight) return afterInFlight(syncInFlight);
   return trackInFlight(
     (async () => {
       const { db } = getRepositories();
       const cloud = (await readAccountFromCloud()) ?? emptySnapshot();
-      const local = await localSnapshot(db);
-      const merged = mergeAccountSnapshots(local, cloud);
-      if (!snapshotsEqual(local, merged)) await applySnapshot(db, merged);
+      const merged = await mergeIntoLocal(db, cloud);
       await writeAccountToCloud(merged, lastPushed ?? cloud);
       lastPushed = cloneSnapshot(merged);
     })(),
@@ -150,12 +167,11 @@ export async function syncAccountNow(): Promise<void> {
 }
 
 export async function pushLocalChanges(): Promise<void> {
+  // A save asked for while signing in waits for the account to say whose copy this is.
+  await deciding;
   if (!canSync()) return;
   if (!lastPushed) return syncAccountNow();
-  if (syncInFlight) {
-    rerunPush = true;
-    return syncInFlight;
-  }
+  if (syncInFlight) return afterInFlight(syncInFlight);
   return trackInFlight(
     (async () => {
       const { db } = getRepositories();
@@ -222,8 +238,10 @@ export function resetAccountSyncForTests(): void {
   applyingRemote = false;
   hooksAttached = false;
   syncInFlight = null;
-  rerunPush = false;
+  queuedPush = null;
   lastPushed = null;
+  syncUid = null;
+  deciding = Promise.resolve();
   if (typeof window !== "undefined") window.clearTimeout(pushTimer);
   pushTimer = undefined;
 }
@@ -292,19 +310,25 @@ export async function decideAccountStart(
 }
 
 /**
- * What this browser's copy means for the account that just signed in. Called
- * before any sync, so one account's data is never merged into another's — or
- * uploaded to it.
+ * What this browser's copy means for the account that just signed in. Nothing
+ * syncs until this has decided, so one account's data is never merged into
+ * another's — or uploaded to it.
  */
 export async function startAccountSession(
   uid: string,
   legacyUid: string | null = null,
 ): Promise<"synced" | "switched"> {
-  const { db } = getRepositories();
-  const claim = await claimAccount(db, uid, new Date(), legacyUid);
-  const local = await localSnapshot(db);
-  const start = await decideAccountStart(claim, local.records, readAccountFromCloud);
-  if (start === "clear") return "switched";
+  syncUid = null;
+  const decided = (async () => {
+    const { db } = getRepositories();
+    const claim = await claimAccount(db, uid, new Date(), legacyUid);
+    const local = await localSnapshot(db);
+    const start = await decideAccountStart(claim, local.records, readAccountFromCloud);
+    if (start === "sync") syncUid = uid;
+    return start;
+  })();
+  deciding = decided.catch(() => undefined);
+  if ((await decided) === "clear") return "switched";
   await syncAccountNow();
   return "synced";
 }

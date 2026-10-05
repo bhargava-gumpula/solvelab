@@ -122,6 +122,16 @@ export function supabaseRedirectUrl(): string {
 const LINK_FALLBACK_KEY = "solvelab.auth.linkFallback";
 
 /**
+ * What this tab sent to Google: "link" or "signIn". The return page acts on an
+ * error only when this tab started the trip, so a crafted /signed-in/ link can't
+ * sign anyone out, withdraw their shares or put its own words in a toast.
+ */
+export const RETURN_STARTED_KEY = "solvelab.auth.returnStarted";
+
+/** Past this, signing out stops waiting for the account service and drops the session itself. */
+const SIGN_OUT_TIMEOUT_MS = 5000;
+
+/**
  * Google through Supabase Auth, with PKCE. An anonymous session (one that
  * shared test results) is turned into the account by linking, so its shares
  * come along; when that Google account already exists the return carries an
@@ -139,13 +149,15 @@ async function signInWithGoogleOnSupabase(): Promise<void> {
   const {
     data: { session },
   } = await client.auth.getSession();
-  if (session?.user.is_anonymous && !sessionStorage.getItem(LINK_FALLBACK_KEY)) {
-    const { error } = await client.auth.linkIdentity({ provider: "google", options });
-    if (error) throw error;
-    return;
+  const link = session?.user.is_anonymous === true && !sessionStorage.getItem(LINK_FALLBACK_KEY);
+  sessionStorage.setItem(RETURN_STARTED_KEY, link ? "link" : "signIn");
+  const { error } = link
+    ? await client.auth.linkIdentity({ provider: "google", options })
+    : await client.auth.signInWithOAuth({ provider: "google", options });
+  if (error) {
+    sessionStorage.removeItem(RETURN_STARTED_KEY);
+    throw error;
   }
-  const { error } = await client.auth.signInWithOAuth({ provider: "google", options });
-  if (error) throw error;
 }
 
 /** The error Supabase puts in the return URL when a link or sign-in couldn't finish. */
@@ -180,32 +192,39 @@ export function isIdentityTakenError(error: { code: string; description: string 
  * the existing account (after moving the anonymous id's shares aside), any
  * other error is shown. The code exchange itself is done by the client
  * (`detectSessionInUrl`). Fails closed like the Firebase path: nothing here
- * runs on any other page.
+ * runs on any other page, an error this tab didn't go to Google for only tidies
+ * the URL, the fallback needs this tab's own link from an anonymous session,
+ * and the URL's error text is never shown, since anyone can write it.
  */
 export async function completeSupabaseReturnFromLocation(): Promise<boolean> {
   if (typeof window === "undefined") return false;
   if (!isSignedInPath(window.location.pathname)) return false;
+  const started = sessionStorage.getItem(RETURN_STARTED_KEY);
+  sessionStorage.removeItem(RETURN_STARTED_KEY);
   const failure = parseSupabaseReturnError(window.location.search, window.location.hash);
   if (!failure) {
     sessionStorage.removeItem(LINK_FALLBACK_KEY);
     return false;
   }
   history.replaceState(null, "", window.location.pathname);
-  if (isIdentityTakenError(failure) && !sessionStorage.getItem(LINK_FALLBACK_KEY)) {
+  if (!started) return true;
+  const { getSupabaseClient } = await import("@/lib/supabase/client");
+  const client = getSupabaseClient();
+  if (
+    started === "link" &&
+    isIdentityTakenError(failure) &&
+    !sessionStorage.getItem(LINK_FALLBACK_KEY) &&
+    (await client?.auth.getSession())?.data.session?.user.is_anonymous === true
+  ) {
     sessionStorage.setItem(LINK_FALLBACK_KEY, "1");
     const { withdrawBeforeAccountSwitch } = await import("@/lib/training-data/uploader");
     await withdrawBeforeAccountSwitch();
-    const { getSupabaseClient } = await import("@/lib/supabase/client");
-    await getSupabaseClient()?.auth.signOut({ scope: "local" });
+    await client?.auth.signOut({ scope: "local" });
     await signInWithGoogleOnSupabase();
     return true;
   }
   sessionStorage.removeItem(LINK_FALLBACK_KEY);
-  toast.error(
-    failure.description
-      ? `Google sign-in didn’t finish: ${failure.description}`
-      : "Google sign-in didn’t finish.",
-  );
+  toast.error("Google sign-in didn’t finish.");
   return true;
 }
 
@@ -230,9 +249,20 @@ export async function signInWithGoogle(): Promise<void> {
 export async function signOutAccount(): Promise<void> {
   const backend = accountBackend();
   if (backend === "supabase") {
-    const { getSupabaseClient } = await import("@/lib/supabase/client");
+    const { forgetSupabaseSession, getSupabaseClient } = await import("@/lib/supabase/client");
+    const client = getSupabaseClient();
+    if (!client) return;
     // This device only; other devices keep their sessions, as with Firebase.
-    await getSupabaseClient()?.auth.signOut({ scope: "local" });
+    const signedOut = await Promise.race([
+      client.auth.signOut({ scope: "local" }).then(
+        ({ error }) => !error,
+        () => false,
+      ),
+      new Promise<boolean>((resolve) => setTimeout(resolve, SIGN_OUT_TIMEOUT_MS, false)),
+    ]);
+    // Offline with an expired token, supabase-js retries a refresh for about
+    // 25 s and then keeps the session stored, so drop it here instead.
+    if (!signedOut) forgetSupabaseSession();
     return;
   }
   if (backend !== "firebase") return;
