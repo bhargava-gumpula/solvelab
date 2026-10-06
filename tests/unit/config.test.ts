@@ -28,8 +28,8 @@ describe("domain configuration integrity", () => {
     );
     expect(thresholds).toEqual([...thresholds].sort((a, b) => b - a));
   });
-  it("ships 5.1.1 with every surface turned on", () => {
-    expect(brand.version).toBe("5.1.1");
+  it("ships 6.0.0 with every surface turned on", () => {
+    expect(brand.version).toBe("6.0.0");
     expect(features.train).toBe(true);
     expect(features.learn).toBe(true);
     expect(features.algorithms).toBe(true);

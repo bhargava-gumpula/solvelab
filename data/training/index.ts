@@ -40,6 +40,11 @@ import {
   stuckAtFifteen,
 } from "./packs/extra";
 import { advancedF2lCases, crossForF2l, predictPll } from "./packs/fast-end";
+import { f2lAtTheFastEnd } from "./packs/night-f2l-advanced";
+import { inspectionBudget } from "./packs/night-inspection-xcross";
+import { lastLayerWithoutGaps } from "./packs/night-last-layer-fast";
+import { whereThePausesAre } from "./packs/night-lookahead-sub12";
+import { beyondThePlateau } from "./packs/night-practice-structure";
 import type { AspectPack, LevelPack, TrainingPack } from "./types";
 
 /** Packs about one part of the solve profile, in the order a solve happens. */
@@ -90,6 +95,11 @@ export const LEVEL_PACKS: LevelPack[] = [
   pastTheFirstPair,
   speedYouCanUse,
   practisingNearTen,
+  inspectionBudget,
+  f2lAtTheFastEnd,
+  whereThePausesAre,
+  lastLayerWithoutGaps,
+  beyondThePlateau,
 ];
 
 export const TRAINING_PACKS: TrainingPack[] = [...ASPECT_PACKS, ...LEVEL_PACKS];

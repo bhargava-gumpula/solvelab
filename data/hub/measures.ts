@@ -59,6 +59,8 @@ export const UNIT_MEASURES: Readonly<Record<string, MeasureSpec>> = {
   "xcross-properly": test("cross_first_pair"),
   "cross-for-f2l": test("cross_first_pair"),
   "past-the-first-pair": test("cross_first_pair"),
+  // Spending inspection well shows as a smaller gap to the unlimited-inspection cross.
+  "inspection-budget": aspect("cross_planning"),
 
   // F2L
   "f2l-efficiency": aspect("f2l"),
@@ -73,6 +75,9 @@ export const UNIT_MEASURES: Readonly<Record<string, MeasureSpec>> = {
   // Move count isn't measured; the F2L time is the nearest thing to it.
   "filler-moves": aspect("f2l"),
   multislotting: aspect("f2l"),
+  "f2l-at-the-fast-end": aspect("f2l"),
+  // Search is the largest kind of pause; F2L against four single pairs measures it.
+  "where-the-pauses-are": aspect("lookahead"),
 
   // Last layer
   "last-pair-into-oll": aspect("f2l_to_oll"),
@@ -80,6 +85,7 @@ export const UNIT_MEASURES: Readonly<Record<string, MeasureSpec>> = {
   "oll-algorithms": { kind: "recognition", set: "oll", otherwise: aspect("oll_algorithms") },
   "oll-into-pll": aspect("oll_to_pll"),
   "predict-pll": aspect("oll_to_pll"),
+  "last-layer-without-gaps": aspect("oll_to_pll"),
   "pll-execution": aspect("pll"),
   "pll-algorithms": aspect("pll_algorithms"),
   "auf-both-ends": test("oll_pll_only"),
@@ -93,6 +99,7 @@ export const UNIT_MEASURES: Readonly<Record<string, MeasureSpec>> = {
   "sub-20-budget": { kind: "profile" },
   "stuck-at-fifteen": AO100,
   "practising-near-ten": AO100,
+  "beyond-the-plateau": AO100,
 
   // Choices and habits with no fair number
   "colour-neutral-plan": NONE,

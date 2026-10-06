@@ -1,6 +1,26 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "6.0",
+    title: "The Mac app",
+    items: [
+      "SolveLab for Mac: the same timer and Learning Hub in a Mac app, with the AI coach running on your own Mac through Ollama, so nothing about you leaves it for the coach",
+      "The website keeps everything else; its AI coach page points to the Mac app and lets you copy your summary instead",
+      "Sharing finished tests to train the coach is now off unless you turn it on in Settings → Your data",
+      "A GAN timer records every solve, a touch the system interrupts no longer starts the timer, and the timer shows a clear focus ring",
+      "Safer sign-in and sync, security headers on every page, and the animated background on computers without hardware WebGL2",
+    ],
+  },
+  {
+    version: "5.2",
+    title: "Deeper at the fast end",
+    items: [
+      "Five new packs for the 15 to 10 second range: Inspection at the fast end, F2L at the fast end, Where the pauses are, The last layer without gaps and Beyond the plateau, with 23 lessons and 22 drills between them",
+      "They sit in the Sub-12 and Sub-10 courses, with a question for every lesson and a measured result for every unit",
+      "Every move sequence, case reading, cross and x-cross count and quoted reconstruction checked on SolveLab's own cube, and every claim linked to its source",
+    ],
+  },
+  {
     version: "5.1.1",
     title: "Timer fixes",
     items: [
@@ -102,13 +122,4 @@ export const shipped = [
   },
 ] as const;
 
-export const planned = [
-  {
-    version: "5.2",
-    title: "More content, deeper at the fast end",
-    items: [
-      "More packs and drills for sub-15 and sub-10 solvers, and cases for other methods",
-      "Several Hub layouts tried against each other, and whichever wins kept",
-    ],
-  },
-] as const;
+export const planned: ReadonlyArray<(typeof shipped)[number]> = [];
