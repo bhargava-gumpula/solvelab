@@ -113,6 +113,27 @@ describe("account sync races", () => {
     expect(uploadedSolves()).toEqual([]);
   });
 
+  it("makes a save during the sign-in decision wait for, and include, a copy that is kept", async () => {
+    const { db } = getRepositories();
+    await db.solves.put(solve("before-signing-in"));
+    const slowRead = deferred<AccountSnapshot | null>();
+    // The account is empty, so this browser's solves join it.
+    cloud.reads.push(() => slowRead.promise);
+
+    const start = startAccountSession("B");
+    await tick(20);
+    const save = pushLocalChanges();
+    let saved = false;
+    void save.then(() => (saved = true));
+    await tick(20);
+    expect(saved).toBe(false);
+    slowRead.resolve(null);
+
+    await save;
+    expect(uploadedSolves()).toContain("before-signing-in");
+    expect(await start).toBe("synced");
+  });
+
   it("makes sign-out's save wait for the push that carries the latest solve", async () => {
     const { db } = getRepositories();
     await startAccountSession("B");

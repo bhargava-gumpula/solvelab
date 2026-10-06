@@ -82,6 +82,16 @@ describe("the Supabase return page only acts for a trip this tab started", () =>
     expect(auth.signInWithOAuth).toHaveBeenCalledTimes(1);
   });
 
+  it("doesn't fall back after a plain sign-in, even for an anonymous session", async () => {
+    const auth = fakeClient({ is_anonymous: true });
+    sessionStorage.setItem(RETURN_STARTED_KEY, "signIn");
+    arrive("#error=server_error&error_code=identity_already_exists");
+    await completeSupabaseReturnFromLocation();
+    expect(spies.withdraw).not.toHaveBeenCalled();
+    expect(auth.signOut).not.toHaveBeenCalled();
+    expect(spies.toastError).toHaveBeenCalledWith("Google sign-in didn’t finish.");
+  });
+
   it("never shows the URL's own error text", async () => {
     fakeClient(null);
     arrive(
@@ -100,7 +110,8 @@ describe("the Supabase return page only acts for a trip this tab started", () =>
 });
 
 describe("signing out of Supabase", () => {
-  it("drops the stored session when offline with an expired token", async () => {
+  /** A stored session whose access token expires `expiresIn` seconds from now, and an offline client. */
+  function offlineSession(expiresIn: number): string {
     const key = supabaseSessionKey(REF);
     localStorage.setItem(
       key,
@@ -109,8 +120,7 @@ describe("signing out of Supabase", () => {
         refresh_token: "r1",
         token_type: "bearer",
         expires_in: 3600,
-        // The laptop slept for over an hour: the access token has expired.
-        expires_at: Math.floor(Date.now() / 1000) - 3600,
+        expires_at: Math.floor(Date.now() / 1000) + expiresIn,
         user: {
           id: "11111111-1111-1111-1111-111111111111",
           aud: "authenticated",
@@ -135,6 +145,21 @@ describe("signing out of Supabase", () => {
         global: { fetch: offline },
       }),
     );
+    return key;
+  }
+
+  it("drops the stored session when offline with a valid token, without waiting", async () => {
+    // The failed /logout comes back as an error; signing out still finishes at once.
+    const key = offlineSession(3600);
+    const started = Date.now();
+    await signOutAccount();
+    expect(localStorage.getItem(key)).toBeNull();
+    expect(Date.now() - started).toBeLessThan(1000);
+  });
+
+  it("drops the stored session when offline with an expired token", async () => {
+    // The laptop slept for over an hour: the access token has expired.
+    const key = offlineSession(-3600);
     const started = Date.now();
     await signOutAccount();
     expect(localStorage.getItem(key)).toBeNull();
