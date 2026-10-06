@@ -87,3 +87,4 @@ Thumbs.db
 # Tauri (Mac app)
 /src-tauri/target/
 /src-tauri/gen/
+release-out/

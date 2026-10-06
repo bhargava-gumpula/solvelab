@@ -30,7 +30,7 @@ function clearAppKeys(): void {
  * it open, while a clear never is. Going around Dexie also means its sync hooks
  * don't run, so no deletions are recorded to push to the account.
  */
-function clearEveryStore(): Promise<void> {
+function clearEveryStore(keep: readonly string[]): Promise<void> {
   return new Promise((resolve) => {
     let request: IDBOpenDBRequest;
     try {
@@ -42,7 +42,7 @@ function clearEveryStore(): Promise<void> {
     request.onerror = () => resolve();
     request.onsuccess = () => {
       const db = request.result;
-      const stores = Array.from(db.objectStoreNames);
+      const stores = Array.from(db.objectStoreNames).filter((name) => !keep.includes(name));
       if (stores.length === 0) {
         db.close();
         resolve();
@@ -69,15 +69,24 @@ function clearEveryStore(): Promise<void> {
  * Leaves this browser as it was before anyone signed in: every table is emptied,
  * the database is dropped if nothing else holds it, and every stored key goes
  * except the look of the app.
+ *
+ * `keepStores` names tables to leave alone (the Mac app's coach chats when an
+ * account session starts: they go only on sign-out, D9). The database is then
+ * not dropped, since that would take them too.
  */
-export async function resetLocalData(closeDatabase?: () => void): Promise<void> {
+export async function resetLocalData(
+  closeDatabase?: () => void,
+  keepStores: readonly string[] = [],
+): Promise<void> {
   closeDatabase?.();
-  await clearEveryStore();
+  await clearEveryStore(keepStores);
   // Tidy-up, so the next visit builds the schema from scratch. It can be
   // blocked by another tab, which is why the tables were emptied first.
-  await Promise.race([
-    Dexie.delete(DATABASE_NAME),
-    new Promise((resolve) => setTimeout(resolve, DELETE_TIMEOUT_MS)),
-  ]).catch(() => undefined);
+  if (keepStores.length === 0) {
+    await Promise.race([
+      Dexie.delete(DATABASE_NAME),
+      new Promise((resolve) => setTimeout(resolve, DELETE_TIMEOUT_MS)),
+    ]).catch(() => undefined);
+  }
   clearAppKeys();
 }

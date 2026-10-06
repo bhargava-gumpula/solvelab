@@ -38,6 +38,7 @@ import { setTrainingDataSharing, sharingChangeMessage } from "@/lib/training-dat
 import { CoachChatsControl } from "./coach-chats-control";
 import { SettingsSection } from "./settings-section";
 import { isDesktop, localPlace } from "@/lib/config/platform";
+import { isTauri, saveBackup } from "@/lib/desktop/tauri";
 
 export function DataSection() {
   const { status, retry } = useStorageStatus();
@@ -51,7 +52,14 @@ export function DataSection() {
   const exportBackup = async () => {
     try {
       const backup = await createBackup(getRepositories().db);
-      const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
+      const json = JSON.stringify(backup, null, 2);
+      if (isTauri()) {
+        // The app window can't download a blob link, so the app saves it into Downloads.
+        const saved = await saveBackup(backupFileName(), json);
+        toast.success(`Saved ${saved} to your Downloads folder`);
+        return;
+      }
+      const blob = new Blob([json], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;

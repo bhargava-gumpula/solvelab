@@ -7,8 +7,10 @@
 /** Facts the "Get the Mac app" page shows. */
 export const MAC_APP = {
   path: "/hub/ask/",
-  /** The download link. Null until a build is published; the page says "coming with 6.0". */
-  downloadUrl: null as string | null,
+  /** The download link (the newest published release's .dmg). Null would show "coming with 6.0". */
+  downloadUrl:
+    "https://github.com/bhargava-gumpula/solvelab/releases/latest/download/SolveLab-Mac.dmg" as
+      string | null,
   requirements: {
     chip: "An Apple silicon Mac (M1 or newer)",
     os: "macOS 14 or newer",

@@ -266,6 +266,7 @@ export const coachChatSchema: z.ZodType<CoachChat> = z.object({
         role: z.enum(["user", "assistant"]),
         content: z.string().max(40_000),
         stopped: z.boolean().optional(),
+        cut: z.boolean().optional(),
       }),
     )
     .max(COACH_CHAT_MAX_MESSAGES),

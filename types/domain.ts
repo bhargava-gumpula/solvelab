@@ -372,6 +372,8 @@ export interface CoachChatMessage {
   content: string;
   /** The person stopped this reply before it finished. */
   stopped?: boolean;
+  /** The model ran out of room (numPredict) mid-reply; `stopped` is set too, so it isn't sent back as context. */
+  cut?: boolean;
 }
 
 /**

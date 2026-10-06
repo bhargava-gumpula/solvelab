@@ -27,7 +27,7 @@ export type ChatAction =
   | { type: "send"; text: string }
   | { type: "chunk"; text: string }
   | { type: "done" }
-  | { type: "stop" }
+  | { type: "stop"; cut?: boolean }
   | { type: "fail"; error: ChatError }
   | { type: "retry" };
 
@@ -75,7 +75,10 @@ export function chatReducer(state: ChatState, action: ChatAction): ChatState {
         ...state,
         phase: "idle",
         messages: last.content
-          ? [...dropLast(state.messages), { ...last, stopped: true }]
+          ? [
+              ...dropLast(state.messages),
+              { ...last, stopped: true, ...(action.cut ? { cut: true } : {}) },
+            ]
           : dropLast(state.messages),
       };
     case "fail":

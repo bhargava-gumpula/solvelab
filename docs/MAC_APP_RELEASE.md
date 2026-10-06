@@ -57,6 +57,8 @@ Settings → Secrets and variables → Actions → **Variables** should already 
 
 ## Each release (owner)
 
+Shortcut: `node scripts/release/set-pubkey.mjs "$(cat ~/.tauri/solvelab-updater.key.pub)"` once, then `scripts/release/owner-build.sh` builds the signed app locally and fills `release-out/` (dmg, update, .sig, `latest.json`) to upload to a release tagged `app-v<version>`.
+
 1. **Set the version.** In `src-tauri/tauri.conf.json` set `"version"` (for example `"6.0.0"`); for 6.0 also bump `package.json`. Commit, and merge to `main` once approved.
 2. **Push the tag** from `main` (it must be `app-v` plus that exact version):
    ```sh

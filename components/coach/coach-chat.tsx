@@ -189,7 +189,8 @@ function ChatBody({
       return;
     }
     // A reply with nothing to show would leave the thinking dots up for good.
-    if (!result.stopped && !partialAnswer(result.raw).trim()) {
+    const ended = result.stopped || result.cut;
+    if (!ended && !partialAnswer(result.raw).trim()) {
       if (current) {
         dispatch({
           type: "fail",
@@ -198,10 +199,13 @@ function ChatBody({
       }
       return;
     }
-    if (current) dispatch({ type: result.stopped ? "stop" : "done" });
+    if (current) dispatch(ended ? { type: "stop", cut: result.cut } : { type: "done" });
     if (result.raw && !deletedRef.current.has(chatId)) {
       const reply: CoachChatMessage = { role: "assistant", content: result.raw };
-      await save(chatId, [...messages, result.stopped ? { ...reply, stopped: true } : reply]);
+      await save(chatId, [
+        ...messages,
+        ended ? { ...reply, stopped: true, ...(result.cut ? { cut: true } : {}) } : reply,
+      ]);
     }
   };
 
@@ -358,7 +362,13 @@ function ChatBody({
           </div>
         ) : null}
         <p role="status" className="sr-only" data-testid="coach-chat-announce">
-          {streaming ? "The coach is thinking." : stopped ? "Stopped." : ""}
+          {streaming
+            ? "The coach is thinking."
+            : stopped
+              ? chat.messages.at(-1)?.cut
+                ? "Cut short."
+                : "Stopped."
+              : ""}
         </p>
 
         {chat.phase === "error" && chat.error ? (
@@ -524,7 +534,9 @@ function MessageRow({
               </span>
             )}
             {message.stopped ? (
-              <p className="mt-2 text-xs text-muted-foreground">Stopped.</p>
+              <p className="mt-2 text-xs text-muted-foreground">
+                {message.cut ? "Cut short. Ask me to carry on and I’ll continue." : "Stopped."}
+              </p>
             ) : null}
           </BubbleContent>
         </Bubble>

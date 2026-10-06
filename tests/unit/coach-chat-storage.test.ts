@@ -157,4 +157,20 @@ describe("signing out deletes them", () => {
     expect(await fresh.coachChats.count()).toBe(0);
     fresh.close();
   });
+  it("keeps the chats when told to (an account session starting) but clears everything else", async () => {
+    const own = new LocalDatabase();
+    await initializeStorage(own);
+    const repos = createRepositories(own);
+    await repos.coachChats.save({ id: "a", title: "Q", model: "qwen3.5:4b", messages });
+    own.close();
+
+    await resetLocalData(undefined, ["coachChats"]);
+
+    const fresh = new LocalDatabase();
+    await fresh.open();
+    expect(await fresh.coachChats.count()).toBe(1);
+    expect(await fresh.solves.count()).toBe(0);
+    fresh.close();
+    await resetLocalData();
+  });
 });

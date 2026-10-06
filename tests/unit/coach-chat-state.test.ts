@@ -251,7 +251,7 @@ describe("asking the model", () => {
       signal: new AbortController().signal,
       onText: (piece) => pieces.push(piece),
     });
-    expect(result).toEqual({ ok: true, raw: '{"answer":"Hi"}', stopped: false });
+    expect(result).toEqual({ ok: true, raw: '{"answer":"Hi"}', stopped: false, cut: false });
     expect(pieces).toEqual(['{"answer":"Hi"', "}"]);
     const sent = JSON.parse(
       (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as string,
@@ -280,7 +280,7 @@ describe("asking the model", () => {
       signal: controller.signal,
       onText: () => {},
     });
-    expect(result).toEqual({ ok: true, raw: "", stopped: true });
+    expect(result).toEqual({ ok: true, raw: "", stopped: true, cut: false });
   });
 
   it("returns Ollama's problem as a result, never a throw", async () => {

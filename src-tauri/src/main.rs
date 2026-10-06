@@ -1,3 +1,4 @@
+mod export;
 mod menu;
 mod ollama;
 #[cfg(feature = "smoke")]
@@ -27,6 +28,7 @@ fn main() {
         .menu(menu::build)
         .on_menu_event(menu::on_event)
         .invoke_handler(tauri::generate_handler![
+            export::save_backup,
             ollama::ollama_install,
             ollama::ollama_open,
             ollama::mac_info_cmd,

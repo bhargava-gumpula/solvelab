@@ -35,7 +35,8 @@ export function AccountSyncProvider({ children }: { children: React.ReactNode })
         if (result !== "switched") return;
         // This browser holds another account's data. Clear it before anything
         // is read or uploaded, then start the page again from an empty copy.
-        await resetLocalData(() => getDatabase().close());
+        // Coach chats stay: they are deleted only on sign-out (D9).
+        await resetLocalData(() => getDatabase().close(), ["coachChats"]);
         window.location.reload();
       })
       .catch((error: unknown) => {
