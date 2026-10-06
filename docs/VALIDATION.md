@@ -1,5 +1,18 @@
 # Validation report
 
+## Release 6.0.0 integrated (dev log 223, branch `desktop-int`)
+
+Run on 2026-10-05 on `desktop-int` after the six merges, the opt-in change and the 6.0.0 bump.
+Supabase build (`.env.local`); Playwright with one worker on port 4771; no dev server running.
+
+| Check           | Command                                                  | Result                                                               |
+| --------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
+| Install         | `npm ci`                                                 | 845 packages                                                         |
+| Full validation | `npm run validate`                                       | Pass: 1,789 unit tests in 104 files, 472 pages                       |
+| End-to-end      | `E2E_PORT=4771 npx playwright test --workers=1`          | 218/220; the 2 failures (one stale test, both browsers) fixed: 12/12 |
+| Rust            | `cargo test --locked`                                    | 7/7                                                                  |
+| App smoke suite | smoke build without account settings, `npm run test:app` | 6/15: timed out at the lesson page, screen locked; same on 549ba92   |
+
 ## Mac app, Phases 2-7 integrated (dev log 200-210, branch `desktop-int`, awaiting review)
 
 Run on 2026-10-04 on `desktop-int` at bd533df (all phases and the coach accuracy work merged), then
