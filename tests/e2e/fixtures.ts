@@ -19,10 +19,27 @@ const ACCOUNT_HOSTS =
  * `test.use({ account: "signedOut" })`.
  */
 export const test = base.extend<{
+  cspViolations: string[];
   firebaseRequests: string[];
   account: "signedIn" | "signedOut";
   accountSetup: void;
 }>({
+  /**
+   * The static server sends public/_headers, so every test runs under the live
+   * Content-Security-Policy. Anything it blocks fails the test, even when the
+   * page carries on without it.
+   */
+  cspViolations: [
+    async ({ page }, use) => {
+      const violations: string[] = [];
+      page.on("console", (message) => {
+        if (message.text().includes("Content Security Policy")) violations.push(message.text());
+      });
+      await use(violations);
+      expect(violations).toEqual([]);
+    },
+    { auto: true },
+  ],
   firebaseRequests: [
     async ({ page }, use) => {
       const requests: string[] = [];

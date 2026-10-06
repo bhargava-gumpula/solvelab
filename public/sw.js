@@ -8,10 +8,13 @@
  *   the same name, so they are served from the cache once kept.
  * - Anything on another origin (Firebase, Google sign-in, AI providers) and
  *   anything that isn't a GET is left alone.
+ * - Pages are kept under their path alone. The Google sign-in return
+ *   (/signed-in/, or any ?code= or ?state=) is never kept: its URL carries a
+ *   one-time auth code.
  *
  * Bump VERSION to drop everything kept by an older worker.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const PAGES = `solvelab-pages-${VERSION}`;
 const ASSETS = `solvelab-assets-${VERSION}`;
 
@@ -73,14 +76,22 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+/** A page's cache key (its path, no query), or null when it must not be kept. */
+function pageKey(url) {
+  if (url.pathname === `${BASE}signed-in/`) return null;
+  if (url.searchParams.has("code") || url.searchParams.has("state")) return null;
+  return url.origin + url.pathname;
+}
+
 async function networkFirst(request, cacheName, fallback) {
   const cache = await caches.open(cacheName);
+  const key = request.mode === "navigate" ? pageKey(new URL(request.url)) : request;
   try {
     const response = await fetch(request);
-    if (response.ok && response.type === "basic") await cache.put(request, response.clone());
+    if (key && response.ok && response.type === "basic") await cache.put(key, response.clone());
     return response;
   } catch (error) {
-    const kept = await cache.match(request, { ignoreSearch: request.mode === "navigate" });
+    const kept = key && (await cache.match(key));
     if (kept) return kept;
     if (fallback) {
       const page = await cache.match(fallback);

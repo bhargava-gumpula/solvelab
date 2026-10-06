@@ -19,12 +19,33 @@ const mime = {
 
 function cacheControl(filePath) {
   if (!cache) return "no-store";
-  const rel = filePath.slice(root.length).replaceAll("\\", "/");
-  if (rel.startsWith("/_next/static/") || rel.startsWith("/vendor/cubing/chunks/")) {
-    return "public, max-age=31536000, immutable";
-  }
-  if (rel.endsWith(".html")) return "public, max-age=60, must-revalidate";
+  if (filePath.endsWith(".html")) return "public, max-age=60, must-revalidate";
   return "public, max-age=3600";
+}
+
+/**
+ * The headers Cloudflare Pages adds from `_headers` (copied from public/), so a
+ * local run gets the live site's CSP and caching. Supports what that file
+ * uses: path patterns with `*` splats, each followed by indented `Name: value`.
+ */
+async function headersFor(pathname) {
+  const text = await readFile(resolve(root, "_headers"), "utf8").catch(() => "");
+  const headers = {};
+  let matches = false;
+  for (const line of text.split("\n")) {
+    if (!line.trim() || line.trim().startsWith("#")) continue;
+    if (!/^\s/.test(line)) {
+      const pattern = line
+        .trim()
+        .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+        .replaceAll("*", ".*");
+      matches = new RegExp(`^${pattern}$`).test(pathname);
+    } else if (matches) {
+      const colon = line.indexOf(":");
+      headers[line.slice(0, colon).trim()] = line.slice(colon + 1).trim();
+    }
+  }
+  return headers;
 }
 
 const server = createServer(async (request, response) => {
@@ -33,11 +54,10 @@ const server = createServer(async (request, response) => {
     return;
   }
   let path;
+  let pathname;
   try {
-    path = resolve(
-      root,
-      `.${decodeURIComponent(new URL(request.url, "http://localhost").pathname)}`,
-    );
+    pathname = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
+    path = resolve(root, `.${pathname}`);
   } catch {
     response.writeHead(400).end("Bad request");
     return;
@@ -46,17 +66,24 @@ const server = createServer(async (request, response) => {
     response.writeHead(403).end();
     return;
   }
+  const live = await headersFor(pathname);
   try {
     if ((await stat(path)).isDirectory()) path = resolve(path, "index.html");
     const body = await readFile(path);
     response.writeHead(200, {
-      "Content-Type": mime[extname(path)] ?? "application/octet-stream",
       "Cache-Control": cacheControl(path),
+      ...live,
+      "Content-Type": mime[extname(path)] ?? "application/octet-stream",
       "X-Content-Type-Options": "nosniff",
     });
     response.end(request.method === "HEAD" ? undefined : body);
   } catch {
-    response.writeHead(404, { "Content-Type": "text/html; charset=utf-8" });
+    // Cloudflare Pages sends a 404 with no-store even where _headers sets a long cache.
+    response.writeHead(404, {
+      ...live,
+      "Cache-Control": "no-store",
+      "Content-Type": "text/html; charset=utf-8",
+    });
     const body = await readFile(resolve(root, "404.html")).catch(
       () => "Not found. Run npm run build first.",
     );
