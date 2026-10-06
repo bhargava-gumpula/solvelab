@@ -3502,7 +3502,7 @@ dependencies = [
 
 [[package]]
 name = "solvelab"
-version = "0.1.0"
+version = "6.0.0"
 dependencies = [
  "objc2-foundation",
  "objc2-web-kit",

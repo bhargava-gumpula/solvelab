@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { milestones } from "@/data/milestones";
 import { skills } from "@/data/skills";
@@ -30,6 +31,11 @@ describe("domain configuration integrity", () => {
   });
   it("ships 6.0.0 with every surface turned on", () => {
     expect(brand.version).toBe("6.0.0");
+    // The web app and the Mac app ship as one release.
+    const read = (path: string) => readFileSync(new URL(`../../${path}`, import.meta.url), "utf8");
+    expect(JSON.parse(read("package.json")).version).toBe("6.0.0");
+    expect(JSON.parse(read("src-tauri/tauri.conf.json")).version).toBe("6.0.0");
+    expect(read("src-tauri/Cargo.toml")).toMatch(/^version = "6\.0\.0"$/m);
     expect(features.train).toBe(true);
     expect(features.learn).toBe(true);
     expect(features.algorithms).toBe(true);
