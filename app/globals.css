@@ -776,9 +776,9 @@ html.dark .text-muted-foreground {
 }
 
 /*
- * Page transitions (components/fx/page-transition.tsx): the old page lifts
- * away, the new one rises into place with a short blur. Header and dock stay
- * anchored. Never used for timer state changes.
+ * Page switches are instant: no page-level view transition, so two pages can
+ * never show together (WebKit overlapped them). View transitions remain only
+ * for the theme reveal and the cover morphs; the root snapshot never animates.
  */
 ::view-transition {
   pointer-events: none;
@@ -787,18 +787,6 @@ html.dark .text-muted-foreground {
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
-}
-
-/* One page at a time. The old page fades out in 60 ms; the new one starts at 70 ms
-   (its delay is longer than the exit, never shorter), so the two are never
-   visible together. Do not shorten the delay or cross-fade: a delay shorter than
-   the exit put the old timer and the new page on screen together for a frame. */
-::view-transition-old(.studio-page) {
-  animation: studio-page-out 60ms cubic-bezier(0.4, 0, 1, 1) both;
-}
-
-::view-transition-new(.studio-page) {
-  animation: studio-page-in 260ms var(--ease-out-expo) 70ms both;
 }
 
 /* The chrome stays put above both pages: the paper band behind the header
@@ -855,20 +843,6 @@ html[data-theme-reveal]::view-transition-new(root) {
   }
   to {
     clip-path: circle(var(--reveal-r, 150vmax) at var(--reveal-x, 50%) var(--reveal-y, 0));
-  }
-}
-
-@keyframes studio-page-out {
-  to {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-}
-
-@keyframes studio-page-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
   }
 }
 

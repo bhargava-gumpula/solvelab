@@ -1,42 +1,44 @@
 import { expect, test } from "./fixtures";
 
-// Scrubs the route transition's animations to every 4 ms and reads the old and new page opacities:
-// the old page must be gone before the new one shows, and the whole switch must stay short.
-test("switching pages never shows the old and the new page together", async ({ page }) => {
-  await page.goto("/timer/");
-  await page.waitForTimeout(500);
-  await page.evaluate(() => {
-    const w = window as unknown as { __rows?: { t: number; old: number; new: number }[] };
-    const pseudo = (a: Animation) => (a.effect as KeyframeEffect | null)?.pseudoElement ?? "";
-    const tick = (): void => {
-      const anims = document
-        .getAnimations()
-        .filter((a) => /^::view-transition-(old|new)\(_t_/.test(pseudo(a)));
-      if (!anims.length) {
+// Page switches are instant: from the first frame the new route is the pathname, the old page's
+// content is gone and no page view transition (which could keep the old snapshot on screen) runs.
+for (const [link, path] of [
+  ["Learning Hub", "/hub/"],
+  ["Settings", "/settings/"],
+] as const) {
+  test(`switching to ${link} never shows the old and the new page together`, async ({ page }) => {
+    await page.goto("/timer/");
+    await expect(page.getByTestId("timer-display")).toBeVisible();
+    await page.evaluate((target) => {
+      const w = window as unknown as { __bad?: string[]; __frames?: number };
+      w.__bad = [];
+      w.__frames = 0;
+      const tick = (): void => {
+        w.__frames! += 1;
+        const vt = document
+          .getAnimations()
+          .some((a) =>
+            ((a.effect as KeyframeEffect | null)?.pseudoElement ?? "").startsWith(
+              "::view-transition",
+            ),
+          );
+        const onNew = location.pathname.startsWith(target);
+        const oldVisible = !!document.querySelector('[data-testid="timer-display"]');
+        if (vt) w.__bad!.push("view transition running");
+        if (onNew && oldVisible) w.__bad!.push("old page content still in the DOM");
         requestAnimationFrame(tick);
-        return;
-      }
-      anims.forEach((a) => a.pause());
-      const rows: { t: number; old: number; new: number }[] = [];
-      for (let t = 0; t <= 700; t += 4) {
-        const row = { t, old: 0, new: 0 };
-        anims.forEach((a) => (a.currentTime = t));
-        for (const a of anims) {
-          const side = /^::view-transition-(old|new)/.exec(pseudo(a))![1] as "old" | "new";
-          row[side] = +getComputedStyle(document.documentElement, pseudo(a)).opacity;
-        }
-        rows.push(row);
-      }
-      w.__rows = rows;
-      anims.forEach((a) => a.play());
-    };
-    requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, path);
+    await page.getByRole("link", { name: link }).first().click();
+    await expect(page).toHaveURL(new RegExp(path));
+    await expect(page.getByTestId("timer-display")).toHaveCount(0);
+    await page.waitForTimeout(700);
+    const res = await page.evaluate(() => {
+      const w = window as unknown as { __bad: string[]; __frames: number };
+      return { bad: w.__bad, frames: w.__frames };
+    });
+    expect(res.frames).toBeGreaterThan(10);
+    expect(res.bad).toEqual([]);
   });
-  await page.getByRole("link", { name: "Learning Hub" }).first().click();
-  await page.waitForFunction(() => (window as unknown as { __rows?: unknown }).__rows);
-  const rows = await page.evaluate(
-    () => (window as unknown as { __rows: { t: number; old: number; new: number }[] }).__rows,
-  );
-  expect(rows.filter((r) => r.old > 0.02 && r.new > 0.02)).toEqual([]);
-  expect(rows.find((r) => r.new > 0.99)!.t).toBeLessThan(400);
-});
+}

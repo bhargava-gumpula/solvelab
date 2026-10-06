@@ -31,7 +31,6 @@ import { cn } from "@/lib/utils";
 import { revealTheme } from "@/components/appearance/theme-reveal";
 import { LegalLinks } from "@/components/legal/legal-links";
 import { LensFilter } from "@/components/fx/liquid-glass";
-import { PageTransition } from "@/components/fx/page-transition";
 import { BrandMark } from "./brand-mark";
 import { CommandPalette } from "./command-palette";
 import { NavPill } from "./nav-pill";
@@ -260,14 +259,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
       >
         <StorageAlert />
-        <PageTransition>
+        <div>
           {children}
           {hideLegal ? null : (
             <div data-focus-hide>
               <LegalLinks className="mt-12" />
             </div>
           )}
-        </PageTransition>
+        </div>
       </main>
 
       {/* Phones: the page fades out above the floating nav, so nothing ever sits under it. */}
