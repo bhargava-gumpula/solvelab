@@ -205,6 +205,22 @@ describe("mergeAccountSnapshots", () => {
     expect(merged.tombstones).toEqual([]);
   });
 
+  it("keeps a recreated Main when every other session was deleted too", () => {
+    // Two devices each deleted the other's last session; this browser then made a fresh Main.
+    const tombstones: Tombstone[] = [
+      { kind: "session", id: "main", deletedAt: "2026-02-01T00:00:00.000Z" },
+      { kind: "session", id: "oh", deletedAt: "2026-02-01T00:00:00.000Z" },
+    ];
+    const cloud = snapshot({}, { tombstones });
+    const fresh = snapshot(
+      { sessions: [session("main", { createdAt: "2026-10-05T07:00:00.000Z" })] },
+      { settings: settings("main") },
+    );
+    const merged = mergeAccountSnapshots(fresh, cloud);
+    expect(merged.records.sessions.map((item) => item.id)).toEqual(["main"]);
+    expect(merged.tombstones.map((item) => item.id)).toEqual(["oh"]);
+  });
+
   it("keeps locally edited timer settings instead of an older account copy", () => {
     const local = snapshot(
       { sessions: [session("main")] },

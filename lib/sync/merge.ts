@@ -129,16 +129,21 @@ export function mergeAccountSnapshots(
       lastSolveAt.set(solve.sessionId, solve.createdAt);
     }
   }
-  records.sessions = mergeSessions(local.records.sessions, cloud.records.sessions).filter(
-    (session) => {
-      const tomb = tombstoneFor("sessions", session);
-      return (
-        !tomb ||
-        (session.updatedAt ?? "") > tomb.deletedAt ||
-        (lastSolveAt.get(session.id) ?? "") > tomb.deletedAt
-      );
-    },
+  const sessions = mergeSessions(local.records.sessions, cloud.records.sessions);
+  const deletedBefore = (session: Session, stamp: string) => {
+    const tomb = tombstoneFor("sessions", session);
+    return !tomb || stamp > tomb.deletedAt;
+  };
+  records.sessions = sessions.filter(
+    (session) =>
+      deletedBefore(session, session.updatedAt ?? "") ||
+      deletedBefore(session, lastSolveAt.get(session.id) ?? ""),
   );
+  // Two devices that each deleted the other's last session would leave none, and
+  // the default Main a browser then recreates would be deleted on every sync.
+  if (records.sessions.length === 0) {
+    records.sessions = sessions.filter((session) => deletedBefore(session, recordStamp(session)));
+  }
   // A solve cannot outlive its session.
   const sessionIds = new Set(records.sessions.map((session) => session.id));
   records.solves = records.solves.filter((solve) => sessionIds.has(solve.sessionId));
