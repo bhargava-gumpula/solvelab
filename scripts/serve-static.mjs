@@ -78,7 +78,12 @@ const server = createServer(async (request, response) => {
     });
     response.end(request.method === "HEAD" ? undefined : body);
   } catch {
-    response.writeHead(404, { ...live, "Content-Type": "text/html; charset=utf-8" });
+    // Cloudflare Pages sends a 404 with no-store even where _headers sets a long cache.
+    response.writeHead(404, {
+      ...live,
+      "Cache-Control": "no-store",
+      "Content-Type": "text/html; charset=utf-8",
+    });
     const body = await readFile(resolve(root, "404.html")).catch(
       () => "Not found. Run npm run build first.",
     );

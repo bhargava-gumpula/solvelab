@@ -21,6 +21,11 @@ test.describe("response headers", () => {
     );
     const cached = await page.request.get(chunk);
     expect(cached.headers()["cache-control"]).toBe("public, max-age=31536000, immutable");
+
+    // As on Cloudflare Pages: a missing build file is never cached.
+    const missing = await page.request.get("/_next/static/chunks/missing-0000.js");
+    expect(missing.status()).toBe(404);
+    expect(missing.headers()["cache-control"]).toBe("no-store");
   });
 
   test("another site can't frame the app", async ({ page, context }) => {
