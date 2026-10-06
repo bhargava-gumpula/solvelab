@@ -167,6 +167,60 @@ describe("mergeAccountSnapshots", () => {
     expect(merged.records.solves).toHaveLength(1);
   });
 
+  it("keeps a deleted Main deleted when a wiped browser recreates it", () => {
+    const deleted: Tombstone = {
+      kind: "session",
+      id: "main",
+      deletedAt: "2026-02-01T00:00:00.000Z",
+    };
+    const cloud = snapshot(
+      { sessions: [session("oh")] },
+      { settings: settings("oh"), tombstones: [deleted] },
+    );
+    // What initializeStorage makes after a sign-out wiped this browser.
+    const fresh = snapshot(
+      { sessions: [session("main", { name: "Main", createdAt: "2026-10-05T07:00:00.000Z" })] },
+      { settings: settings("main") },
+    );
+    const merged = mergeAccountSnapshots(fresh, cloud);
+    expect(merged.records.sessions.map((item) => item.id)).toEqual(["oh"]);
+    expect(merged.tombstones).toEqual([deleted]);
+    expect(merged.settings?.activeSessionId).toBe("oh");
+  });
+
+  it("keeps a recreated Main with the solves timed in it after the delete", () => {
+    const deleted: Tombstone = {
+      kind: "session",
+      id: "main",
+      deletedAt: "2026-02-01T00:00:00.000Z",
+    };
+    const cloud = snapshot({ sessions: [session("oh")] }, { tombstones: [deleted] });
+    const fresh = snapshot({
+      sessions: [session("main", { createdAt: "2026-10-05T07:00:00.000Z" })],
+      solves: [solve("new", "main", { createdAt: "2026-10-05T07:05:00.000Z" })],
+    });
+    const merged = mergeAccountSnapshots(fresh, cloud);
+    expect(merged.records.sessions.map((item) => item.id).sort()).toEqual(["main", "oh"]);
+    expect(merged.records.solves.map((item) => item.id)).toEqual(["new"]);
+    expect(merged.tombstones).toEqual([]);
+  });
+
+  it("keeps a recreated Main when every other session was deleted too", () => {
+    // Two devices each deleted the other's last session; this browser then made a fresh Main.
+    const tombstones: Tombstone[] = [
+      { kind: "session", id: "main", deletedAt: "2026-02-01T00:00:00.000Z" },
+      { kind: "session", id: "oh", deletedAt: "2026-02-01T00:00:00.000Z" },
+    ];
+    const cloud = snapshot({}, { tombstones });
+    const fresh = snapshot(
+      { sessions: [session("main", { createdAt: "2026-10-05T07:00:00.000Z" })] },
+      { settings: settings("main") },
+    );
+    const merged = mergeAccountSnapshots(fresh, cloud);
+    expect(merged.records.sessions.map((item) => item.id)).toEqual(["main"]);
+    expect(merged.tombstones.map((item) => item.id)).toEqual(["oh"]);
+  });
+
   it("keeps locally edited timer settings instead of an older account copy", () => {
     const local = snapshot(
       { sessions: [session("main")] },

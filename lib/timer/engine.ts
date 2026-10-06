@@ -94,7 +94,8 @@ export function transition(state: TimerState, event: TimerEvent, config: TimerCo
           holdOrigin: null,
         };
       }
-      return state;
+      // A hardware timer reset: nothing is held down any more.
+      return state.awaitingRelease ? { ...state, awaitingRelease: false } : state;
 
     case "press":
       if (state.awaitingRelease) return state;
@@ -162,7 +163,8 @@ function stop(
     ...state,
     phase: "stopped",
     stoppedAt: at,
-    awaitingRelease: true,
+    // A hardware timer that reports its own time never sends a release for its stop.
+    awaitingRelease: hardwareTimeMs === undefined,
     result: {
       // Prefer the timer's own display time so the UI matches the hardware exactly.
       rawTimeMs:

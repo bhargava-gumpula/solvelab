@@ -99,11 +99,13 @@ export function TimerTile({
           data-testid="timer-surface"
           aria-label={label}
           role="application"
+          // A tab stop, so keyboard users can come back to the timer after using a control.
+          tabIndex={0}
           className={cn(
             "flex touch-none items-center select-none [-webkit-touch-callout:none]",
             focused
-              ? "fixed inset-0 z-[60] justify-center"
-              : "relative min-w-0 flex-1 justify-center py-3",
+              ? "fixed inset-0 z-[60] justify-center outline-none"
+              : "relative min-w-0 flex-1 justify-center rounded-2xl py-3 focus-visible:-outline-offset-2",
           )}
         >
           <motion.div

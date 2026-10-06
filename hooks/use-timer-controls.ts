@@ -120,6 +120,17 @@ export function useTimerControls(
       store.dispatch({ type: "release", at: eventTimestamp(event) });
     };
 
+    // The browser or OS took the touch (an edge swipe, a call); nobody let go,
+    // so a held, armed timer must not start. Let go as switching windows does.
+    const onSurfaceCancel = (event: PointerEvent) => {
+      if (deviceControls) return;
+      if (!isTouchInput(event) || !event.isPrimary) return;
+      const state = store.getState();
+      if (state.phase === "ready") store.dispatch({ type: "cancel" });
+      else if (state.awaitingRelease)
+        store.dispatch({ type: "release", at: eventTimestamp(event) });
+    };
+
     const onWindowPointerDown = (event: PointerEvent) => {
       if (!isTouchInput(event) || store.getState().phase !== "running") return;
       event.preventDefault();
@@ -141,7 +152,7 @@ export function useTimerControls(
     window.addEventListener("pointerup", onWindowPointerUp, { capture: true });
     surface?.addEventListener("pointerdown", onSurfaceDown);
     surface?.addEventListener("pointerup", onSurfaceUp);
-    surface?.addEventListener("pointercancel", onSurfaceUp);
+    surface?.addEventListener("pointercancel", onSurfaceCancel);
     surface?.addEventListener("contextmenu", preventContextMenu);
 
     return () => {
@@ -152,7 +163,7 @@ export function useTimerControls(
       window.removeEventListener("pointerup", onWindowPointerUp, { capture: true });
       surface?.removeEventListener("pointerdown", onSurfaceDown);
       surface?.removeEventListener("pointerup", onSurfaceUp);
-      surface?.removeEventListener("pointercancel", onSurfaceUp);
+      surface?.removeEventListener("pointercancel", onSurfaceCancel);
       surface?.removeEventListener("contextmenu", preventContextMenu);
       // The timer can be switched off between the press that stopped it and
       // that key's release (a page loading its next scramble, say). With the

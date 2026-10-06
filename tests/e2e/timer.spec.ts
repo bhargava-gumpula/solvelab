@@ -185,6 +185,21 @@ test.describe("daily timer", () => {
     await expect(display(page)).toHaveAttribute("data-tone", "idle");
   });
 
+  test("keyboard users can tab back to the timer surface and start with Space", async ({
+    page,
+  }) => {
+    await openTimer(page);
+    await page.getByRole("button", { name: "New scramble" }).focus();
+    const surfaceFocused = () =>
+      page.evaluate(() => document.activeElement?.getAttribute("data-testid") === "timer-surface");
+    for (let step = 0; step < 30 && !(await surfaceFocused()); step++) {
+      await page.keyboard.press("Tab");
+    }
+    expect(await surfaceFocused()).toBe(true);
+    await keyboardSolve(page, 300);
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+  });
+
   test("deletes a solve with undo", async ({ page }) => {
     await openTimer(page);
     await keyboardSolve(page, 300);

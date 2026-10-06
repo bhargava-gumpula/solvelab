@@ -123,6 +123,23 @@ describe("timer state machine", () => {
     expect(stopped.result?.rawTimeMs).toBe(12_345);
   });
 
+  it("does not wait for a release after a hardware-timed stop (a device never sends one)", () => {
+    const instant = { inspectionMs: 0, holdToStartMs: 0 };
+    const running = run([press(0), release(1)], instant);
+    const stopped = transition(running, { type: "press", at: 9_000, solveTimeMs: 8_765 }, instant);
+    expect(stopped.awaitingRelease).toBe(false);
+    expect(transition(stopped, press(20_000), instant).phase).toBe("ready");
+  });
+
+  it("lets a device reset end the wait for the stopping press's release", () => {
+    const instant = { inspectionMs: 0, holdToStartMs: 0 };
+    // A timer that reports no time of its own, then resets without a release.
+    const stopped = run([press(0), release(1), press(9_000), { type: "cancel" }], instant);
+    expect(stopped.phase).toBe("stopped");
+    expect(stopped.awaitingRelease).toBe(false);
+    expect(transition(stopped, press(20_000), instant).phase).toBe("ready");
+  });
+
   it("rebases a running clock to match the hardware digits", () => {
     const instant = { inspectionMs: 0, holdToStartMs: 0 };
     const running = run([press(0), release(1)], instant);
