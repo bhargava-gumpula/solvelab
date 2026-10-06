@@ -1,6 +1,6 @@
-# Handoff (updated 2026-10-04, Claude Code)
+# Handoff (updated 2026-10-05, Claude Code)
 
-> **5.1 (2026-10-04): the account service is Supabase.** Merged into `main` and tagged `v5.1.0`; the Cloudflare Pages deploy (§14 B5) waits for the owner, and until it is out the deployed 5.0 site still talks to the now read-only Firebase (sign-in works, new times don't sync). Project ref `lvmipahpadikgftmsjak`, region us-west-1, free tier (kept awake by `.github/workflows/keep-alive.yml`). `.env.local` now carries the two Supabase lines above the Firebase ones, so `npm run build` makes the Supabase build. Firebase (`solvelab-1bb6e`) is frozen read-only (`firestore.readonly.rules`) for 30 days, then retired (Google provider off, Firestore data deleted; the project can stay). Rollback inside the 30 days: `docs/SUPABASE_MIGRATION.md` §14 C. Mentions of Firestore below describe the Firebase build, which still works when the Supabase lines are removed.
+> **5.1 (2026-10-04): the account service is Supabase.** Merged into `main` and tagged `v5.1.0`; deployed to Cloudflare Pages on 2026-10-04. **5.1.1 (2026-10-05, dev log 198–199)**, the timer fixes, is the live production deployment (`086e20ec`; the 5.1 one, `03433c63`, is kept for rollback); tag `v5.1.1`. Project ref `lvmipahpadikgftmsjak`, region us-west-1, free tier (kept awake by `.github/workflows/keep-alive.yml`). `.env.local` now carries the two Supabase lines above the Firebase ones, so `npm run build` makes the Supabase build. Firebase (`solvelab-1bb6e`) is frozen read-only (`firestore.readonly.rules`) for 30 days, then retired (Google provider off, Firestore data deleted; the project can stay). Rollback inside the 30 days: `docs/SUPABASE_MIGRATION.md` §14 C. Mentions of Firestore below describe the Firebase build, which still works when the Supabase lines are removed.
 
 Everything a new agent needs to continue SolveLab without the previous chat. Read this first, then `AGENTS.md`, [OVERVIEW.md](OVERVIEW.md) (product summary and plan) and [NEXT_STEPS.md](NEXT_STEPS.md) (the detailed next phases).
 
@@ -28,14 +28,14 @@ A local-first Rubik's Cube timer that will grow into a speedcubing coach: timer 
 
 The checkout is `~/Projects/solvelab` on the owner's current Mac, outside iCloud (the earlier `~/Documents` checkout is not on this machine). Remote: `github.com/bhargava-gumpula/solvelab` (private).
 
-| Branch           | Contents                                                                                    | On GitHub? |
-| ---------------- | ------------------------------------------------------------------------------------------- | ---------- |
-| `main`           | 5.1 release (accounts on Supabase); tag `v5.1.0` (5.0 is `v5.0.0`)                          | Yes        |
-| `supabase`       | The Supabase move (dev log 192–195); merged into `main` for 5.1                             | Yes        |
-| `release-5`      | The 5.0 release branch (v7 UI merged with the content work)                                 | Yes        |
-| `learning-hub`   | The content and trainer work before the UI merge (dev log 144–189); merged into `release-5` | Yes        |
-| `ui-overhaul`    | Older working branch; equal to `main` at 4.1                                                | Yes        |
-| `v1-daily-timer` | V1 daily timer; fully merged into `main`                                                    | Yes        |
+| Branch           | Contents                                                                                          | On GitHub? |
+| ---------------- | ------------------------------------------------------------------------------------------------- | ---------- |
+| `main`           | 5.1.1 hotfix on the 5.1 release (accounts on Supabase); tags `v5.1.1`, `v5.1.0` (5.0 is `v5.0.0`) | Yes        |
+| `supabase`       | The Supabase move (dev log 192–195); merged into `main` for 5.1                                   | Yes        |
+| `release-5`      | The 5.0 release branch (v7 UI merged with the content work)                                       | Yes        |
+| `learning-hub`   | The content and trainer work before the UI merge (dev log 144–189); merged into `release-5`       | Yes        |
+| `ui-overhaul`    | Older working branch; equal to `main` at 4.1                                                      | Yes        |
+| `v1-daily-timer` | V1 daily timer; fully merged into `main`                                                          | Yes        |
 
 Work after 5.0 branches from `main`; releases fast-forward `main` after the owner approves. The UI drafts (v1–v7) live outside the repo in `~/Projects/solvelab-ui-drafts`; v7 is the design that shipped, and nothing there is needed any more.
 
