@@ -641,6 +641,35 @@ html.dark .studio-grain {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  1.1 0 0 0 -0.55'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
 }
 
+/* No hardware WebGL2: the swirl tints drift instead. Transform only, so the
+   compositor runs it off the main thread; paused inline while a solve is held or timed.
+   steps(): a software compositor redraws the screen a few times a second, not 60
+   (page frame rate with --disable-gpu: ~20 fps smooth, ~48 fps stepped); each step
+   moves a soft tint ~2px. */
+@media (prefers-reduced-motion: no-preference) {
+  .backdrop-drift {
+    animation: backdrop-drift 48s steps(64) infinite;
+  }
+
+  .backdrop-drift + .backdrop-drift {
+    animation-duration: 58s;
+    animation-direction: reverse;
+  }
+}
+
+@keyframes backdrop-drift {
+  0%,
+  100% {
+    transform: none;
+  }
+  33% {
+    transform: translate(6%, -4%) rotate(5deg) scale(1.08);
+  }
+  66% {
+    transform: translate(-5%, 5%) rotate(-4deg) scale(1.04);
+  }
+}
+
 /* Calm behind the scramble: a soft pool of the backdrop colour so the moves read on the swirl (no panel). */
 .scramble-calm {
   position: relative;
