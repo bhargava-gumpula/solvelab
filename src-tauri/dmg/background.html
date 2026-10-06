@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@500;600&family=Instrument+Serif&display=block" rel="stylesheet">
+<style>
+  /* Linen theme tokens from app/globals.css. Renders to background.png / background@2x.png (see render.mjs). */
+  :root{--bg:#f2eee6;--fg:#17150f;--muted:#6b665c;--primary:#2a44e8;--accent2:#f0531c}
+  html,body{margin:0}
+  body{width:660px;height:400px;position:relative;overflow:hidden;background:var(--bg);
+    background-image:radial-gradient(rgb(23 21 15/.09) 1px,transparent 1.2px);background-size:16px 16px;
+    font-family:"Instrument Sans",system-ui,sans-serif;color:var(--fg)}
+  h1{position:absolute;left:0;right:0;top:26px;margin:0;text-align:center;font:400 34px "Instrument Serif",serif;letter-spacing:-.01em}
+  .sub{position:absolute;left:0;right:0;bottom:68px;text-align:center;font-weight:500;font-size:15px;color:var(--muted)}
+  .sub b{color:var(--primary);font-weight:600}
+  svg{position:absolute;inset:0}
+</style>
+<h1>SolveLab</h1>
+<svg width="660" height="400" viewBox="0 0 660 400" fill="none">
+  <!-- slots behind the icons (app 180,170; Applications 480,170) -->
+  <rect x="116" y="106" width="128" height="128" rx="30" fill="#fffdf9" fill-opacity=".7" stroke="#17150f" stroke-opacity=".09"/>
+  <rect x="416" y="106" width="128" height="128" rx="30" fill="#fffdf9" fill-opacity=".7" stroke="#17150f" stroke-opacity=".09"/>
+  <!-- cube motif -->
+  <g stroke="#17150f" stroke-opacity=".12" stroke-width="1.5" stroke-linejoin="round" transform="translate(596 296)">
+    <path d="M0-26 22-13V13L0 26-22 13V-13Z"/><path d="M0 0V26M0 0-22-13M0 0 22-13"/>
+  </g>
+  <!-- curved arrow -->
+  <defs><marker id="h" markerWidth="8" markerHeight="8" refX="5" refY="4" orient="auto" markerUnits="strokeWidth">
+    <path d="M1 1 6 4 1 7" stroke="#2a44e8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+  <path d="M262 160C300 105 360 105 398 158" stroke="#2a44e8" stroke-width="4.5" stroke-linecap="round" marker-end="url(#h)"/>
+</svg>
+<div class="sub">Drag <b>SolveLab</b> to Applications</div>
