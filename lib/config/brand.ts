@@ -6,6 +6,6 @@ export const brand = {
   name: "SolveLab",
   tagline: "Don't just time your solves. Find out what's slowing you down.",
   shortTagline: "See what's slow. Then get faster.",
-  version: "5.1",
+  version: "5.1.1",
   versionLabel: "The Learning Hub",
 } as const;

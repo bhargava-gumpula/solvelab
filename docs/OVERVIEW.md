@@ -70,12 +70,14 @@ Next.js 16 static export (webpack), React 19, TypeScript (strict), Tailwind 4, s
 | 4.1     | Training packs, the road from two minutes to sub-10, Train and Learn on (phase 5)             | Live     |
 | 5.0     | The Learning Hub, measured completion, the algorithm trainer, ZBLL, your own AI, the new look | Live     |
 | 5.1     | Accounts, sync and training data on Supabase (Firebase read-only for 30 days, then retired)   | Released |
+| 5.1.1   | Timer fixes: a quick Space after a new scramble, Space after the session menu, preview label  | Released |
 | 5.2     | More content, deeper at the fast end; several Hub layouts compared                            | Planned  |
 
 The conversational coach built in phase 3 is parked: the owner preferred the guided page, and the conversation returns when there is a real AI behind it in 4.2. Everything is broken down in [NEXT_STEPS.md](NEXT_STEPS.md).
 
 ## Release history
 
+- **5.1.1 — Timer fixes.** A Space press the moment a new scramble appears is no longer lost; after New session or Manage sessions, Space goes to the timer instead of the session menu; screen readers announce the scramble preview.
 - **5.1 — Accounts on Supabase.** Accounts, synced times and coach training data moved from Firebase to Supabase (Postgres with row-level security); every saved solve came across and Google sign-in works as before.
 - **5.0 — The Learning Hub.** Courses from Learn to solve to Sub-10 with measured completion, the algorithm trainer, ZBLL and the extra algorithms, your own AI, and the Studio look with five themes.
 - **4.1 — Training packs.** Fifteen teaching packs, the two-minutes-to-sub-10 road, Train and Learn on.

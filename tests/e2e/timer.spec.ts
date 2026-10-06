@@ -356,6 +356,20 @@ test.describe("sessions", () => {
     await expect(page.getByRole("button", { name: "Current session" })).toContainText("Main");
   });
 
+  test("Space reaches the timer after the Sessions dialog closes", async ({ page }) => {
+    await openTimer(page);
+    await page.getByRole("button", { name: "Current session" }).click();
+    await page.getByRole("menuitem", { name: "Manage sessions" }).click();
+    const dialog = page.getByRole("dialog", { name: "Sessions" });
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    // The menu must not hand focus back to its trigger, or Space opens the menu.
+    await expect(page.getByRole("button", { name: "Current session" })).not.toBeFocused();
+    await keyboardSolve(page, 300);
+    await expect(page.getByTestId("solve-count")).toHaveText("1/1");
+  });
+
   test("renames, archives and deletes sessions from the manager", async ({ page }) => {
     await openTimer(page);
     await page.getByRole("button", { name: "Current session" }).click();

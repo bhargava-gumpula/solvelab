@@ -1,5 +1,22 @@
 # Validation report
 
+## Hotfix 5.1.1, timer fixes (dev log 198, branch `hotfix-5.1.1`)
+
+Run on 2026-10-05 on the Supabase build (`.env.local` as on `main`): static export, headless
+Chromium, one Playwright worker on port 4451, account services blocked at the network, no dev
+server running.
+
+| Check           | Command                                         | Result                                           |
+| --------------- | ----------------------------------------------- | ------------------------------------------------ |
+| Full validation | `npm run validate`                              | Pass (1,043 unit tests, 80 files, 417 pages)     |
+| End-to-end      | `E2E_PORT=4451 npx playwright test --workers=1` | 103 passed, 2 timed out; both re-run alone: pass |
+
+Three other worktrees were running e2e suites at the same time. The first full run (load average
+30–120) had 64 tests fail, all on the 30 s test timeout; `--last-failed` re-runs passed them
+all (43, then the last 21). The clean full run above was at a load average of about 17; its two
+timeouts (`hub.spec.ts`, `phase3-courses.spec.ts`) passed 18/18 when those files were re-run alone.
+No failure other than a timeout was seen.
+
 ## Failing and flaky e2e tests (dev log 197, branch `fix-e2e-tests`, awaiting review)
 
 Run on 2026-10-04 on the Supabase build (`.env.local` as on `main`): static export, headless
