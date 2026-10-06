@@ -1,6 +1,15 @@
 /** Shipped and planned work shown on the Overview page and in docs. */
 export const shipped = [
   {
+    version: "5.1.1",
+    title: "Timer fixes",
+    items: [
+      "A Space press the moment a new scramble appears starts the timer; it could be lost before",
+      "After New session or Manage sessions, Space goes to the timer instead of reopening the session menu (seen in Safari)",
+      "Screen readers announce the scramble preview beside the scramble",
+    ],
+  },
+  {
     version: "5.1",
     title: "Accounts on Supabase",
     items: [
@@ -95,7 +104,7 @@ export const shipped = [
 
 export const planned = [
   {
-    version: "5.1",
+    version: "5.2",
     title: "More content, deeper at the fast end",
     items: [
       "More packs and drills for sub-15 and sub-10 solvers, and cases for other methods",
