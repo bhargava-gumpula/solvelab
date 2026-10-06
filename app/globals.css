@@ -789,13 +789,16 @@ html.dark .text-muted-foreground {
   animation: none;
 }
 
-/* The old page is gone before the new one rises, so they never double-expose. */
+/* One page at a time. The old page fades out in 60 ms; the new one starts at 70 ms
+   (its delay is longer than the exit, never shorter), so the two are never
+   visible together. Do not shorten the delay or cross-fade: a delay shorter than
+   the exit put the old timer and the new page on screen together for a frame. */
 ::view-transition-old(.studio-page) {
-  animation: studio-page-out 140ms cubic-bezier(0.4, 0, 1, 1) both;
+  animation: studio-page-out 60ms cubic-bezier(0.4, 0, 1, 1) both;
 }
 
 ::view-transition-new(.studio-page) {
-  animation: studio-page-in 420ms var(--ease-out-expo) 120ms both;
+  animation: studio-page-in 260ms var(--ease-out-expo) 70ms both;
 }
 
 /* The chrome stays put above both pages: the paper band behind the header
@@ -858,7 +861,7 @@ html[data-theme-reveal]::view-transition-new(root) {
 @keyframes studio-page-out {
   to {
     opacity: 0;
-    transform: translateY(-6px);
+    transform: translateY(-4px);
   }
 }
 
