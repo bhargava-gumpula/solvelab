@@ -66,10 +66,10 @@ Shortcut: `node scripts/release/set-pubkey.mjs "$(cat ~/.tauri/solvelab-updater.
    git push origin app-v6.0.0
    ```
 3. **Approve the build.** Actions → "Mac app release" → the run for your tag. After `pages` finishes, `release` shows "Waiting for review": **Review deployments** → tick `release` → **Approve and deploy**. It takes about 10–20 minutes.
-4. **Check the draft.** The run must be green with no warning about the update being "signed with a different key" (that means the `release` secret and `plugins.updater.pubkey` are from different key pairs: delete the draft and fix it, or installed apps could never update again). Releases → "SolveLab for Mac 6.0.0" (Draft) should have the `.dmg`, the `.app.tar.gz`, its `.sig` and `latest.json`.
+4. **Check the draft.** The run must be green with no warning about the update being "signed with a different key" (that means the `release` secret and `plugins.updater.pubkey` are from different key pairs: delete the draft and fix it, or installed apps could never update again). Releases → "SolveLab for Mac 6.0.0" (Draft) should have the `.dmg`, the same file as `SolveLab-Mac.dmg` (the website's download link), the `.app.tar.gz`, its `.sig` and `latest.json`.
 5. **Second-Mac check** (plan 5.1). On a second Mac, signed in to GitHub (drafts are only visible to you), download the `.dmg` in a browser and follow `docs/HOW_TO_OPEN_MAC_APP.md` step by step: install, the first-open steps, sign in with Google, time a solve with Space.
 6. **Publish.** Edit the draft → leave **Set as the latest release** ticked → **Publish release**. From then on the download works for everyone and installed apps offer the update the next time they open.
-7. **Website, same day.** Point the "Get the Mac app" download link (`MAC_APP.downloadUrl` in `lib/config/mac-app.ts`) at `https://github.com/bhargava-gumpula/solvelab/releases/latest` and deploy the website as in `docs/HANDOFF.md` §8.
+7. **Website, same day.** The "Get the Mac app" download link (`MAC_APP.downloadUrl` in `lib/config/mac-app.ts`) is already `https://github.com/bhargava-gumpula/solvelab/releases/latest/download/SolveLab-Mac.dmg`: check it downloads, then deploy the website as in `docs/HANDOFF.md` §8.
 
 A manual run (Actions → Mac app release → **Run workflow**), even one started on a tag, only builds the pages, as a check; it never touches the secrets or a release.
 

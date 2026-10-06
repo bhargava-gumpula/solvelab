@@ -123,6 +123,16 @@ jobs:
           releaseDraft: true
           prerelease: false
           uploadUpdaterJson: true
+      # The website's download link is releases/latest/download/SolveLab-Mac.dmg (lib/config/mac-app.ts);
+      # tauri-action names the .dmg SolveLab_<version>_aarch64.dmg, so add a copy under the fixed name.
+      - name: Add the .dmg under the website's download name
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ARTIFACTS: ${{ steps.tauri.outputs.artifactPaths }}
+        run: |
+          dmg=$(node -e 'const p = JSON.parse(process.env.ARTIFACTS).find((f) => f.endsWith(".dmg")); if (!p) process.exit(1); console.log(p)') || { echo "::error::No .dmg was built."; exit 1; }
+          cp "$dmg" "$RUNNER_TEMP/SolveLab-Mac.dmg"
+          gh release upload "$GITHUB_REF_NAME" "$RUNNER_TEMP/SolveLab-Mac.dmg" --clobber --repo "$GITHUB_REPOSITORY"
       # The app refuses updates whose signature doesn't name the version latest.json announces
       # (requireSignedVersion), and only trusts plugins.updater.pubkey. Catch both before publishing.
       - name: Check the update's signature
