@@ -31,6 +31,20 @@ export function supabaseSessionKey(ref: string): string {
   return `sb-${ref}-auth-token`;
 }
 
+/** Removes this project's stored session, and its PKCE verifier, from this browser. */
+export function forgetSupabaseSession(): void {
+  const ref = getSupabaseConfig()?.ref;
+  if (!ref) return;
+  const prefix = supabaseSessionKey(ref);
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(prefix)) localStorage.removeItem(key);
+    }
+  } catch {
+    // Storage blocked: nothing was stored.
+  }
+}
+
 /** Used by unit tests. */
 export function resetSupabaseClientForTests(next: SupabaseClient | null | undefined): void {
   client = next;

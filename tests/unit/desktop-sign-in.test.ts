@@ -230,7 +230,8 @@ describe("finishing a sign-in from the link", () => {
   });
 
   it("moves the shares and retries through the browser when the Google account is taken", async () => {
-    const auth = client();
+    const auth = client({ user: { is_anonymous: true } });
+    sessionStorage.setItem("solvelab.auth.returnStarted", "link");
     const link = `solvelab://auth/callback?flow=${started()}&error_code=identity_already_exists&error_description=x`;
     expect(await completeSupabaseReturnFromUrl(link)).toEqual({ status: "retrying" });
     expect(withdraw).toHaveBeenCalledOnce();
@@ -251,8 +252,25 @@ describe("finishing a sign-in from the link", () => {
     expect(withdraw).toHaveBeenCalledOnce();
   });
 
+  it("never takes the fallback for a plain sign-in or a signed-in session", async () => {
+    for (const [marker, anonymous] of [
+      ["signIn", true],
+      ["link", false],
+      [null, true],
+    ] as const) {
+      const auth = client({ user: { is_anonymous: anonymous } });
+      if (marker) sessionStorage.setItem("solvelab.auth.returnStarted", marker);
+      const link = `solvelab://auth/callback?flow=${started()}&error_code=identity_already_exists`;
+      expect(await completeSupabaseReturnFromUrl(link)).toEqual({ status: "failed" });
+      expect(auth.signOut).not.toHaveBeenCalled();
+      expect(sessionStorage.getItem("solvelab.auth.returnStarted")).toBeNull();
+    }
+    expect(withdraw).not.toHaveBeenCalled();
+  });
+
   it("says so, and doesn't throw, when the retry can't open the browser", async () => {
-    const auth = client();
+    const auth = client({ user: { is_anonymous: true } });
+    sessionStorage.setItem("solvelab.auth.returnStarted", "link");
     vi.spyOn(console, "error").mockImplementation(() => undefined);
     openUrl.mockRejectedValueOnce("not allowed");
     const link = `solvelab://auth/callback?flow=${started()}&error_code=identity_already_exists`;
