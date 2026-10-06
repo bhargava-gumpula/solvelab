@@ -86,7 +86,6 @@ const backup = {
       activeSessionId: "main",
       method: "cfop",
       targetMilestone: "sub12",
-      trainingNoticeSeen: true,
       holdToStartMs: 300,
       hideTimeWhileRunning: false,
       inspectionAudioCues: false,

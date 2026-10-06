@@ -127,7 +127,7 @@ export async function importCoreTests(
         };
       }),
   });
-  Object.assign(backup.data.settings, { targetMilestone: "sub20", trainingNoticeSeen: true });
+  Object.assign(backup.data.settings, { targetMilestone: "sub20" });
   await page.goto("/settings/");
   await expect(page.getByText("Local database ready")).toBeVisible();
   await page.getByTestId("backup-file-input").setInputFiles({

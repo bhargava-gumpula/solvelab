@@ -8,7 +8,7 @@ export type SharingChange = { ok: true; needsSignIn: boolean } | { ok: false };
  * also deletes what was shared; if that fails (offline), it is retried later.
  */
 export async function setTrainingDataSharing(on: boolean): Promise<SharingChange> {
-  await getRepositories().settings.update({ contributeTrainingData: on, trainingNoticeSeen: true });
+  await getRepositories().settings.update({ shareTrainingData: on });
   if (on) {
     void contributePendingRuns();
     return { ok: true, needsSignIn: false };

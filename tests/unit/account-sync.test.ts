@@ -63,8 +63,7 @@ function settings(activeSessionId: string): UserSettings {
     activeExerciseId: null,
     panelOffsets: {},
     view: DEFAULT_VIEW,
-    contributeTrainingData: true,
-    trainingNoticeSeen: false,
+    shareTrainingData: false,
     dailyCheckReminder: false,
   };
 }

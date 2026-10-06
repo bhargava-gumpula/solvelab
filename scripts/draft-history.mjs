@@ -112,7 +112,6 @@ export function makeBackup() {
         bluetoothTimerBrand: "auto",
         activeExerciseId: null,
         panelOffsets: {},
-        trainingNoticeSeen: true,
         hubIntro: {
           average: "12-15",
           slowParts: ["pauses"],

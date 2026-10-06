@@ -17,7 +17,6 @@ import { CoachAvatar } from "@/components/coach/coach-avatar";
 import { PaceBadge } from "@/components/coach/pace-badge";
 import { DailyCheckButton } from "@/components/tests/daily-check-card";
 import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
-import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import {
   Accordion,
   AccordionContent,
@@ -105,7 +104,6 @@ export function CoachThreadView() {
 
   return (
     <div className="mx-auto grid max-w-3xl gap-4">
-      <TrainingDataNotice />
       {/* Keyed by conversation: starting over begins a new one, typed out again. */}
       <Conversation
         key={thread?.id ?? "empty"}

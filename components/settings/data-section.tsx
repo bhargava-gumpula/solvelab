@@ -254,9 +254,11 @@ function CoachTrainingToggle() {
           Help improve the coach
         </Label>
         <p className="mt-0.5 text-sm text-muted-foreground">
-          Share your finished test results to train SolveLab’s coach: attempt times, which test,
-          your goal and the day. Never your name, email, notes, scrambles or timer solves. Turning
-          this off deletes what you’ve shared.{" "}
+          Off unless you turn it on. Shares your finished skill tests to train SolveLab’s coach: the
+          attempt times, which test and whether it used inspection, your goal, the day, the app
+          version, and a summary of your timer solves (how many, their average and how much they
+          vary). Never your name, email, notes, scrambles or individual solves. Turning this off
+          deletes what you’ve shared.{" "}
           <Link href="/privacy/#coach-training" className="underline underline-offset-4">
             Details
           </Link>
@@ -265,7 +267,7 @@ function CoachTrainingToggle() {
       <div className="pt-0.5">
         <Switch
           id="coach-training"
-          checked={settings.contributeTrainingData}
+          checked={settings.shareTrainingData}
           disabled={busy}
           onCheckedChange={(on) => void change(on)}
         />

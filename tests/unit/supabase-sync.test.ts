@@ -44,8 +44,7 @@ function settings(): UserSettings {
     activeExerciseId: null,
     panelOffsets: {},
     view: DEFAULT_VIEW,
-    contributeTrainingData: true,
-    trainingNoticeSeen: false,
+    shareTrainingData: false,
     dailyCheckReminder: false,
     updatedAt: "2026-10-01T00:00:00.000Z",
   } as UserSettings;

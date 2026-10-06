@@ -87,17 +87,17 @@ export default function PrivacyPage() {
         How your solve data is used
       </h2>
       <p>
-        Your solve data is used for two things only: saving and syncing your own times (above), and
-        training {brand.name}’s coach AI so it gets better at spotting what slows cubers down. It is
-        never sold, never used for ads, and never shared with anyone else.
+        Your solve data is used for two things only: saving and syncing your own times (above), and,
+        only if you turn it on, training {brand.name}’s coach AI so it gets better at spotting what
+        slows cubers down. It is never sold, never used for ads, and never shared with anyone else.
       </p>
       <ul>
         <li>
-          <strong className="text-foreground">What is shared for training.</strong> When you finish
-          a skill test (for example the cross or OLL test), the app shares that test’s attempt
-          times, which test it was, whether it used inspection, the goal you picked, the calendar
-          day (not the time of day), the app version, and a summary of your normal timer solves (how
-          many, their average, and how much they vary).
+          <strong className="text-foreground">What is shared for training.</strong> With sharing on,
+          when you finish a skill test (for example the cross or OLL test), the app shares that
+          test’s attempt times, which test it was, whether it used inspection, the goal you picked,
+          the calendar day (not the time of day), the app version, and a summary of your normal
+          timer solves (how many, their average, and how much they vary).
         </li>
         <li>
           <strong className="text-foreground">What is never shared for training.</strong> Your name,
@@ -111,12 +111,17 @@ export default function PrivacyPage() {
           updates.
         </li>
         <li>
-          <strong className="text-foreground">On by default, off anytime.</strong> Sharing starts
-          when you finish your first test. Turn off <em>Help improve the coach</em> in Settings →
-          Your data to stop it; turning it off also deletes from our database everything this
-          browser or your account shared. A coach already trained on your results keeps what it
-          learned, but not the results themselves. Results are otherwise kept until you turn sharing
-          off or email us to delete them.
+          <strong className="text-foreground">Off unless you turn it on.</strong> Nothing is shared
+          until you turn on <em>Help improve the coach</em> in Settings → Your data. Turn it off to
+          stop sharing; turning it off also deletes from our database everything this browser or
+          your account shared. A coach already trained on your results keeps what it learned, but
+          not the results themselves. Results are otherwise kept until you turn sharing off or email
+          us to delete them.
+        </li>
+        <li>
+          <strong className="text-foreground">Results shared before version 6.0</strong> (October
+          2026), when sharing was on by default, are kept like any others. To delete them, turn{" "}
+          <em>Help improve the coach</em> on and then off, or email us.
         </li>
         {SUPABASE ? (
           <li>
@@ -230,8 +235,8 @@ export default function PrivacyPage() {
       <p>
         {brand.name} is a training tool, not a service directed at children under 13, and we do not
         knowingly collect personal information from them. Do not create a Google sign-in for{" "}
-        {brand.name} if you are under 13. A parent or guardian can turn off{" "}
-        <em>Help improve the coach</em> in Settings, or email us to delete anything a child shared.
+        {brand.name} if you are under 13. Sharing results for coach training is off unless someone
+        turns it on; a parent or guardian can email us to delete anything a child shared.
       </p>
 
       <h2>Changes</h2>

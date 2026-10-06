@@ -7,7 +7,6 @@ import { PaceBadge } from "@/components/coach/pace-badge";
 import { PageHeading } from "@/components/layout/page-heading";
 import { DailyCheckCard } from "@/components/tests/daily-check-card";
 import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
-import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import {
   Accordion,
   AccordionContent,
@@ -82,7 +81,6 @@ export function SolveProfileView() {
     <>
       {heading}
       <div className="grid grid-cols-[minmax(0,1fr)] gap-5" data-pace-filter={pace ?? undefined}>
-        <TrainingDataNotice />
         {goal ? (
           <NextStep
             profile={profile}

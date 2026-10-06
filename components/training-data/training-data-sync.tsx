@@ -18,7 +18,7 @@ import {
 export function TrainingDataSync() {
   const ready = useStorageStatus().status === "ready";
   const settings = useSettings();
-  const sharing = settings?.contributeTrainingData;
+  const sharing = settings?.shareTrainingData;
   // A key that changes whenever a run needs sharing.
   const pendingKey = useLiveQuery(async () => {
     if (!ready) return "";

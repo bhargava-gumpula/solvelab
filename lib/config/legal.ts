@@ -8,7 +8,7 @@ export const legal = {
   privacyPath: "/privacy/",
   termsPath: "/terms/",
   overviewPath: "/overview/",
-  effectiveDate: "September 19, 2026",
+  effectiveDate: "October 5, 2026",
 } as const;
 
 export const legalLinks = [

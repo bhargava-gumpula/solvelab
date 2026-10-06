@@ -31,10 +31,10 @@ export default function TermsPage() {
         Settings → Data.
       </p>
       <p>
-        Finished skill test results are also used to train {brand.name}’s coach, and for nothing
-        else. This is on by default and does not include your name, email, notes or scrambles. You
-        can turn it off at any time in Settings → Your data, which deletes what you shared. The
-        Privacy Policy lists exactly what is shared.
+        If you turn on <em>Help improve the coach</em> in Settings → Your data, finished skill test
+        results are also used to train {brand.name}’s coach, and for nothing else. It is off unless
+        you turn it on and does not include your name, email, notes or scrambles. Turning it off
+        deletes what you shared. The Privacy Policy lists exactly what is shared.
       </p>
 
       <h2 id="mac-app" className="scroll-mt-24">

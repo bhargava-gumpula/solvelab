@@ -103,8 +103,7 @@ export const DEFAULT_SETTINGS: UserSettings = {
   activeExerciseId: null,
   panelOffsets: {},
   view: DEFAULT_VIEW,
-  contributeTrainingData: true,
-  trainingNoticeSeen: false,
+  shareTrainingData: false,
   dailyCheckReminder: false,
 };
 
@@ -141,8 +140,7 @@ export const settingsSchema = z.object({
   // Unusable appearance is dropped rather than failing the whole record.
   appearance: z.unknown().transform(sanitizeAppearance),
   view: viewSchema.default(DEFAULT_VIEW),
-  contributeTrainingData: z.boolean().catch(true).default(true),
-  trainingNoticeSeen: z.boolean().catch(false).default(false),
+  shareTrainingData: z.boolean().catch(false).default(false),
   dailyCheckReminder: z.boolean().catch(false).default(false),
   hubIntro: hubIntroSchema,
   updatedAt: isoDate.optional(),

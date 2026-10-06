@@ -215,7 +215,7 @@ async function contributeOnce(): Promise<void> {
   for (const run of runs) {
     // Re-read each time so turning sharing off stops the queue at once.
     const settings = await repos.settings.get();
-    if (!settings.contributeTrainingData || withdrawPending()) return;
+    if (!settings.shareTrainingData || withdrawPending()) return;
     const payload = buildContributionPayload({ run, settings, solves, appVersion: APP_VERSION });
     if (!payload) continue;
     try {

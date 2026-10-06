@@ -12,7 +12,6 @@ import { AspectCard } from "@/components/tests/aspect-card";
 import { AttemptList } from "@/components/tests/attempt-list";
 import { DAILY_HREF } from "@/components/tests/daily-check-card";
 import { TestTimerCard } from "@/components/tests/test-timer-card";
-import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import { getExercise, isTestId, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { aspectTargetsFor, testGoal } from "@/data/milestones/aspect-targets";
@@ -181,7 +180,6 @@ function TestSessionBody({
         count={times.length}
         resumed={resumed && times.length > 0}
       />
-      <TrainingDataNotice />
       <TestTimerCard
         test={test}
         settings={settings}

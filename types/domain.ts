@@ -96,10 +96,12 @@ export interface UserSettings {
    */
   appearance?: AppearancePreferences;
   view: ViewPreferences;
-  /** Share practice test times (no identity) to train the coach. On unless turned off. */
-  contributeTrainingData: boolean;
-  /** The one-time notice about sharing practice data has been dismissed. */
-  trainingNoticeSeen: boolean;
+  /**
+   * Share finished skill-test results (no identity) to train the coach. Off
+   * unless turned on (6.0). A new key, so the opt-out era's
+   * `contributeTrainingData: true` default never carries over.
+   */
+  shareTrainingData: boolean;
   /** Mark Coach in the menu until today's daily check is done. Off unless turned on. */
   dailyCheckReminder: boolean;
   /** Answers from the Learning Hub's first questionnaire. Absent until it's answered. */

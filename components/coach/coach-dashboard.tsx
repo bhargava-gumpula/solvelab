@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AspectCard } from "@/components/tests/aspect-card";
 import { GoalChips, GoalSelect } from "@/components/tests/goal-picker";
 import { DailyCheckButton } from "@/components/tests/daily-check-card";
-import { TrainingDataNotice } from "@/components/tests/training-data-notice";
 import { getExercise, testHref, testTitle } from "@/data/exercises";
 import { milestones } from "@/data/milestones";
 import { useSolveProfile } from "@/hooks/use-solve-profile";
@@ -71,7 +70,6 @@ export function CoachDashboard() {
 
   return (
     <div className="grid gap-5">
-      <TrainingDataNotice />
       <CoachMessage>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-muted-foreground">
