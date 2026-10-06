@@ -17,9 +17,12 @@ test.describe("the AI coach page on the website", () => {
     await expect(main).toContainText("Apple silicon");
     await expect(main).toContainText("macOS 14");
     await expect(main).toContainText("Ollama");
-    // No download exists yet, so it says so rather than offering a dead button.
-    await expect(page.getByTestId("mac-coming")).toContainText("Coming with 6.0");
-    await expect(page.getByTestId("mac-download")).toHaveCount(0);
+    // 6.0 ships the app: the button is the newest release's .dmg.
+    await expect(page.getByTestId("mac-download")).toHaveAttribute(
+      "href",
+      "https://github.com/bhargava-gumpula/solvelab/releases/latest/download/SolveLab-Mac.dmg",
+    );
+    await expect(page.getByTestId("mac-coming")).toHaveCount(0);
     // The chat, keys and hand-off links are gone from the website.
     await expect(page.getByTestId("ai-input")).toHaveCount(0);
     await expect(page.getByTestId("api-key-setup")).toHaveCount(0);
